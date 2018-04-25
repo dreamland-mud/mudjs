@@ -1,24 +1,38 @@
 
-//var ws = new WebSocket("ws://dreamland.rocks:8888/dreamland", ['binary']),
-var ws = new WebSocket("wss://dreamland.rocks/dreamland", ['binary']),
-    terminal = $('#terminal');
+var ws, terminal = $('#terminal');
 
-process('Connecting....\n');
+function connect() {
+    ws = new WebSocket("wss://dreamland.rocks/dreamland", ['binary']);
+    //ws = new WebSocket("ws://192.168.0.226:1234/dreamland", ['binary']);
 
-ws.binaryType = 'arraybuffer';
-ws.onmessage = function(e) {
-    var b = new Uint8Array(e.data);
-    b = String.fromCharCode.apply(null, b);
-    b = decodeURIComponent(escape(b));
-    process(b);
+    ws.binaryType = 'arraybuffer';
+    ws.onmessage = function(e) {
+        var b = new Uint8Array(e.data);
+        b = String.fromCharCode.apply(null, b);
+        b = decodeURIComponent(escape(b));
+        process(b);
+    }
+    ws.onopen = function(e) {
+        ws.send('7\r');
+    }
+    ws.onclose = function(e) {
+        process('\u001b[1;31m#################### DISCONNECTED ####################\n');
+        $('#reconnect').show();
+        $('#input input').hide();
+        ws = null;
+    }
+
+    process('Connecting....\n');
+    $('#reconnect').hide();
+    $('#input input').show();
 }
-ws.onopen = function(e) {
-    ws.send('7\r');
-}
-ws.onclose = function(e) {
-    process('\u001b[1;31m#################### DISCONNECTED ####################\n');
-    process('Please reload the page\n');
-}
+
+connect();
+
+$('#reconnect').click(function(e) {
+    e.preventDefault();
+    connect();
+});
 
 var input_history = [], position = 0;
 
@@ -94,7 +108,7 @@ function process_ansi(start, params, cmd) {
             break;
         case 'J':
             txt = '';
-            terminal.empty();
+            //terminal.empty();
             break;
         case 'H':
             console.log('move cursor');
