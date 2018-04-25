@@ -36,7 +36,17 @@ $('#reconnect').click(function(e) {
 
 var input_history = [], position = 0;
 
+$('body').on('keydown', function() {
+    var input = $('#input input');
+
+    if(!input.is(':focus')) {
+        input.focus();
+    }
+});
+
 $('#input input').keydown(function(e) {
+    e.stopPropagation();
+
     switch(e.which) {
         case 38: // up
             if(position > 0) {
@@ -170,8 +180,7 @@ function process(b) {
     }
     if(txt) {
         terminal.append(txt);
-        var inp = $('#input input');
-        inp.focus();
+        $('#input input').focus();
         $('#terminal-wrap').animate({ scrollTop: $('#terminal').height() }, 50);
     }
 }
