@@ -1,0 +1,52 @@
+
+html, body{
+    height:100%;
+    margin:0;
+    padding:0;
+}
+
+#page {
+    min-height: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#terminal-wrap {
+    overflow-y: auto;
+}
+
+#terminal {
+    font-family: Courier, monospace;
+    background-color: #2e3436;
+    color: #d3d7cf;
+}
+
+#input input {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: Courier, monospace;
+}
+
+/* dark: */
+.fg-ansi-dark-color-0 { color: #2e3436; }
+.fg-ansi-dark-color-1 { color: #cc0000; }
+.fg-ansi-dark-color-2 { color: #4e9a06; }
+.fg-ansi-dark-color-3 { color: #c4a000; }
+.fg-ansi-dark-color-4 { color: #3465a4; }
+.fg-ansi-dark-color-5 { color: #75507b; }
+.fg-ansi-dark-color-6 { color: #06989a; }
+.fg-ansi-dark-color-7 { color: #d3d7cf; }
+/* bright: */
+.fg-ansi-bright-color-0 { color: #555753; }
+.fg-ansi-bright-color-1 { color: #ef2929; }
+.fg-ansi-bright-color-2 { color: #8ae234; }
+.fg-ansi-bright-color-3 { color: #fce94f; }
+.fg-ansi-bright-color-4 { color: #729fcf; }
+.fg-ansi-bright-color-5 { color: #ad7fa8; }
+.fg-ansi-bright-color-6 { color: #34e2e2; }
+.fg-ansi-bright-color-7 { color: #eeeeec; }
+
+.fg-ansi-bold {
+    font-weight: bold;
+}
