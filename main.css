@@ -20,6 +20,7 @@ html, body{
 
 #terminal {
     font-family: Courier, monospace;
+    font-size: 1.3em;
     background-color: #2e3436;
     color: #d3d7cf;
 }
@@ -28,6 +29,7 @@ html, body{
     width: 100%;
     box-sizing: border-box;
     font-family: Courier, monospace;
+    font-size: 1.3em;
 }
 
 /* dark: */
