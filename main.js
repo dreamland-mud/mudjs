@@ -44,19 +44,20 @@ $('body').on('keydown', function() {
     }
 });
 
+function scrollPage(dir) {
+    var wrap = $('#terminal-wrap');
+    wrap.scrollTop(wrap.scrollTop() + wrap.height()*dir);
+}
+
 $('#input input').keydown(function(e) {
     e.stopPropagation();
 
     switch(e.which) {
         case 33: // page up
-            $('#terminal-wrap').animate({ 
-                scrollTop: $('#terminal-wrap').scrollTop() - $('#terminal-wrap').height()*0.8
-            }, 50);
+            scrollPage(-0.8);
             break;
         case 34: // page down
-            $('#terminal-wrap').animate({ 
-                scrollTop: $('#terminal-wrap').scrollTop() + $('#terminal-wrap').height()*0.8
-            }, 50);
+            scrollPage(0.8);
             break;
             /*
         case 36: // home
