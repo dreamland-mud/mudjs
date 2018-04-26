@@ -48,6 +48,28 @@ $('#input input').keydown(function(e) {
     e.stopPropagation();
 
     switch(e.which) {
+        case 33: // page up
+            $('#terminal-wrap').animate({ 
+                scrollTop: $('#terminal-wrap').scrollTop() - $('#terminal-wrap').height()*0.8
+            }, 50);
+            break;
+        case 34: // page down
+            $('#terminal-wrap').animate({ 
+                scrollTop: $('#terminal-wrap').scrollTop() + $('#terminal-wrap').height()*0.8
+            }, 50);
+            break;
+            /*
+        case 36: // home
+            $('#terminal-wrap').animate({ 
+                scrollTop: 0
+            }, 50);
+            break;
+        case 35: // end
+            $('#terminal-wrap').animate({ 
+                scrollTop: $('#terminal').height()
+            }, 50);
+            break;
+            */
         case 38: // up
             if(position > 0) {
                 var v = input_history[--position];
