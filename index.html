@@ -38,7 +38,22 @@ $('.trigger').on('input', function(e, text) {
         console.log('alias test');
     }
 });
-            </div>
+
+
+// Пример хоткеев
+$('.trigger').on('keydown', function(e) {
+    switch(e.which) {
+        case 27: // esc
+            e.preventDefault();
+            $('#input input').val(''); // очистить поле воода
+            break;
+        case 112: // F1
+            e.preventDefault();
+            send('say hi');
+            break;
+    }
+});
+</div>
             <button id="settings-hide-button">Save</button>
         </div>
         <div id="triggers">
