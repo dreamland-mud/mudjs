@@ -52,6 +52,16 @@ $(document).ready(function() {
     terminal.on('output', function process(e, b) {
         actual_class = '';
         txt = '';
+        function addText(t) {
+            if(desired_class != actual_class) {
+                if(txt) {
+                    txt += '</span>';
+                }
+                txt += '<span class="' + desired_class + '">';
+                actual_class = desired_class;
+            }
+            txt += t;
+        }
         for(i in b) {
             if(ansi) {
                 ansi += b[i];
@@ -65,41 +75,34 @@ $(document).ready(function() {
 
                 switch(c) {
                     case 0xa:
-                        txt += '<br/>\n';
+                        addText('\n');
                         x = 0;
                         break;
                     case 0x9:
-                        while((++x % 8) != 0) {
-                            txt += '&nbsp;';
-                        }
-                        break;
-                    case 0x20:
-                        txt += '&nbsp;';
-                        x++;
+                        while((++x % 8) != 0)
+                            addText(' ');
                         break;
                     case 0x1b:
                         ansi += b[i];
                         break;
+                    case 0x3c: // <
+                        addText('&lt;');
+                        x++;
+                        break;
+                    case 0x3e: // >
+                        addText('&gt;');
+                        x++;
+                        break;
                     default:
-                        if(c > 0x20) {
-                            if(desired_class != actual_class) {
-                                if(txt) {
-                                    txt += '</span>';
-                                }
-                                txt += '<span class="' + desired_class + '">';
-                                actual_class = desired_class;
-                            }
-                            if(b[i] == '<') {
-                                txt += '&lt';
-                            } else {
-                                txt += b[i];
-                            }
+                        if(c >= 0x20) {
+                            addText(b[i]);
                             x++;
                         }
                 }
             }
         }
         if(txt) {
+            txt += '</span>';
             var lines = $(txt).appendTo(terminal).text().replace(/\xa0/g, ' ').split('\n');
             $(lines).each(function() {
                 $('.trigger').trigger('text', [''+this]);
