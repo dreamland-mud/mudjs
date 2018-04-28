@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js"></script>
         <link rel="stylesheet" type="text/css" href="main.css"></link>
     </head>
     <body>
@@ -15,6 +16,34 @@
                 <input type="text"></input>
             </form>
         </div>
+        <button id="settings-button">Settings</button>
+        <div id="settings-panel">
+            <div id="editor">
+// Пример тригера
+$('.trigger').on('text', function(e, text) {
+    if(text.match('^Ты умираешь от голода')) {
+        console.log('triggered!');
+// раскоментируй следующую строку чтоб пить из бочонка
+//        send('dr barr');
+    }
+});
+
+// Пример алиаса
+$('.trigger').on('input', function(e, text) {
+    if(text.match('^/test')) {
+// команда обработана локально - не отправлять на сервер!
+        e.stopPropagation(); 
+        console.log('alias test');
+    }
+});
+            </div>
+            <button id="settings-hide-button">Save</button>
+        </div>
+        <div id="triggers">
+            <div class="trigger"></div>
+        </div>
+        <script src="terminal.js"></script>
         <script src="main.js"></script>
+        <script src="settings.js"></script>
     </body>
 </html>
