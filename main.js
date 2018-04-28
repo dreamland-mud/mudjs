@@ -50,17 +50,20 @@ $(document).ready(function() {
         position = input_history.length,
         current_cmd = $('#input input').val();
 
-    $('body').on('keydown', function() {
+    $('body').on('keydown', function(e) {
         var input = $('#input input');
 
         // dont autofocus if something in the panel is in focus
-        if($('#settings-panel :focus').length != 0) {
+        if($('#settings-panel :focus').length != 0)
             return;
-        }
 
-        if(!input.is(':focus')) {
-            input.focus();
-        }
+        if(e.ctrlKey || e.altKey)
+            return;
+
+        if(input.is(':focus'))
+            return;
+
+        input.focus();
     });
 
     function scrollPage(dir) {
