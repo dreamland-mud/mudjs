@@ -14,8 +14,8 @@ $(document).ready(function() {
     }
 
     function connect() {
-        //ws = new WebSocket("wss://dreamland.rocks/dreamland", ['binary']);
-        ws = new WebSocket("ws://127.0.0.1:1234/dreamland", ['binary']);
+        ws = new WebSocket("wss://dreamland.rocks/dreamland", ['binary']);
+        //ws = new WebSocket("ws://127.0.0.1:1234/dreamland", ['binary']);
 
         ws.binaryType = 'arraybuffer';
         ws.onmessage = function(e) {
