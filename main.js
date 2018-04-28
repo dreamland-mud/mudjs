@@ -106,6 +106,7 @@ $(document).ready(function() {
                 }
                 break;
             default:
+                $('.trigger').trigger($.Event('keydown', { which: e.which }));
                 return;
         }
 
