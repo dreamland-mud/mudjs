@@ -103,11 +103,16 @@ $(document).ready(function() {
         }
         if(txt) {
             txt += '</span>';
+            var atBottom = $('#terminal-wrap').scrollTop() > ($('#terminal').height() - $('#terminal-wrap').height() - 10);
             var lines = $(txt).appendTo(terminal).text().replace(/\xa0/g, ' ').split('\n');
             $(lines).each(function() {
                 $('.trigger').trigger('text', [''+this]);
             });
-            $('#terminal-wrap').animate({ scrollTop: $('#terminal').height() }, 50);
+
+            // only autoscroll if near the bottom of the page
+            if(atBottom) {
+                $('#terminal-wrap').scrollTop($('#terminal').height());
+            }
         }
     });
 });
