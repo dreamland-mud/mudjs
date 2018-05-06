@@ -29,7 +29,7 @@ $(document).ready(function() {
             if(contentsHash !== localStorage.defaultsHash) {
                 console.log(contentsHash + ', ' + localStorage.defaultsHash);
                 // has user ever edited settings?
-                if(settingsHash !== localStorage.defaultsHash) {
+                if(localStorage.defaultsHash && settingsHash !== localStorage.defaultsHash) {
                     console.log(settingsHash + ': ' + localStorage.defaultsHash);
                     if(confirm('Настройки по умолчанию изменились. Перезаписать собственные настройки настройками по умолчанию?')) {
                         localStorage.settings = contents;
