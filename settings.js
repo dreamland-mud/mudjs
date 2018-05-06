@@ -3,7 +3,7 @@ $(document).ready(function() {
     function hashCode(s) {
         var hash = 0, i, chr;
 
-        if (s.length === 0) return hash;
+        if (!s) return hash;
 
         for (i = 0; i < s.length; i++) {
             chr   = s.charCodeAt(i);
