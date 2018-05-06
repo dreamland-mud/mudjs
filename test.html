@@ -23,49 +23,7 @@
         </div>
         <button id="settings-button">Settings</button>
         <div id="settings-panel">
-            <div id="editor">
-// Пример тригера
-$('.trigger').on('text', function(e, text) {
-    if(text.match('^Ты умираешь от голода')) {
-        console.log('triggered!');
-// раскоментируй следующую строку чтоб пить из бочонка
-//        send('dr barr');
-    }
-    
-    if(
-        text.match('^\\[ic\\] ') ||
-        text.match('^\\[ooc\\] ') ||
-        text.match(' говорит тебе \'.*\'$') ||
-        text.match('\\[Flower Children\\] .*: ')
-        ) {
-        notify(text);
-    }
-});
-
-// Пример алиаса
-$('.trigger').on('input', function(e, text) {
-    if(text.match('^/test')) {
-// команда обработана локально - не отправлять на сервер!
-        e.stopPropagation(); 
-        console.log('alias test');
-    }
-});
-
-
-// Пример хоткеев
-$('.trigger').on('keydown', function(e) {
-    switch(e.which) {
-        case 27: // esc
-            e.preventDefault();
-            $('#input input').val(''); // очистить поле воода
-            break;
-        case 112: // F1
-            e.preventDefault();
-            send('say hi');
-            break;
-    }
-});
-</div>
+            <div id="editor"></div>
             <button id="settings-hide-button">Save</button>
         </div>
         <div id="triggers">
