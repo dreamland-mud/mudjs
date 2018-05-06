@@ -28,7 +28,7 @@ $(document).ready(function() {
         }
 
         send = function(text) {
-            ws.send(text + '\r');
+            ws.send(text + '\n');
         }
 
         process('Connecting....\n');

@@ -1,4 +1,6 @@
 
+var echo = function() {};
+
 $(document).ready(function() {
     var terminal = $('#terminal');
     var txt = '';
@@ -49,7 +51,7 @@ $(document).ready(function() {
         }
     }
 
-    terminal.on('output', function process(e, b) {
+    echo = function(b) {
         actual_class = '';
         txt = '';
         function addText(t) {
@@ -114,5 +116,8 @@ $(document).ready(function() {
                 $('#terminal-wrap').scrollTop($('#terminal').height());
             }
         }
+    };
+    terminal.on('output', function process(e, b) {
+        echo(b);
     });
 });
