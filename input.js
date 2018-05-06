@@ -29,15 +29,28 @@ $(document).ready(function() {
                         if(position == input_history.length)
                             current_cmd = $('#input input').val();
 
-                        var v = input_history[--position];
-                        $('#input input').val(v);
+                        for(var i=position-1;i >= 0;i--) {
+                            if(input_history[i].indexOf(current_cmd) >= 0) {
+                                var v = input_history[(position=i)];
+                                $('#input input').val(v);
+                                return;
+                            }
+                        }
                     }
                     return;
                 case 40: // down
                     e.preventDefault();
                     if(position < input_history.length) {
-                        position++;
-                        $('#input input').val(position == input_history.length ? current_cmd : input_history[position]);
+                        var i;
+                        for(i=position+1;i < input_history.length;i++) {
+                            if(input_history[i].indexOf(current_cmd) >= 0) {
+                                var v = input_history[(position=i)];
+                                $('#input input').val(v);
+                                return;
+                            }
+                        }
+                        position=i;
+                        $('#input input').val(current_cmd);
                     }
                     return;
             }
