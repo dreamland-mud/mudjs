@@ -52,7 +52,7 @@ html, body{
 }
 
 #terminal {
-    font-family: Courier, monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 1.3em;
     background-color: #2e3436;
     color: #d3d7cf;
@@ -62,7 +62,7 @@ html, body{
 #input input {
     width: 100%;
     box-sizing: border-box;
-    font-family: Courier, monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 1.3em;
 }
 
