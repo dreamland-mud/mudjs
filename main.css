@@ -86,5 +86,5 @@ html, body{
 .fg-ansi-bright-color-7 { color: #eeeeec; }
 
 .fg-ansi-bold {
-    font-weight: bold;
+/*    font-weight: bold; */
 }
