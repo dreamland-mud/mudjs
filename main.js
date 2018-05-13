@@ -3,9 +3,11 @@ var msgs = [];
 var send = function() {}, notify = function() {};
 
 $(document).ready(function() {
+    var telnet = new Telnet();
+
     var handlers = {
         'console-out': function(b) {
-            process(b);
+            telnet.process(b);
         },
         'notify': function(b) {
             notify(b);
@@ -30,6 +32,10 @@ $(document).ready(function() {
     function process(s) {
         $('#terminal').trigger('output', [s]);
         $('#input input').focus();
+    }
+
+    telnet.handleRaw = function(s) {
+        process(s);
     }
 
     function connect() {
