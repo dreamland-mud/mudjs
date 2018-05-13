@@ -1,7 +1,32 @@
 
+var msgs = [];
 var send = function() {}, notify = function() {};
 
 $(document).ready(function() {
+    var handlers = {
+        'console-out': function(b) {
+            process(b);
+        },
+        'notify': function(b) {
+            notify(b);
+        },
+        'alert': function(b) {
+            alert(b);
+        },
+        'prompt': function(b) {
+            $('#stats').show();
+            
+            function stat($node, value, max) {
+                $node.find('.fill').css({ width: (100*value/max) + '%' });
+                $node.find('.value').text(value + ' / ' + max);
+            }
+
+            stat($('#stats .hit'), b.hit, b.max_hit);
+            stat($('#stats .mana'), b.mana, b.max_mana);
+            stat($('#stats .move'), b.move, b.max_move);
+        }
+    };
+
     function process(s) {
         $('#terminal').trigger('output', [s]);
         $('#input input').focus();
@@ -15,10 +40,12 @@ $(document).ready(function() {
             var b = new Uint8Array(e.data);
             b = String.fromCharCode.apply(null, b);
             b = decodeURIComponent(escape(b));
-            process(b);
+            b = JSON.parse(b);
+            msgs.push(b);
+            handlers[b.command].apply(handlers, b.args);
         }
         ws.onopen = function(e) {
-            send('7');
+            send('1'); // use internal encoding (koi8). All WebSocket IO is converted to/from UTF8 at the transport layer.
         }
         ws.onclose = function(e) {
             process('\u001b[1;31m#################### DISCONNECTED ####################\n');
@@ -28,7 +55,10 @@ $(document).ready(function() {
         }
 
         send = function(text) {
-            ws.send(text + '\n');
+            ws.send(JSON.stringify({
+                command: 'console-in',
+                args: [text + '\n']
+            }));
         }
 
         process('Connecting....\n');
@@ -46,8 +76,8 @@ $(document).ready(function() {
     $('body').on('keydown', function(e) {
         var input = $('#input input');
 
-        // dont autofocus if something in the panel is in focus
-        if($('#settings-panel :focus').length != 0)
+        // dont autofocus if modal dialog is present
+        if($('body.modal-open').length != 0)
             return;
 
         if(e.ctrlKey || e.altKey)

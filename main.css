@@ -1,41 +1,71 @@
 
-html, body{
+html, body {
     height:100%;
     margin:0;
     padding:0;
 }
 
-#editor { 
-    flex: 1 1 auto;
+#overlay {
+    position: fixed;
     top: 0;
-    right: 0;
-    bottom: 0;
     left: 0;
 }
 
-#settings-button {
-    position: fixed;
-    top: 0;
-    right: 0;
+#stats {
+    background-color: #505050;
+    color: white;
 }
 
-#settings-panel {
-    display: flex;
-    flex-flow: column;
-    height: 80%;
-    width: 30%;
+#stats .stat {
+    position: relative;
+    margin: 2px;
+}
 
-    position: fixed;
-    top: 0;
-    right: 0;
+#stats .fill {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    height: 100%;
+}
+
+#stats .hit .fill {
+    background-color: #a00000;
+}
+
+#stats .mana .fill {
+    background-color: #0000a0;
+}
+
+#stats .move .fill {
+    background-color: #00a000;
+}
+
+#stats .stat {
+    height: 1.5em;
+    line-height: 1.5em;
+}
+
+#stats .value {
+    text-align: center;
+    position: absolute;
+    width: 100%;
+}
+
+#settings-modal  .modal-dialog {
+    max-width: 80%;
+}
+
+#settings-button {
+    background-color: #505050;
+    float: right;
+    font-size: 1.5em;
+}
+
+#editor { 
+    height: 50em;
 
     background-color: black;
     color: white;
-    z-index: 1;
-}
-
-#settings-panel > button {
-    flex: 0 1 auto;
 }
 
 #page {
