@@ -1,38 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
     <head>
+        <title>DreamLand MUD - Мир Грёз, текстовая онлайн рпг на фентезийную тематику</title>
         <meta charset="utf-8">
-                 <meta name="Description" CONTENT="DreamLand MUD (Мир Грез, Мир Снов, Dream Land, МУД, МАД) текстовая многопользовательская ролевая онлайн игра на тематику фентези">
-		<title>DreamLand MUD - Мир Грёз, текстовая онлайн рпг на фентезийную тематику</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="Description" CONTENT="DreamLand MUD (Мир Грез, Мир Снов, Dream Land, МУД, МАД) текстовая многопользовательская ролевая онлайн игра на тематику фентези">
+
         <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.3.3/ace.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
 	<link href="https://fonts.googleapis.com/css?family=Roboto+Mono&amp;subset=cyrillic" rel="stylesheet"></link>
+        <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css"></link>
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></link>
         <link rel="stylesheet" type="text/css" href="main.css"></link>
         <script>
             var wsUrl = "wss://dreamland.rocks/dreamland";
         </script>
     </head>
     <body>
+        <div id="overlay" class="container-fluid">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div id="stats" style="display: none">
+                        <div class="stat hit"><div class="fill"></div><div class="value"></div></div>
+                        <div class="stat mana"><div class="fill"></div><div class="value"></div></div>
+                        <div class="stat move"><div class="fill"></div><div class="value"></div></div>
+                    </div>
+                </div>
+                <div class="col-sm-8"></div>
+                <div class="col-sm-1">
+                    <button id="settings-button" type="button" class="btn btn-sm" data-toggle="modal" data-target="#settings-modal">
+                        <i class="fa fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div id="page">
             <div id="terminal-wrap">
                 <div id="terminal"></div>
             </div>
-            <button id="reconnect">Reconnect</button>
+            <button id="reconnect" type="button" class="btn btn-primary">Reconnect</button>
             <form id="input">
                 <input type="text"></input>
             </form>
         </div>
-        <button id="settings-button">Settings</button>
-        <div id="settings-panel">
-            <div id="editor"></div>
-            <button id="settings-hide-button">Save</button>
+
+        <div id="settings-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div id="editor"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button id="settings-save-button" type="button" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <div id="triggers">
             <div class="trigger"></div>
         </div>
         <script src="terminal.js"></script>
         <script src="input.js"></script>
-        <script src="main.js"></script>
         <script src="settings.js"></script>
+        <script src="telnet.js"></script>
+        <script src="main.js"></script>
     </body>
 </html>
