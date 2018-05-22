@@ -55,7 +55,7 @@ html, body {
     max-width: 80%;
 }
 
-#settings-button {
+.btn-ctrl {
     background-color: #505050;
     float: right;
     font-size: 1.5em;
