@@ -120,4 +120,25 @@ $(document).ready(function() {
     terminal.on('output', function process(e, b) {
         echo(b);
     });
+
+    /*
+     * Handlers for plus-minus buttons to change terminal font size.
+     */ 
+    var fontDelta = 2;
+    
+    function changeFontSize(delta) {
+        var style = terminal.css('font-size'); 
+        var fontSize = parseFloat(style); 
+        terminal.css('font-size', (fontSize + delta) + 'px');
+    }
+
+    $('#font-plus-button').click(function(e) {
+        e.preventDefault();
+        changeFontSize(fontDelta);
+    });
+
+    $('#font-minus-button').click(function(e) {
+        e.preventDefault();
+        changeFontSize(-fontDelta);
+    });
 });
