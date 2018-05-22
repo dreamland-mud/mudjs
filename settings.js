@@ -65,4 +65,26 @@ $(document).ready(function() {
             eval(val);
             localStorage.settings = val;
         });
+
+    /*
+     * Handlers for plus-minus buttons to change terminal font size.
+     */ 
+    var fontDelta = 2;
+    var term = document.getElementById('terminal');
+    
+    function changeFontSize(element, delta) {
+        var style = window.getComputedStyle(element, null).getPropertyValue('font-size');
+        var fontSize = parseFloat(style); 
+        element.style.fontSize = (fontSize + delta) + 'px';
+    }
+
+    $('#font-plus-button').click(function(e) {
+        e.preventDefault();
+        changeFontSize(term, fontDelta);
+    });
+
+    $('#font-minus-button').click(function(e) {
+        e.preventDefault();
+        changeFontSize(term, -fontDelta);
+    });
 });
