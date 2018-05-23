@@ -136,13 +136,11 @@ $(document).ready(function() {
     $('#font-plus-button').click(function(e) {
         e.preventDefault();
         changeFontSize(fontDelta);
-        input.focus();
     });
 
     $('#font-minus-button').click(function(e) {
         e.preventDefault();
         changeFontSize(-fontDelta);
-        input.focus();
     });
 
     /*
@@ -156,7 +154,5 @@ $(document).ready(function() {
             console.log('cmd', cmd);
             send(cmd);
         }
-
-        input.focus();
     });
 });
