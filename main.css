@@ -56,11 +56,35 @@ html, body {
 }
 
 .btn-ctrl {
-    background-color: #505050;
     float: right;
     font-size: 1.5em;
+    color: grey;
+    border-color: grey;
+}
+.btn-ctrl:hover {
+    background-color: lightgrey;
+    border-color: lightgrey;
+}    
+
+#nav {
+    position: absolute; 
+    bottom: 3.5em;
 }
 
+#nav table {
+    float: right;
+}    
+
+#nav td {
+    padding: 5px;
+}    
+
+#nav td span {
+    padding: 5px;
+    font-weight: bold;
+    font-family: monospace;
+}    
+    
 #editor { 
     height: 50em;
 

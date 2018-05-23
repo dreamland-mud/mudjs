@@ -3,6 +3,7 @@ var echo = function() {};
 
 $(document).ready(function() {
     var terminal = $('#terminal');
+    var input = $('#input input');
     var txt = '';
     var x = 0;
     var ansi = '';
@@ -135,10 +136,27 @@ $(document).ready(function() {
     $('#font-plus-button').click(function(e) {
         e.preventDefault();
         changeFontSize(fontDelta);
+        input.focus();
     });
 
     $('#font-minus-button').click(function(e) {
         e.preventDefault();
         changeFontSize(-fontDelta);
+        input.focus();
+    });
+
+    /*
+     * Handlers for 'keypad' key area.
+     */
+    $('.btn-keypad').click(function(e) {
+        e.preventDefault();
+        var btn = $(e.currentTarget), cmd = btn.data('cmd');
+
+        if (cmd !== '') {
+            console.log('cmd', cmd);
+            send(cmd);
+        }
+
+        input.focus();
     });
 });
