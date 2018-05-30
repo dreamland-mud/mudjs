@@ -84,11 +84,25 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-body">
-                        <div id="editor"></div>
+                        <div class="editor"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button id="settings-save-button" type="button" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="textedit-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="editor"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="cancel-button btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="save-button btn btn-primary" data-dismiss="modal">Save</button>
                     </div>
                 </div>
             </div>
@@ -102,5 +116,6 @@
         <script src="settings.js?1.1"></script>
         <script src="telnet.js?1.1"></script>
         <script src="main.js?1.1"></script>
+        <script src="textedit.js?1.1"></script>
     </body>
 </html>

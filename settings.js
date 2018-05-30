@@ -52,9 +52,9 @@ $(document).ready(function() {
         });
 
 
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/monokai");
-    editor.session.setMode("ace/mode/javascript");
+    var editor = ace.edit($('#settings-modal .editor')[0]);
+    editor.setTheme('ace/theme/monokai');
+    editor.session.setMode('ace/mode/javascript');
 
     $('#settings-save-button')
         .click(function(e) {

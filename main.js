@@ -1,7 +1,7 @@
 
 var PROTO_VERSION = 'DreamLand Web Client/1.1';
 var msgs = [];
-var send = function() {}, notify = function() {};
+var rpccmd = function() {}, send = function() {}, notify = function() {};
 
 $(document).ready(function() {
 
@@ -47,6 +47,12 @@ $(document).ready(function() {
                             'Обнови страницу, если не поможет - почисти кеши.\n');
                     ws.close();
                 }
+            },
+            'editor-open': function(b) {
+                texteditor(b)
+                    .then(function(text) {
+                        rpccmd('editor-save', text);
+                    });
             }
         };
 
@@ -69,11 +75,15 @@ $(document).ready(function() {
             ws = null;
         }
 
-        send = function(text) {
+        rpccmd = function(cmd) {
             ws.send(JSON.stringify({
-                command: 'console-in',
-                args: [text + '\n']
+                command: cmd,
+                args: Array.prototype.slice.call(arguments, 1)
             }));
+        }
+
+        send = function(text) {
+            rpccmd('console-in', text + '\n');
         }
 
         process('Connecting....\n');

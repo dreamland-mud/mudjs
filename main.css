@@ -55,6 +55,10 @@ html, body {
     max-width: 80%;
 }
 
+#textedit-modal .modal-dialog {
+    max-width: 80%;
+}
+
 .btn-ctrl {
     float: right;
     font-size: 1.5em;
@@ -85,7 +89,7 @@ html, body {
     font-family: monospace;
 }    
     
-#editor { 
+.editor { 
     height: 50em;
 
     background-color: black;
