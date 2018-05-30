@@ -33,6 +33,7 @@ $(document).ready(function() {
                 alert(b);
             },
             'prompt': function(b) {
+/*
                 $('#stats').show();
                 
                 function stat($node, value, max) {
@@ -43,6 +44,7 @@ $(document).ready(function() {
                 stat($('#stats .hit'), b.hit, b.max_hit);
                 stat($('#stats .mana'), b.mana, b.max_mana);
                 stat($('#stats .move'), b.move, b.max_move);
+*/
             },
             'version': function(b) {
                 if(b !== PROTO_VERSION) {
