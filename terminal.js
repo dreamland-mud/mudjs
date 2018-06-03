@@ -106,7 +106,7 @@ $(document).ready(function() {
         }
         if(txt) {
             txt += '</span>';
-            var atBottom = $('#terminal-wrap').scrollTop() > ($('#terminal').height() - $('#terminal-wrap').height() - 10);
+            var atBottom = $('#terminal-wrap').scrollTop() > ($('#terminal').height() - $('#terminal-wrap').height() - 50);
             var lines = $(txt).appendTo(terminal).text().replace(/\xa0/g, ' ').split('\n');
             $(lines).each(function() {
                 $('.trigger').trigger('text', [''+this]);

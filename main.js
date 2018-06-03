@@ -7,7 +7,10 @@ $(document).ready(function() {
 
     function process(s) {
         $('#terminal').trigger('output', [s]);
-        $('#input input').focus();
+
+        // dont autofocus if modal dialog is present
+        if($('body.modal-open').length == 0)
+            $('#input input').focus();
     }
 
     function connect() {
