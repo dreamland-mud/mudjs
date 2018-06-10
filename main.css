@@ -64,12 +64,21 @@ html, body {
     max-width: 80%;
 }
 
+#cs-modal .modal-dialog {
+    max-width: 80%;
+}
+
 .btn-ctrl {
     float: right;
     font-size: 1.5em;
     color: grey;
     border-color: grey;
 }
+
+.top-right-buttons .btn-ctrl {
+    margin: 0 0.2em;
+}
+
 .btn-ctrl:hover {
     background-color: lightgrey;
     border-color: lightgrey;
@@ -95,10 +104,11 @@ html, body {
 }    
     
 .editor { 
-    height: 50em;
+    height: 70vh;
 
     background-color: black;
     color: white;
+    font-size: 18px;
 }
 
 #page {

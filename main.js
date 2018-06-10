@@ -1,9 +1,12 @@
 
-var PROTO_VERSION = 'DreamLand Web Client/1.1';
+var PROTO_VERSION = 'DreamLand Web Client/1.2';
 var msgs = [];
 var rpccmd = function() {}, send = function() {}, notify = function() {};
 
 $(document).ready(function() {
+    $(window).bind('beforeunload', function() {
+        return 'leave?';
+    });
 
     function process(s) {
         $('#terminal').trigger('output', [s]);
@@ -23,7 +26,7 @@ $(document).ready(function() {
         }
 
         var handlers = {
-            'console-out': function(b) {
+            'console_out': function(b) {
                 telnet.process(b);
             },
             'notify': function(b) {
@@ -53,11 +56,14 @@ $(document).ready(function() {
                     ws.close();
                 }
             },
-            'editor-open': function(b) {
+            'editor_open': function(b) {
                 texteditor(b)
                     .then(function(text) {
-                        rpccmd('editor-save', text);
+                        rpccmd('editor_save', text);
                     });
+            },
+            'cs_edit': function(subj, body) {
+                csEdit(subj, body);
             }
         };
 
@@ -68,7 +74,12 @@ $(document).ready(function() {
             b = decodeURIComponent(escape(b));
             b = JSON.parse(b);
             msgs.push(b);
-            handlers[b.command].apply(handlers, b.args);
+            var h = handlers[b.command];
+            if(h) {
+                h.apply(handlers, b.args);
+            } else {
+                console.log('Dont know how to handle ' + b.command);
+            }
         }
         ws.onopen = function(e) {
             send('1'); // use internal encoding (koi8). All WebSocket IO is converted to/from UTF8 at the transport layer.
@@ -88,7 +99,7 @@ $(document).ready(function() {
         }
 
         send = function(text) {
-            rpccmd('console-in', text + '\n');
+            rpccmd('console_in', text + '\n');
         }
 
         process('Connecting....\n');
