@@ -12,7 +12,7 @@ html, body {
     pointer-events: none;
 }
 
-#overlay button {
+#overlay .btn {
     pointer-events: all;
 }
 

@@ -1,11 +1,50 @@
 
 var PROTO_VERSION = 'DreamLand Web Client/1.2';
-var msgs = [];
 var rpccmd = function() {}, send = function() {}, notify = function() {};
+var wsUrl = "wss://dreamland.rocks/dreamland";
+
+if(location.hash === '#build') {
+    wsUrl = "wss://dreamland.rocks/buildplot";
+} else if(location.hash === '#local') {
+    wsUrl = "ws://localhost:1234";
+}
+    var lastLocation, locationChannel;
+
+$(window).bind('beforeunload', function() {
+    return 'leaving already?';
+});
 
 $(document).ready(function() {
-    $(window).bind('beforeunload', function() {
-        return 'leave?';
+    if('BroadcastChannel' in window) {
+        locationChannel = new BroadcastChannel('location');
+
+        locationChannel.onmessage = function(e) {
+            if(e.data.what === 'where am i' && lastLocation) {
+                bcastLocation();
+            }
+        };
+    }
+
+    function bcastLocation() {
+        if(locationChannel) {
+            locationChannel.postMessage({
+                what: 'location',
+                location: lastLocation
+            });
+        }
+    }
+
+    $('#map-button').click(function(e) {
+        if(!lastLocation) {
+            e.preventDefault();
+            return;
+        }
+
+        var mapfile = '/maps/' + lastLocation.area.replace(/\.are$/, '') + '.html';
+
+        $('#map-button').attr('href', mapfile);
+
+        // do not prevent default
     });
 
     function process(s) {
@@ -36,6 +75,11 @@ $(document).ready(function() {
                 alert(b);
             },
             'prompt': function(b) {
+                lastLocation = {
+                    area: b.area,
+                    vnum: b.vnum
+                };
+                bcastLocation();
 /*
                 $('#stats').show();
                 
@@ -73,7 +117,6 @@ $(document).ready(function() {
             b = String.fromCharCode.apply(null, b);
             b = decodeURIComponent(escape(b));
             b = JSON.parse(b);
-            msgs.push(b);
             var h = handlers[b.command];
             if(h) {
                 h.apply(handlers, b.args);
