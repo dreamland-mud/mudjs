@@ -40,7 +40,7 @@ $(document).ready(function() {
             return;
         }
 
-        var mapfile = '/maps/' + lastLocation.area.replace(/\.are$/, '') + '.html';
+        var mapfile = '/maps/' + lastLocation.area.replace(/\.are$/, '') + '.html?1';
 
         $('#map-button').attr('href', mapfile);
 
