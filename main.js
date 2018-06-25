@@ -80,6 +80,37 @@ $(document).ready(function() {
                     vnum: b.vnum
                 };
                 bcastLocation();
+
+                if (b.group.pc == undefined && b.group.npc == undefined) {
+                    $('#group').removeClass('d-md-block');
+                } else {
+                    $('#group').addClass('d-md-block');
+                    $('#g_leader').text(b.group.leader.sees);
+
+                    let body = $('#group tbody');
+                    body.empty();
+                    
+                    function group_member(gch) {
+                        let tr = $('<tr/>');
+                        tr.append($('<td/>').append(gch.sees));
+                        tr.append($('<td/>').append(gch.level));
+                        tr.append($('<td/>').append(gch.hit + "/" + gch.max_hit));
+                        tr.append($('<td/>').append($('<span/>').addClass('fg-ansi-bright-color-'+gch.hit_clr).append(gch.health + "%")));
+                        tr.append($('<td/>').append(gch.tnl));
+                        return tr;
+                    }
+
+                    body.append(group_member(b.group.leader));
+                    if (b.group.pc !== undefined)
+                        b.group.pc.forEach(function(gch) {
+                            body.append(group_member(gch));
+                        });
+
+                    if (b.group.npc !== undefined)
+                        b.group.npc.forEach(function(gch) {
+                            body.append(group_member(gch));
+                        });
+                }
 /*
                 $('#stats').show();
                 
