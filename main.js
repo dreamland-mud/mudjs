@@ -87,11 +87,11 @@ $(document).ready(function() {
                     $('#group').addClass('d-md-block');
                     $('#g_leader').text(b.group.leader.sees);
 
-                    let body = $('#group tbody');
+                    var body = $('#group tbody');
                     body.empty();
                     
                     function group_member(gch) {
-                        let tr = $('<tr/>');
+                        var tr = $('<tr/>');
                         tr.append($('<td/>').append(gch.sees));
                         tr.append($('<td/>').append(gch.level));
                         tr.append($('<td/>').append(gch.hit + "/" + gch.max_hit));
