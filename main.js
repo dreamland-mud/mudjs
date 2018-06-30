@@ -94,7 +94,7 @@ $(document).ready(function() {
                         var tr = $('<tr/>');
                         tr.append($('<td/>').append(gch.sees));
                         tr.append($('<td/>').append(gch.level));
-                        tr.append($('<td/>').append(gch.hit + "/" + gch.max_hit));
+//                        tr.append($('<td/>').append(gch.hit + "/" + gch.max_hit));
                         tr.append($('<td/>').append($('<span/>').addClass('fg-ansi-bright-color-'+gch.hit_clr).append(gch.health + "%")));
                         tr.append($('<td/>').append(gch.tnl));
                         return tr;
