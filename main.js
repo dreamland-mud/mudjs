@@ -276,6 +276,7 @@ $(document).ready(function() {
                 alert(b);
             },
             'prompt': function(b) {
+/*                
                 b.weather = { "m": "гроза, холодный ветер", "i": "day-thunderstorm" };
                 b.time = { "h" : "9", "tod": "утра", "l": "светло" };
                 b.date = { "d" : "31", "m" : "Великого Зла", "y" : "333" };
@@ -283,16 +284,18 @@ $(document).ready(function() {
                 b.room = "На третьем этаже башни";
                 b.exits = { "e" : "nud", "h": "", "l": "e" };
                 b.sector = { "s": "внутри помещения", "l": "темно" };
-
+*/
+                promptGroup(b);
+/*                
                 promptLocation(b);
                 promptTime(b);
                 promptDate(b);
                 promptWeather(b);
-                promptGroup(b);
                 promptZone(b);
                 promptRoom(b);
                 promptExits(b);
                 promptSector(b);
+*/                
 // TODO rework: promptStats(b);
             },
             'version': function(b) {
