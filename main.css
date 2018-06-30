@@ -169,12 +169,20 @@ td.v-bottom {
     font-size: 18px;
 }
 
+.flex-grow-shrink-auto {
+    -webkit-box-flex: 1;
+    -moz-box-flex:    1;
+    -webkit-flex:     1;
+    -ms-flex:         1;
+    flex:             1;
+}
+
 .main-content {
 /*    
     display: flex;
     flex-direction: row;
-*/    
     flex: 1;
+*/    
     overflow: hidden;
 }
 
@@ -192,7 +200,9 @@ td.v-bottom {
 #terminal-wrap {
     overflow-y: auto;
     background-color: #2e3436;
+/*    
     flex: 1;
+*/    
     height: 100%;
     min-height: 100%;
 }
