@@ -8,7 +8,7 @@ html, body {
 #overlay {
     position: fixed;
     top: 0;
-    right: 18em;
+    right: 25em;
     pointer-events: none;
 }
 
@@ -194,8 +194,8 @@ td.v-bottom {
 }
 
 #panel-wrap {
-    width: 17em;
-    
+/*    width: 17em; */
+    flex: 0 1 15%;
     flex-direction: column;
     display: flex;
     background-color: #2e3436;
