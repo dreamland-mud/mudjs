@@ -185,6 +185,21 @@ td.v-bottom {
     flex:             0 1 15%;
 }    
 
+.flexcontainer-row {
+   display: -webkit-flex;
+   display: flex;
+   -webkit-flex-direction: row;
+   flex-direction: row;
+}
+
+.flexcontainer-column {
+   display: -webkit-flex;
+   display: flex;
+   -webkit-flex-direction: column;
+   flex-direction: column;
+}
+
+
 .main-content {
 /*    
     display: flex;
