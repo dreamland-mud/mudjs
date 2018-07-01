@@ -170,12 +170,20 @@ td.v-bottom {
 }
 
 .flex-grow-shrink-auto {
-    -webkit-box-flex: 1;
-    -moz-box-flex:    1;
-    -webkit-flex:     1;
-    -ms-flex:         1;
-    flex:             1;
+    -webkit-box-flex: 1 1 auto;
+    -moz-box-flex:    1 1 auto;
+    -webkit-flex:     1 1 auto;
+    -ms-flex:         1 1 auto;
+    flex:             1 1 auto;
 }
+
+.flex-nogrow-shrink-narrow {
+    -webkit-box-flex: 0 1 15%;
+    -moz-box-flex:    0 1 15%;
+    -webkit-flex:     0 1 15%;
+    -ms-flex:         0 1 15%;
+    flex:             0 1 15%;
+}    
 
 .main-content {
 /*    
@@ -209,7 +217,6 @@ td.v-bottom {
 
 #panel-wrap {
 /*    width: 17em; */
-    flex: 0 1 15%;
 /*    
     flex-direction: column;
     display: flex;
