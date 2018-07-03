@@ -41,10 +41,8 @@ $(document).ready(function() {
         }
 
         var mapfile = '/maps/' + lastLocation.area.replace(/\.are$/, '') + '.html?1';
-
-        $('#map-button').attr('href', mapfile);
-
-        // do not prevent default
+        window.open(mapfile);
+        e.preventDefault();
     });
 
     function process(s) {

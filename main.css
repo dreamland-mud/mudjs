@@ -209,11 +209,6 @@ td.v-bottom {
 
 
 .main-content {
-/*    
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-*/    
     overflow: hidden;
 }
 
@@ -221,28 +216,16 @@ td.v-bottom {
     min-height: 100%;
     height: 100%;
     width: 100%;
-/*    
-    display: flex;
-    flex-direction: column;
-*/    
     overflow: hidden;
 }
 
 #terminal-wrap {
     overflow-y: auto;
     background-color: #2e3436;
-/*    
-    flex: 1;
-*/    
     min-height: 100%;
 }
 
 #panel-wrap {
-/*    width: 17em; */
-/*    
-    flex-direction: column;
-    display: flex;
-*/    
     background-color: #2e3436;
 }
 
