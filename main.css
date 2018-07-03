@@ -1,4 +1,3 @@
-
 html, body {
     height:100%;
     margin:0;
@@ -38,6 +37,15 @@ html, body {
 #player-location .fa {
     font-size: 150%;
 }    
+
+#player-location table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+#player-location tr td:first-child {
+    width: 10%;
+}
 
 td.v-top {
     vertical-align: top;
