@@ -1,5 +1,5 @@
 
-var PROTO_VERSION = 'DreamLand Web Client/1.2';
+var PROTO_VERSION = 'DreamLand Web Client/1.3';
 var rpccmd = function() {}, send = function() {}, notify = function() {};
 var wsUrl = "wss://dreamland.rocks/dreamland";
 
@@ -105,23 +105,23 @@ $(document).ready(function() {
         $row.find('span').text(b.date.d + " / " + b.date.m + " / " + b.date.y);
     }
 
-    // prompt weather fields: i - icon to use, m - weather message
+    // prompt weather (w) fields: i - icon to use, m - weather message
     function promptWeather(b) {
         var $row = $('#tw-weather');
 
         // Weather is unchanged since last prompt.
-        if (b.weather === undefined)
+        if (b.w === undefined)
             return;
         // Weather is now hidden.
-        if (b.weather === "none") {
+        if (b.w === "none") {
             $row.hide();
             return;
         }
 
         // Display weather.
         $row.show();
-        $row.find('i').removeClass().addClass("wi wi-fw wi-" + b.weather.i);
-        $row.find('span').text(b.weather.m);
+        $row.find('i').removeClass().addClass("wi wi-fw wi-" + b.w.i);
+        $row.find('span').text(b.w.m);
     }
 
     // prompt zone field: string with area name
@@ -224,7 +224,13 @@ $(document).ready(function() {
     }
 
     function promptGroup(b) {
-        if (b.group.pc == undefined && b.group.npc == undefined) {
+        // Nothing changed since last time.
+        if (b.group == undefined) {
+            return;
+        }
+
+        // Group is now hidden.
+        if (b.group === "none" || (b.group.pc == undefined && b.group.npc == undefined)) {
             $('#group').removeClass('d-md-block');
             return;
         } 
@@ -281,12 +287,10 @@ $(document).ready(function() {
                 promptZone(b);
                 promptRoom(b);
                 promptExits(b);
-/*                
                 promptTime(b);
                 promptDate(b);
                 promptWeather(b);
                 promptSector(b);
-*/                
 // TODO rework: promptStats(b);
             },
             'version': function(b) {

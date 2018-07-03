@@ -17,11 +17,6 @@ html, body {
     }
 } 
 
-#time-weather, #player-location {
-    padding-bottom: 1em;
-    padding-left: 0.2em;
-}
-
 #time-weather .wi {
     font-size: 150%;
 }
@@ -38,12 +33,17 @@ html, body {
     font-size: 150%;
 }    
 
-#player-location table {
+.fixed-table-wrapper {
+    padding-bottom: 1em;
+    padding-left: 0.2em;
+}
+
+.fixed-table-wrapper table {
     table-layout: fixed;
     width: 100%;
 }
 
-#player-location tr td:first-child {
+.fixed-table-wrapper tr td:first-child {
     width: 10%;
 }
 
