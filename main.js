@@ -221,6 +221,47 @@ $(document).ready(function() {
         stat($('#stats .move'), b.move, b.max_move);
     }
 
+    // prompt det field: a - active detection bits, z - bits from affects with zero duration
+    function promptDetection(b) {
+        var clr_active = 'fg-ansi-bright-color-2';
+        var clr_zero = 'fg-ansi-dark-color-2';
+        var $row = $('#player-detect');
+        var $bitvector = $row.find('.bitvector');
+        var names = { 'h': 'Скрыт', 'i': 'Невид', 'w': 'ОНев', 'f': 'Спрят', 'a': 'Кмф', 
+            'e': 'Зло', 'g': 'Дбр', 'u': 'Неж', 'm': 'Маг', 'o': 'Диаг', 'l': 'Жзн', 'r': 'Инфр' };
+
+        // Nothing changed since last time.
+        if (b.det == undefined) {
+            return;
+        }
+
+        // Detects are now hidden.
+        if (b.det === "none") {
+            $row.removeClass('d-md-block');
+            $bitvector.empty();
+            return;
+        } 
+
+        $row.addClass('d-md-block');
+        $bitvector.empty();
+
+        for (var bit in names) {
+            if (names.hasOwnProperty(bit)) {
+                var clr;
+
+                if (b.det.z.indexOf(bit) !== -1)
+                    clr = clr_zero;
+                else if (b.det.a.indexOf(bit) !== -1)
+                    clr = clr_active;
+                else
+                    continue;
+
+                $bitvector.append($('<span/>')).addClass(clr).append(names[bit]);
+                $bitvector.append(', ');
+            }
+        }
+    }
+
     function promptGroup(b) {
         // Nothing changed since last time.
         if (b.group == undefined) {
@@ -289,6 +330,7 @@ $(document).ready(function() {
                 promptDate(b);
                 promptWeather(b);
                 promptSector(b);
+                promptDetection(b);
 // TODO rework: promptStats(b);
             },
             'version': function(b) {
