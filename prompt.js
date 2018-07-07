@@ -175,11 +175,9 @@ $(document).ready(function() {
     // prompt affect block fields: a - active bits, z - bits from affects with zero duration
     function drawAffectBlock(block, selector, blockName, bitNames, color) {
         var clr_active = 'fg-ansi-bright-color-' + color;
-        var clr_zero = 'fg-ansi-dark-color-' + color;
+        var clr_zero = 'fg-ansi-bright-color-3';
         var clr_header = 'fg-ansi-bright-color-7';
         var $row = $(selector);
-
-        console.log('block', block, 'selector', selector);
 
         // Nothing changed since last time.
         if (block == undefined) {
@@ -262,8 +260,7 @@ $(document).ready(function() {
         } 
 
         $('#group').addClass('d-md-block');
-        $('#g_leader').text(b.group.leader.sees);
-
+        $('#g_leader').text(b.group.ln);
         var body = $('#group tbody');
         body.empty();
         
