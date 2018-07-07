@@ -34,8 +34,8 @@ html, body {
 }    
 
 #player-affects .flexcontainer-column {
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
     padding-bottom: 5px;
 }
 

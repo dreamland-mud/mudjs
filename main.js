@@ -223,11 +223,13 @@ $(document).ready(function() {
 
     // prompt affect helper function: draw a block of affects
     // prompt affect block fields: a - active bits, z - bits from affects with zero duration
-    function drawAffectBlock(block, selector, blockName, bitNames) {
-        var clr_active = 'fg-ansi-bright-color-2';
-        var clr_zero = 'fg-ansi-dark-color-2';
+    function drawAffectBlock(block, selector, blockName, bitNames, color) {
+        var clr_active = 'fg-ansi-bright-color-' + color;
+        var clr_zero = 'fg-ansi-dark-color-' + color;
         var clr_header = 'fg-ansi-bright-color-7';
         var $row = $(selector);
+
+        console.log('block', block, 'selector', selector);
 
         // Nothing changed since last time.
         if (block == undefined) {
@@ -274,18 +276,23 @@ $(document).ready(function() {
 
         var dnames = { 'h': 'Скрыт', 'i': 'Невид', 'w': 'ОНевид', 'f': 'Спрят', 'a': 'Камуф', 
             'e': 'Зло', 'g': 'Добро', 'u': 'Нежить', 'm': 'Магия', 'o': 'Диагн', 'l': 'Жизнь', 'r': 'Инфр' };
-        drawAffectBlock(b.det, '#pa-detects', 'Обнар', dnames);
+        drawAffectBlock(b.det, '#pa-detects', 'Обнар', dnames, '2');
 
         var tnames = {'i':'Невид','h':'Скрыт','F':'Спрят','I':'УНевд','s':'Подкр','f':'Полет','p':'Прозр','m':'МБлок'};
-        drawAffectBlock(b.trv, '#pa-travel', 'Трансп', tnames);
+        drawAffectBlock(b.trv, '#pa-travel', 'Трансп', tnames, '2');
 
         var enames = { 'r': 'Реген','h':'Ускор','g':'ГигСил','l':'Обуч', 'b':'Блгслв','f':'Неист','B':'Блгсть','i':'Вдохн','c':'Спокой',
                       'C':'Концен','z':'Берсрк','w':'Клич','F':'Лес','m':'МагФок'};
-        drawAffectBlock(b.enh, '#pa-enhance', 'Усилен', enames);
+        drawAffectBlock(b.enh, '#pa-enhance', 'Усилен', enames, '2');
 
         var pnames = { 'z':'Звезд','s':'ЗащСвя','d':'ТАура','p':'ЗащЩит','e':'Зло','g':'Добро','m':'Закл',
-        'P':'Молит','n':'Негат','a':'Броня','A':'УлБрон','S':'Щит','D':'КжДрак','k':'КамКж','r':'СКамн','c':'Холод','h':'Жар','b':'ЛМыш'};
-        drawAffectBlock(b.pro, '#pa-protect', 'Защита', pnames);
+        'P':'Молит','n':'Негат','a':'Броня','A':'УлБрон','S':'Щит','D':'КжДрак','k':'КамКж','r':'СКамн','c':'Холод','h':'Жар',
+        'b':'ЛМыш','R':'Радуга'};
+        drawAffectBlock(b.pro, '#pa-protect', 'Защита', pnames, '2');
+
+        var mnames = {'b': 'Слеп','p':'Яд','P':'Чума','C':'Корруп','f':'ОгФей','W':'Очаров','c':'Прокл','w':'Слабо',
+        's':'Замедл','S':'Крик','B':'ЖажКрв','T':'Оглуш','i':'НетРук','I':'Стрела','j':'Сосуд','a':'Анафем'};
+        drawAffectBlock(b.mal, '#pa-malad', 'Отриц', mnames, '1');
 
         // Hide main affects window if no affect blocks are displayed.
         if ($affects.find('.flexcontainer-column:visible').length === 0)
