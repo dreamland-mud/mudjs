@@ -34,7 +34,9 @@ html, body {
 }    
 
 #player-affects .flexcontainer-column {
-    padding: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 5px;
 }
 
 .fixed-table-wrapper {
