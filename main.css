@@ -47,6 +47,7 @@ html, body {
 .fixed-table-wrapper table {
     table-layout: fixed;
     width: 100%;
+    cursor: pointer;
 }
 
 .fixed-table-wrapper tr td:first-child {

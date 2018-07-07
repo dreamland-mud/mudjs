@@ -94,15 +94,15 @@
                     <div id="player-affects" class="dark-panel" style="display:none;" data-hint="hint-affects">
                         <span class="dark-panel-title">Воздействия на тебе:</span>
                         <div class="flexcontainer-row flexcontainer-wrap">
-                            <div id="pa-protect" class="flexcontainer-column" style="display:none;">
+                            <div id="pa-protect" class="flexcontainer-column" style="display:none;" data-hint="hint-protect">
                              </div>
-                            <div id="pa-detects" class="flexcontainer-column" style="display:none;">
+                            <div id="pa-detects" class="flexcontainer-column" style="display:none;" data-hint="hint-detects">
                              </div>
-                            <div id="pa-travel" class="flexcontainer-column" style="display:none;">
+                            <div id="pa-travel" class="flexcontainer-column" style="display:none;" data-hint="hint-travel">
                              </div>
-                            <div id="pa-enhance" class="flexcontainer-column" style="display:none;">
+                            <div id="pa-enhance" class="flexcontainer-column" style="display:none;" data-hint="hint-enhance">
                              </div>
-                            <div id="pa-malad" class="flexcontainer-column" style="display:none;">
+                            <div id="pa-malad" class="flexcontainer-column" style="display:none;" data-hint="hint-malad">
                              </div>
                         </div>
                     </div>
@@ -114,11 +114,207 @@
             </form>
         </div>
 
-        <div id="hint-affects" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+        <div id="hint-protect" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <b class="modal-title">Воздействия</b>
+                        <b class="modal-title">Колонка защитных воздействий</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p>В этой колонке отображаются защитные воздействия
+на персонаже, например, такие как заклинания и молитвы защиты (protective) и благословления (benedictions).
+Вот список сокращенных названий воздействий и полные русские и английские названия соответствующих навыков.
+<table class="table table-striped">
+    <thead class="thead"><th>Видно как</th><th>Навык по-русск</th><th>Навык по-англ</th><th>Группа</th></thead>
+    <tbody>
+        <tr><td>Звезд</td><td>звездная пыль</td><td>stardust</td><td>заклинания защиты</td></tr>
+        <tr><td>ЗащСвят</td><td>защита святилища</td><td>sanctuary</td><td>заклинания защиты</td></tr>
+        <tr><td>ТАура</td><td>темная аура</td><td>dark shroud</td><td>заклинания защиты</td></tr>
+        <tr><td>ЗащЩит</td><td>защитный щит</td><td>protective shield</td><td>заклинания защиты</td></tr>
+        <tr><td>Зло</td><td>защита от зла</td><td>protection evil</td><td>заклинания защиты</td></tr>
+        <tr><td>Добро</td><td>защита от добра</td><td>protection good</td><td>заклинания защиты</td></tr>
+        <tr><td>Заклин</td><td>защита от заклинаний</td><td>spell resistance</td><td>заклинания защиты</td></tr>
+        <tr><td>Негат</td><td>защита от негативного</td><td>protection negative</td><td>заклинания защиты</td></tr>
+        <tr><td>Холод</td><td>защита от холода</td><td>protection cold</td><td>заклинания защиты</td></tr>
+        <tr><td>Жар</td><td>защита от тепла</td><td>protection heat</td><td>заклинания защиты</td></tr>
+        <tr><td>Броня</td><td>броня</td><td>armor</td><td>заклинания защиты</td></tr>
+        <tr><td>УлБрон</td><td>улучшенная броня</td><td>enhanced armor</td><td>заклинания защиты</td></tr>
+        <tr><td>Щит</td><td>щит</td><td>shield</td><td>заклинания защиты</td></tr>
+        <tr><td>КжДрак</td><td>драконья кожа</td><td>dragon skin</td><td>заклинания защиты</td></tr>
+        <tr><td>КамКж</td><td>каменная кожа</td><td>stone skin</td><td>заклинания защиты</td></tr>
+        <tr><td>СКам</td><td>слиться с камнями</td><td>meld into stone</td><td>особенность расы роксир</td></tr>
+        <tr><td>Молит</td><td>молитва</td><td>prayer</td><td>благословления</td></tr>
+        <tr><td>ЛМыш</td><td>летучие мыши</td><td>bat sworm</td><td>заклинания защиты</td></tr>
+        <tr><td>Радуга</td><td>радужный щит</td><td>rainbow shield</td><td>награда за глобальный квест</td></tr>
+        <tr><td>Мантия</td><td>демоническая мантия</td><td>demonic mantle</td><td>награда за глобальный квест</td></tr>
+    </tbody>
+</table>    
+
+Также смотри подсказку для основного окна воздействий, команду 'группаумений' ('glist') по каждой группе и справку по каждому навыку.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-detects" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Колонка обнаружений</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p>В этой колонке видны воздействия из группы обнаружения (detection),
+позволяющие видеть невидимое, скрытое и так далее.                        
+Вот список сокращенных названий воздействий и полные русские и английские названия соответствующих навыков.
+<table class="table table-striped">
+    <thead class="thead"><th>Видно как</th><th>Навык по-русск</th><th>Навык по-англ</th><th>Группа</th></thead>
+    <tbody>
+        <tr><td>Невид</td><td>обнаружить невидимое</td><td>detect invis</td><td>заклинания обнаружения</td></tr>
+        <tr><td>ОНевид</td><td>улучшенное обнаружение</td><td>improved detect</td><td>заклинания обнаружения</td></tr>
+        <tr><td>Скрыт</td><td>обнаружить|замечать скрытое</td><td>detect hide|hidden</td><td>заклинания обнаружения</td></tr>
+        <tr><td>Спрят</td><td>обнаружить спрятанное</td><td>detect fade</td><td>клановое</td></tr>
+        <tr><td>Камуф</td><td>острое зрение</td><td>acute vision</td><td>навык рейнджеров (видеть камуфляж)</td></tr>
+        <tr><td>Зло</td><td>обнаружить зло</td><td>detect evil</td><td>заклинания обнаружения</td></tr>
+        <tr><td>Добро</td><td>обнаружить добро</td><td>detect good</td><td>заклинания обнаружения</td></tr>
+        <tr><td>Нежить</td><td>обнаружить нежить</td><td>detect undead</td><td>заклинания обнаружения</td></tr>
+        <tr><td>Магия</td><td>обнаружить магию</td><td>detect magic</td><td>заклинания обнаружения</td></tr>
+        <tr><td>Диагн</td><td>диагноз</td><td>observation</td><td>заклинания обнаружения</td></tr>
+        <tr><td>Жизнь</td><td>обнаружить жизнь</td><td>detect life</td><td>особенность формы вампира</td></tr>
+        <tr><td>Инфра</td><td>тепловое зрение</td><td>infravision</td><td>заклинания усиления</td></tr>
+    </tbody>
+</table>    
+
+Также смотри подсказку для основного окна воздействий, команду 'группаумений' ('glist') по каждой группе и справку по каждому навыку.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-travel" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Колонка транспортных воздействий</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p>В этой колонке видны различные иллюзии (illusion), а также
+воздействия из группы транспортных заклинаний (transport), такие как полет и полупрозрачность.                        
+Вот список сокращенных названий воздействий и полные русские и английские названия соответствующих навыков.
+<table class="table table-striped">
+    <thead class="thead"><th>Видно как</th><th>Навык по-русск</th><th>Навык по-англ</th><th>Группа</th></thead>
+    <tbody>
+        <tr><td>Невид</td><td>невидимость</td><td>invisibility</td><td>иллюзии</td></tr>
+        <tr><td>УНевд</td><td>улучшенная невидимость</td><td>improved invis</td><td>иллюзии</td></tr>
+        <tr><td>Скрыт</td><td>скрываться</td><td>hide</td><td>воры, нинзи</td></tr>
+        <tr><td>Спрят</td><td>спрятаться</td><td>fade</td><td>клановое</td></tr>
+        <tr><td>Подкр</td><td>подкрадывание</td><td>sneak</td><td>воры, нинзи, расовая особенность</td></tr>
+        <tr><td>Полет</td><td>полет</td><td>fly</td><td>заклинания перемещения, расовое</td></tr>
+        <tr><td>Прозр</td><td>прохождение преград</td><td>pass door</td><td>заклинания перемещения, расовое</td></tr>
+        <tr><td>МБлок</td><td>ментальная блокада</td><td>mental block</td><td>заклинания перемещения</td></tr>
+    </tbody>
+</table>    
+
+Также смотри подсказку для основного окна воздействий, команду 'группаумений' ('glist') по каждой группе и справку по каждому навыку.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-enhance" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Колонка усиливающих воздействий</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p>В этой колонке отображаются усиливающе воздействия (enhancement),
+благословления (benediction), а также некоторые воздействия из групп мастер боя (fightmaster) и медитации (meditation).
+Вот список сокращенных названий воздействий и полные русские и английские названия соответствующих навыков.
+<table class="table table-striped">
+    <thead class="thead"><th>Видно как</th><th>Навык по-русск</th><th>Навык по-англ</th><th>Группа</th></thead>
+    <tbody>
+        <tr><td>Ускор</td><td>ускорение</td><td>haste</td><td>заклинания усиления, клановое</td></tr>
+        <tr><td>ГигСил</td><td>гигантская сила</td><td>giant strength</td><td>заклинания усиления</td></tr>
+        <tr><td>Обуч</td><td>обучаемость</td><td>learning</td><td>заклинания усиления</td></tr>
+        <tr><td>Реген</td><td>регенерация</td><td>regenerate</td><td>клановое и расовое</td></tr>
+        <tr><td>МагФок</td><td>сфокусировать магию</td><td>magic concentrate</td><td>медитация</td></tr>
+        <tr><td>Благос</td><td>благословление</td><td>bless</td><td>благословления</td></tr>
+        <tr><td>Неист</td><td>неистовство</td><td>frenzy</td><td>благословления</td></tr>
+        <tr><td>Блгсть</td><td>благость</td><td>benediction</td><td>благословления</td></tr>
+        <tr><td>Вдохн</td><td>вдохновение</td><td>inspire</td><td>благословления</td></tr>
+        <tr><td>Спокой</td><td>спокойствие</td><td>calm</td><td>благословления</td></tr>
+        <tr><td>Концен</td><td>сосредоточиться</td><td>concentrat</td><td>мастер боя</td></tr>
+        <tr><td>Берсрк</td><td>берсерк</td><td>berserk</td><td>мастер боя</td></tr>
+        <tr><td>Клич</td><td>боевой клич</td><td>warcry</td><td>мастер боя</td></tr>
+        <tr><td>Лес</td><td>лесной бой</td><td>forest fighting</td><td>мастер боя</td></tr>
+    </tbody>
+</table>    
+
+Также смотри подсказку для основного окна воздействий, команду 'группаумений' ('glist') по каждой группе и справку по каждому навыку.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-malad" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Колонка негативных воздействий</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p>В этой колонке отображаются негативные воздействия
+на персонаже, такие как проклятья (maladictions) или заклинания магии очарования (beguiling).
+Вот список сокращенных названий воздействий и полные русские и английские названия соответствующих навыков.
+<table class="table table-striped">
+    <thead class="thead"><th>Видно как</th><th>Навык по-русск</th><th>Навык по-англ</th><th>Группа</th></thead>
+    <tbody>
+        <tr><td>Слеп</td><td>слепота</td><td>blindness</td><td>проклятия</td></tr>
+        <tr><td>Яд</td><td>яд</td><td>poison</td><td>проклятия</td></tr>
+        <tr><td>Чума</td><td>чума</td><td>plague</td><td>проклятия</td></tr>
+        <tr><td>Гниени</td><td>гниение</td><td>corruption</td><td>проклятия</td></tr>
+        <tr><td>ОгФей</td><td>огонь фей</td><td>faerie fire</td><td>погодные заклинания</td></tr>
+        <tr><td>Очаров</td><td>очарование</td><td>charm person</td><td>магия очарования</td></tr>
+        <tr><td>Прокл</td><td>проклятие</td><td>curse</td><td>проклятия</td></tr>
+        <tr><td>Слабо</td><td>слабость</td><td>weaken</td><td>проклятия</td></tr>
+        <tr><td>Замедл</td><td>замедление</td><td>slow</td><td>проклятия</td></tr>
+        <tr><td>Сон</td><td>сон</td><td>sleep</td><td>магия очарования</td></tr>
+        <tr><td>Крик</td><td>крик</td><td>scream</td><td>умение колдунов и ведьм</td></tr>
+        <tr><td>ЖажКрв</td><td>жажда крови</td><td>bloodthirst</td><td>клановое или с вещей</td></tr>
+        <tr><td>Оглуш</td><td>оглушение</td><td>stun</td><td>результат применения на тебя боевых умений</td></tr>
+        <tr><td>НетРук</td><td>отсекание руки</td><td>slice</td><td>мастер боя</td></tr>
+        <tr><td>Стрела</td><td>воткнутая стрела</td><td>stuck arrow</td><td>результат стрельбы по тебе из лука</td></tr>
+        <tr><td>Сосуд</td><td>волшебный сосуд</td><td>magic jar</td><td>магия очарования</td></tr>
+        <tr><td>Анафем</td><td>анафема</td><td>anathema</td><td>проклятия</td></tr>
+    </tbody>
+</table>    
+
+Также смотри подсказку для основного окна воздействий, команду 'группаумений' ('glist') по каждой группе и справку по каждому навыку.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-affects" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Окно воздействия</b>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                         </button>
@@ -130,7 +326,7 @@
         </div>
 
         <div id="hint-zone" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <b class="modal-title">Название зоны</b>
@@ -145,7 +341,7 @@
         </div>
      
         <div id="hint-room" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <b class="modal-title">Название комнаты</b>
@@ -160,7 +356,7 @@
         </div>
 
         <div id="hint-exits" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <b class="modal-title">Видимые выходы из комнаты</b>
@@ -175,7 +371,7 @@
         </div>
 
         <div id="hint-date" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <b class="modal-title">Текущая дата</b>
@@ -190,7 +386,7 @@
         </div>
 
         <div id="hint-time" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <b class="modal-title">Текущее время</b>
@@ -205,7 +401,7 @@
         </div>
 
         <div id="hint-weather" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <b class="modal-title">Погода</b>
@@ -220,7 +416,7 @@
         </div>
 
         <div id="hint-group" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <b class="modal-title">Окно группы</b>
