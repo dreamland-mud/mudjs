@@ -53,6 +53,10 @@ html, body {
     width: 10%;
 }
 
+.fixed-table-wrapper tr td:nth-child(2) {
+    padding-left: 10px;
+}
+
 td.v-top {
     vertical-align: top;
 }
