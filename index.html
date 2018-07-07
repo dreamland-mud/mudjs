@@ -13,7 +13,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Roboto+Mono&amp;subset=cyrillic" rel="stylesheet"></link>
         <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" ></link>
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></link>
-        <link href="main.css?1.12.3" rel="stylesheet" type="text/css"></link>
+        <link href="main.css?1.12.4" rel="stylesheet" type="text/css"></link>
     </head>
     <body>
         <div id="page" class="flexcontainer-column">
@@ -39,18 +39,18 @@
                     <div id="time-weather" class="fixed-table-wrapper">
                         <table>
                             <tbody>
-                                <tr id="tw-time" style="display:none;"><td><i class="wi wi-fw"></i></td><td><span></span></td></tr>
-                                <tr id="tw-date" style="display:none;"><td><i class="fa">&#xf073;</i></td><td><span></span></td></tr>
-                                <tr id="tw-weather" style="display:none;"><td><i class="wi wi-fw"></i></td><td><span></span></td></tr>
+                                <tr id="tw-time" data-hint="hint-time" style="display:none;"><td><i class="wi wi-fw"></i></td><td><span></span></td></tr>
+                                <tr id="tw-date" data-hint="hint-date" style="display:none;"><td><i class="fa">&#xf073;</i></td><td><span></span></td></tr>
+                                <tr id="tw-weather" data-hint="hint-weather" style="display:none;"><td><i class="wi wi-fw"></i></td><td><span></span></td></tr>
                             </tbody>
                         </table>
                     </div>
                     <div id="player-location" class="fixed-table-wrapper">
                         <table>
                             <tbody>
-                                <tr id="pl-zone" style="display:none;"><td>&nbsp;<i class="fa">&#xf041;</i></td><td>"<span class="fg-ansi-dark-color-6"></span>"</td></tr>
-                                <tr id="pl-room" style="display:none;"><td></td><td>"<span class="fg-ansi-bright-color-6"></span>"</td></tr>
-                                <tr id="pl-exits" style="display:none;"><td class="v-top">&nbsp;<i class="fa">&#xf277;</i></td><td class="v-bottom">выходы: <span id="ple-n" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-e" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-s" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-w" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-u" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-d">&#183;</span></td></tr>
+                                <tr id="pl-zone" data-hint="hint-zone" style="display:none;"><td>&nbsp;<i class="fa">&#xf041;</i></td><td>"<span class="fg-ansi-dark-color-6"></span>"</td></tr>
+                                <tr id="pl-room" data-hint="hint-room" style="display:none;"><td></td><td>"<span class="fg-ansi-bright-color-6"></span>"</td></tr>
+                                <tr id="pl-exits" data-hint="hint-exits" style="display:none;"><td class="v-top">&nbsp;<i class="fa">&#xf277;</i></td><td class="v-bottom">выходы: <span id="ple-n" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-e" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-s" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-w" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-u" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-d">&#183;</span></td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -82,7 +82,7 @@
                     </div>
                     <br/>
                     -->
-                    <div id="group" class="d-none dark-panel">
+                    <div id="group" class="d-none dark-panel" data-hint="hint-group">
                         <span class="dark-panel-title">Группа <span id="g_leader"></span>:</span>
                         <table width="100%">
                                 <thead><th>Имя</th><th>Ур.</th><th>Здор.</th><th>Опыт</th></thead>
@@ -91,7 +91,7 @@
                         <br/>
                     </div>
                     <br/>
-                    <div id="player-affects" class="dark-panel" style="display:none;">
+                    <div id="player-affects" class="dark-panel" style="display:none;" data-hint="hint-affects">
                         <span class="dark-panel-title">Воздействия на тебе:</span>
                         <div class="flexcontainer-row flexcontainer-wrap">
                             <div id="pa-protect" class="flexcontainer-column" style="display:none;">
@@ -114,7 +114,135 @@
             </form>
         </div>
 
-      
+        <div id="hint-affects" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Воздействия</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-zone" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Название зоны</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+     
+        <div id="hint-room" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Название комнаты</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-exits" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Видимые выходы из комнаты</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-date" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Текущая дата</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-time" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Текущее время</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-weather" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Погода</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-group" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Окно группы</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p>В этом окне отображается информация о всех членах группы, в которой ты состоишь. 
+Группа называется в честь своего лидера ('группа такого-то'). Первой строкой отображается состояние лидера,
+затем всех остальных персонажей, следом - всех домашних животных и призванных существ согруппников.</p>
+<p>                        
+Колонки таблицы:<br/>
+<b>Имя</b> - то как тебе видно имя персонажа.<br/>
+<b>Ур.</b> - текущий уровень.<br/>
+<b>Здор.</b> - здоровье в процентах. Здоровье меняет свой цвет в зависимости от нанесенных повреждений.<br/>
+<b>Опыт</b> - сколько осталось опыта до следующего уровня.<br/>
+</p>    
+<p>Подробнее читай: ? группа (? group).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
         <div id="settings-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
@@ -171,7 +299,7 @@
         <script src="telnet.js?1.3"></script>
         <script src="main.js?1.12.2"></script>
         <script src="textedit.js?1.2"></script>
-        <script src="prompt.js?1.2"></script>
+        <script src="prompt.js?1.3"></script>
         <script src="cs.js?1.2"></script>
         <script src="maps.js?1.1"></script>
         <link href="css/weather-icons.min.css" rel="stylesheet" type="text/css"></link>

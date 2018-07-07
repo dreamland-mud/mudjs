@@ -3,6 +3,10 @@ var promptHandler;
 
 $(document).ready(function() {
 
+    $('[data-hint]').on('click', function(e) {
+        $('#' + $(this).data('hint')).modal('toggle');
+    });
+
     function promptLocation(b) {
         lastLocation = {
             area: b.area,
