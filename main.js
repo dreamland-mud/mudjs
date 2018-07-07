@@ -221,45 +221,75 @@ $(document).ready(function() {
         stat($('#stats .move'), b.move, b.max_move);
     }
 
-    // prompt det field: a - active detection bits, z - bits from affects with zero duration
-    function promptDetection(b) {
+    // prompt affect helper function: draw a block of affects
+    // prompt affect block fields: a - active bits, z - bits from affects with zero duration
+    function drawAffectBlock(block, selector, blockName, bitNames) {
         var clr_active = 'fg-ansi-bright-color-2';
         var clr_zero = 'fg-ansi-dark-color-2';
-        var $row = $('#player-detect');
-        var $bitvector = $row.find('.bitvector');
-        var names = { 'h': 'Скрыт', 'i': 'Невид', 'w': 'ОНев', 'f': 'Спрят', 'a': 'Кмф', 
-            'e': 'Зло', 'g': 'Дбр', 'u': 'Неж', 'm': 'Маг', 'o': 'Диаг', 'l': 'Жзн', 'r': 'Инфр' };
+        var clr_header = 'fg-ansi-bright-color-7';
+        var $row = $(selector);
 
         // Nothing changed since last time.
-        if (b.det == undefined) {
+        if (block == undefined) {
             return;
         }
 
-        // Detects are now hidden.
-        if (b.det === "none") {
-            $row.removeClass('d-md-block');
-            $bitvector.empty();
+        // This affect block is now hidden.
+        if (block === "none") {
+            $row.hide();
+            $row.empty();
             return;
         } 
 
-        $row.addClass('d-md-block');
-        $bitvector.empty();
+        $row.show();
+        $row.empty();
 
-        for (var bit in names) {
-            if (names.hasOwnProperty(bit)) {
+        var $span = $('<span/>').addClass(clr_header).text(blockName);
+        $row.append($span);
+
+        for (var bit in bitNames) {
+            if (bitNames.hasOwnProperty(bit)) {
                 var clr;
-
-                if (b.det.z.indexOf(bit) !== -1)
+                
+                // Draw active affect names in green, those about to
+                // disappear in dark green.
+                if (block.z.indexOf(bit) !== -1)
                     clr = clr_zero;
-                else if (b.det.a.indexOf(bit) !== -1)
+                else if (block.a.indexOf(bit) !== -1)
                     clr = clr_active;
                 else
                     continue;
 
-                $bitvector.append($('<span/>')).addClass(clr).append(names[bit]);
-                $bitvector.append(', ');
+                var $span = $('<span/>').addClass(clr).text(bitNames[bit]);
+                $row.append($span);
             }
         }
+    }
+
+    // prompt fields related to affects: det - detection, trv - transport&travel
+    //                                   enh - fightmaster&enhancement, pro - protective
+    function promptAffects(b) {
+        var $affects = $('#player-affects');
+        $affects.show();
+
+        var dnames = { 'h': 'Скрыт', 'i': 'Невид', 'w': 'ОНевид', 'f': 'Спрят', 'a': 'Камуф', 
+            'e': 'Зло', 'g': 'Добро', 'u': 'Нежить', 'm': 'Магия', 'o': 'Диагн', 'l': 'Жизнь', 'r': 'Инфр' };
+        drawAffectBlock(b.det, '#pa-detects', 'Обнар', dnames);
+
+        var tnames = {'i':'Невид','h':'Скрыт','F':'Спрят','I':'УНевд','s':'Подкр','f':'Полет','p':'Прозр','m':'МБлок'};
+        drawAffectBlock(b.trv, '#pa-travel', 'Трансп', tnames);
+
+        var enames = { 'r': 'Реген','h':'Ускор','g':'ГигСил','l':'Обуч', 'b':'Блгслв','f':'Неист','B':'Блгсть','i':'Вдохн','c':'Спокой',
+                      'C':'Концен','z':'Берсрк','w':'Клич','F':'Лес','m':'МагФок'};
+        drawAffectBlock(b.enh, '#pa-enhance', 'Усилен', enames);
+
+        var pnames = { 'z':'Звезд','s':'ЗащСвя','d':'ТАура','p':'ЗащЩит','e':'Зло','g':'Добро','m':'Закл',
+        'P':'Молит','n':'Негат','a':'Броня','A':'УлБрон','S':'Щит','D':'КжДрак','k':'КамКж','r':'СКамн','c':'Холод','h':'Жар','b':'ЛМыш'};
+        drawAffectBlock(b.pro, '#pa-protect', 'Защита', pnames);
+
+        // Hide main affects window if no affect blocks are displayed.
+        if ($affects.find('.flexcontainer-column:visible').length === 0)
+            $affects.hide();
     }
 
     function promptGroup(b) {
@@ -330,7 +360,7 @@ $(document).ready(function() {
                 promptDate(b);
                 promptWeather(b);
                 promptSector(b);
-                promptDetection(b);
+                promptAffects(b);
 // TODO rework: promptStats(b);
             },
             'version': function(b) {
