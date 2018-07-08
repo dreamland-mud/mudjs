@@ -82,6 +82,9 @@ td.v-bottom {
     padding: 5px;
 }    
 
+.hints .modal-content {
+    color: #ddd;
+}    
 
 #group td, #group th {
     padding-left: 5px;
