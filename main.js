@@ -1,5 +1,5 @@
 
-var PROTO_VERSION = 'DreamLand Web Client/1.3';
+var PROTO_VERSION = 'DreamLand Web Client/1.4';
 var rpccmd = function() {}, send = function() {}, notify = function() {};
 var wsUrl = "wss://dreamland.rocks/dreamland";
 
