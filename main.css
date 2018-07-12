@@ -290,3 +290,17 @@ td.v-bottom {
 .fg-ansi-bold {
 /*    font-weight: bold; */
 }
+
+/*
+ * Item manip dropdowns
+ */
+.dropdown-toggle::after {
+    display: none;
+}    
+.dropdown {
+    cursor: pointer;
+}    
+
+.dropdown-toggle:hover {
+    text-decoration: underline;
+}    

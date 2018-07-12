@@ -79,7 +79,7 @@ $(document).ready(function() {
             'version': function(b) {
                 if(b !== PROTO_VERSION) {
                     process('\n\u001b[1;31mВерсия клиента (' + PROTO_VERSION + ') не совпадает с версией сервера (' + b + ').\n' +
-                            'Обнови страницу, если не поможет - почисти кеши.\n');
+                            'Обнови страницу, если не поможет - почисти кеши.\u001b[0;37m\n');
                     ws.close();
                 }
             },
@@ -111,7 +111,7 @@ $(document).ready(function() {
             send('1'); // use internal encoding (koi8). All WebSocket IO is converted to/from UTF8 at the transport layer.
         }
         ws.onclose = function(e) {
-            process('\u001b[1;31m#################### DISCONNECTED ####################\n');
+            process('\u001b[1;31m#################### DISCONNECTED ####################\u001b[0;37m\n');
             $('#reconnect').show();
             $('#input input').hide();
             ws = null;

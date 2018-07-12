@@ -114,9 +114,10 @@ $(document).ready(function() {
             if (actual_class !== '') 
                 txt += '</span>';
 
-            // Replace colour "<c c=''/>" tags coming from the server with spans.
             var span = $('<span/>');
             span.html(txt);
+
+            // Replace colour "<c c='fgbr'/>" tags coming from the server with spans.
             span.find('c').each(function(index) {
                 var style = $(this).attr('c');
                 $(this).replaceWith(function() {
@@ -125,6 +126,8 @@ $(document).ready(function() {
                     return result;
                 });
             });
+
+            manipParseAndReplace(span);
 
             var atBottom = $('#terminal-wrap').scrollTop() > ($('#terminal').height() - $('#terminal-wrap').height() - 50);
             var lines = span.appendTo(terminal).text().replace(/\xa0/g, ' ').split('\n');
