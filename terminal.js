@@ -89,13 +89,19 @@ $(document).ready(function() {
                         ansi += b[i];
                         break;
                     case 0x3c: // <
-                        addText('&lt;');
-                        x++;
-                        break;
+                        if (options.escape_html === true) {
+                            addText('&lt;');
+                            x++;
+                            break;
+                        }
+                        // FALLTHROUGH
                     case 0x3e: // >
-                        addText('&gt;');
-                        x++;
-                        break;
+                        if (options.escape_html === true) {
+                            addText('&gt;');
+                            x++;
+                            break;
+                        }
+                        // FALLTHROUGH
                     default:
                         if(c >= 0x20) {
                             addText(b[i]);
