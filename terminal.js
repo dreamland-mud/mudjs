@@ -114,8 +114,20 @@ $(document).ready(function() {
             if (actual_class !== '') 
                 txt += '</span>';
 
+            // Replace colour "<c c=''/>" tags coming from the server with spans.
+            var span = $('<span/>');
+            span.html(txt);
+            span.find('c').each(function(index) {
+                var style = $(this).attr('c');
+                $(this).replaceWith(function() {
+                    var result = $('<span/>').append($(this).contents());
+                    result.addClass(style);
+                    return result;
+                });
+            });
+
             var atBottom = $('#terminal-wrap').scrollTop() > ($('#terminal').height() - $('#terminal-wrap').height() - 50);
-            var lines = $(txt).appendTo(terminal).text().replace(/\xa0/g, ' ').split('\n');
+            var lines = span.appendTo(terminal).text().replace(/\xa0/g, ' ').split('\n');
             $(lines).each(function() {
                 $('.trigger').trigger('text', [''+this]);
             });
