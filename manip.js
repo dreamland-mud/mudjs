@@ -48,6 +48,6 @@ $(document).ready(function() {
     // Remove underline when dropdown is hidden.
     $('body').on('hide.bs.dropdown', '.dropdown', function (e) {
         console.log('hide dropdown', e.relatedTarget);
-        $(e.relatedTarget).css('text-decoration', 'none');
+        $(e.relatedTarget).removeAttr('style');
     });
 });
