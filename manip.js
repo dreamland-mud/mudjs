@@ -2,9 +2,6 @@ var manipParseAndReplace;
 
 $(document).ready(function() {
 
-    // TODO check if item is still in the current location.
-    // TODO remove excessive logging
-
     // Replace item manipulation "<m i='234234' c='take $,put $ 12348'/>" tags surrounding every item.
     manipParseAndReplace = function(span) {
         span.find('m').each(function(index) {
@@ -35,19 +32,16 @@ $(document).ready(function() {
     // Send command to the server when individual menu item is clicked.
     $('body').on('click', '.manip-item', function(e) {
         var action = $(e.currentTarget).attr('data-action');
-        console.log('manip action', action);
         send(action);
     });
 
     // Underline current selection when dropdown is shown.
     $('body').on('show.bs.dropdown', '.dropdown', function (e) {
-        console.log('show dropdown', e.relatedTarget);
         $(e.relatedTarget).css('text-decoration', 'underline');
     });
 
     // Remove underline when dropdown is hidden.
     $('body').on('hide.bs.dropdown', '.dropdown', function (e) {
-        console.log('hide dropdown', e.relatedTarget);
         $(e.relatedTarget).removeAttr('style');
     });
 });
