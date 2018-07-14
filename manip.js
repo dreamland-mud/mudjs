@@ -5,10 +5,11 @@ $(document).ready(function() {
     // Replace item manipulation "<m i='234234' c='take $,put $ 12348'/>" tags surrounding every item.
     manipParseAndReplace = function(span) {
         span.find('m').each(function(index) {
-            // Populate menu node for each item based on the 'c' attribute containing command list.
+            // Populate menu node for each item based on the 'c' and 'l' attributes containing command lists.
             var id = $(this).attr('i');
             var menu = $('<span class="dropdown-menu" />');
-            $(this).attr('c').split(',').map(function(cmd) {
+
+            function addToMenu(cmd) {
                 var action = cmd.replace(/\$/, id);
                 var label = cmd.replace(/^([а-я ]+).*$/, '$1');
                 menu.append($('<a/>')
@@ -17,7 +18,22 @@ $(document).ready(function() {
                              .attr('data-action', action)
                              .attr('href', '#')
                              .append(label));
+            }
+
+            // Main commands above the divider.
+            $(this).attr('c').split(',').map(function(cmd) {
+                addToMenu(cmd);
             });
+
+            // Commands only available in this room, below the divider.
+            if (this.hasAttribute('l')) {
+                var divider = $('<div/>').addClass('dropdown-divider');
+                menu.append(divider);
+                $(this).attr('l').split(',').map(function(cmd) {
+                    addToMenu(cmd);
+                });
+            }
+
             // Create drop-down toggle from item description text.
             var toggle = $('<span class="dropdown-toggle" data-toggle="dropdown"/>').append($(this).contents());
 
