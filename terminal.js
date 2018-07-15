@@ -129,7 +129,7 @@ $(document).ready(function() {
 
             manipParseAndReplace(span);
 
-            var atBottom = $('#terminal-wrap').scrollTop() > ($('#terminal').height() - $('#terminal-wrap').height() - 50);
+            var atBottom = $('#terminal-wrap').scrollTop() > ($('#terminal').height() - 2 * $('#terminal-wrap').height() );
             var lines = span.appendTo(terminal).text().replace(/\xa0/g, ' ').split('\n');
             $(lines).each(function() {
                 $('.trigger').trigger('text', [''+this]);

@@ -2,7 +2,7 @@
 var PROTO_VERSION = 'DreamLand Web Client/1.5';
 var rpccmd = function() {}, send = function() {}, notify = function() {};
 var wsUrl = "wss://dreamland.rocks/dreamland";
-var options = { "escape_html" : false };
+var options = { "escape_html" : false, "ansi_colors": false };
 
 if(location.hash === '#build') {
     wsUrl = "wss://dreamland.rocks/buildplot";
@@ -48,10 +48,6 @@ $(document).ready(function() {
 
     function process(s) {
         $('#terminal').trigger('output', [s]);
-
-        // dont autofocus if modal dialog is present
-        if($('body.modal-open').length == 0)
-            $('#input input').focus();
     }
 
     function connect() {
