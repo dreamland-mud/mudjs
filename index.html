@@ -13,25 +13,39 @@
 	<link href="https://fonts.googleapis.com/css?family=Roboto+Mono&amp;subset=cyrillic" rel="stylesheet"></link>
         <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" ></link>
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></link>
-        <link href="main.css?1.15" rel="stylesheet" type="text/css"></link>
+        <link href="main.css?1.16" rel="stylesheet" type="text/css"></link>
     </head>
     <body>
         <div id="page" class="flexcontainer-column">
             <div class="main-content flexcontainer-row flex-grow-shrink-auto">
                 <div id="terminal-wrap" class="flex-grow-shrink-auto">
                     <div id="overlay">
-                                <button id="font-minus-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-hidden="true">
-                                    <i class="fa fa-minus"></i>
-                                </button>
-                                <button id="font-plus-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-hidden="true">
-                                    <i class="fa fa-plus"></i>
-                                </button>
-                                <button id="map-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-label="карта">
-                                    <i class="fa fa-map"></i>
-                                </button>
-                                <button id="settings-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" data-toggle="modal" data-target="#settings-modal" aria-label="настройки">
-                                    <i class="fa fa-cog"></i>
-                                </button>
+                            <table id="nav" aria-hidden="true">
+                                <tr>
+                                    <td><button id="settings-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" data-toggle="modal" data-target="#settings-modal" aria-label="настройки"> <i class="fa fa-cog"></i> </button></td>
+                                    <td><button id="map-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-label="карта"> <i class="fa fa-map"></i> </button></td>
+                                    <td><button id="font-plus-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-hidden="true"> <i class="fa fa-plus"></i> </button></td>
+                                    <td><button id="font-minus-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-hidden="true"> <i class="fa fa-minus"></i> </button></td>
+                                </tr>
+                                <tr class="nav-hidden-md">
+                                    <td></td>
+                                    <td><button type="button" data-cmd="scan" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><i class="fa  fa-fw fa-refresh"></i></button></td>
+                                    <td><button type="button" data-cmd="n" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><span>N</span></button></td>
+                                    <td><button type="button" data-cmd="u" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><span>U</span></button></td>
+                                </tr>
+                                <tr class="nav-hidden-md">
+                                    <td></td>
+                                    <td><button type="button" data-cmd="w" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><span>W</span></button></td>
+                                    <td><button type="button" data-cmd="l" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"> <i class="fa fa-fw  fa-eye"></i></button></td>
+                                    <td><button type="button" data-cmd="e" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><span>E</span></button></td>
+                                </tr>
+                                <tr class="nav-hidden-md">
+                                    <td></td>
+                                    <td><button type="button" data-cmd="where" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><i class="fa fa-fw fa-map-marker"></i></button></td>
+                                    <td><button type="button" data-cmd="s" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><span>S</span></button></td>
+                                    <td><button type="button" data-cmd="d" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><span>D</span></button></td>
+                                </tr>
+                            </table>
                     </div>
                     <div id="terminal"></div>
                 </div>
@@ -54,34 +68,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <!--
-                    <br/>
-                    <div id="player-params">
-                        <table width="100%">
-                            <tbody>
-                                <tr><td>Сила:</td><td>19</td><td>Ловк:</td><td>23</td><td>Слож:</td><td>19</td></tr>
-                                <tr><td>Ум:</td><td>20</td><td>Мудр:</td><td>20</td><td>Обая:</td><td>16</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="stats" style="display: none">
-                        <div class="stat hit"><div class="fill"></div><div class="value"></div></div>
-                        <div class="stat mana"><div class="fill"></div><div class="value"></div></div>
-                        <div class="stat move"><div class="fill"></div><div class="value"></div></div>
-                    </div>
-                    <div id="player-summary">
-                        <table width="100%">
-                            <tbody>
-                                <tr><td>Уров.</td><td>99</td><td>Опыт</td><td>2033</td></tr>
-                                <tr><td>Точн.</td><td>101</td><td>Урон</td><td>99</td></tr>
-                                <tr><td>SVS</td><td>-33</td><td>Броня</td><td>-1009</td></tr>
-                                <tr><td>Кв.очки</td><td>20033</td><td>Золото</td><td>1009</td></tr>
-                                <tr><td>Кв.время</td><td>33</td><td>Серебро</td><td>21009</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <br/>
-                    -->
                     <div id="group" class="d-none dark-panel" data-hint="hint-group">
                         <span class="dark-panel-title">Группа <span id="g_leader"></span>:</span>
                         <table width="100%">

@@ -11,11 +11,33 @@ html, body {
     pointer-events: none;
 }
 
+.nav-hidden-md {
+    display: none;
+}
+
 @media only screen and (max-width: 767px) {
     #overlay {
         right: 1em;
     }
+
+    .nav-hidden-md {
+        display: table-row;
+    }
 } 
+
+#nav button {
+    width: 2em;
+}
+
+#nav td {
+    padding: 3px;
+}    
+
+#nav td span {
+    padding: 5px;
+    font-weight: bold;
+    font-family: monospace;
+}   
 
 #time-weather .wi {
     font-size: 150%;
@@ -169,25 +191,6 @@ td.v-bottom {
     border-color: lightgrey;
 }    
 
-#nav {
-    position: absolute; 
-    bottom: 3.5em;
-}
-
-#nav table {
-    float: right;
-}    
-
-#nav td {
-    padding: 5px;
-}    
-
-#nav td span {
-    padding: 5px;
-    font-weight: bold;
-    font-family: monospace;
-}    
-    
 .editor { 
     height: 70vh;
 
