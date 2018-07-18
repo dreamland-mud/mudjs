@@ -9,6 +9,7 @@ html, body {
     top: 0;
     right: 25em;
     pointer-events: none;
+    z-index: 500;
 }
 
 .nav-hidden-md {
