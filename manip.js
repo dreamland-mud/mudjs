@@ -21,9 +21,10 @@ $(document).ready(function() {
             }
 
             // Main commands above the divider.
-            $(this).attr('c').split(',').map(function(cmd) {
-                addToMenu(cmd);
-            });
+            if (this.hasAttribute('c')) 
+                $(this).attr('c').split(',').map(function(cmd) {
+                    addToMenu(cmd);
+                });
 
             // Commands only available in this room, below the divider.
             if (this.hasAttribute('l')) {
