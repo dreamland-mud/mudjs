@@ -17,23 +17,27 @@
     </head>
     <body>
 <style>
-#terminal-wrap {
-   padding: 0px 10px 10px 10px;
-   margin: 0px 10px 8px 10px;
-   border: 1px solid #999;
-}     
-#overlay {
-   top: 3px;
-}
 body {
     color: #888;
-/*  background-color: #353535; */
-/*
-    background-image: url('https://dreamland.rocks/img/home2-background.jpg');
-*/
     background-color: #232f2e;
     height: 100%;
 }        
+
+#terminal-wrap {
+    padding: 1px;
+}
+
+@media (min-width: 768px) {
+    #terminal-wrap {
+       padding: 0px 10px 10px 10px;
+       margin: 0px 10px 8px 10px;
+       border: 1px solid #999;
+    }     
+    #overlay {
+       top: 3px;
+    }
+}
+
 #panel-wrap {
     background-color: transparent;
     border: none;
@@ -64,17 +68,19 @@ body {
     content: "\002B"; 
 }
 
-form#input {
-    border: 1px solid #999;
-    background-color: #2e3436;
-    margin: 10px 8px 10px 10px;
-}        
-form#input input {
-    border-color: transparent;
-    background-color: transparent;
-    color: #d3d7cf;
-    padding: 4px 10px 4px 10px;
-}        
+@media (min-width: 768px) {
+    form#input {
+        border: 1px solid #999;
+        margin: 10px 8px 10px 10px;
+        background-color: #2e3436;
+    }        
+    form#input input {
+        padding: 4px 10px 4px 10px;
+        color: #d3d7cf;
+        border-color: transparent;
+        background-color: transparent;
+    }        
+}    
 </style>
         <div id="page" class="flexcontainer-column">
             <div class="main-content flexcontainer-row flex-grow-shrink-auto">
