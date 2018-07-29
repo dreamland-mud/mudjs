@@ -352,6 +352,27 @@ $(document).ready(function() {
         }
     }
 
+    // prompt questor quest info 'q' fields: t - remaining time, i - short quest info.
+    function promptQuestor(b) {
+        console.log('q', b.q);
+        // Nothing changed since last time.
+        if (b.q == undefined) {
+            return;
+        }
+
+        // Questor panel is now hidden.
+        if (b.q === "none") {
+            $('#questor').hide();
+            return;
+        } 
+
+        $('#questor').show();
+        // Draw quest time in the header.
+        $('#quest-time').text(b.q.t);
+        // Draw quest info.
+        $('#questor-table p').text(b.q.i);        
+    }
+
     function promptGroup(b) {
         // Nothing changed since last time.
         if (b.group == undefined) {
@@ -409,6 +430,7 @@ $(document).ready(function() {
         promptAffects(b);
         promptWho(b);
         promptParams(b);
+        promptQuestor(b);
 // TODO rework: promptStats(b);
     };
 

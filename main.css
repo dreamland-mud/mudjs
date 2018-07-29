@@ -195,6 +195,10 @@ td.v-bottom {
     padding-bottom: 5px;
 }
 
+#questor-table p {
+    padding: 4px 4px 0px 4px;
+}        
+
 /*
  * Pop-up windows with hints about various layout elements.
  */
