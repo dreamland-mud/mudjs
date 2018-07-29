@@ -62,22 +62,26 @@ html, body {
     padding-bottom: 5px;
 }
 
-.fixed-table-wrapper {
+.table-wrapper {
+    cursor: pointer;
     padding-bottom: 1em;
     padding-left: 0.2em;
 }
 
-.fixed-table-wrapper table {
-    table-layout: fixed;
+.table-wrapper table {
     width: 100%;
     cursor: pointer;
 }
 
-.fixed-table-wrapper tr td:first-child {
+.table-with-icons table {
+    table-layout: fixed;
+}
+
+.table-with-icons tr td:first-child {
     width: 10%;
 }
 
-.fixed-table-wrapper tr td:nth-child(2) {
+.table-with-icons tr td:nth-child(2) {
     padding-left: 10px;
 }
 
@@ -90,15 +94,6 @@ td.v-bottom {
 
 #group {
     display: none;
-}
-
-.dark-panel {
-    background-color: rgba(0,0,0,0.1);
-    z-index: 2;
-    cursor: pointer;
-    border: 1px solid rgba(0,0,0,.25);
-    margin-right: 3px;
-    margin-left: 3px;
 }
 
 .dark-panel-title {
