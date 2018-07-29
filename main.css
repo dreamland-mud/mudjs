@@ -155,11 +155,11 @@ td.v-bottom {
     padding-bottom: 0px;
 }    
 
-#group {
+#group, #who, #time-weather, #player-location {
     display: none;
 }
 
-#group td, #group th {
+#group td, #group th, #who td, #who th {
     padding-left: 5px;
     padding-right: 5px;
 }
@@ -204,7 +204,7 @@ td.v-bottom {
  */
 @media only screen and (min-width: 768px) {
     #terminal-wrap {
-       padding: 0px 10px 10px 1px;
+       padding: 0px 10px 10px 2px;
        margin: 0px 10px 8px 10px;
        border: 1px solid #999;
     }     
@@ -217,7 +217,7 @@ td.v-bottom {
         background-color: #2e3436;
     }        
     form#input input {
-        padding: 4px 10px 4px 10px;
+        padding: 4px 10px 4px 2px;
         color: #d3d7cf;
         border-color: transparent;
         background-color: transparent;

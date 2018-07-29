@@ -103,13 +103,12 @@
                         </div>
                     </div><!-- player-affects -->
                     <div id="who" class="table-wrapper">
-                        <span class="dark-panel-title" data-hint="hint-group">Сейчас в мире:</span>
+                        <span class="dark-panel-title" data-hint="hint-who">Сейчас в мире:</span>
 			<button class="close" type="button" data-toggle="collapse" data-target="#who-table"> </button>
                         <div id="who-table" class="collapse show">
-                            <table data-hint="hint-group">
-				<tbody>
-				   <tr><td>&nbsp;<span class=""><b>Руфина</b></span>, сатир, <span class="fgbc">одиночка</span></td></tr>	
-				</tbody>
+                            <table data-hint="hint-who">
+                                <thead><th>Имя</th><th>Раса</th><th>Клан</th></thead>
+				<tbody></tbody>
                             </table>
                         </div><!-- who-table -->
                     </div><!-- who -->
@@ -478,6 +477,23 @@
             </div>
         </div>
 
+        <div id="hint-who" class="modal fade hints" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Список игроков</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p>В этом окне отображается информация о всех видимых тебе игроках, находящихся сейчас в мире.
+Для каждого из них выводится раса (сокращенно) и название клана. Более подробная информация видна
+по команде <b>ктоесть имя</b> и команде <b>кто</b>.</p>
+<p>Подробнее читай: ? ктоесть, ? кто (? whois, ? who).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div id="settings-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">

@@ -249,14 +249,61 @@ $(document).ready(function() {
         drawAffectBlock(b.mal, '#pa-malad', 'Отриц', mnames, '1');
     }
 
+    // prompt 'who' fields: p - list of players, v - visible player count,
+    // t - total player count. 
+    // Each player contains fields: n - name, r - first 2 letters of race, 
+    // cn - first letter of clan name, cc - clan colour.
+    function promptWho(b) {
+        // Nothing changed since last time.
+        if (b.who == undefined) {
+            return;
+        }
+
+        $('#who').addClass('d-md-block');
+        var body = $('#who tbody');
+        body.empty();
+
+        // Nothing in 'who' - shouldn't happen except in very specific cases.
+        if (b.who === "none") {
+            $('#who').removeClass('d-md-block');
+            return;
+        }
+
+        // Translate race and clan to their full names.
+        var races = {'ar':'Ариал','ce':'Кентавр','cl':'ОбВелик','da':'ТемЭльф','dr':'Дроу','du':'Дуэргар',
+            'dw':'Дварф','el':'Эльф','fa':'Фея','fe':'Фелар','fi':'ОгВелик','fr':'ИнВелик','gi':'Гитианк',
+            'gn':'Гном','ha':'ПолЭльф','ho':'Хоббит','hu':'Человек','ke':'Кендер','ma':'Чес','ro':'Роксир',
+            'sa':'Сатир','st':'ШтВелик','sv':'Свирф','tr':'Тролль','ur':'Урукха'};
+        var clans = {'b':'Ярости','c':'Хаос','e':'Изгои','f':'Цветы','g':'Призраки','h':'Охотники',
+            'i':'Захватчики','k':'Рыцари','l':'Львы','o':'Одиночки','r':'Правители','s':'Шалафи', 'n':''};
+
+        // Draw single player line.
+        function who_player(wch) {
+            var tr = $('<tr/>');
+
+            tr.append($('<td/>').append(wch.n));
+            tr.append($('<td/>').append(races[wch.r]));
+            if (wch.cn == undefined)
+                tr.append($('<td/>').append(""));
+            else
+                tr.append($('<td/>').append("<span class='fg" + wch.cc + "'>" + clans[wch.cn] + "</span>"));
+            return tr;
+        }
+
+        // Draw all players.
+        b.who.p.forEach(function(wch) {
+            body.append(who_player(wch));
+        });
+    }
+
     function promptGroup(b) {
         // Nothing changed since last time.
         if (b.group == undefined) {
             return;
         }
 
-        // Group is now hidden.
-        if (b.group === "none"/* || (b.group.pc == undefined && b.group.npc == undefined)*/) {
+        // Group is now hidden: shouldn't happen as the leader is always shown.
+        if (b.group === "none") {
             $('#group').removeClass('d-md-block');
             return;
         } 
@@ -290,6 +337,9 @@ $(document).ready(function() {
 
     // Main prompt handler, called from main.js.
     promptHandler = function(b) {
+        $('#time-weather').show();
+        $('#player-location').show();
+
         promptGroup(b);
         promptLocation(b);
         promptZone(b);
@@ -300,6 +350,7 @@ $(document).ready(function() {
         promptWeather(b);
         promptSector(b);
         promptAffects(b);
+        promptWho(b);
 // TODO rework: promptStats(b);
     };
 
