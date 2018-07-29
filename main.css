@@ -94,6 +94,7 @@ body {
  * Panel on the right-hand side.
  */
 #panel-wrap {
+    overflow-y: auto;
     background-color: transparent;
     border: none;
     margin: 0px;
