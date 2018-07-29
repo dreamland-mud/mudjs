@@ -208,7 +208,7 @@ $(document).ready(function() {
                 var clr;
                 
                 // Draw active affect names in green, those about to
-                // disappear in dark green.
+                // disappear in yellow.
                 if (block.z.indexOf(bit) !== -1)
                     clr = clr_zero;
                 else if (block.a.indexOf(bit) !== -1)
@@ -296,6 +296,62 @@ $(document).ready(function() {
         });
     }
 
+    // prompt params fields p1: ps - array of permanent stats, cs - array of current stats.
+    // prompt params fields p2: h - hitroll, d - damroll, a - armor class, s - saves vs spell.
+    function promptParams(b) {
+        var params = $('#player-params'), p1 = $('#player-params-1'), p2 = $('#player-params-2');
+        
+        params.show();
+
+        // Redraw stats panel from p1 if changed. 
+        if (b.p1 !== undefined) {
+            // Hidden stats -shouldn't happen.
+            if (b.p1 === "none")  {
+                p1.hide();
+            } else {
+                var body = p1.find('tbody'), tr;
+
+                p1.show();
+                body.empty();
+
+                tr = $('<tr/>');
+                tr.append($('<td/>').append('<b>Сила</b>:')).append($('<td/>').append(b.p1.ps[0] + '&nbsp;(<b>' + b.p1.cs[0] + '</b>)'));
+                tr.append($('<td/>').append('<b>Ум</b>:')).append($('<td/>').append(b.p1.ps[1] + '&nbsp;(<b>' + b.p1.cs[1] + '</b>)'));
+                body.append(tr);
+                tr = $('<tr/>');
+                tr.append($('<td/>').append('<b>Мудр</b>:')).append($('<td/>').append(b.p1.ps[2] + '&nbsp;(<b>' + b.p1.cs[2] + '</b>)'));
+                tr.append($('<td/>').append('<b>Ловк</b>:')).append($('<td/>').append(b.p1.ps[3] + '&nbsp;(<b>' + b.p1.cs[3] + '</b>)'));
+                body.append(tr);
+                tr = $('<tr/>');
+                tr.append($('<td/>').append('<b>Слож</b>:')).append($('<td/>').append(b.p1.ps[4] + '&nbsp;(<b>' + b.p1.cs[4] + '</b>)'));
+                tr.append($('<td/>').append('<b>Обая</b>:')).append($('<td/>').append(b.p1.ps[5] + '&nbsp;(<b>' + b.p1.cs[5] + '</b>)'));
+                body.append(tr);
+            }
+        }
+
+        // Redraw other parameters from p2 if changed.
+        if (b.p2 !== undefined) {
+            // Hidden stats - for player level below 20. 
+            if (b.p2 === "none")  {
+                p2.hide();
+            } else {
+                var body = p2.find('tbody'), tr;
+
+                p2.show();
+                body.empty();
+
+                tr = $('<tr/>');
+                tr.append($('<td/>').append('<b>Точность</b>:')).append($('<td/>').append(b.p2.h));
+                tr.append($('<td/>').append('<b>Урон</b>:')).append($('<td/>').append(b.p2.d));
+                body.append(tr);
+                tr = $('<tr/>');
+                tr.append($('<td/>').append('<b>Броня</b>:')).append($('<td/>').append(b.p2.a));
+                tr.append($('<td/>').append('<b>Заклин</b>:')).append($('<td/>').append(b.p2.s));
+                body.append(tr);
+            }
+        }
+    }
+
     function promptGroup(b) {
         // Nothing changed since last time.
         if (b.group == undefined) {
@@ -340,6 +396,7 @@ $(document).ready(function() {
         $('#time-weather').show();
         $('#player-location').show();
 
+        console.log(b);
         promptGroup(b);
         promptLocation(b);
         promptZone(b);
@@ -351,6 +408,7 @@ $(document).ready(function() {
         promptSector(b);
         promptAffects(b);
         promptWho(b);
+        promptParams(b);
 // TODO rework: promptStats(b);
     };
 
