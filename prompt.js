@@ -247,10 +247,6 @@ $(document).ready(function() {
         var mnames = {'b': 'Слеп','p':'Яд','P':'Чума','C':'Гниени','f':'ОгФей','W':'Очаров','c':'Прокл','w':'Слабо',
         's':'Замедл','S':'Крик','B':'ЖажКрв','T':'Оглуш','i':'НетРук','I':'Стрела','j':'Сосуд','a':'Анафем'};
         drawAffectBlock(b.mal, '#pa-malad', 'Отриц', mnames, '1');
-
-        // Hide main affects window if no affect blocks are displayed.
-        if ($affects.find('.flexcontainer-column:visible').length === 0)
-            $affects.hide();
     }
 
     function promptGroup(b) {
@@ -260,7 +256,7 @@ $(document).ready(function() {
         }
 
         // Group is now hidden.
-        if (b.group === "none" || (b.group.pc == undefined && b.group.npc == undefined)) {
+        if (b.group === "none"/* || (b.group.pc == undefined && b.group.npc == undefined)*/) {
             $('#group').removeClass('d-md-block');
             return;
         } 

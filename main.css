@@ -4,6 +4,12 @@ html, body {
     padding:0;
 }
 
+body {
+    color: #888;
+    background-color: #353535;
+    height: 100%;
+}        
+
 #overlay {
     position: fixed;
     top: 0;
@@ -39,6 +45,63 @@ html, body {
     font-weight: bold;
     font-family: monospace;
 }   
+
+#panel-wrap {
+    background-color: transparent;
+    border: none;
+    margin: 0px;
+}
+
+/*
+ * Collapsible panels on the right-hand side.
+ */
+.table-wrapper {
+    position: relative;
+    background-color: #2e3436;
+    margin: 8px 8px 1px 0px;
+    border: 1px solid #999;
+    padding-bottom: 0.1em;
+}
+
+.table-wrapper .close {
+    position: absolute;
+    top: 0em;
+    right: 0.3em;
+}
+
+.table-wrapper .close:after {
+    content: "\2212"; 
+}
+
+.table-wrapper .close.collapsed:after {
+    content: "\002B"; 
+}
+
+/* Draw distinct borders and space around elements
+ * on big screen. Make input box styled as the rest of the
+ * page components.
+ */
+@media only screen and (min-width: 768px) {
+    #terminal-wrap {
+       padding: 0px 10px 10px 1px;
+       margin: 0px 10px 8px 10px;
+       border: 1px solid #999;
+    }     
+    #overlay {
+       top: 3px;
+    }
+    form#input {
+        border: 1px solid #999;
+        margin: 8px 8px 10px 10px;
+        background-color: #2e3436;
+    }        
+    form#input input {
+        padding: 4px 10px 4px 10px;
+        color: #d3d7cf;
+        border-color: transparent;
+        background-color: transparent;
+    }        
+}    
 
 #time-weather .wi {
     font-size: 150%;
@@ -98,6 +161,7 @@ td.v-bottom {
 
 .dark-panel-title {
     padding: 5px;
+    padding-bottom: 0px;
 }    
 
 .hints .modal-content {
@@ -246,10 +310,7 @@ td.v-bottom {
     overflow-y: auto;
     background-color: #2e3436;
     min-height: 100%;
-}
-
-#panel-wrap {
-    background-color: #2e3436;
+    padding: 1px;
 }
 
 #terminal {
