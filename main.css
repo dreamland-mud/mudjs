@@ -293,11 +293,11 @@ td.v-bottom {
 }
 
 .flex-nogrow-shrink-narrow {
-    -webkit-box-flex: 0 1 15%;
-    -moz-box-flex:    0 1 15%;
-    -webkit-flex:     0 1 15%;
-    -ms-flex:         0 1 15%;
-    flex:             0 1 15%;
+    -webkit-box-flex: 0 1 270px;
+    -moz-box-flex:    0 1 270px;
+    -webkit-flex:     0 1 270px;
+    -ms-flex:         0 1 270px;
+    flex:             0 1 270px;
 }    
 
 .flexcontainer-row {
