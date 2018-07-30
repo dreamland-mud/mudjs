@@ -177,6 +177,9 @@ $(document).ready(function() {
         stat($('#stats .move'), b.move, b.max_move);
     }
 
+    // Should the main affect window be hidden as it's empty?
+    var affectsPanelHidden = true;
+
     // prompt affect helper function: draw a block of affects
     // prompt affect block fields: a - active bits, z - bits from affects with zero duration
     function drawAffectBlock(block, selector, blockName, bitNames, color) {
@@ -187,6 +190,8 @@ $(document).ready(function() {
 
         // Nothing changed since last time.
         if (block == undefined) {
+            if ($row.is(':visible'))
+                affectsPanelHidden = false;
             return;
         }
 
@@ -199,6 +204,7 @@ $(document).ready(function() {
 
         $row.show();
         $row.empty();
+        affectsPanelHidden = false;
 
         var $span = $('<span/>').addClass(clr_header).text(blockName);
         $row.append($span);
@@ -226,7 +232,7 @@ $(document).ready(function() {
     //                                   enh - fightmaster&enhancement, pro - protective
     function promptAffects(b) {
         var $affects = $('#player-affects');
-        $affects.show();
+        affectsPanelHidden = true;
 
         var dnames = { 'h': 'Скрыт', 'i': 'Невид', 'w': 'ОНевид', 'f': 'Спрят', 'a': 'Камуф', 
             'e': 'Зло', 'g': 'Добро', 'u': 'Нежить', 'm': 'Магия', 'o': 'Диагн', 'l': 'Жизнь', 'r': 'Инфра' };
@@ -247,6 +253,12 @@ $(document).ready(function() {
         var mnames = {'b': 'Слеп','p':'Яд','P':'Чума','C':'Гниени','f':'ОгФей','W':'Очаров','c':'Прокл','w':'Слабо',
         's':'Замедл','S':'Крик','B':'ЖажКрв','T':'Оглуш','i':'НетРук','I':'Стрела','j':'Сосуд','a':'Анафем'};
         drawAffectBlock(b.mal, '#pa-malad', 'Отриц', mnames, '1');
+
+        // Hide main affects window if no affect blocks are displayed.
+        if (affectsPanelHidden)
+            $affects.hide();
+        else
+            $affects.show();
     }
 
     // prompt 'who' fields: p - list of players, v - visible player count,
@@ -373,6 +385,11 @@ $(document).ready(function() {
         $('#questor-table p').text(b.q.i);        
     }
 
+    // prompt 'group' fields: ln - leader name in genitive case, 
+    // leader - leader stats to display as a first line,
+    // pc - list of all remaining PCs, npc - all NPCs in the group.
+    // Each line format: sees - name, level, health - hitpoints percentage, hit_clr - color to display health with
+    // tnl - exp to next level.
     function promptGroup(b) {
         // Nothing changed since last time.
         if (b.group == undefined) {
