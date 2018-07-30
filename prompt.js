@@ -177,6 +177,9 @@ $(document).ready(function() {
         stat($('#stats .move'), b.move, b.max_move);
     }
 
+    // Should the main affect window be hidden as it's empty?
+    var affectsPanelHidden = true;
+
     // prompt affect helper function: draw a block of affects
     // prompt affect block fields: a - active bits, z - bits from affects with zero duration
     function drawAffectBlock(block, selector, blockName, bitNames, color) {
@@ -187,6 +190,8 @@ $(document).ready(function() {
 
         // Nothing changed since last time.
         if (block == undefined) {
+            if ($row.is(':visible'))
+                affectsPanelHidden = false;
             return;
         }
 
@@ -199,6 +204,7 @@ $(document).ready(function() {
 
         $row.show();
         $row.empty();
+        affectsPanelHidden = false;
 
         var $span = $('<span/>').addClass(clr_header).text(blockName);
         $row.append($span);
@@ -208,7 +214,7 @@ $(document).ready(function() {
                 var clr;
                 
                 // Draw active affect names in green, those about to
-                // disappear in dark green.
+                // disappear in yellow.
                 if (block.z.indexOf(bit) !== -1)
                     clr = clr_zero;
                 else if (block.a.indexOf(bit) !== -1)
@@ -226,7 +232,7 @@ $(document).ready(function() {
     //                                   enh - fightmaster&enhancement, pro - protective
     function promptAffects(b) {
         var $affects = $('#player-affects');
-        $affects.show();
+        affectsPanelHidden = true;
 
         var dnames = { 'h': 'Скрыт', 'i': 'Невид', 'w': 'ОНевид', 'f': 'Спрят', 'a': 'Камуф', 
             'e': 'Зло', 'g': 'Добро', 'u': 'Нежить', 'm': 'Магия', 'o': 'Диагн', 'l': 'Жизнь', 'r': 'Инфра' };
@@ -249,27 +255,159 @@ $(document).ready(function() {
         drawAffectBlock(b.mal, '#pa-malad', 'Отриц', mnames, '1');
 
         // Hide main affects window if no affect blocks are displayed.
-        if ($affects.find('.flexcontainer-column:visible').length === 0)
+        if (affectsPanelHidden)
             $affects.hide();
+        else
+            $affects.show();
     }
 
+    // prompt 'who' fields: p - list of players, v - visible player count,
+    // t - total player count. 
+    // Each player contains fields: n - name, r - first 2 letters of race, 
+    // cn - first letter of clan name, cc - clan colour.
+    function promptWho(b) {
+        // Nothing changed since last time.
+        if (b.who == undefined) {
+            return;
+        }
+
+        $('#who').show();
+        var body = $('#who tbody');
+        body.empty();
+
+        // Nothing in 'who' - shouldn't happen except in very specific cases.
+        if (b.who === "none") {
+            $('#who').hide();
+            return;
+        }
+
+        // Translate race and clan to their full names.
+        var races = {'ar':'Ариал','ce':'Кентавр','cl':'ОбВелик','da':'ТемЭльф','dr':'Дроу','du':'Дуэргар',
+            'dw':'Дварф','el':'Эльф','fa':'Фея','fe':'Фелар','fi':'ОгВелик','fr':'ИнВелик','gi':'Гитианк',
+            'gn':'Гном','ha':'ПолЭльф','ho':'Хоббит','hu':'Человек','ke':'Кендер','ma':'Чес','ro':'Роксир',
+            'sa':'Сатир','st':'ШтВелик','sv':'Свирф','tr':'Тролль','ur':'Урукха'};
+        var clans = {'b':'Ярости','c':'Хаос','e':'Изгои','f':'Цветы','g':'Призраки','h':'Охотники',
+            'i':'Захватчики','k':'Рыцари','l':'Львы','o':'Одиночки','r':'Правители','s':'Шалафи', 'n':''};
+
+        // Draw single player line.
+        function who_player(wch) {
+            var tr = $('<tr/>');
+
+            tr.append($('<td/>').append(wch.n));
+            tr.append($('<td/>').append(races[wch.r]));
+            if (wch.cn == undefined)
+                tr.append($('<td/>').append(""));
+            else
+                tr.append($('<td/>').append("<span class='fg" + wch.cc + "'>" + clans[wch.cn] + "</span>"));
+            return tr;
+        }
+
+        // Draw all players.
+        b.who.p.forEach(function(wch) {
+            body.append(who_player(wch));
+        });
+    }
+
+    // prompt params fields p1: ps - array of permanent stats, cs - array of current stats.
+    // prompt params fields p2: h - hitroll, d - damroll, a - armor class, s - saves vs spell.
+    function promptParams(b) {
+        var params = $('#player-params'), p1 = $('#player-params-1'), p2 = $('#player-params-2');
+        
+        params.show();
+
+        // Redraw stats panel from p1 if changed. 
+        if (b.p1 !== undefined) {
+            // Hidden stats -shouldn't happen.
+            if (b.p1 === "none")  {
+                p1.hide();
+            } else {
+                var body = p1.find('tbody'), tr;
+
+                p1.show();
+                body.empty();
+
+                tr = $('<tr/>');
+                tr.append($('<td/>').append('<b>Сила</b>:')).append($('<td/>').append(b.p1.ps[0] + '&nbsp;(<b>' + b.p1.cs[0] + '</b>)'));
+                tr.append($('<td/>').append('<b>Ум</b>:')).append($('<td/>').append(b.p1.ps[1] + '&nbsp;(<b>' + b.p1.cs[1] + '</b>)'));
+                body.append(tr);
+                tr = $('<tr/>');
+                tr.append($('<td/>').append('<b>Мудр</b>:')).append($('<td/>').append(b.p1.ps[2] + '&nbsp;(<b>' + b.p1.cs[2] + '</b>)'));
+                tr.append($('<td/>').append('<b>Ловк</b>:')).append($('<td/>').append(b.p1.ps[3] + '&nbsp;(<b>' + b.p1.cs[3] + '</b>)'));
+                body.append(tr);
+                tr = $('<tr/>');
+                tr.append($('<td/>').append('<b>Слож</b>:')).append($('<td/>').append(b.p1.ps[4] + '&nbsp;(<b>' + b.p1.cs[4] + '</b>)'));
+                tr.append($('<td/>').append('<b>Обая</b>:')).append($('<td/>').append(b.p1.ps[5] + '&nbsp;(<b>' + b.p1.cs[5] + '</b>)'));
+                body.append(tr);
+            }
+        }
+
+        // Redraw other parameters from p2 if changed.
+        if (b.p2 !== undefined) {
+            // Hidden stats - for player level below 20. 
+            if (b.p2 === "none")  {
+                p2.hide();
+            } else {
+                var body = p2.find('tbody'), tr;
+
+                p2.show();
+                body.empty();
+
+                tr = $('<tr/>');
+                tr.append($('<td/>').append('<b>Точность</b>:')).append($('<td/>').append(b.p2.h));
+                tr.append($('<td/>').append('<b>Урон</b>:')).append($('<td/>').append(b.p2.d));
+                body.append(tr);
+                tr = $('<tr/>');
+                tr.append($('<td/>').append('<b>Броня</b>:')).append($('<td/>').append(b.p2.a));
+                tr.append($('<td/>').append('<b>Заклин</b>:')).append($('<td/>').append(b.p2.s));
+                body.append(tr);
+            }
+        }
+    }
+
+    // prompt questor quest info 'q' fields: t - remaining time, i - short quest info.
+    function promptQuestor(b) {
+        console.log('q', b.q);
+        // Nothing changed since last time.
+        if (b.q == undefined) {
+            return;
+        }
+
+        // Questor panel is now hidden.
+        if (b.q === "none") {
+            $('#questor').hide();
+            return;
+        } 
+
+        $('#questor').show();
+        // Draw quest time in the header.
+        $('#quest-time').text(b.q.t);
+        // Draw quest info.
+        $('#questor-table p').text(b.q.i);        
+    }
+
+    // prompt 'group' fields: ln - leader name in genitive case, 
+    // leader - leader stats to display as a first line,
+    // pc - list of all remaining PCs, npc - all NPCs in the group.
+    // Each line format: sees - name, level, health - hitpoints percentage, hit_clr - color to display health with
+    // tnl - exp to next level.
     function promptGroup(b) {
         // Nothing changed since last time.
         if (b.group == undefined) {
             return;
         }
 
-        // Group is now hidden.
-        if (b.group === "none" || (b.group.pc == undefined && b.group.npc == undefined)) {
-            $('#group').removeClass('d-md-block');
+        // Group is now hidden: shouldn't happen as the leader is always shown.
+        if (b.group === "none") {
+            $('#group').hide();
             return;
         } 
 
-        $('#group').addClass('d-md-block');
+        $('#group').show();
         $('#g_leader').text(b.group.ln);
         var body = $('#group tbody');
         body.empty();
-        
+       
+        // Function to display a row with individual group member.
         function group_member(gch) {
             var tr = $('<tr/>');
             tr.append($('<td/>').append(gch.sees));
@@ -279,6 +417,7 @@ $(document).ready(function() {
             return tr;
         }
 
+        // Display rows for all PCs and NPCs.
         body.append(group_member(b.group.leader));
         if (b.group.pc !== undefined)
             b.group.pc.forEach(function(gch) {
@@ -294,6 +433,11 @@ $(document).ready(function() {
 
     // Main prompt handler, called from main.js.
     promptHandler = function(b) {
+        // First prompt sent - show time and 'where' windows.
+        $('#time-weather').show();
+        $('#player-location').show();
+
+        // Handle all prompt fields.
         promptGroup(b);
         promptLocation(b);
         promptZone(b);
@@ -304,6 +448,9 @@ $(document).ready(function() {
         promptWeather(b);
         promptSector(b);
         promptAffects(b);
+        promptWho(b);
+        promptParams(b);
+        promptQuestor(b);
 // TODO rework: promptStats(b);
     };
 
