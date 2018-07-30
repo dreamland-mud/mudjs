@@ -62,15 +62,18 @@ body {
     pointer-events: all;
 }
 
+/* Hide nav pad on medium screens. */
 .nav-hidden-md {
     display: none;
 }
 
 @media only screen and (max-width: 767px) {
+    /* Shift buttons closer to the border on narrow screens. Hack. */
     #overlay {
         right: 1em;
     }
 
+    /* Show nav pad on small screens. */
     .nav-hidden-md {
         display: table-row;
     }
@@ -91,7 +94,7 @@ body {
 }   
 
 /*
- * Panel on the right-hand side.
+ * Panel on the right-hand side, scrollable vertically.
  */
 #panel-wrap {
     overflow-y: auto;
@@ -111,14 +114,17 @@ body {
     padding-bottom: 0.1em;
     padding-left: 0.2em;
     cursor: pointer;
+    overflow: hidden;
 }
 
+/* Close plus-minus button in the panel corner. */
 .table-wrapper .close {
     position: absolute;
     top: 0em;
     right: 0.3em;
 }
 
+/* Change icon between plus and minus depending on collapse state. */
 .table-wrapper .close:after {
     content: "\2212"; 
 }
@@ -132,6 +138,7 @@ body {
     cursor: pointer;
 }
 
+/* Table containing icons in the first column, like weather&time. */
 .table-with-icons table {
     table-layout: fixed;
 }
@@ -158,10 +165,6 @@ td.v-bottom {
 
 #player-params-table {
     padding-left: 5px;
-}
-
-#group, #who, #time-weather, #player-location {
-    display: none;
 }
 
 #group td, #group th, #who td, #who th {
@@ -214,7 +217,7 @@ td.v-bottom {
 @media only screen and (min-width: 768px) {
     #terminal-wrap {
        padding: 0px 10px 10px 4px;
-       margin: 0px 10px 8px 0px;
+       margin: 0px 10px 8px 1px;
        border: 1px solid #999;
     }     
     #overlay {
@@ -222,18 +225,20 @@ td.v-bottom {
     }
     form#input {
         border: 1px solid #999;
-        margin: 8px 8px 10px 0px;
+        margin: 8px 8px 10px 1px;
         background-color: #2e3436;
     }        
     form#input input {
-        padding: 4px 10px 4px 4px;
+        padding: 4px 10px 4px 5px;
         color: #d3d7cf;
         border-color: transparent;
         background-color: transparent;
     }        
 }    
 
-
+/*
+ * Settings and editors modal windows.
+ */
 #settings-modal  .modal-dialog {
     max-width: 80%;
 }
@@ -272,7 +277,7 @@ td.v-bottom {
 }
 
 /*
- * Custom defiinition of flex with all the prefixes defined.
+ * Custom definition of flex with all the prefixes defined.
  */
 .flexcontainer-wrap {
     flex-wrap: wrap;

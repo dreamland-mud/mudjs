@@ -50,8 +50,8 @@
                     <div id="terminal"></div>
                 </div><!-- terminal-wrap -->
                 <div id="panel-wrap" class="d-none d-md-block flexcontainer-column flex-nogrow-shrink-narrow" aria-hidden="true">
-                    <div id="time-weather" class="table-wrapper">
-                        <span class="dark-panel-title">Погода и время:</span>
+                    <div id="time-weather" class="table-wrapper" style="display:none;">
+                        <span class="dark-panel-title" data-toggle="collapse" data-target="#time-weather-table">Погода и время:</span>
 			<button class="close" type="button" data-toggle="collapse" data-target="#time-weather-table"></button>
                         <div id="time-weather-table" class="collapse show">
                             <table class="table-with-icons">
@@ -63,8 +63,8 @@
 			    </table>
                         </div><!-- time-weather-table -->
                     </div><!-- time-weather -->
-                    <div id="player-location" class="table-wrapper">
-                        <span class="dark-panel-title">Твое местоположение:</span>
+                    <div id="player-location" class="table-wrapper" style="display:none;">
+                        <span class="dark-panel-title" data-toggle="collapse" data-target="#player-location-table">Твое местоположение:</span>
 			<button class="close" type="button" data-toggle="collapse" data-target="#player-location-table"></button>
                         <div id="player-location-table" class="collapse show">
                             <table class="table-with-icons">
@@ -76,18 +76,18 @@
 			    </table>
                         </div><!-- player-location-table -->
                     </div><!-- player-location -->
-                    <div id="group" class="d-none table-wrapper">
-                        <span class="dark-panel-title" data-hint="hint-group">Группа <span id="g_leader"></span>:</span>
+                    <div id="group" class="table-wrapper" style="display:none;">
+                        <span class="dark-panel-title" data-toggle="collapse" data-target="#group-table">Группа <span id="g_leader"></span>:</span>
 			<button class="close collapsed" type="button" data-toggle="collapse" data-target="#group-table"> </button>
-                        <div id="group-table" class="collapse">
-			    <table data-hint="hint-group">
+                        <div id="group-table" class="collapse" data-hint="hint-group">
+			    <table>
                                 <thead><th>Имя</th><th>Ур.</th><th>Здор.</th><th>Опыт</th></thead>
                                 <tbody></tbody>
 			    </table>
                         </div><!-- group-table -->
                     </div><!-- group -->
                     <div id="player-affects" class="table-wrapper" style="display:none;">
-                        <span class="dark-panel-title" data-hint="hint-affects">Воздействия на тебе:</span>
+                        <span class="dark-panel-title" data-toggle="collapse" data-target="#player-affects-table">Воздействия на тебе:</span>
 			<button class="close" type="button" data-toggle="collapse" data-target="#player-affects-table"></button>
                         <div id="player-affects-table" class="flexcontainer-row flexcontainer-wrap collapse show" data-hint="hint-affects">
                             <div id="pa-protect" class="flexcontainer-column" style="display:none;" data-hint="hint-protect">
@@ -103,30 +103,30 @@
                         </div>
                     </div><!-- player-affects -->
                     <div id="player-params" class="table-wrapper" style="display:none;">
-                        <span class="dark-panel-title" data-hint="hint-params">Твои параметры:</span>
+                        <span class="dark-panel-title" data-toggle="collapse" data-target="#player-params-table">Твои параметры:</span>
 			<button class="close collapsed" type="button" data-toggle="collapse" data-target="#player-params-table"> </button>
-                        <div id="player-params-table" class="collapse">
-                            <table id="player-params-1" data-hint="hint-params">
+                        <div id="player-params-table" class="collapse" data-hint="hint-params">
+                            <table id="player-params-1">
 				<tbody></tbody>
                             </table>
                             <br/>
-                            <table id="player-params-2" data-hint="hint-params" style="display:none;">
+                            <table id="player-params-2" style="display:none;">
 				<tbody></tbody>
                             </table>
                         </div><!-- player-params-table -->
                     </div><!-- player-params -->
                     <div id="questor" class="table-wrapper" style="display:none;">
-                        <span class="dark-panel-title" data-hint="hint-questor">Задание квестора: &nbsp;<span id="quest-time" class="fgby"></span> мин</span>
+                        <span class="dark-panel-title" data-toggle="collapse" data-target="#questor-table">Задание квестора: &nbsp;<span id="quest-time" class="fgby"></span> мин</span>
 			<button class="close" type="button" data-toggle="collapse" data-target="#questor-table"> </button>
-                        <div id="questor-table" class="collapse show">
-                            <p data-hint="hint-questor" class="fgbw"></p>
+                        <div id="questor-table" class="collapse show" data-hint="hint-questor">
+                            <p class="fgbw"></p>
                         </div><!-- questor-table -->
                     </div><!-- questor -->
-                    <div id="who" class="table-wrapper">
-                        <span class="dark-panel-title" data-hint="hint-who">Сейчас в мире:</span>
+                    <div id="who" class="table-wrapper" style="display:none;">
+                        <span class="dark-panel-title" data-toggle="collapse" data-target="#who-table">Сейчас в мире:</span>
 			<button class="close collapsed" type="button" data-toggle="collapse" data-target="#who-table"> </button>
-                        <div id="who-table" class="collapse">
-                            <table data-hint="hint-who">
+                        <div id="who-table" class="collapse" data-hint="hint-who">
+                            <table>
                                 <thead><th>Имя</th><th>Раса</th><th>Клан</th></thead>
 				<tbody></tbody>
                             </table>

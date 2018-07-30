@@ -259,13 +259,13 @@ $(document).ready(function() {
             return;
         }
 
-        $('#who').addClass('d-md-block');
+        $('#who').show();
         var body = $('#who tbody');
         body.empty();
 
         // Nothing in 'who' - shouldn't happen except in very specific cases.
         if (b.who === "none") {
-            $('#who').removeClass('d-md-block');
+            $('#who').hide();
             return;
         }
 
@@ -381,15 +381,16 @@ $(document).ready(function() {
 
         // Group is now hidden: shouldn't happen as the leader is always shown.
         if (b.group === "none") {
-            $('#group').removeClass('d-md-block');
+            $('#group').hide();
             return;
         } 
 
-        $('#group').addClass('d-md-block');
+        $('#group').show();
         $('#g_leader').text(b.group.ln);
         var body = $('#group tbody');
         body.empty();
-        
+       
+        // Function to display a row with individual group member.
         function group_member(gch) {
             var tr = $('<tr/>');
             tr.append($('<td/>').append(gch.sees));
@@ -399,6 +400,7 @@ $(document).ready(function() {
             return tr;
         }
 
+        // Display rows for all PCs and NPCs.
         body.append(group_member(b.group.leader));
         if (b.group.pc !== undefined)
             b.group.pc.forEach(function(gch) {
@@ -414,10 +416,11 @@ $(document).ready(function() {
 
     // Main prompt handler, called from main.js.
     promptHandler = function(b) {
+        // First prompt sent - show time and 'where' windows.
         $('#time-weather').show();
         $('#player-location').show();
 
-        console.log(b);
+        // Handle all prompt fields.
         promptGroup(b);
         promptLocation(b);
         promptZone(b);
