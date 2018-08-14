@@ -138,7 +138,7 @@ $(document).ready(function() {
             var hidden = b.exits.h.indexOf(exit) !== -1;
             // See if this exit letter is among visible exits.
             var visible = b.exits.e.indexOf(exit) !== -1;
-        
+
             $node.removeClass();
             // If found anywhere, draw a letter of selected language, otherwise a dot.
             if (hidden || visible) {
@@ -150,7 +150,7 @@ $(document).ready(function() {
             if (!hidden)
                 $node.addClass('fg-ansi-bright-color-6');
         }
-       
+
         markExit('С', 'N');
         markExit('В', 'E');
         markExit('Ю', 'S');
@@ -159,22 +159,25 @@ $(document).ready(function() {
         markExit('П', 'U');
     }
 
-    // prompt sector fields: s - sector type, l - light 
+    // prompt sector fields: s - sector type, l - light
     function promptSector(b) {
         // Later if needed. Showing sector type everywhere will discover a lot of funny things.
     }
 
     function promptStats(b) {
         $('#stats').show();
-        
+
         function stat($node, value, max) {
-            $node.find('.fill').css({ width: (100*value/max) + '%' });
-            $node.find('.value').text(value + ' / ' + max);
+            var prct = 100*value/max;
+            $node.text(value + '/' + max);
+            $node.css({ width: prct + '%' });
+            $node.attr('aria-valuenow', value);
+            $node.attr('aria-valuemax', max);
         }
 
-        stat($('#stats .hit'), b.hit, b.max_hit);
-        stat($('#stats .mana'), b.mana, b.max_mana);
-        stat($('#stats .move'), b.move, b.max_move);
+        stat($('#stats #hits'), b.hit, b.max_hit);
+        stat($('#stats #mana'), b.mana, b.max_mana);
+        stat($('#stats #moves'), b.move, b.max_move);
     }
 
     // Should the main affect window be hidden as it's empty?
@@ -200,7 +203,7 @@ $(document).ready(function() {
             $row.hide();
             $row.empty();
             return;
-        } 
+        }
 
         $row.show();
         $row.empty();
@@ -212,7 +215,7 @@ $(document).ready(function() {
         for (var bit in bitNames) {
             if (bitNames.hasOwnProperty(bit)) {
                 var clr;
-                
+
                 // Draw active affect names in green, those about to
                 // disappear in yellow.
                 if (block.z.indexOf(bit) !== -1)
@@ -262,8 +265,8 @@ $(document).ready(function() {
     }
 
     // prompt 'who' fields: p - list of players, v - visible player count,
-    // t - total player count. 
-    // Each player contains fields: n - name, r - first 2 letters of race, 
+    // t - total player count.
+    // Each player contains fields: n - name, r - first 2 letters of race,
     // cn - first letter of clan name, cc - clan colour.
     function promptWho(b) {
         // Nothing changed since last time.
@@ -312,10 +315,10 @@ $(document).ready(function() {
     // prompt params fields p2: h - hitroll, d - damroll, a - armor class, s - saves vs spell.
     function promptParams(b) {
         var params = $('#player-params'), p1 = $('#player-params-1'), p2 = $('#player-params-2');
-        
+
         params.show();
 
-        // Redraw stats panel from p1 if changed. 
+        // Redraw stats panel from p1 if changed.
         if (b.p1 !== undefined) {
             // Hidden stats -shouldn't happen.
             if (b.p1 === "none")  {
@@ -343,7 +346,7 @@ $(document).ready(function() {
 
         // Redraw other parameters from p2 if changed.
         if (b.p2 !== undefined) {
-            // Hidden stats - for player level below 20. 
+            // Hidden stats - for player level below 20.
             if (b.p2 === "none")  {
                 p2.hide();
             } else {
@@ -382,10 +385,10 @@ $(document).ready(function() {
         // Draw quest time in the header.
         $('#quest-time').text(b.q.t);
         // Draw quest info.
-        $('#questor-table p').text(b.q.i);        
+        $('#questor-table p').text(b.q.i);
     }
 
-    // prompt 'group' fields: ln - leader name in genitive case, 
+    // prompt 'group' fields: ln - leader name in genitive case,
     // leader - leader stats to display as a first line,
     // pc - list of all remaining PCs, npc - all NPCs in the group.
     // Each line format: sees - name, level, health - hitpoints percentage, hit_clr - color to display health with
@@ -400,13 +403,13 @@ $(document).ready(function() {
         if (b.group === "none") {
             $('#group').hide();
             return;
-        } 
+        }
 
         $('#group').show();
         $('#g_leader').text(b.group.ln);
         var body = $('#group tbody');
         body.empty();
-       
+
         // Function to display a row with individual group member.
         function group_member(gch) {
             var tr = $('<tr/>');
@@ -451,7 +454,7 @@ $(document).ready(function() {
         promptWho(b);
         promptParams(b);
         promptQuestor(b);
-// TODO rework: promptStats(b);
+        promptStats(b);
     };
 
 });
