@@ -360,14 +360,20 @@ td.v-bottom {
 
 #stats .progress {
     padding: 0;
+    color: white;
 }
+
+#stats #mana {
+    background-color: #0053b3;
+}
+
+#stats #moves {
+    background-color: #055705;
+}    
 
 @media only screen and (max-width: 767px) {
     #stats .progress {
         height: 5px;
-    }
-
-    #stats .progress-bar {
         color: transparent !important;
     }
 }

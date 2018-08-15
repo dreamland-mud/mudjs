@@ -167,17 +167,17 @@ $(document).ready(function() {
     function promptStats(b) {
         $('#stats').show();
 
-        function stat($node, value, max) {
+        function stat($node, value, max, caption) {
             var prct = 100*value/max;
-            $node.text(value + '/' + max);
+            $node.next().text(caption + ' ' + value + '/' + max);
             $node.css({ width: prct + '%' });
             $node.attr('aria-valuenow', value);
             $node.attr('aria-valuemax', max);
         }
 
-        stat($('#stats #hits'), b.hit, b.max_hit);
-        stat($('#stats #mana'), b.mana, b.max_mana);
-        stat($('#stats #moves'), b.move, b.max_move);
+        stat($('#stats #hits'), b.hit, b.max_hit, 'Здоровье');
+        stat($('#stats #mana'), b.mana, b.max_mana, 'Мана');
+        stat($('#stats #moves'), b.move, b.max_move, 'Шаги');
     }
 
     // Should the main affect window be hidden as it's empty?
