@@ -11,7 +11,7 @@ body {
     color: #888;
     background-color: #353535;
     height: 100%;
-}        
+}
 
 .main-content {
     overflow: hidden;
@@ -77,7 +77,7 @@ body {
     .nav-hidden-md {
         display: table-row;
     }
-} 
+}
 
 #nav button {
     width: 2em;
@@ -85,13 +85,13 @@ body {
 
 #nav td {
     padding: 3px;
-}    
+}
 
 #nav td span {
     padding: 5px;
     font-weight: bold;
     font-family: monospace;
-}   
+}
 
 /*
  * Panel on the right-hand side, scrollable vertically.
@@ -126,11 +126,11 @@ body {
 
 /* Change icon between plus and minus depending on collapse state. */
 .table-wrapper .close:after {
-    content: "\2212"; 
+    content: "\2212";
 }
 
 .table-wrapper .close.collapsed:after {
-    content: "\002B"; 
+    content: "\002B";
 }
 
 .table-wrapper table {
@@ -156,12 +156,12 @@ td.v-top {
 }
 td.v-bottom {
     vertical-align: bottom;
-}    
+}
 
 .dark-panel-title {
     padding: 5px;
     padding-bottom: 0px;
-}    
+}
 
 #player-params-table {
     padding-left: 5px;
@@ -190,7 +190,7 @@ td.v-bottom {
 
 #player-location .fa {
     font-size: 150%;
-}    
+}
 
 #player-affects .flexcontainer-column {
     padding-left: 5px;
@@ -200,16 +200,16 @@ td.v-bottom {
 
 #questor-table p {
     padding: 4px 4px 0px 4px;
-}        
+}
 
 /*
  * Pop-up windows with hints about various layout elements.
  */
 .hints .modal-content {
     color: #ddd;
-}    
+}
 
-/* 
+/*
  * Draw distinct borders and show space around elements
  * on big screen. Make input box styled as the rest of the
  * page components.
@@ -219,7 +219,7 @@ td.v-bottom {
        padding: 0px 10px 10px 4px;
        margin: 0px 10px 8px 1px;
        border: 1px solid #999;
-    }     
+    }
     #overlay {
        top: 3px;
     }
@@ -227,14 +227,14 @@ td.v-bottom {
         border: 1px solid #999;
         margin: 8px 8px 10px 1px;
         background-color: #2e3436;
-    }        
+    }
     form#input input {
         padding: 4px 10px 4px 5px;
         color: #d3d7cf;
         border-color: transparent;
         background-color: transparent;
-    }        
-}    
+    }
+}
 
 /*
  * Settings and editors modal windows.
@@ -266,9 +266,9 @@ td.v-bottom {
 .btn-ctrl:hover {
     background-color: lightgrey;
     border-color: lightgrey;
-}    
+}
 
-.editor { 
+.editor {
     height: 70vh;
 
     background-color: black;
@@ -298,7 +298,7 @@ td.v-bottom {
     -webkit-flex:     0 1 270px;
     -ms-flex:         0 1 270px;
     flex:             0 1 270px;
-}    
+}
 
 .flexcontainer-row {
    display: -webkit-flex;
@@ -342,11 +342,32 @@ td.v-bottom {
  */
 .dropdown-toggle::after {
     display: none;
-}    
+}
 .dropdown {
     cursor: pointer;
-}    
+}
 
 .dropdown-toggle:hover {
     text-decoration: underline;
-}    
+}
+
+/*
+ * Status bars
+ */
+#stats {
+    padding: 0 20px;
+}
+
+#stats .progress {
+    padding: 0;
+}
+
+@media only screen and (max-width: 767px) {
+    #stats .progress {
+        height: 5px;
+    }
+
+    #stats .progress-bar {
+        color: transparent !important;
+    }
+}

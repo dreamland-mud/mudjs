@@ -16,6 +16,9 @@ $(window).bind('beforeunload', function() {
 });
 
 $(document).ready(function() {
+
+    var sessionId = (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase();
+
     if('BroadcastChannel' in window) {
         locationChannel = new BroadcastChannel('location');
 
@@ -30,7 +33,8 @@ $(document).ready(function() {
         if(locationChannel) {
             locationChannel.postMessage({
                 what: 'location',
-                location: lastLocation
+                location: lastLocation,
+                sessionId: sessionId
             });
         }
     };
@@ -41,7 +45,7 @@ $(document).ready(function() {
             return;
         }
 
-        var mapfile = '/maps/' + lastLocation.area.replace(/\.are$/, '') + '.html?1';
+        var mapfile = '/maps/' + lastLocation.area.replace(/\.are$/, '') + '.html?sessionId=' + sessionId;
         window.open(mapfile);
         e.preventDefault();
     });
