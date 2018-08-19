@@ -325,12 +325,12 @@ td.v-bottom {
 .fg-ansi-dark-color-7, .fgdw { color: #d3d7cf; } /* w, d */
 /* bright: */
 .fg-ansi-bright-color-0, .fgbd { color: #555753; } /* D */
-.fg-ansi-bright-color-1, .fgbr { color: #ef2929; } /* R */
-.fg-ansi-bright-color-2, .fgbg { color: #8ae234; } /* G */
-.fg-ansi-bright-color-3, .fgby { color: #fce94f; } /* Y */
-.fg-ansi-bright-color-4, .fgbb { color: #729fcf; } /* B */
-.fg-ansi-bright-color-5, .fgbm { color: #ad7fa8; } /* M */
-.fg-ansi-bright-color-6, .fgbc { color: #34e2e2; } /* C */
+.fg-ansi-bright-color-1, .fgbr { color: #ed2330; } /* R */
+.fg-ansi-bright-color-2, .fgbg { color: #8ee34f; } /* G */
+.fg-ansi-bright-color-3, .fgby { color: #fdea56; } /* Y */
+.fg-ansi-bright-color-4, .fgbb { color: #55a3f2; } /* B */
+.fg-ansi-bright-color-5, .fgbm { color: #c169b4; } /* M */
+.fg-ansi-bright-color-6, .fgbc { color: #2cf4eb; } /* C */
 .fg-ansi-bright-color-7, .fgbw { color: #eeeeec; } /* W */
 
 .fg-ansi-bold {
