@@ -361,6 +361,18 @@ td.v-bottom {
 }    
 
 /*
+ * Commands and hyper links: underlined.
+ */
+.manip-cmd, .manip-link {
+    text-decoration: underline;
+    cursor: pointer;
+}    
+
+a.manip-link, a.manip-link:hover {
+    color: inherit;
+}    
+
+/*
  * Status bars
  */
 #stats {

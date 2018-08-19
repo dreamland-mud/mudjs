@@ -17,6 +17,45 @@ $(document).ready(function() {
             });
         });
 
+        // Replace "<hc>command</hc>" tags surrounding commands to send as is.
+        span.find('hc').each(function(index) {
+            var cmd = $(this).contents();
+
+            $(this).replaceWith(function() {
+                var result = $('<span/>')
+                    .addClass('manip-cmd')
+                    .attr('data-action', cmd.text())
+                    .append(cmd);
+                return result;
+            });
+        });
+
+        // Replace "<hl>hyper link</hl>" tags surrounding hyper links.
+        span.find('hl').each(function(index) {
+            var href= $(this).contents();
+
+            $(this).replaceWith(function() {
+                var result = $('<a target=_blank />')
+                    .addClass('manip-link')
+                    .attr('href', href.text())
+                    .append(href);
+                return result;
+            });
+        });
+
+        // Replace "<hh>article name</hh>" tags surrounding help articles.
+        span.find('hh').each(function(index) {
+            var article= $(this).contents();
+
+            $(this).replaceWith(function() {
+                var result = $('<span/>')
+                    .addClass('manip-cmd')
+                    .attr('data-action', 'help ' + article.text())
+                    .append(article);
+                return result;
+            });
+        });
+
         // Replace item manipulation "<m i='234234' c='take $,put $ 12348'/>" tags surrounding every item.
         span.find('m').each(function(index) {
             // Populate menu node for each item based on the 'c' and 'l' attributes containing command lists.
@@ -64,6 +103,13 @@ $(document).ready(function() {
     $('body').on('click', '.manip-ed', function(e) {
         var id = $(e.currentTarget).attr('data-id');
         send("read '" + id + "'");
+    });
+
+    // Send comman to the server when command hyper link is clicked
+    // e. g. 'read sign' or 'walk trap'.
+    $('body').on('click', '.manip-cmd', function(e) {
+        var action = $(e.currentTarget).attr('data-action');
+        send(action);
     });
 
     // Send command to the server when individual menu item is clicked.
