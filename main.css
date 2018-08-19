@@ -352,6 +352,15 @@ td.v-bottom {
 }
 
 /*
+ * Text manip decorations for extra descrs: underlined white links.
+ */
+.manip-ed {
+    text-decoration: underline;
+    cursor: pointer;
+    color: #eeeeec;
+}    
+
+/*
  * Status bars
  */
 #stats {
@@ -377,3 +386,4 @@ td.v-bottom {
         color: transparent !important;
     }
 }
+
