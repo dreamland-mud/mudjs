@@ -363,8 +363,13 @@ td.v-bottom {
     color: white;
 }
 
+#stats #hits {
+    background-color: #bb0000;
+}
+
 #stats #mana {
-    background-color: #0053b3;
+/*    background-color: #0053b3;*/
+    background-color: #3465a4;
 }
 
 #stats #moves {
