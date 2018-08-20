@@ -31,14 +31,18 @@ $(document).ready(function() {
         });
 
         // Replace "<hl>hyper link</hl>" tags surrounding hyper links.
+		// Basic sanitization of the links.
         span.find('hl').each(function(index) {
-            var href= $(this).contents();
+            var content = $(this).contents();
+			var href = content.text();
+			if (!href.startsWith('http'))
+				return;
 
             $(this).replaceWith(function() {
                 var result = $('<a target=_blank />')
                     .addClass('manip-link')
-                    .attr('href', href.text())
-                    .append(href);
+                    .attr('href', href)
+                    .append(content);
                 return result;
             });
         });
@@ -51,6 +55,19 @@ $(document).ready(function() {
                 var result = $('<span/>')
                     .addClass('manip-cmd')
                     .attr('data-action', 'help ' + article.text())
+                    .append(article);
+                return result;
+            });
+        });
+
+        // Replace "<hg>skill group</hg>" tags surrounding group names.
+        span.find('hg').each(function(index) {
+            var article= $(this).contents();
+
+            $(this).replaceWith(function() {
+                var result = $('<span/>')
+                    .addClass('manip-cmd')
+                    .attr('data-action', 'glist ' + article.text())
                     .append(article);
                 return result;
             });
