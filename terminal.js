@@ -19,25 +19,30 @@ $(document).ready(function() {
 
         switch(cmd) {
             case 'm':
-                for(i in params) {
-                    if(params[i] == '0') {
-                        bold = false;
-                    }
-                    if(params[i] == '1') {
-                        bold = true;
-                    }
-                    if(params[i] >= 40 && params[i] <= 49) {
-                        bg = params[i] - 40;
-                        console.log('background ignored: ' + bg);
-                    }
-                    if(params[i] >= 30 && params[i] <= 39) {
-                        fg = params[i] - 30;
-                    }
-                    if(bold) {
-                        desired_class = 'fg-ansi-bold fg-ansi-bright-color-' + fg;
-                    } else {
-                        desired_class = 'fg-ansi-dark-color-' + fg;
-                    }
+                if(params[0] == '0') {
+                    // Escape sequence starting with [0; - dark colors.
+                    bold = false;
+                } else if(params[0] == '1') {
+                    // Escape sequence starting with [1; - bold, bright colors.
+                    bold = true;
+                }
+                if (params.length == 1 || params[1] == 0) {
+                    // Color reset [0m or [0;0m.
+                    fg = 7;
+                    bold = false;
+                } else if(params[1] >= 40 && params[1] <= 49) {
+                    // Background colors [1;43m or [0;43m.
+                    bg = params[1] - 40;
+                    console.log('background ignored: ' + bg);
+                } else if(params[1] >= 30 && params[1] <= 39) {
+                    // Foreground colors [1;33m or [0;33m.
+                    fg = params[1] - 30;
+                }
+
+                if(bold) {
+                    desired_class = 'fg-ansi-bold fg-ansi-bright-color-' + fg;
+                } else {
+                    desired_class = 'fg-ansi-dark-color-' + fg;
                 }
                 break;
             case 'J':
