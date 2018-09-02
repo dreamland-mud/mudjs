@@ -133,7 +133,13 @@ $(document).ready(function() {
         $('#input input').show();
     }
 
-    connect();
+    terminalInit()
+        .then(function() {
+            connect();
+        })
+        .catch(function(e) {
+            console.log(e);
+        });
 
     $('#reconnect').click(function(e) {
         e.preventDefault();
