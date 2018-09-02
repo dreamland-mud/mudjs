@@ -14,16 +14,7 @@ $.fn.terminal = function() {
         var span = $('<span/>');
         span.html(txt);
 
-        // Replace colour "<c c='fgbr'/>" tags coming from the server with spans.
-        span.find('c').each(function(index) {
-            var style = $(this).attr('c');
-            $(this).replaceWith(function() {
-                var result = $('<span/>').append($(this).contents());
-                result.addClass(style);
-                return result;
-            });
-        });
-
+		colorParseAndReplace(span);
         manipParseAndReplace(span);
 
         var atBottom = $('#terminal-wrap').scrollTop() > ($('#terminal').height() - 2 * $('#terminal-wrap').height() );
