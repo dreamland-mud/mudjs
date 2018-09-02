@@ -1,7 +1,5 @@
 var ansi2html;
 
-var options = { "escape_html" : false, "ansi_colors": false };
-
 (function() {
     var x = 0;
     var desired_class = 'fg-ansi-dark-color-7';
