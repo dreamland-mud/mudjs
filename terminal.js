@@ -166,7 +166,7 @@ function terminalInit() {
             }
 
             append('<hr>');
-            append(ansi2html('\u001b[1;31m#################### HISTORY LOADED ####################\n'));
+            append(ansi2html('\u001b[1;31m#################### HISTORY LOADED ####################\u001b[0;37m\n'));
             append('<hr>');
         
             $('#terminal-wrap')
