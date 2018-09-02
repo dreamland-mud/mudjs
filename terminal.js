@@ -8,6 +8,7 @@ function ansi2html(txt) {
     return txt;
 }
 
+// jQuery 'terminal' module initialization
 $.fn.terminal = function() {
     var terminal = this;
 
