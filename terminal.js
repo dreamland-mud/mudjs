@@ -20,7 +20,7 @@ function bumpUnread() {
     unread++;
 
     $('#terminal-activity')
-        .text(unread + ' Unread messages')
+        .text(unread + ' unread message' + (unread > 1 ? 's' : ''))
         .show();
 }
 
