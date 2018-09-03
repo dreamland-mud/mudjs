@@ -5,7 +5,7 @@ window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.ms
 
 // Stubs for IE/Edge
 function initStubHistoryDb() {
-    var lastIndex = 0,
+    var lastIndex = -1,
         database = [];
 
     return {
@@ -48,12 +48,17 @@ function initIndexedHistoryDb() {
         };
 
         request.onerror = function(e) {
-            console.log('error');
+            console.log('error', e.target.error);
+            reject(e.target.error);
         };
 
         request.onsuccess = function(e) {
             accept(request.result);
         };
+    })
+    .catch(function(e) {
+        console.log('indexedDb operation failed, falling back to stub implementation');
+        historyDb = initStubHistoryDb();
     });
 
     return {
