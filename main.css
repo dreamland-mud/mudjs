@@ -39,6 +39,12 @@ body {
     white-space: pre-wrap;
 }
 
+#terminal-activity {
+    position: fixed;
+    bottom: 5em;
+    right: 15em;
+}
+
 #input input {
     width: 100%;
     box-sizing: border-box;

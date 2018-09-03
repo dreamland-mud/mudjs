@@ -6,6 +6,32 @@ var maxChildren = 100; // TODO - check the length of the html instead of the num
 
 
 var lastChunkId = -1; // id of the last chunk sent to the terminal
+var unread = 0;
+
+function atBottom() {
+    var terminal = $('#terminal'),
+        wrap = $('#terminal-wrap');
+
+    return wrap.scrollTop() > (terminal.height() - 2 * wrap.height() );
+}
+
+function bumpUnread() {
+    unread++;
+
+    $('#terminal-activity')
+        .text(unread + ' Unread messages')
+        .show();
+}
+
+function resetUnread() {
+    if(!unread)
+        return;
+
+    unread = 0;
+
+    $('#terminal-activity')
+        .hide();
+}
 
 // for easy scripting in triggers
 function echo(txt) {
@@ -16,18 +42,35 @@ function echo(txt) {
 $.fn.terminal = function() {
     var terminal = this,
         wrap = $('#terminal-wrap'),
-        atBottom = function() {
-            return wrap.scrollTop() > (terminal.height() - 2 * wrap.height() );
-        },
         append = function($chunk) {
             $chunk.appendTo(terminal);
 
-            $('#terminal-wrap').scrollTop(terminal.height());
+            wrap.scrollTop(terminal.height());
 
             while(terminal.children().length > maxChildren) {
                 terminal.children(':first').remove();
             }
         };
+
+    $('#terminal-activity').click(function(e) {
+        e.preventDefault();
+
+        // reload from the bottom up
+        terminal.empty();
+        resetUnread();
+
+        return historyDb
+            .load(null, true, bytesToLoad, function(id, value) {
+                var $chunk = $('<span>')
+                    .append(value)
+                    .attr('data-chunk-id', id);
+
+                terminal.prepend($chunk);
+            })
+            .then(function() {
+                wrap.scrollTop(terminal.height());
+            });
+    });
 
     this.on('output', function(e, txt) {
         var span = $('<span/>');
@@ -51,6 +94,8 @@ $.fn.terminal = function() {
                 // only append a DOM node if we're at the bottom
                 if(atBottom()) {
                     append($chunk);
+                } else {
+                    bumpUnread();
                 }
 
                 lastChunkId = id;
@@ -123,10 +168,16 @@ $.fn.terminalWrap = function() {
             var off = $lst.offset().top;
             var lstId = parseInt($lst.attr('data-chunk-id'));
 
-            // The last html element in the DOM is the last appended message, 
+            // The last html element in the DOM is the last sent message, 
             // so we're at the bottom, no need to load anything.
-            if(lstId === lastChunkId) 
+            if(lstId === lastChunkId) {
+                // Check if we can reset the unread counter and return
+                if(atBottom()) {
+                    resetUnread();
+                }
+
                 return;
+            }
 
             scrolling = true;
             
