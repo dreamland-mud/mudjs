@@ -5,7 +5,7 @@ var scrollThreshold = 1000; // when to start loading more data (px)
 var maxChildren = 100; // TODO - check the length of the html instead of the number of children
 
 
-var lastChunkId = -1; // id of the last chunk appended to the terminal
+var lastChunkId = -1; // id of the last chunk sent to the terminal
 
 // for easy scripting in triggers
 function echo(txt) {
@@ -14,7 +14,20 @@ function echo(txt) {
 
 // jQuery 'terminal' module initialization
 $.fn.terminal = function() {
-    var terminal = this;
+    var terminal = this,
+        wrap = $('#terminal-wrap'),
+        atBottom = function() {
+            return wrap.scrollTop() > (terminal.height() - 2 * wrap.height() );
+        },
+        append = function($chunk) {
+            $chunk.appendTo(terminal);
+
+            $('#terminal-wrap').scrollTop(terminal.height());
+
+            while(terminal.children().length > maxChildren) {
+                terminal.children(':first').remove();
+            }
+        };
 
     this.on('output', function(e, txt) {
         var span = $('<span/>');
@@ -23,22 +36,21 @@ $.fn.terminal = function() {
         colorParseAndReplace(span);
         manipParseAndReplace(span);
 
+        terminal.trigger('output-html', [span.html()]);
+    });
+
+    // this may not be called from outside of terminal logic.
+    this.on('output-html', function(e, html) {
         historyDb
-            .append(span.html())
+            .append(html)
             .then(function(id) {
                 var $chunk = $('<span>')
-                    .append(span)
+                    .append(html)
                     .attr('data-chunk-id', id);
                 
-                // only append the new chunk if we had the latest
-                var $lst = terminal.find('span[data-chunk-id]:last-child');
-
-                if($lst.length === 0 || parseInt($lst.attr('data-chunk-id')) === lastChunkId) {
-                    terminal.trigger('append', [$chunk]);
-
-                    while(terminal.children().length > maxChildren) {
-                        terminal.children(':first').remove();
-                    }
+                // only append a DOM node if we're at the bottom
+                if(atBottom()) {
+                    append($chunk);
                 }
 
                 lastChunkId = id;
@@ -48,16 +60,6 @@ $.fn.terminal = function() {
                     $('.trigger').trigger('text', [''+this]);
                 });
             });
-    });
-
-    this.on('append', function(e, $txt) {
-        var atBottom = $('#terminal-wrap').scrollTop() > (terminal.height() - 2 * $('#terminal-wrap').height() );
-        $txt.appendTo(terminal);
-
-        // only autoscroll if near the bottom of the page
-        if(atBottom) {
-            $('#terminal-wrap').scrollTop(terminal.height());
-        }
     });
 
     return this;
@@ -162,7 +164,7 @@ function terminalInit() {
         })
         .then(function() {
             function append(html) {
-                terminal.trigger('append', [$(html)]);
+                terminal.trigger('output-html', [html]);
             }
 
             append('<hr>');
