@@ -1,12 +1,13 @@
 
 // TODO: the following parameters should be replaced with two numbers - viewport size (in pixels) and the threshold (in pixels)
-var bytesToLoad = 5000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
+var bytesToLoad = 10000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
 var scrollThreshold = 1000; // when to start loading more data (px)
-var maxChildren = 100; // TODO - check the length of the html instead of the number of children
+var maxBytesOnScreen = 100000;
 
 
 var lastChunkId = -1; // id of the last chunk sent to the terminal
 var unread = 0;
+var scrolling = false;
 
 function atBottom() {
     var terminal = $('#terminal'),
@@ -47,7 +48,7 @@ $.fn.terminal = function() {
 
             wrap.scrollTop(terminal.height());
 
-            while(terminal.children().length > maxChildren) {
+            while(terminal.html().length > maxBytesOnScreen) {
                 terminal.children(':first').remove();
             }
         };
@@ -56,19 +57,27 @@ $.fn.terminal = function() {
         e.preventDefault();
 
         // reload from the bottom up
+        scrolling = true;
+        $('#terminal-wrap').scrollTop(0);
         terminal.empty();
         resetUnread();
 
+        var chunks = [];
+
         return historyDb
-            .load(null, true, bytesToLoad, function(id, value) {
+            .load(null, true, maxBytesOnScreen, function(id, value) {
                 var $chunk = $('<span>')
                     .append(value)
                     .attr('data-chunk-id', id);
 
-                terminal.prepend($chunk);
+                chunks.push($chunk);
             })
-            .then(function() {
+            .then(function(b) {
+                $(chunks).each(function() {
+                    terminal.prepend(this);
+                });
                 wrap.scrollTop(terminal.height());
+                scrolling = false;
             });
     });
 
@@ -113,15 +122,14 @@ $.fn.terminal = function() {
 // jQuery 'terminal-wrapper' module initialization
 $.fn.terminalWrap = function() {
     var wrap = this,
-        terminal = $('#terminal'),
-        scrolling = false;
+        terminal = $('#terminal');
 
     this.on('scroll', function(e) {
         // We are already handling a scroll event. 
         // Don't trigger another database operation until the current one completed.
         if(scrolling) {
             // Prevent scrolling, so that the user won't hit the limits of the scrolling window.
-            e.preventDefault(); 
+            // e.preventDefault(); 
             return;
         }
 
@@ -137,6 +145,7 @@ $.fn.terminalWrap = function() {
             var fstId = parseInt($fst.attr('data-chunk-id'));
 
             scrolling = true;
+            var chunks = [];
 
             historyDb
                 .load(fstId, true, bytesToLoad, function(id, value) { 
@@ -144,17 +153,22 @@ $.fn.terminalWrap = function() {
                         .append(value)
                         .attr('data-chunk-id', id);
 
-                    terminal.prepend($chunk);
+                    chunks.push($chunk);
+                })
+                .then(function() {
+                    $(chunks).each(function() {
+                        terminal.prepend(this);
+                    });
 
-                    while(terminal.children().length > maxChildren) {
+                    while(terminal.html().length > maxBytesOnScreen) {
                         terminal.children(':last').remove();
                     }
 
                     wrap.scrollTop(wrap.scrollTop() + $fst.offset().top - off);
-                })
-                .then(function() {
                     scrolling = false;
                 });
+
+            return;
         }
 
         // Load bottom chunks while scrolling down.
@@ -180,6 +194,7 @@ $.fn.terminalWrap = function() {
             }
 
             scrolling = true;
+            var chunks = [];
             
             historyDb
                 .load(lstId, false, bytesToLoad, function(id, value) { 
@@ -187,17 +202,22 @@ $.fn.terminalWrap = function() {
                         .append(value)
                         .attr('data-chunk-id', id);
 
-                    terminal.append($chunk);
+                    chunks.push($chunk);
+                })
+                .then(function() {
+                    $(chunks).each(function() {
+                        terminal.append(this);
+                    });
 
-                    while(terminal.children().length > maxChildren) {
+                    while(terminal.html().length > maxBytesOnScreen) {
                         terminal.children(':first').remove();
                     }
 
                     wrap.scrollTop(wrap.scrollTop() + $lst.offset().top - off);
-                })
-                .then(function() {
                     scrolling = false;
                 });
+
+            return;
         }
     });
 };
@@ -205,15 +225,24 @@ $.fn.terminalWrap = function() {
 function terminalInit() {
     var terminal = $('#terminal').terminal();
 
+    scrolling = true;
+    $('#terminal-wrap').scrollTop(0);
+
+    var chunks = [];
+
     return historyDb
-        .load(null, true, bytesToLoad, function(id, value) {
+        .load(null, true, maxBytesOnScreen, function(id, value) {
             var $chunk = $('<span>')
                 .append(value)
                 .attr('data-chunk-id', id);
 
-            terminal.prepend($chunk);
+            chunks.push($chunk);
         })
         .then(function() {
+            $(chunks).each(function() {
+                terminal.prepend(this);
+            });
+
             function append(html) {
                 terminal.trigger('output-html', [html]);
             }
@@ -225,6 +254,8 @@ function terminalInit() {
             $('#terminal-wrap')
                 .scrollTop(terminal.height()) // scroll to the bottom
                 .terminalWrap(); // initialize the wrapper
+
+            scrolling = false;
         });
 }
 
