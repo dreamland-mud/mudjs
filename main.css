@@ -42,7 +42,6 @@ body {
 #terminal-activity {
     position: fixed;
     bottom: 5em;
-    right: 15em;
 }
 
 #input input {
