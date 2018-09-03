@@ -189,6 +189,7 @@ $(document).ready(function() {
     var fontDelta = 2;
     
     function changeFontSize(delta) {
+        var terminal = $('#terminal');
         var style = terminal.css('font-size'); 
         var fontSize = parseFloat(style); 
         terminal.css('font-size', (fontSize + delta) + 'px');
