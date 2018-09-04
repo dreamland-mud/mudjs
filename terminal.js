@@ -1,4 +1,8 @@
 
+var historyDb = require('./historydb');
+var ansi2html = require('./ansi2html');
+var manip = require('./manip');
+
 // TODO: the following parameters should be replaced with two numbers - viewport size (in pixels) and the threshold (in pixels)
 var bytesToLoad = 10000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
 var scrollThreshold = 1000; // when to start loading more data (px)
@@ -85,8 +89,8 @@ $.fn.terminal = function() {
         var span = $('<span/>');
         span.html(ansi2html(txt));
 
-        colorParseAndReplace(span);
-        manipParseAndReplace(span);
+        manip.colorParseAndReplace(span);
+        manip.manipParseAndReplace(span);
 
         terminal.trigger('output-html', [span.html()]);
     });
@@ -259,3 +263,4 @@ function terminalInit() {
         });
 }
 
+module.exports = terminalInit;

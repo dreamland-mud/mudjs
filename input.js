@@ -1,3 +1,8 @@
+
+var websock = require('./websock');
+
+var send = websock.send;
+
 var keydown = function(e) {};
 
 $(document).ready(function() {

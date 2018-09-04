@@ -1,4 +1,5 @@
-var csEdit;
+
+var websock = require('./websock');
 
 function fixindent(fn, str) {
     var lines = str.replace(/\r/g,'').split('\n');
@@ -24,13 +25,15 @@ $(document).ready(function() {
         tabSize: 4
     });
 
-    $('#cs-modal .run-button')
-        .click(function(e) {
-            e.preventDefault();
-            rpccmd('cs_eval', $('#cs-subject').val(), fixindent(tabsize4to8, editor.getValue()));
-        });
+    $('#cs-modal .run-button').click(function(e) {
+        var subj = $('#cs-subject').val(),
+            body = fixindent(tabsize4to8, editor.getValue());
 
-    csEdit = function(subj, body) {
+        e.preventDefault();
+        websock.rpccmd('cs_eval', subj, body);
+    });
+
+    $('#rpc-events').on('rpc-cs_edit', function(e, subj, body) {
         if(subj) {
             $('#cs-subject').val(subj);
         }
@@ -40,7 +43,7 @@ $(document).ready(function() {
         }
 
         $('#cs-modal').modal('show');
-    };
+    });
 });
 
 

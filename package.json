@@ -1,0 +1,11 @@
+{
+    "name": "dreamland-mud-client",
+    "description": "Dreamland MUD Client",
+    "version": "0.0.1",
+    "devDependencies": {
+        "browserify": "*"
+    },
+    "scripts": {
+        "build": "browserify main.js -o bundle.js"
+    }
+}
