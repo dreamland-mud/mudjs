@@ -9,6 +9,7 @@ var scrollThreshold = 1000; // when to start loading more data (px)
 var maxBytesOnScreen = 100000;
 
 
+var firstChunkId = -1; // id of the first chunk in history (only set when scrolled to the very top)
 var lastChunkId = -1; // id of the last chunk sent to the terminal
 var unread = 0;
 var scrolling = false;
@@ -155,6 +156,11 @@ $.fn.terminalWrap = function() {
             var off = $fst.offset().top;
             var fstId = parseInt($fst.attr('data-chunk-id'));
 
+            if(fstId === firstChunkId) {
+                // We're at the very top, no need to load anything
+                return;
+            }
+
             scrolling = true;
             var chunks = [];
 
@@ -167,6 +173,12 @@ $.fn.terminalWrap = function() {
                     chunks.push($chunk);
                 })
                 .then(function() {
+                    if(chunks.length === 0) {
+                        // nothing loaded => we're at the top. 
+                        // Remember id of the first element so we don't have to try again.
+                        firstChunkId = fstId;
+                    }
+
                     $(chunks).each(function() {
                         terminal.prepend(this);
                     });
