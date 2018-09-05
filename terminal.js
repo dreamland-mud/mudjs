@@ -1,214 +1,261 @@
 
-var echo = function() {};
+// TODO: the following parameters should be replaced with two numbers - viewport size (in pixels) and the threshold (in pixels)
+var bytesToLoad = 10000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
+var scrollThreshold = 1000; // when to start loading more data (px)
+var maxBytesOnScreen = 100000;
 
-$(document).ready(function() {
-    var terminal = $('#terminal');
-    var input = $('#input input');
-    var txt = '';
-    var x = 0;
-    var ansi = '';
 
-    var bold = false, fg = 7, bg = 0;
-    var desired_class = 'fg-ansi-dark-color-7';
-    var actual_class;
+var lastChunkId = -1; // id of the last chunk sent to the terminal
+var unread = 0;
+var scrolling = false;
 
-    function process_ansi(start, params, cmd) {
-        if(start != '[') {
-            return;
-        }
+function atBottom() {
+    var terminal = $('#terminal'),
+        wrap = $('#terminal-wrap');
 
-        switch(cmd) {
-            case 'm':
-                if(params[0] == '0') {
-                    // Escape sequence starting with [0; - dark colors.
-                    bold = false;
-                } else if(params[0] == '1') {
-                    // Escape sequence starting with [1; - bold, bright colors.
-                    bold = true;
-                }
-                if (params.length == 1 || params[1] == 0) {
-                    // Color reset [0m or [0;0m.
-                    fg = 7;
-                    bold = false;
-                } else if(params[1] >= 40 && params[1] <= 49) {
-                    // Background colors [1;43m or [0;43m.
-                    bg = params[1] - 40;
-                    console.log('background ignored: ' + bg);
-                } else if(params[1] >= 30 && params[1] <= 39) {
-                    // Foreground colors [1;33m or [0;33m.
-                    fg = params[1] - 30;
-                }
+    return wrap.scrollTop() > (terminal.height() - 2 * wrap.height() );
+}
 
-                if(bold) {
-                    desired_class = 'fg-ansi-bold fg-ansi-bright-color-' + fg;
+function bumpUnread() {
+    unread++;
+
+    $('#terminal-activity')
+        .text(unread + ' unread message' + (unread > 1 ? 's' : ''))
+        .show();
+}
+
+function resetUnread() {
+    if(!unread)
+        return;
+
+    unread = 0;
+
+    $('#terminal-activity')
+        .hide();
+}
+
+// for easy scripting in triggers
+function echo(txt) {
+    $('#terminal').trigger('output', [txt]);
+}
+
+// jQuery 'terminal' module initialization
+$.fn.terminal = function() {
+    var terminal = this,
+        wrap = $('#terminal-wrap'),
+        append = function($chunk) {
+            $chunk.appendTo(terminal);
+
+            wrap.scrollTop(terminal.height());
+
+            while(terminal.html().length > maxBytesOnScreen) {
+                terminal.children(':first').remove();
+            }
+        };
+
+    $('#terminal-activity').click(function(e) {
+        e.preventDefault();
+
+        // reload from the bottom up
+        scrolling = true;
+        $('#terminal-wrap').scrollTop(0);
+        terminal.empty();
+        resetUnread();
+
+        var chunks = [];
+
+        return historyDb
+            .load(null, true, maxBytesOnScreen, function(id, value) {
+                var $chunk = $('<span>')
+                    .append(value)
+                    .attr('data-chunk-id', id);
+
+                chunks.push($chunk);
+            })
+            .then(function(b) {
+                $(chunks).each(function() {
+                    terminal.prepend(this);
+                });
+                wrap.scrollTop(terminal.height());
+                scrolling = false;
+            });
+    });
+
+    this.on('output', function(e, txt) {
+        var span = $('<span/>');
+        span.html(ansi2html(txt));
+
+        colorParseAndReplace(span);
+        manipParseAndReplace(span);
+
+        terminal.trigger('output-html', [span.html()]);
+    });
+
+    // this may not be called from outside of terminal logic.
+    this.on('output-html', function(e, html) {
+        historyDb
+            .append(html)
+            .then(function(id) {
+                var $chunk = $('<span>')
+                    .append(html)
+                    .attr('data-chunk-id', id);
+                
+                // only append a DOM node if we're at the bottom
+                if(atBottom()) {
+                    append($chunk);
                 } else {
-                    desired_class = 'fg-ansi-dark-color-' + fg;
+                    bumpUnread();
                 }
-                break;
-            case 'J':
-                txt = '';
-                //terminal.empty();
-                break;
-            case 'H':
-                console.log('move cursor');
-                break;
-            default:
-                console.log('wtf: ' + cmd + ', ' + params);
-        }
-    }
 
-    echo = function(b) {
-        actual_class = '';
-        txt = '';
-        function addText(t) {
-            if(desired_class != actual_class) {
-                if(txt) {
-                    txt += '</span>';
-                }
-                txt += '<span class="' + desired_class + '">';
-                actual_class = desired_class;
-            }
-            txt += t;
-        }
-        for(i in b) {
-            if(ansi) {
-                ansi += b[i];
-                var m = ansi.match('.(.)([0-9;]*)([A-Za-z])');
-                if(m) {
-                    ansi='';
-                    process_ansi(m[1], m[2].split(';'), m[3]);
-                }
-            } else {
-                var c = b.charCodeAt(i);
+                lastChunkId = id;
 
-                switch(c) {
-                    case 0xa:
-                        addText('\n');
-                        x = 0;
-                        break;
-                    case 0x9:
-                        while((++x % 8) != 0)
-                            addText(' ');
-                        break;
-                    case 0x1b:
-                        ansi += b[i];
-                        break;
-                    case 0x3c: // <
-                        if (options.escape_html === true) {
-                            addText('&lt;');
-                            x++;
-                            break;
-                        }
-                        // FALLTHROUGH
-                    case 0x3e: // >
-                        if (options.escape_html === true) {
-                            addText('&gt;');
-                            x++;
-                            break;
-                        }
-                        // FALLTHROUGH
-                    default:
-                        if(c >= 0x20) {
-                            addText(b[i]);
-                            x++;
-                        }
-                }
-            }
-        }
-        if(txt) {
-            if (actual_class !== '') 
-                txt += '</span>';
-
-            var span = $('<span/>');
-            span.html(txt);
-
-            // Replace colour "<c c='fgbr'/>" tags coming from the server with spans.
-            span.find('c').each(function(index) {
-                var style = $(this).attr('c');
-                $(this).replaceWith(function() {
-                    var result = $('<span/>').append($(this).contents());
-                    result.addClass(style);
-                    return result;
+                var lines = $chunk.text().replace(/\xa0/g, ' ').split('\n');
+                $(lines).each(function() {
+                    $('.trigger').trigger('text', [''+this]);
                 });
             });
+    });
 
-            manipParseAndReplace(span);
+    return this;
+};
 
-            var atBottom = $('#terminal-wrap').scrollTop() > ($('#terminal').height() - 2 * $('#terminal-wrap').height() );
-            var lines = span.appendTo(terminal).text().replace(/\xa0/g, ' ').split('\n');
-            $(lines).each(function() {
-                $('.trigger').trigger('text', [''+this]);
+// jQuery 'terminal-wrapper' module initialization
+$.fn.terminalWrap = function() {
+    var wrap = this,
+        terminal = $('#terminal');
+
+    this.on('scroll', function(e) {
+        // We are already handling a scroll event. 
+        // Don't trigger another database operation until the current one completed.
+        if(scrolling) {
+            // Prevent scrolling, so that the user won't hit the limits of the scrolling window.
+            // e.preventDefault(); 
+            return;
+        }
+
+        // Load top chunks while scrolling up.
+        if(wrap.scrollTop() < scrollThreshold) {
+            var $fst = terminal.find('span[data-chunk-id]:first-child');
+
+            // terminal is empty, can't scroll
+            if($fst.length === 0)
+                return;
+
+            var off = $fst.offset().top;
+            var fstId = parseInt($fst.attr('data-chunk-id'));
+
+            scrolling = true;
+            var chunks = [];
+
+            historyDb
+                .load(fstId, true, bytesToLoad, function(id, value) { 
+                    var $chunk = $('<span>')
+                        .append(value)
+                        .attr('data-chunk-id', id);
+
+                    chunks.push($chunk);
+                })
+                .then(function() {
+                    $(chunks).each(function() {
+                        terminal.prepend(this);
+                    });
+
+                    while(terminal.html().length > maxBytesOnScreen) {
+                        terminal.children(':last').remove();
+                    }
+
+                    wrap.scrollTop(wrap.scrollTop() + $fst.offset().top - off);
+                    scrolling = false;
+                });
+
+            return;
+        }
+
+        // Load bottom chunks while scrolling down.
+        if(wrap.scrollTop() > (terminal.height() - wrap.height() - scrollThreshold)) {
+            var $lst = terminal.find('span[data-chunk-id]:last-child');
+
+            // terminal is empty, can't scroll
+            if($lst.length === 0)
+                return;
+
+            var off = $lst.offset().top;
+            var lstId = parseInt($lst.attr('data-chunk-id'));
+
+            // The last html element in the DOM is the last sent message, 
+            // so we're at the bottom, no need to load anything.
+            if(lstId === lastChunkId) {
+                // Check if we can reset the unread counter and return
+                if(atBottom()) {
+                    resetUnread();
+                }
+
+                return;
+            }
+
+            scrolling = true;
+            var chunks = [];
+            
+            historyDb
+                .load(lstId, false, bytesToLoad, function(id, value) { 
+                    var $chunk = $('<span>')
+                        .append(value)
+                        .attr('data-chunk-id', id);
+
+                    chunks.push($chunk);
+                })
+                .then(function() {
+                    $(chunks).each(function() {
+                        terminal.append(this);
+                    });
+
+                    while(terminal.html().length > maxBytesOnScreen) {
+                        terminal.children(':first').remove();
+                    }
+
+                    wrap.scrollTop(wrap.scrollTop() + $lst.offset().top - off);
+                    scrolling = false;
+                });
+
+            return;
+        }
+    });
+};
+
+function terminalInit() {
+    var terminal = $('#terminal').terminal();
+
+    scrolling = true;
+    $('#terminal-wrap').scrollTop(0);
+
+    var chunks = [];
+
+    return historyDb
+        .load(null, true, maxBytesOnScreen, function(id, value) {
+            var $chunk = $('<span>')
+                .append(value)
+                .attr('data-chunk-id', id);
+
+            chunks.push($chunk);
+        })
+        .then(function() {
+            $(chunks).each(function() {
+                terminal.prepend(this);
             });
 
-            // only autoscroll if near the bottom of the page
-            if(atBottom) {
-                $('#terminal-wrap').scrollTop($('#terminal').height());
-            }
-        }
-    };
-    terminal.on('output', function process(e, b) {
-        echo(b);
-    });
-
-    /*
-     * Handlers for plus-minus buttons to change terminal font size.
-     */ 
-    var fontDelta = 2;
-    
-    function changeFontSize(delta) {
-        var style = terminal.css('font-size'); 
-        var fontSize = parseFloat(style); 
-        terminal.css('font-size', (fontSize + delta) + 'px');
-    }
-
-    $('#font-plus-button').click(function(e) {
-        e.preventDefault();
-        changeFontSize(fontDelta);
-    });
-
-    $('#font-minus-button').click(function(e) {
-        e.preventDefault();
-        changeFontSize(-fontDelta);
-    });
-
-    /*
-     * Handlers for 'keypad' key area.
-     */
-    // Long press: open/close direction etc.
-    var btnTimer;
-    var wasLongPress = false;
-    var longPressDelay = 800;
-
-    $('.btn-keypad').on('touchstart', function(e) {
-        wasLongPress = false;
-
-        // Send specified long-cmd once the delay has elapsed.
-        btnTimer = setTimeout(function() {
-            btnTimer = null;
-            wasLongPress = true;
-            var btn = $(e.currentTarget), cmd = btn.data('long-cmd');
-            if (cmd) {
-                send(cmd);
+            function append(html) {
+                terminal.trigger('output-html', [html]);
             }
 
-        }, longPressDelay);
+            append('<hr>');
+            append(ansi2html('\u001b[1;31m#################### HISTORY LOADED ####################\u001b[0;37m\n'));
+            append('<hr>');
+        
+            $('#terminal-wrap')
+                .scrollTop(terminal.height()) // scroll to the bottom
+                .terminalWrap(); // initialize the wrapper
 
-    }).on('touchend', function(e) {
-        if (btnTimer)  
-            clearTimeout(btnTimer);
-    });
+            scrolling = false;
+        });
+}
 
-    // Single click: go direction, look etc.`
-    $('.btn-keypad').click(function(e) {
-        if (wasLongPress)
-            return;
-
-        e.preventDefault();
-        var btn = $(e.currentTarget), cmd = btn.data('cmd');
-
-        if (cmd) {
-            send(cmd);
-        }
-    });
-
-});

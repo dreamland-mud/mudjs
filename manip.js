@@ -1,6 +1,19 @@
 var manipParseAndReplace;
+var colorParseAndReplace;
 
 $(document).ready(function() {
+
+    // Replace colour "<c c='fgbr'/>" tags coming from the server with spans.
+    colorParseAndReplace = function(span) {
+        span.find('c').each(function(index) {
+            var style = $(this).attr('c');
+            $(this).replaceWith(function() {
+                var result = $('<span/>').append($(this).contents());
+                result.addClass(style);
+                return result;
+            });
+        });
+    };
 
     manipParseAndReplace = function(span) {
         // Replace "<r i='sign'>sign</r>" tags surrounding extra descriptions.
