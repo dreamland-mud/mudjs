@@ -1,11 +1,15 @@
 {
-    "name": "dreamland-mud-client",
-    "description": "Dreamland MUD Client",
-    "version": "0.0.1",
-    "devDependencies": {
-        "browserify": "*"
-    },
-    "scripts": {
-        "build": "browserify main.js -o bundle.js"
-    }
+  "name": "dreamland-mud-client",
+  "description": "Dreamland MUD Client",
+  "version": "0.0.1",
+  "devDependencies": {
+    "browserify": "^16.2.2",
+    "uglify-js": "^3.4.9"
+  },
+  "scripts": {
+    "build": "browserify main.js --debug | uglifyjs -cm -o bundle.js --source-map content=inline,filename=bundle.js,url=bundle.js.map"
+  },
+  "dependencies": {
+    "brace": "^0.11.1"
+  }
 }

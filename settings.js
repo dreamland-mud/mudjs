@@ -1,4 +1,8 @@
 
+require('brace');
+require('brace/mode/javascript');
+require('brace/theme/monokai');
+
 var websock = require('./websock');
 var notify = require('./notify');
 

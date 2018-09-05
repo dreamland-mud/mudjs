@@ -1,4 +1,8 @@
 
+require('brace');
+require('brace/theme/monokai');
+require('./ace/mode-fenia');
+
 var websock = require('./websock');
 
 function fixindent(fn, str) {
@@ -20,10 +24,10 @@ function tabsize4to8(str) {
 
 $(document).ready(function() {
     var editor = ace.edit($('#cs-modal .editor')[0], {
-        theme: 'ace/theme/monokai',
-        mode: 'ace/mode/fenia',
         tabSize: 4
     });
+    editor.setTheme('ace/theme/monokai');
+    editor.session.setMode('ace/mode/fenia');
 
     $('#cs-modal .run-button').click(function(e) {
         var subj = $('#cs-subject').val(),

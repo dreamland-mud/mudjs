@@ -1,11 +1,13 @@
 
+require('brace');
+require('brace/theme/monokai');
+
 var websock = require('./websock');
 
 $(document).ready(function() {
     var editor = ace.edit($('#textedit-modal .editor')[0]);
 
     editor.setTheme('ace/theme/monokai');
-    // editor.session.setMode('ace/mode/javascript');
 
     $('#rpc-events').on('rpc-editor_open', function(e, text) {
         editor.setValue(text);
