@@ -68,20 +68,27 @@ $.fn.terminal = function() {
 
         var chunks = [];
 
-        return historyDb
-            .load(null, true, maxBytesOnScreen, function(id, value) {
-                var $chunk = $('<span>')
-                    .append(value)
-                    .attr('data-chunk-id', id);
+        lastChunkId =-1;
 
-                chunks.push($chunk);
-            })
-            .then(function(b) {
-                $(chunks).each(function() {
-                    terminal.prepend(this);
+        return historyDb
+            .then(function(db) {
+                db.load(null, true, maxBytesOnScreen, function(id, value) {
+                    var $chunk = $('<span>')
+                        .append(value)
+                        .attr('data-chunk-id', id);
+
+                    if(lastChunkId === -1)
+                        lastChunkId = id;
+
+                    chunks.push($chunk);
+                })
+                .then(function(b) {
+                    $(chunks).each(function() {
+                        terminal.prepend(this);
+                    });
+                    wrap.scrollTop(terminal.height());
+                    scrolling = false;
                 });
-                wrap.scrollTop(terminal.height());
-                scrolling = false;
             });
     });
 
@@ -97,13 +104,12 @@ $.fn.terminal = function() {
 
     // this may not be called from outside of terminal logic.
     this.on('output-html', function(e, html) {
-        historyDb
-            .append(html)
-            .then(function(id) {
+        historyDb.then(function(db) {
+            db.append(html).then(function(id) {
                 var $chunk = $('<span>')
                     .append(html)
                     .attr('data-chunk-id', id);
-                
+
                 // only append a DOM node if we're at the bottom
                 if(atBottom()) {
                     append($chunk);
@@ -118,6 +124,7 @@ $.fn.terminal = function() {
                     $('.trigger').trigger('text', [''+this]);
                 });
             });
+        });
     });
 
     return this;
@@ -151,8 +158,8 @@ $.fn.terminalWrap = function() {
             scrolling = true;
             var chunks = [];
 
-            historyDb
-                .load(fstId, true, bytesToLoad, function(id, value) { 
+            historyDb.then(function(db) {
+                db.load(fstId, true, bytesToLoad, function(id, value) { 
                     var $chunk = $('<span>')
                         .append(value)
                         .attr('data-chunk-id', id);
@@ -171,6 +178,7 @@ $.fn.terminalWrap = function() {
                     wrap.scrollTop(wrap.scrollTop() + $fst.offset().top - off);
                     scrolling = false;
                 });
+            });
 
             return;
         }
@@ -200,8 +208,8 @@ $.fn.terminalWrap = function() {
             scrolling = true;
             var chunks = [];
             
-            historyDb
-                .load(lstId, false, bytesToLoad, function(id, value) { 
+            historyDb.then(function(db) {
+                db.load(lstId, false, bytesToLoad, function(id, value) { 
                     var $chunk = $('<span>')
                         .append(value)
                         .attr('data-chunk-id', id);
@@ -220,6 +228,7 @@ $.fn.terminalWrap = function() {
                     wrap.scrollTop(wrap.scrollTop() + $lst.offset().top - off);
                     scrolling = false;
                 });
+            });
 
             return;
         }
@@ -232,13 +241,17 @@ function terminalInit() {
     scrolling = true;
     $('#terminal-wrap').scrollTop(0);
 
-    var chunks = [];
+    return historyDb.then(function(db) {
+        var chunks = [];
+        lastChunkId =-1;
 
-    return historyDb
-        .load(null, true, maxBytesOnScreen, function(id, value) {
+        return db.load(null, true, maxBytesOnScreen, function(id, value) {
             var $chunk = $('<span>')
                 .append(value)
                 .attr('data-chunk-id', id);
+
+            if(lastChunkId === -1)
+                lastChunkId = id;
 
             chunks.push($chunk);
         })
@@ -247,6 +260,12 @@ function terminalInit() {
                 terminal.prepend(this);
             });
 
+            $('#terminal-wrap')
+                .scrollTop(terminal.height()) // scroll to the bottom
+                .terminalWrap(); // initialize the wrapper
+
+            scrolling = false;
+
             function append(html) {
                 terminal.trigger('output-html', [html]);
             }
@@ -254,13 +273,8 @@ function terminalInit() {
             append('<hr>');
             append(ansi2html('\u001b[1;31m#################### HISTORY LOADED ####################\u001b[0;37m\n'));
             append('<hr>');
-        
-            $('#terminal-wrap')
-                .scrollTop(terminal.height()) // scroll to the bottom
-                .terminalWrap(); // initialize the wrapper
-
-            scrolling = false;
         });
+    });
 }
 
 module.exports = terminalInit;
