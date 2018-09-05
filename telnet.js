@@ -126,3 +126,4 @@ Telnet.prototype.handleWont= function(b) {};
 Telnet.prototype.handleWill= function(b) {};
 Telnet.prototype.handleSubneg= function(b) {};
 
+module.exports = Telnet;

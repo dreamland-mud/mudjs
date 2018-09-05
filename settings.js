@@ -1,4 +1,13 @@
 
+require('brace');
+require('brace/mode/javascript');
+require('brace/theme/monokai');
+
+var websock = require('./websock');
+var notify = require('./notify');
+
+var send = websock.send;
+
 $(document).ready(function() {
     function hashCode(s) {
         var hash = 0, i, chr;

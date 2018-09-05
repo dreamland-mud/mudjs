@@ -1,5 +1,3 @@
-var promptHandler;
-
 
 $(document).ready(function() {
 
@@ -8,14 +6,6 @@ $(document).ready(function() {
         e.stopPropagation();
         e.preventDefault();
     });
-
-    function promptLocation(b) {
-        lastLocation = {
-            area: b.area,
-            vnum: b.vnum
-        };
-        bcastLocation();
-    }
 
     // prompt time fields: h - hour, tod - time of day, l - daylight
     function promptTime(b) {
@@ -434,15 +424,14 @@ $(document).ready(function() {
     }
 
 
-    // Main prompt handler, called from main.js.
-    promptHandler = function(b) {
+    // Main prompt handler, triggered from websock.js.
+    $('#rpc-events').on('rpc-prompt', function(e, b) {
         // First prompt sent - show time and 'where' windows.
         $('#time-weather').show();
         $('#player-location').show();
 
         // Handle all prompt fields.
         promptGroup(b);
-        promptLocation(b);
         promptZone(b);
         promptRoom(b);
         promptExits(b);
@@ -455,6 +444,5 @@ $(document).ready(function() {
         promptParams(b);
         promptQuestor(b);
         promptStats(b);
-    };
-
+    });
 });

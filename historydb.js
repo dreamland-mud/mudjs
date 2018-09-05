@@ -1,4 +1,6 @@
 
+var sessionId = require('./sessionid')();
+
 window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction || {READ_WRITE: "readwrite"};
 window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
@@ -37,8 +39,6 @@ function initStubHistoryDb() {
 
 // Actual implementation for web browsers.
 function initIndexedHistoryDb() {
-    var sessionId = String(Math.floor(Math.random()*1000000));
-
     var database = new Promise(function(accept, reject) {
         var request = window.indexedDB.open('dreamland', 2);
 
@@ -164,3 +164,18 @@ function initIndexedHistoryDb() {
 }
 
 var historyDb = window.indexedDB ? initIndexedHistoryDb() : initStubHistoryDb();
+
+module.exports = {
+    append: function() {
+        return historyDb.append.apply(this, arguments);
+    },
+
+    load: function() {
+        return historyDb.load.apply(this, arguments);
+    },
+
+    remove: function() {
+        return historyDb.remove.apply(this, arguments);
+    },
+
+};
