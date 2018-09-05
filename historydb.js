@@ -37,14 +37,23 @@ function initStubHistoryDb() {
 
 // Actual implementation for web browsers.
 function initIndexedHistoryDb() {
+    var sessionId = String(Math.floor(Math.random()*1000000));
+
     var database = new Promise(function(accept, reject) {
-        var request = window.indexedDB.open('dreamland', 1);
+        var request = window.indexedDB.open('dreamland', 2);
 
         request.onupgradeneeded = function(e) { 
             var db = request.result;
             console.log('upgrade');
 
-            db.createObjectStore('terminal', { autoIncrement: true, keyPath: null });
+            if(e.oldVersion < 1) {
+                db.createObjectStore('terminal', { autoIncrement: true, keyPath: null });
+            }
+
+            if(e.oldVersion < 2) {
+                var store = db.createObjectStore('session', { autoIncrement: false, keyPath: null });
+                store.add(sessionId, 'current');
+            }
         };
 
         request.onerror = function(e) {
@@ -56,16 +65,47 @@ function initIndexedHistoryDb() {
             accept(request.result);
         };
     })
+    .then(function(db) {
+        return new Promise(function(accept) {
+            var store = db.transaction(['session'], 'readwrite').objectStore('session');
+            
+            // last window/tab wins: overwrite any existing session
+            var request = store.put(sessionId, 'current');
+
+            request.onsuccess = function(e) {
+                accept(db);
+            };
+        });
+    })
     .catch(function(e) {
         console.log('indexedDb operation failed, falling back to stub implementation');
         historyDb = initStubHistoryDb();
     });
 
+    function getDb() {
+        return database.then(function(db) {
+            // check if we're still the current session
+            return new Promise(function(accept) {
+                var store = db.transaction(['session'], 'readonly').objectStore('session');
+                var request = store.get('current');
+
+                request.onsuccess = function(e) {
+                    if(e.target.result !== sessionId) {
+                        alert('SessionId mismatch: ' + e.target.result + ' != ' + sessionId + '\nPlease close this tab.');
+                        window.location = 'about:blank';
+                        throw new Error('SessionId mismatch!');
+                    }
+                    accept(db);
+                };
+            });
+        });
+    }
+
     return {
         // Append a html chunk to the history.
         // Takes a string and returns a Promise of database id associated with the entry
         append: function(html) {
-            return database.then(function(db) {
+            return getDb().then(function(db) {
                 return new Promise(function(accept) {
                     db.transaction(['terminal'], 'readwrite').objectStore('terminal')
                         .add(html)
@@ -81,7 +121,7 @@ function initIndexedHistoryDb() {
         // Return a Promise which is resolved when everything is loaded.
         load: function(startId, reverse, limit, f) {
             return new Promise(function(accept) {
-                database.then(function(db) {
+                getDb().then(function(db) {
                     var loaded = 0;
                     var range;
                     var ds = db.transaction(['terminal']).objectStore('terminal');
