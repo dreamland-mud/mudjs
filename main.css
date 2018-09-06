@@ -278,6 +278,9 @@ td.v-bottom {
 
     background-color: black;
     color: white;
+}
+
+.modal-body .editor {
     font-size: 18px;
 }
 
