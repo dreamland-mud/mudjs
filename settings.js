@@ -8,6 +8,10 @@ var notify = require('./notify');
 
 var send = websock.send;
 
+function echo(txt) {
+    $('#terminal').trigger('output', [txt]);
+}
+
 $(document).ready(function() {
     function hashCode(s) {
         var hash = 0, i, chr;

@@ -39,11 +39,6 @@ function resetUnread() {
         .hide();
 }
 
-// for easy scripting in triggers
-function echo(txt) {
-    $('#terminal').trigger('output', [txt]);
-}
-
 // jQuery 'terminal' module initialization
 $.fn.terminal = function() {
     var terminal = this,
