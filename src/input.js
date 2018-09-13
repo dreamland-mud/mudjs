@@ -1,9 +1,8 @@
 
 var websock = require('./websock');
-
 var send = websock.send;
 
-var keydown = function(e) {};
+var settings = require('./settings');
 
 $(document).ready(function() {
     var input_history = localStorage.history ? JSON.parse(localStorage.history) : [],
@@ -61,7 +60,7 @@ $(document).ready(function() {
             }
         }
 
-        keydown(e);
+        settings.keydown()(e);
     });
 
     $('#input').on('submit', function(e) {
@@ -90,3 +89,4 @@ $(document).ready(function() {
         send(text);
     });
 });
+

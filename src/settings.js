@@ -5,12 +5,13 @@ require('brace/theme/monokai');
 
 var websock = require('./websock');
 var notify = require('./notify');
-
 var send = websock.send;
 
 function echo(txt) {
     $('#terminal').trigger('output', [txt]);
 }
+
+var keydown = function(e) {};
 
 $(document).ready(function() {
     function hashCode(s) {
@@ -79,3 +80,9 @@ $(document).ready(function() {
             localStorage.settings = val;
         });
 });
+
+module.exports = {
+    keydown: function() {
+        return keydown;
+    } 
+};
