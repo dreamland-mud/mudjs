@@ -5,6 +5,7 @@ var websock = require('./websock');
 var terminalInit = require('./terminal');
 var lastLocation = require('./location');
 var sessionId = require('./sessionid')();
+var historydb = require('./historydb');
 
 require('./notify');
 require('./input');
@@ -21,6 +22,41 @@ $(window).bind('beforeunload', function() {
 });
 
 $(document).ready(function() {
+    $('#logs-button').click(function(e) {
+        var logs = [];
+
+        e.preventDefault();
+
+        historydb
+            .then(function(db) {
+                return db.load(null, false, 100000000, function(key, value) {
+                    logs.push(value);
+                });
+            })
+            .then(function() {
+                var blobOpts = { type: 'text/html' },
+                    blob = new Blob(logs, blobOpts),
+                    url = URL.createObjectURL(blob);
+
+                logs = null;
+                console.log(url);
+
+                // create a link
+                var link = $('<a>')
+                    .attr({
+                        href: url,
+                        download: 'mudjs.log'
+                    })
+                    [0];
+
+                // click on it
+                setTimeout(function() {
+                    var event = document.createEvent('MouseEvents');
+                        event.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+                        link.dispatchEvent(event);
+                }, 10);
+            });
+    });
 
     $('#map-button').click(function(e) {
         e.preventDefault();
