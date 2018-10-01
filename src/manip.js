@@ -125,6 +125,8 @@ function manipParseAndReplace(span) {
         var menu = $('<span class="dropdown-menu" />');
 
         function addToMenu(cmd) {
+            if (cmd.trim().length === 0)
+		return;
             var action = cmd.replace(/\$/, id);
             var label = cmd.replace(/^([а-я ]+).*$/, '$1');
             menu.append($('<a/>')
@@ -155,7 +157,7 @@ function manipParseAndReplace(span) {
 
         // Replace '<m>' pseudo-tag with Popper dropdown markup. 
         $(this).replaceWith(function() {
-            var result = $('<span class="dropdown"/>').append(toggle).append(menu);
+            var result = $('<span class="dropdown-norelative"/>').append(toggle).append(menu);
             return result;
         });
     });

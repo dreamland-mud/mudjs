@@ -351,7 +351,7 @@ td.v-bottom {
 .dropdown-toggle::after {
     display: none;
 }
-.dropdown {
+.dropdown-norelative {
     cursor: pointer;
 }
 
