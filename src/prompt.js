@@ -359,7 +359,6 @@ $(document).ready(function() {
 
     // prompt questor quest info 'q' fields: t - remaining time, i - short quest info.
     function promptQuestor(b) {
-        console.log('q', b.q);
         // Nothing changed since last time.
         if (b.q == undefined) {
             return;

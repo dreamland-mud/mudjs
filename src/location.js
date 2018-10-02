@@ -8,7 +8,7 @@ if('BroadcastChannel' in window) {
 
     locationChannel.onmessage = function(e) {
         if(e.data.what === 'where am i' && lastLocation) {
-            bcastLocation();
+            bcastLocation(lastLocation);
         }
     };
 }
