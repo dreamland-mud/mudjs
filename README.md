@@ -45,6 +45,24 @@ npm update
 ```bash
 npm run build
 ```
+## <a name="launch">Запуск</a>
+
+Удобнее всего поднять свой HTTP-server в каталоге mudjs. Если в системе установлен python, это очень просто сделать такими командами:
+```bash
+cd mudjs
+python -m SimpleHTTPServer # для Python 2
+python3 -m http.server # для Python 3
+```
+После этого веб-клиент станет доступен по адресу http://localhost:8000/index.html.
+
+По идее можно обойтись и без cервера, открывая локальный файл прямо из браузера: file:///path/to/mudjs/index.html
+
+Можно указать различные фрагменты после index.html#, для доступа к различным серверам:
+
+* http://localhost:8000/index.html - соединится с основным сервером на dreamland.rocks
+* http://localhost:8000/index.html#buildplot - соединится со стройплощадкой на dreamland.rocks
+* http://localhost:8000/index.html#local - попытается соединиться с локально запущенным сервером на localhost 1234. Подробнее о том, как установить локальный сервер, смотрите в инструкции к проекту [dreamland_code](https://github.com/dreamland-mud/dreamland_code).
+
 
 ## <a name="proto">Описание протокола общения с сервером мира DreamLand</a>
 
