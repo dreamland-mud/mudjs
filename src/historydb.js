@@ -85,7 +85,8 @@ function initIndexedHistoryDb() {
 
                 request.onsuccess = function(e) {
                     if(e.target.result !== sessionId) {
-                        alert('SessionId mismatch: ' + e.target.result + ' != ' + sessionId + '\nPlease close this tab.');
+                        console.log('SessionId mismatch: ' + e.target.result + ' != ' + sessionId + '\nPlease close this tab.');
+                        alert('Обнаружена новая вкладка с MUD клиентом. Закройте эту и продолжите пользоваться новой.');
                         window.location = 'about:blank';
                         throw new Error('SessionId mismatch!');
                     }
