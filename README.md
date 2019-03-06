@@ -1,5 +1,9 @@
 # MUDJS: Web-Socket MUD client
 
+[![License](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![Build Status](https://travis-ci.org/dreamland-mud/mudjs.svg?branch=dreamland)](https://travis-ci.org/dreamland-mud/mudjs)
+[![Discord chat](https://img.shields.io/discord/464761427710705664.svg?label=Discord%20chat&style=flat)](https://discord.gg/RPaz6ut)
+
 **Содержание**
 * [Обзор](#overview)
 * [Онлайн-разработка в gitpod.io](#gitpod)
