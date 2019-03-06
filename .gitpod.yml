@@ -1,0 +1,4 @@
+ports:
+- port: 8000
+tasks:
+- command: npm install && npm run build && python3 -m http.server
