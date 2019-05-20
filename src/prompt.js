@@ -425,6 +425,8 @@ $(document).ready(function() {
 
     // Main prompt handler, triggered from websock.js.
     $('#rpc-events').on('rpc-prompt', function(e, b) {
+        window.mudprompt = b;
+
         // First prompt sent - show time and 'where' windows.
         $('#time-weather').show();
         $('#player-location').show();
