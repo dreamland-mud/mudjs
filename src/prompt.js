@@ -425,7 +425,12 @@ $(document).ready(function() {
 
     // Main prompt handler, triggered from websock.js.
     $('#rpc-events').on('rpc-prompt', function(e, b) {
-        window.mudprompt = b;
+        // Remember merged prompt here, so that valid latest prompt
+        // is always available to user scripts.
+        if (window.mudprompt === undefined)
+            window.mudprompt = b;
+        else
+            $.extend(window.mudprompt, b);
 
         // First prompt sent - show time and 'where' windows.
         $('#time-weather').show();
