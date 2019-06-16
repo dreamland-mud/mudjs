@@ -105,6 +105,8 @@
                              </div>
                             <div id="pa-malad" class="flexcontainer-column" style="display:none;" data-hint="hint-malad">
                              </div>
+                            <div id="pa-clan" class="flexcontainer-column" style="display:none;" data-hint="hint-clan">
+                             </div>
                         </div>
                     </div><!-- player-affects -->
                     <div id="player-params" class="table-wrapper" style="display:none;">
@@ -318,6 +320,55 @@
             </div>
         </div>
 
+        <div id="hint-clan" class="modal fade hints" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <b class="modal-title">Колонка клановых воздействий</b>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body"><p>В этой колонке отображаются позитивные и негативные воздействия
+как результат действия клановых заклинаний и умений.
+Вот список сокращенных названий воздействий и полные русские и английские названия соответствующих навыков.
+<table class="table table-striped">
+    <thead class="thead"><th>Видно как</th><th>Навык по-русск</th><th>Навык по-англ</th><th>Группа</th></thead>
+    <tbody>
+        <tr><td>Сопрот</td><td>сопротивляемость</td><td>resistance</td><td>клан Battlerager</td></tr>
+        <tr><td>Спелба</td><td>отражение магии</td><td>spellbane</td><td>клан Battlerager</td></tr>
+        <tr><td>ЖажКрв</td><td>жажда крови</td><td>bloodthirst</td><td>клан Battlerager</td></tr>
+        <tr><td>Повязк</td><td>повязка</td><td>bandage</td><td>клан Battlerager</td></tr>
+        <tr><td>Трофей</td><td>трофей</td><td>trophy</td><td>клан Battlerager</td></tr>
+        <tr><td>Зрение</td><td>истинное зрение</td><td>truesight</td><td>клан Battlerager</td></tr>
+        <tr><td>ОбнЛов</td><td>обнаружение ловушек</td><td>detect trap</td><td>клан Hunter</td></tr>
+        <tr><td>Лев</td><td>превращение во льва</td><td>evolve lion</td><td>клан Lion</td></tr>
+        <tr><td>Предот</td><td>предотвращение</td><td>prevent</td><td>клан Lion</td></tr>
+        <tr><td>Трансф</td><td>преобразиться</td><td>transform</td><td>клан Shalafi</td></tr>
+        <tr><td>ЗолАур</td><td>золотая аура</td><td>golden aura</td><td>клан Knight</td></tr>
+        <tr><td>СвщБрн</td><td>священная броня</td><td>holy armor</td><td>клан Knight</td></tr>
+        <tr><td>Плащ</td><td>призрачная мантия</td><td>shadow cloak</td><td>клан Invader</td></tr>
+        <tr><td>Доппел</td><td>доппельгангер</td><td>doppelganger</td><td>клан Chaos</td></tr>
+        <tr><td>Зеркал</td><td>зеркала</td><td>mirror</td><td>клан Chaos</td></tr>
+        <tr><td>Рандом</td><td>рандомайзер</td><td>randomizer</td><td>клан Chaos</td></tr>
+        <tr><td>Компро</td><td>скомпрометировать</td><td>disgrace</td><td>клан Chaos</td></tr>
+        <tr><td>Гарбл</td><td>спутать язык</td><td>garble</td><td>клан Chaos</td></tr>
+        <tr><td>Конфуз</td><td>сбить с толку</td><td>confuse</td><td>клан Chaos</td></tr>
+        <tr><td>Наруч</td><td>кандалы</td><td>manacles</td><td>клан Ruler</td></tr>
+        <tr><td>Повест</td><td>повестка</td><td>suspect</td><td>клан Ruler</td></tr>
+        <tr><td>Тюрьма</td><td>тюрьма</td><td>jail</td><td>клан Ruler</td></tr>
+        <tr><td>НеРули</td><td>отстранение</td><td>dismiss</td><td>клан Ruler</td></tr>
+        <tr><td>АураПр</td><td>аура правителя</td><td>ruler aura</td><td>клан Ruler</td></tr>
+    </tbody>
+</table>    
+
+Также смотри подсказку для основного окна воздействий, справку имяклана умения, и справку по каждому навыку.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="hint-malad" class="modal fade hints" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -379,6 +430,7 @@
 <p>колонка <b>Обнаруж</b>: различные обнаружения</p>  
 <p>колонка <b>Защита</b>: различные защитные заклинания</p>
 <p>колонка <b>Отриц</b>: негативные воздействия</p>
+<p>колонка <b>Клан</b>: клановые умения и заклинания, положительные и негативные</p>
 <p>
 Положительные воздействия рисуются ярко-зеленым, отрицательные - ярко-красным. Если воздействие
 исчезнет в течение ближайшей минуты, оно рисуется ярко-желтым.</p>

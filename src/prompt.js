@@ -222,7 +222,8 @@ $(document).ready(function() {
     }
 
     // prompt fields related to affects: det - detection, trv - transport&travel
-    //                                   enh - fightmaster&enhancement, pro - protective
+    //                                   enh - fightmaster&enhancement, pro - protective,
+    //                                   cln - clan skills and spells
     function promptAffects(b) {
         var $affects = $('#player-affects');
         affectsPanelHidden = true;
@@ -246,6 +247,11 @@ $(document).ready(function() {
         var mnames = {'b': 'Слеп','p':'Яд','P':'Чума','C':'Гниени','f':'ОгФей','W':'Очаров','c':'Прокл','w':'Слабо',
         's':'Замедл','S':'Крик','B':'ЖажКрв','T':'Оглуш','i':'НетРук','I':'Стрела','j':'Сосуд','a':'Анафем'};
         drawAffectBlock(b.mal, '#pa-malad', 'Отриц', mnames, '1');
+
+        var cnames = {'r':'Сопрот','s':'Спелба','B':'ЖажКрв','b':'Повязк','t':'Трофей','T':'Зрение','d':'ОбнЛов','e':'Лев','p':'Предот','f':'Трансф',
+        'g':'ЗолАур','h':'СвщБрн','S':'Плащ','D':'Доппел','m':'Зеркал','R':'Рандом','i':'Компро','G':'Гарбл','c':'Конфуз','M':'Наруч','u':'Повест','j':'Тюрьма',
+        'J':'НеРули','A':'АураПр' };
+        drawAffectBlock(b.cln, '#pa-clan', 'Клан', cnames, '2');
 
         // Hide main affects window if no affect blocks are displayed.
         if (affectsPanelHidden)
