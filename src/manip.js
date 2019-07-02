@@ -61,9 +61,9 @@ function manipParseAndReplace(span) {
     // Replace extra-description placeholders [read=sign знак,see=sign] with (<span class="manip-cmd manip-ed" data-action="read 'sign знак'">sign</span>).
     // Returns empty string if 'see' part is not contained within 'read' part.
     html = span.html().replace(
-        /\[read=([-a-z а-я0-9]{1,50}),see=([-a-z а-я0-9]{1,30})]/g, 
+        /\[read=([^,]{1,50}),see=([^\]]{1,30})]/ig, 
         function(match, p1, p2, string) {
-            if (p1.split(' ').indexOf(p2) === -1)
+            if (p1.toLowerCase().split(' ').indexOf(p2.toLowerCase()) === -1)
                 return '';
             return '(<span class="manip-cmd manip-ed" data-action="read \'' + p1 + '\'">' + p2 + '</span>)';
         });
