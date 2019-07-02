@@ -1,7 +1,9 @@
 
 var websock = require('./websock');
+var input = require('./input');
 
 var send = websock.send;
+var echo = input.echo;
 
 // Create the list of all possible area file names (without ".are" bit).
 var areas = require('./data/areas.json').map(function(a) { 
@@ -13,14 +15,16 @@ $(document).ready(function() {
     // Send comman to the server when command hyper link is clicked
     // e. g. 'read sign' or 'walk trap'.
     $('body').on('click', '.manip-cmd', function(e) {
-        var action = $(e.currentTarget).attr('data-action');
-        send(action);
+		var cmd = $(e.currentTarget);
+        echo(cmd.attr('data-echo'));
+        send(cmd.attr('data-action'));
     });
 
     // Send command to the server when individual menu item is clicked.
     $('body').on('click', '.manip-item', function(e) {
-        var action = $(e.currentTarget).attr('data-action');
-        send(action);
+		var cmd = $(e.currentTarget);
+        echo(cmd.attr('data-echo'));
+        send(cmd.attr('data-action'));
     });
 
     // Underline current selection when dropdown is shown.
@@ -65,7 +69,7 @@ function manipParseAndReplace(span) {
         function(match, p1, p2, string) {
             if (p1.split(' ').indexOf(p2) === -1)
                 return '';
-            return '(<span class="manip-cmd manip-ed" data-action="read \'' + p1 + '\'">' + p2 + '</span>)';
+            return '(<span class="manip-cmd manip-ed" data-action="read \'' + p1 + '\'" data-echo="читать ' + p2 + '">' + p2 + '</span>)';
         });
     span.html(html);
 
@@ -77,6 +81,7 @@ function manipParseAndReplace(span) {
             var result = $('<span/>')
                 .addClass('manip-cmd')
                 .attr('data-action', cmd.text())
+				.attr('data-echo', cmd.text().toLowerCase())
                 .append(cmd);
             return result;
         });
@@ -107,6 +112,7 @@ function manipParseAndReplace(span) {
             var result = $('<span/>')
                 .addClass('manip-cmd')
                 .attr('data-action', 'help ' + article.text())
+				.attr('data-echo', 'справка ' + article.text())
                 .append(article);
             return result;
         });
@@ -120,6 +126,7 @@ function manipParseAndReplace(span) {
             var result = $('<span/>')
                 .addClass('manip-cmd')
                 .attr('data-action', 'glist ' + article.text())
+                .attr('data-echo', 'группаумен ' + article.text())
                 .append(article);
             return result;
         });

@@ -4,6 +4,18 @@ var send = websock.send;
 
 var settings = require('./settings');
 
+function echo(txt) {
+    if (!txt)
+        return;
+
+    if (txt.length !== 0) {
+        var output = $('<span/>').addClass('echo-with-anchor').text(txt+'\n');
+        $('#terminal').trigger('output-html', [output[0].outerHTML]);
+    } else {
+        $('#terminal').trigger('output', '\n');
+    }
+}
+
 $(document).ready(function() {
     var input_history = localStorage.history ? JSON.parse(localStorage.history) : [],
         position = input_history.length,
@@ -80,7 +92,7 @@ $(document).ready(function() {
         }
         var lines = t.split('\n');
         $(lines).each(function() {
-            $('#terminal').trigger('output', ['' + this + '\r\n']);
+            echo(this);
             $('.trigger').trigger('input', ['' + this]);
         });
     });
@@ -90,3 +102,6 @@ $(document).ready(function() {
     });
 });
 
+module.exports = {
+    echo: echo
+};

@@ -215,14 +215,19 @@ td.v-bottom {
 }
 
 /*
- * Draw distinct borders and show space around elements
- * on big screen. Make input box styled as the rest of the
- * page components.
+ * Add some space around main screen on all media sizes.
+ */
+#terminal-wrap {
+   padding: 0px 10px 10px 4px;
+   margin: 0px 10px 8px 1px;
+}
+
+/*
+ * Draw distinct borders around elements on big screen. 
+ * Make input box styled as the rest of the page components.
  */
 @media only screen and (min-width: 768px) {
     #terminal-wrap {
-       padding: 0px 10px 10px 4px;
-       margin: 0px 10px 8px 1px;
        border: 1px solid #999;
     }
     #overlay {
@@ -393,6 +398,20 @@ a.manip-link, a.manip-link:hover {
     color: #FF9900;
 }
 
+/*
+ * User command is echoed back with a small anchor before it.
+ */
+.echo-with-anchor::before {
+  content: '\25b8';
+  padding-right: 0.1em;
+  color: orange;
+}
+/*
+ * Anchor sticks close to the border of the screen.
+ */
+.echo-with-anchor {
+  margin-left: -5px;
+}
 
 /*
  * Status bars
