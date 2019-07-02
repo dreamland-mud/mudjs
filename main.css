@@ -380,6 +380,20 @@ a.manip-link, a.manip-link:hover {
     color: inherit;
 }    
 
+.btn-orange:hover, .btn-orange {
+    border-color: #FF9900;
+    letter-spacing: 0.05em;
+}
+
+.btn-orange:hover {
+    background-color: #FF9900;
+}
+
+.btn-orange {
+    color: #FF9900;
+}
+
+
 /*
  * Status bars
  */

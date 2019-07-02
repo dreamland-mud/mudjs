@@ -3,13 +3,12 @@ var websock = require('./websock');
 
 var send = websock.send;
 
-$(document).ready(function() {
+// Create the list of all possible area file names (without ".are" bit).
+var areas = require('./data/areas.json').map(function(a) { 
+    return a.file.replace('.are', ''); 
+});
 
-    // Send 'read' command to the server when extra descr keyword is clicked.
-    $('body').on('click', '.manip-ed', function(e) {
-        var id = $(e.currentTarget).attr('data-id');
-        send("read '" + id + "'");
-    });
+$(document).ready(function() {
 
     // Send comman to the server when command hyper link is clicked
     // e. g. 'read sign' or 'walk trap'.
@@ -48,19 +47,27 @@ function colorParseAndReplace(span) {
 };
 
 function manipParseAndReplace(span) {
-    // Replace "<r i='sign'>sign</r>" tags surrounding extra descriptions.
-    span.find('r').each(function(index) {
-        var id = $(this).attr('i');
-        var keyword = $(this).contents();
-
-        $(this).replaceWith(function() {
-            var result = $('<span/>')
-                .addClass('manip-ed')
-                .attr('data-id', id)
-                .append(keyword);
-            return result;
+    // Replace placeholders [map=filename.are] with buttons that open a map, 
+    // or with an empty string, if area is not found in the areas.json.
+    var html = span.html().replace(
+        /\[map=([0-9a-z_]{1,15})\.are\]/g, 
+        function(match, p1, string) {
+            if (areas.indexOf(p1) === -1)
+                return '';
+            return '<a class="btn btn-sm btn-outline-info btn-orange" href="https://dreamland.rocks/maps/' + p1 + '.html" target=_blank>открыть карту</a>';
         });
-    });
+    span.html(html);
+    
+    // Replace extra-description placeholders [read=sign знак,see=sign] with (<span class="manip-cmd manip-ed" data-action="read 'sign знак'">sign</span>).
+    // Returns empty string if 'see' part is not contained within 'read' part.
+    html = span.html().replace(
+        /\[read=([-a-z а-я0-9]{1,50}),see=([-a-z а-я0-9]{1,30})]/g, 
+        function(match, p1, p2, string) {
+            if (p1.split(' ').indexOf(p2) === -1)
+                return '';
+            return '(<span class="manip-cmd manip-ed" data-action="read \'' + p1 + '\'">' + p2 + '</span>)';
+        });
+    span.html(html);
 
     // Replace "<hc>command</hc>" tags surrounding commands to send as is.
     span.find('hc').each(function(index) {
@@ -76,7 +83,7 @@ function manipParseAndReplace(span) {
     });
 
     // Replace "<hl>hyper link</hl>" tags surrounding hyper links.
-            // Basic sanitization of the links.
+    // Basic sanitization of the links.
     span.find('hl').each(function(index) {
         var content = $(this).contents();
                     var href = content.text();
