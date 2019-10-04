@@ -60,17 +60,42 @@ function manipParseAndReplace(span) {
                 return '';
             return '<a class="btn btn-sm btn-outline-info btn-orange" href="https://dreamland.rocks/maps/' + p1 + '.html" target=_blank>открыть карту</a>';
         });
-    span.html(html);
     
     // Replace extra-description placeholders [read=sign знак,see=sign] with (<span class="manip-cmd manip-ed" data-action="read 'sign знак'">sign</span>).
     // Returns empty string if 'see' part is not contained within 'read' part.
-    html = span.html().replace(
+    // TODO: just use [cmd] tags here.
+    html = html.replace(
         /\[read=([^,]{1,50}),see=([^\]]{1,30})]/ig, 
         function(match, p1, p2, string) {
             if (p1.toLowerCase().split(' ').indexOf(p2.toLowerCase()) === -1)
                 return '';
             return '(<span class="manip-cmd manip-ed" data-action="read \'' + p1 + '\'" data-echo="читать ' + p2 + '">' + p2 + '</span>)';
         });
+
+    // Replace random commands with data-action span.
+    html = html.replace(
+        /\[cmd=([^,]{1,50}),see=([^,]{1,50}),nonce=(.{8})]/ig,
+        function(match, cmd, see, nonce, string) {
+            // Ensure the command is coming from the server.
+            if (nonce !== websock.ws().nonce) {
+                console.log('Invalid nonce in command, someone\'s up to no good', string);
+                return string;
+            }
+           
+            // Replace argument placeholder.
+            var action = cmd.replace(/\$1/, see);
+
+            // The link will only surround the message itself, spaces are not underlined.
+            return see.replace(
+                    /^( *)([^ ]*)( *)$/,
+                    function(match, spaceBegin, msg, spaceEnd, string) {
+                        return  '&nbsp;'.repeat(spaceBegin.length)
+                                + '<span class="manip-cmd manip-ed" data-action="' + action + '" data-echo="' + action + '">' + msg + '</span>'
+                                + '&nbsp;'.repeat(spaceEnd.length);
+                    });
+               
+        });
+
     span.html(html);
 
     // Replace "<hc>command</hc>" tags surrounding commands to send as is.
