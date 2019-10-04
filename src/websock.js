@@ -3,7 +3,7 @@
 
 var Telnet = require('./telnet');
 
-var PROTO_VERSION = 'DreamLand Web Client/1.8';
+var PROTO_VERSION = 'DreamLand Web Client/1.9';
 var wsUrl = "wss://dreamland.rocks/dreamland";
 
 var ws;
@@ -46,12 +46,17 @@ $(document).ready(function() {
         .on('rpc-alert', function(e, b) {
             alert(b);
         })
-        .on('rpc-version', function(e, b) {
-            if(b !== PROTO_VERSION) {
-                process('\n\u001b[1;31mВерсия клиента (' + PROTO_VERSION + ') не совпадает с версией сервера (' + b + ').\n' +
+        .on('rpc-version', function(e, version, nonce) {
+            console.log('rpc-version', version, nonce);
+
+            if(version !== PROTO_VERSION) {
+                process('\n\u001b[1;31mВерсия клиента (' + PROTO_VERSION + ') не совпадает с версией сервера (' + version + ').\n' +
                         'Обнови страницу, если не поможет - почисти кеши.\u001b[0;37m\n');
                 ws.close();
             }
+
+            // Store unique ID from the server and use it to verify action links ([cmd] tag).
+            ws.nonce = nonce;
         });
 });
 
@@ -85,5 +90,8 @@ function connect() {
 module.exports = {
     send: send,
     rpccmd: rpccmd,
-    connect: connect
+    connect: connect,
+    ws: function() {
+        return ws;
+    }
 };
