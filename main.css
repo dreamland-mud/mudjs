@@ -354,10 +354,11 @@ td.v-bottom {
  * Item manip dropdowns
  */
 .dropdown-toggle::after {
-    display: none;
+/*    display: none; */
 }
 .dropdown-norelative {
     cursor: pointer;
+    display: inline-block;
 }
 
 .dropdown-toggle:hover {
