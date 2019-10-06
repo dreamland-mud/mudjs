@@ -1,3 +1,7 @@
+var websock = require('./websock');
+var input = require('./input');
+var send = websock.send;
+var echo = input.echo;
 
 $(document).ready(function() {
 
@@ -441,6 +445,7 @@ $(document).ready(function() {
         // First prompt sent - show time and 'where' windows.
         $('#time-weather').show();
         $('#player-location').show();
+        $('#help').show();
 
         // Handle all prompt fields.
         promptGroup(b);
@@ -457,4 +462,47 @@ $(document).ready(function() {
         promptQuestor(b);
         promptStats(b);
     });
+
+    // Help search box: retrieve help topic hints and init the input box.
+    var inputbox = $('#help input');
+    var showTopic = function(topic) {
+        var cmd = 'справка ' + topic;
+        echo(cmd);
+        send(cmd);
+        inputbox.val('');
+        $('#input input').focus();
+    };
+
+    $.get("/help/typeahead.json", function(data) { 
+        // Success:
+        console.log('Retrieved', data.length, 'help topics.');
+        
+        // Convert retrieved JSON to format accepted by autocomplete plugin.
+        var topics = $.map(data, function(dataItem) { 
+            return {value: dataItem.n.toLowerCase(), 
+                    data: dataItem.l}; 
+        });
+        
+        // Initialize autocomplete drop-down.
+        inputbox.autocomplete({ 
+            lookup: topics, 
+            lookupLimit: 10, 
+            autoSelectFirst: true, 
+            showNoSuggestionNotice: true, 
+            noSuggestionNotice: 'Справка не найдена', 
+            onSelect: function(suggestion) { 
+                showTopic(suggestion.value);
+            } 
+        }); 
+
+    }, 'json').fail(function() {
+        // Failure:
+        console.log('Cannot retrieve help hints.');
+        // Default to just invoke 'help topic' on Enter.
+        $('#help input').on('keypress', function(e) {
+            if (e.keyCode == 13) {
+                showTopic($(this).val());
+            }
+        });
+    }); 
 });
