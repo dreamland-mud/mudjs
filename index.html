@@ -140,6 +140,14 @@
                             </table>
                         </div><!-- who-table -->
                     </div><!-- who -->
+                    <div id="help" class="table-wrapper">
+                        <span class="dark-panel-title" data-toggle="collapse" data-target="#help-table">Поиск по справке:</span>
+			            <button class="close" type="button" data-toggle="collapse" data-target="#help-table"> </button>
+                        <div id="help-table" class="" data-hint="hint-help">
+                            <span class="fa fa-search form-control-feedback"></span>
+                            <input type=text class="form-control" placeholder="Введи название статьи">
+                        </div><!-- help-table -->
+                    </div><!-- help -->
                 </div><!-- panel-wrap -->
             </div><!-- main-content -->
             <button id="reconnect" type="button" class="btn btn-primary">Reconnect</button>
@@ -678,7 +686,7 @@
         <div id="triggers">
             <div class="trigger"></div>
         </div>
-
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.10/jquery.autocomplete.js" integrity="sha256-YTLtOnJjjxFZqnbPof6n8/9l9kSZ+BdNK8/VzGRjo4s=" crossorigin="anonymous"></script>
         <script src="dist/bundle.js?1.18"></script>
         <link href="css/weather-icons.min.css" rel="stylesheet" type="text/css"></link>
     </body>

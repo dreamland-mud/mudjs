@@ -207,6 +207,47 @@ td.v-bottom {
     padding: 4px 4px 0px 4px;
 }
 
+/* Help search box. */
+#help input {
+    width: 95%;
+    background-color: transparent;
+    color: #d3d7cf;    
+    border: 1px solid #999;
+    margin: 0.5rem 0.5rem 0.5rem 0.25rem;
+    padding-left: 2rem;
+    font-size: 1.1em;
+}
+
+/* Magnifier glass icon in the help search box. */
+.form-control-feedback {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2.375rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+}
+
+/* Autocomplete plugin styling for the help box. */
+.autocomplete-suggestions {  
+    border: 1px solid #999;  
+    background: #343a40;  
+    overflow: auto;  
+    cursor: pointer; 
+  } 
+.autocomplete-suggestion { 
+    padding: 2px 5px; 
+    overflow: auto; 
+    border-bottom: 1px solid;
+} 
+.autocomplete-selected { background: #5a6269; } 
+.autocomplete-suggestions strong { font-weight: normal; color: #3399FF; } 
+.autocomplete-group { padding: 2px 5px; } 
+.autocomplete-group strong { display: block; border-bottom: 1px solid #000; } 
+  
 /*
  * Pop-up windows with hints about various layout elements.
  */
