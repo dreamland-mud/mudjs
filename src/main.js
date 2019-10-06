@@ -97,6 +97,9 @@ $(document).ready(function() {
         if(input.is(':focus'))
             return;
 
+        if ($('#help input').is(':focus'))
+            return;
+
         input.focus();
     });
 
