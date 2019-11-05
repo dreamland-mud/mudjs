@@ -11,6 +11,12 @@ var areas = require('./data/areas.json').map(function(a) {
 });
 
 $(document).ready(function() {
+    // Control panel buttons.
+    $('body').on('click', '.btn-ctrl-panel', function(e) {
+		var cmd = $(e.currentTarget).attr('data-action');
+        echo(cmd);
+        send(cmd);
+    });
 
     // Send comman to the server when command hyper link is clicked
     // e. g. 'read sign' or 'walk trap'.

@@ -55,7 +55,20 @@
                     </div><!-- overlay -->
                     <div id="terminal"></div>
                 </div><!-- terminal-wrap -->
-                <div id="panel-wrap" class="d-none d-md-block flexcontainer-column flex-nogrow-shrink-narrow" aria-hidden="true">
+                <div id="control-wrap" class="d-none flexcontainer-column flex-nogrow-shrink-control" aria-hidden="true">
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="см">Смотреть</button></div>
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="инв">Инвентарь</button></div>
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="одежда">Одежда</button></div><!-- add alias -->
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="счет">Счет</button></div>
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="/">Возврат</button></div><!-- Frigate recall -->
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="сбежать">Сбежать</button></div>
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="прак">Практика</button></div><!-- add alias -->
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="заклинания">Магия</button></div>
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="умения">Умения</button></div>
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="задания">Задания</button></div> 
+                    <div><button type="button" class="btn btn-ctrl-panel" data-action="команды">Команды</button></div>
+                </div><!-- control-wrap -->
+                <div id="panel-wrap" class="d-none d-md-block flexcontainer-column flex-nogrow-shrink-panel" aria-hidden="true">
                     <div id="time-weather" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#time-weather-table">Погода и время:</span>
                         <button class="close" type="button" data-toggle="collapse" data-target="#time-weather-table"></button>
@@ -132,8 +145,8 @@
                     </div><!-- questor -->
                     <div id="who" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#who-table">Сейчас в мире:</span>
-                        <button class="close collapsed" type="button" data-toggle="collapse" data-target="#who-table"> </button>
-                        <div id="who-table" class="collapse" data-hint="hint-who">
+                        <button class="close" type="button" data-toggle="collapse" data-target="#who-table"> </button>
+                        <div id="who-table" class="collapse show" data-hint="hint-who">
                             <table>
                                 <thead><th>Имя</th><th>Раса</th><th>Клан</th></thead>
                                 <tbody></tbody>
