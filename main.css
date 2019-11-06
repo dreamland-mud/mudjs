@@ -355,11 +355,11 @@ td.v-bottom {
 }
 
 .flex-nogrow-shrink-control {
-    -webkit-box-flex: 0 1 90px;
-    -moz-box-flex:    0 1 90px;
-    -webkit-flex:     0 1 90px;
-    -ms-flex:         0 1 90px;
-    flex:             0 1 90px;
+    -webkit-box-flex: 0 1 100px;
+    -moz-box-flex:    0 1 100px;
+    -webkit-flex:     0 1 100px;
+    -ms-flex:         0 1 100px;
+    flex:             0 1 100px;
 }
 
 .flexcontainer-row {
@@ -378,7 +378,6 @@ td.v-bottom {
 
 /* Control column with buttons. */
 #control-wrap {
-    background-color: #272f31;
     margin-right: 5px;
     margin-top: 8px;
     flex-direction: column-reverse;

@@ -14,6 +14,11 @@ $(document).ready(function() {
     // Control panel buttons.
     $('body').on('click', '.btn-ctrl-panel', function(e) {
 		var cmd = $(e.currentTarget).attr('data-action');
+        var conf = $(e.currentTarget).attr('data-confirm');
+
+        if (conf !== undefined && !confirm('Вы действительно хотите ' + conf + '?'))
+            return;
+            
         echo(cmd);
         send(cmd);
     });
