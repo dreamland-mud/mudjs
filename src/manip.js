@@ -65,7 +65,7 @@ function manipParseAndReplace(span) {
     // Replace placeholders [map=filename.are] with buttons that open a map, 
     // or with an empty string, if area is not found in the areas.json.
     var html = span.html().replace(
-        /\[map=([0-9a-z_]{1,15})\.are\]/g, 
+        /\[map=([-0-9a-z_]{1,15})\.are\]/g, 
         function(match, p1, string) {
             if (areas.indexOf(p1) === -1)
                 return '';
@@ -74,9 +74,8 @@ function manipParseAndReplace(span) {
     
     // Replace extra-description placeholders [read=sign знак,see=sign] with (<span class="manip-cmd manip-ed" data-action="read 'sign знак'">sign</span>).
     // Returns empty string if 'see' part is not contained within 'read' part.
-    // TODO: just use [cmd] tags here.
     html = html.replace(
-        /\[read=([^,]{1,50}),see=([^\]]{1,30})]/ig, 
+        /\[read=([^,]{1,100}),see=([^\]]{1,30})]/ig, 
         function(match, p1, p2, string) {
             if (p1.toLowerCase().split(' ').indexOf(p2.toLowerCase()) === -1)
                 return '';

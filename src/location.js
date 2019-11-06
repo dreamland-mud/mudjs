@@ -58,7 +58,7 @@ function createPlaceholder(loc) {
         else
             index = Math.floor(Math.random() * roomhints.length);
     
-        return 'Введи любую команду, например: ' + roomhints[index];        
+        return 'Введи команду, например: ' + roomhints[index];        
     }
 
     return '';
