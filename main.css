@@ -58,7 +58,7 @@ body {
 #overlay {
     position: fixed;
     top: 0;
-    right: 25em;
+    right: 35em;
     pointer-events: none;
     z-index: 500;
 }
@@ -113,7 +113,7 @@ body {
  */
 .table-wrapper {
     position: relative;
-    background-color: #2e3436;
+    background-color: #202f31;
     margin: 8px 8px 1px 0px;
     border: 1px solid #999;
     padding-bottom: 0.1em;
@@ -207,6 +207,23 @@ td.v-bottom {
     padding: 4px 4px 0px 4px;
 }
 
+/* Control panel with buttons. */
+#commands-table {
+  justify-content: space-evenly;
+  padding-bottom: 5px;
+}
+
+/* Single button in the control panel . */
+.btn-ctrl-panel {
+    background-color: #2e3436;
+    color: white;
+    font-size: 1.1em;
+    border-color: grey;
+    width: 100%;
+    margin-top: 3px;
+    text-align: left;
+}
+
 /* Help search box. */
 #help input {
     width: 95%;
@@ -260,7 +277,7 @@ td.v-bottom {
  */
 #terminal-wrap {
    padding: 0px 10px 10px 4px;
-   margin: 0px 10px 8px 1px;
+   margin: 0px 4px 8px 1px;
 }
 
 /*
@@ -346,12 +363,20 @@ td.v-bottom {
     flex:             1 1  0%;
 }
 
-.flex-nogrow-shrink-narrow {
+.flex-nogrow-shrink-panel {
     -webkit-box-flex: 0 1 270px;
     -moz-box-flex:    0 1 270px;
     -webkit-flex:     0 1 270px;
     -ms-flex:         0 1 270px;
     flex:             0 1 270px;
+}
+
+.flex-nogrow-shrink-control {
+    -webkit-box-flex: 0 1 100px;
+    -moz-box-flex:    0 1 100px;
+    -webkit-flex:     0 1 100px;
+    -ms-flex:         0 1 100px;
+    flex:             0 1 100px;
 }
 
 .flexcontainer-row {

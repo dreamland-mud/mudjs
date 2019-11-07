@@ -13,7 +13,7 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&amp;subset=cyrillic" rel="stylesheet"></link>
         <link href="css/bootswatch-cyborg.min.css" rel="stylesheet" type="text/css" ></link>
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></link>
-        <link href="main.css?1.38" rel="stylesheet" type="text/css"></link>
+        <link href="main.css?2.2" rel="stylesheet" type="text/css"></link>
     </head>
     <body>
         <div id="rpc-events"></div>
@@ -55,46 +55,46 @@
                     </div><!-- overlay -->
                     <div id="terminal"></div>
                 </div><!-- terminal-wrap -->
-                <div id="panel-wrap" class="d-none d-md-block flexcontainer-column flex-nogrow-shrink-narrow" aria-hidden="true">
+                <div id="panel-wrap" class="d-none d-md-block flexcontainer-column flex-nogrow-shrink-panel" aria-hidden="true">
                     <div id="time-weather" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#time-weather-table">Погода и время:</span>
-			<button class="close" type="button" data-toggle="collapse" data-target="#time-weather-table"></button>
+                        <button class="close" type="button" data-toggle="collapse" data-target="#time-weather-table"></button>
                         <div id="time-weather-table" class="collapse show">
                             <table class="table-with-icons">
-				<tbody>
-				    <tr id="tw-time" data-hint="hint-time" style="display:none;"><td><i class="wi wi-fw"></i></td><td><span></span></td></tr>
-				    <tr id="tw-date" data-hint="hint-date" style="display:none;"><td><i class="fa">&#xf073;</i></td><td><span></span></td></tr>
-				    <tr id="tw-weather" data-hint="hint-weather" style="display:none;"><td><i class="wi wi-fw"></i></td><td><span></span></td></tr>
-				</tbody>
-			    </table>
+                                <tbody>
+                                    <tr id="tw-time" data-hint="hint-time" style="display:none;"><td><i class="wi wi-fw"></i></td><td><span></span></td></tr>
+                                    <tr id="tw-date" data-hint="hint-date" style="display:none;"><td><i class="fa">&#xf073;</i></td><td><span></span></td></tr>
+                                    <tr id="tw-weather" data-hint="hint-weather" style="display:none;"><td><i class="wi wi-fw"></i></td><td><span></span></td></tr>
+                                </tbody>
+                            </table>
                         </div><!-- time-weather-table -->
                     </div><!-- time-weather -->
                     <div id="player-location" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#player-location-table">Твое местоположение:</span>
-			<button class="close" type="button" data-toggle="collapse" data-target="#player-location-table"></button>
+                        <button class="close" type="button" data-toggle="collapse" data-target="#player-location-table"></button>
                         <div id="player-location-table" class="collapse show">
                             <table class="">
-				<tbody>
-				    <tr id="pl-zone" data-hint="hint-zone" style="display:none;"><td>&nbsp;<i class="fa">&#xf041;</i></td><td>"<span class="fg-ansi-dark-color-6"></span>"</td></tr>
-				    <tr id="pl-room" data-hint="hint-room" style="display:none;"><td></td><td>"<span class="fg-ansi-bright-color-6"></span>"</td></tr>
-				    <tr id="pl-exits" data-hint="hint-exits" style="display:none;"><td class="v-top">&nbsp;<i class="fa">&#xf277;</i></td><td class="v-bottom">выходы: <span id="ple-n" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-e" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-s" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-w" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-u" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-d">&#183;</span></td></tr>
-				</tbody>
-			    </table>
+                                <tbody>
+                                    <tr id="pl-zone" data-hint="hint-zone" style="display:none;"><td>&nbsp;<i class="fa">&#xf041;</i></td><td>"<span class="fg-ansi-dark-color-6"></span>"</td></tr>
+                                    <tr id="pl-room" data-hint="hint-room" style="display:none;"><td></td><td>"<span class="fg-ansi-bright-color-6"></span>"</td></tr>
+                                    <tr id="pl-exits" data-hint="hint-exits" style="display:none;"><td class="v-top">&nbsp;<i class="fa">&#xf277;</i></td><td class="v-bottom">выходы: <span id="ple-n" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-e" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-s" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-w" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-u" class="fg-ansi-bright-color-6">&#183;</span> <span id="ple-d">&#183;</span></td></tr>
+                                </tbody>
+                            </table>
                         </div><!-- player-location-table -->
                     </div><!-- player-location -->
                     <div id="group" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#group-table">Группа <span id="g_leader"></span>:</span>
-			<button class="close collapsed" type="button" data-toggle="collapse" data-target="#group-table"> </button>
+                        <button class="close collapsed" type="button" data-toggle="collapse" data-target="#group-table"> </button>
                         <div id="group-table" class="collapse" data-hint="hint-group">
-			    <table>
-                                <thead><th>Имя</th><th>Ур.</th><th>Здор.</th><th>Опыт</th></thead>
-                                <tbody></tbody>
-			    </table>
+                            <table>
+                            <thead><th>Имя</th><th>Ур.</th><th>Здор.</th><th>Опыт</th></thead>
+                            <tbody></tbody>
+                            </table>
                         </div><!-- group-table -->
                     </div><!-- group -->
                     <div id="player-affects" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#player-affects-table">Воздействия на тебе:</span>
-			<button class="close" type="button" data-toggle="collapse" data-target="#player-affects-table"></button>
+                        <button class="close" type="button" data-toggle="collapse" data-target="#player-affects-table"></button>
                         <div id="player-affects-table" class="flexcontainer-row flexcontainer-wrap collapse show" data-hint="hint-affects">
                             <div id="pa-protect" class="flexcontainer-column" style="display:none;" data-hint="hint-protect">
                              </div>
@@ -110,44 +110,70 @@
                              </div>
                         </div>
                     </div><!-- player-affects -->
+
+
                     <div id="player-params" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#player-params-table">Твои параметры:</span>
-			<button class="close collapsed" type="button" data-toggle="collapse" data-target="#player-params-table"> </button>
+                        <button class="close collapsed" type="button" data-toggle="collapse" data-target="#player-params-table"> </button>
                         <div id="player-params-table" class="collapse" data-hint="hint-params">
                             <table id="player-params-1">
-				<tbody></tbody>
+                                <tbody></tbody>
                             </table>
                             <br/>
                             <table id="player-params-2" style="display:none;">
-				<tbody></tbody>
+                                <tbody></tbody>
                             </table>
                         </div><!-- player-params-table -->
                     </div><!-- player-params -->
                     <div id="questor" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#questor-table">Задание квестора: &nbsp;<span id="quest-time" class="fgby"></span> мин</span>
-			<button class="close" type="button" data-toggle="collapse" data-target="#questor-table"> </button>
+                        <button class="close" type="button" data-toggle="collapse" data-target="#questor-table"> </button>
                         <div id="questor-table" class="collapse show" data-hint="hint-questor">
                             <p class="fgbw"></p>
                         </div><!-- questor-table -->
                     </div><!-- questor -->
                     <div id="who" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#who-table">Сейчас в мире:</span>
-			<button class="close collapsed" type="button" data-toggle="collapse" data-target="#who-table"> </button>
-                        <div id="who-table" class="collapse" data-hint="hint-who">
+                        <button class="close" type="button" data-toggle="collapse" data-target="#who-table"> </button>
+                        <div id="who-table" class="collapse show" data-hint="hint-who">
                             <table>
                                 <thead><th>Имя</th><th>Раса</th><th>Клан</th></thead>
-				<tbody></tbody>
+                                <tbody></tbody>
                             </table>
                         </div><!-- who-table -->
                     </div><!-- who -->
                     <div id="help" class="table-wrapper">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#help-table">Поиск по справке:</span>
-			            <button class="close" type="button" data-toggle="collapse" data-target="#help-table"> </button>
+                        <button class="close" type="button" data-toggle="collapse" data-target="#help-table"> </button>
                         <div id="help-table" class="" data-hint="hint-help">
                             <span class="fa fa-search form-control-feedback"></span>
                             <input type=text class="form-control" placeholder="Введи ключевое слово">
                         </div><!-- help-table -->
                     </div><!-- help -->
+
+                    <div id="commands" class="table-wrapper" style="display:none;">
+                        <span class="dark-panel-title" data-toggle="collapse" data-target="#commands-table">Команды</span>
+                        <button class="close" type="button" data-toggle="collapse" data-target="#commands-table"></button>
+                        <div id="commands-table" class="flexcontainer-row collapse show">
+                            <div class="flexcontainer-column">
+                                <button type="button" class="btn btn-ctrl-panel" data-action="см">Смотреть</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="инв">Инвентарь</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="одежда">Одежда</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="счет">Счет</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="/">Возврат</button><!-- Frigate recall -->
+                                <button type="button" class="btn btn-ctrl-panel" data-action="сбежать">Сбежать</button>
+                             </div>
+                            <div class="flexcontainer-column">
+                                <button type="button" class="btn btn-ctrl-panel" data-action="прак">Практика</button><!-- add alias -->
+                                <button type="button" class="btn btn-ctrl-panel" data-action="заклинания">Магия</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="умения">Умения</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="задания">Задания</button> 
+                                <button type="button" class="btn btn-ctrl-panel" data-action="команды">Команды</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="конец" data-confirm="покинуть мир">Конец</button>
+                             </div>
+                        </div><!--commands-table-->
+                    </div><!-- commands -->
+
                 </div><!-- panel-wrap -->
             </div><!-- main-content -->
             <button id="reconnect" type="button" class="btn btn-primary">Reconnect</button>
@@ -170,6 +196,24 @@
                     </div>
                 </div>
             </div>
+<!--
+            <style>
+                #footer span {
+                    padding-right: 1em;
+                }
+            </style>
+           <div id="footer" class="flexcontainer-row" style="justify-content:space-between; color: white;">
+                <span class="flexcontainer-row">
+                   <span>&nbsp;Выходы: N·S·U·</span>
+                   <span><b>Храм Лео</b>, зона <b>Мидгаард</b></span>
+                </span>
+                <span class="flexcontainer-row">
+                   <span><i class="wi wi-fw wi-time-9"></i>9 утра, светло</span>
+                   <span><i class="fa">&#xf073;</i>&nbsp;3 / Холодного гиганта / 667</span>
+                   <span><i class="wi wi-fw wi-night-alt-cloudy"></i>облачно, теплый ветер</span>
+                </span>
+           </div>
+-->
         </div><!-- page -->
 
         <div id="hint-protect" class="modal fade hints" tabindex="-1" role="dialog" aria-hidden="true">
@@ -687,7 +731,7 @@
             <div class="trigger"></div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.10/jquery.autocomplete.js" integrity="sha256-YTLtOnJjjxFZqnbPof6n8/9l9kSZ+BdNK8/VzGRjo4s=" crossorigin="anonymous"></script>
-        <script src="dist/bundle.js?2.1"></script>
+        <script src="dist/bundle.js?2.3"></script>
         <link href="css/weather-icons.min.css" rel="stylesheet" type="text/css"></link>
     </body>
 </html>

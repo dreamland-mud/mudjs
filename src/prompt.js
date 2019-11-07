@@ -446,6 +446,9 @@ $(document).ready(function() {
         $('#time-weather').show();
         $('#player-location').show();
         $('#help').show();
+        $('#who').show();
+        // Display control panel with buttons.
+        $('#commands').show();
 
         // Handle all prompt fields.
         promptGroup(b);

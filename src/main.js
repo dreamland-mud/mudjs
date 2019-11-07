@@ -164,6 +164,5 @@ $(document).ready(function() {
             send(cmd);
         }
     });
-
 });
 
