@@ -207,6 +207,23 @@ td.v-bottom {
     padding: 4px 4px 0px 4px;
 }
 
+/* Control panel with buttons. */
+#commands-table {
+  justify-content: space-evenly;
+  padding-bottom: 5px;
+}
+
+/* Single button in the control panel . */
+.btn-ctrl-panel {
+    background-color: #2e3436;
+    color: white;
+    font-size: 1.1em;
+    border-color: grey;
+    width: 100%;
+    margin-top: 3px;
+    text-align: left;
+}
+
 /* Help search box. */
 #help input {
     width: 95%;
@@ -374,24 +391,6 @@ td.v-bottom {
    display: flex;
    -webkit-flex-direction: column;
    flex-direction: column;
-}
-
-/* Control column with buttons. */
-#control-wrap {
-    margin-right: 5px;
-    margin-top: 8px;
-    flex-direction: column-reverse;
-}
-
-/* Single button in the control column. */
-.btn-ctrl-panel {
-    background-color: #2e3436;
-    color: white;
-    font-size: 1.1em;
-    border-color: grey;
-    width: 100%;
-    margin-top: 3px;
-    text-align: left;
 }
 
 /* dark: */

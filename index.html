@@ -13,7 +13,7 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&amp;subset=cyrillic" rel="stylesheet"></link>
         <link href="css/bootswatch-cyborg.min.css" rel="stylesheet" type="text/css" ></link>
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"></link>
-        <link href="main.css?1.35" rel="stylesheet" type="text/css"></link>
+        <link href="main.css?2.2" rel="stylesheet" type="text/css"></link>
     </head>
     <body>
         <div id="rpc-events"></div>
@@ -55,20 +55,6 @@
                     </div><!-- overlay -->
                     <div id="terminal"></div>
                 </div><!-- terminal-wrap -->
-                <div id="control-wrap" class="d-none flexcontainer-column flex-nogrow-shrink-control" aria-hidden="true">
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="см">Смотреть</button></div>
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="инв">Инвентарь</button></div>
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="одежда">Одежда</button></div><!-- add alias -->
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="счет">Счет</button></div>
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="/">Возврат</button></div><!-- Frigate recall -->
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="сбежать">Сбежать</button></div>
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="прак">Практика</button></div><!-- add alias -->
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="заклинания">Магия</button></div>
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="умения">Умения</button></div>
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="задания">Задания</button></div> 
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="команды">Команды</button></div>
-                    <div><button type="button" class="btn btn-ctrl-panel" data-action="конец" data-confirm="покинуть мир">Конец</button></div>
-                </div><!-- control-wrap -->
                 <div id="panel-wrap" class="d-none d-md-block flexcontainer-column flex-nogrow-shrink-panel" aria-hidden="true">
                     <div id="time-weather" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#time-weather-table">Погода и время:</span>
@@ -124,6 +110,8 @@
                              </div>
                         </div>
                     </div><!-- player-affects -->
+
+
                     <div id="player-params" class="table-wrapper" style="display:none;">
                         <span class="dark-panel-title" data-toggle="collapse" data-target="#player-params-table">Твои параметры:</span>
                         <button class="close collapsed" type="button" data-toggle="collapse" data-target="#player-params-table"> </button>
@@ -162,6 +150,30 @@
                             <input type=text class="form-control" placeholder="Введи название статьи">
                         </div><!-- help-table -->
                     </div><!-- help -->
+
+                    <div id="commands" class="table-wrapper" style="display:none;">
+                        <span class="dark-panel-title" data-toggle="collapse" data-target="#commands-table">Команды</span>
+                        <button class="close" type="button" data-toggle="collapse" data-target="#commands-table"></button>
+                        <div id="commands-table" class="flexcontainer-row collapse show">
+                            <div class="flexcontainer-column">
+                                <button type="button" class="btn btn-ctrl-panel" data-action="см">Смотреть</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="инв">Инвентарь</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="одежда">Одежда</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="счет">Счет</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="/">Возврат</button><!-- Frigate recall -->
+                                <button type="button" class="btn btn-ctrl-panel" data-action="сбежать">Сбежать</button>
+                             </div>
+                            <div class="flexcontainer-column">
+                                <button type="button" class="btn btn-ctrl-panel" data-action="прак">Практика</button><!-- add alias -->
+                                <button type="button" class="btn btn-ctrl-panel" data-action="заклинания">Магия</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="умения">Умения</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="задания">Задания</button> 
+                                <button type="button" class="btn btn-ctrl-panel" data-action="команды">Команды</button>
+                                <button type="button" class="btn btn-ctrl-panel" data-action="конец" data-confirm="покинуть мир">Конец</button>
+                             </div>
+                        </div><!--commands-table-->
+                    </div><!-- commands -->
+
                 </div><!-- panel-wrap -->
             </div><!-- main-content -->
             <button id="reconnect" type="button" class="btn btn-primary">Reconnect</button>
@@ -184,6 +196,24 @@
                     </div>
                 </div>
             </div>
+<!--
+            <style>
+                #footer span {
+                    padding-right: 1em;
+                }
+            </style>
+           <div id="footer" class="flexcontainer-row" style="justify-content:space-between; color: white;">
+                <span class="flexcontainer-row">
+                   <span>&nbsp;Выходы: N·S·U·</span>
+                   <span><b>Храм Лео</b>, зона <b>Мидгаард</b></span>
+                </span>
+                <span class="flexcontainer-row">
+                   <span><i class="wi wi-fw wi-time-9"></i>9 утра, светло</span>
+                   <span><i class="fa">&#xf073;</i>&nbsp;3 / Холодного гиганта / 667</span>
+                   <span><i class="wi wi-fw wi-night-alt-cloudy"></i>облачно, теплый ветер</span>
+                </span>
+           </div>
+-->
         </div><!-- page -->
 
         <div id="hint-protect" class="modal fade hints" tabindex="-1" role="dialog" aria-hidden="true">
@@ -701,7 +731,7 @@
             <div class="trigger"></div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.10/jquery.autocomplete.js" integrity="sha256-YTLtOnJjjxFZqnbPof6n8/9l9kSZ+BdNK8/VzGRjo4s=" crossorigin="anonymous"></script>
-        <script src="dist/bundle.js?2.1"></script>
+        <script src="dist/bundle.js?2.3"></script>
         <link href="css/weather-icons.min.css" rel="stylesheet" type="text/css"></link>
     </body>
 </html>

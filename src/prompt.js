@@ -448,7 +448,7 @@ $(document).ready(function() {
         $('#help').show();
         $('#who').show();
         // Display control panel with buttons.
-        $('#control-wrap').addClass('d-lg-flex');
+        $('#commands').show();
 
         // Handle all prompt fields.
         promptGroup(b);
