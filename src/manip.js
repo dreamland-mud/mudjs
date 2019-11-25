@@ -99,8 +99,11 @@ function manipParseAndReplace(span) {
             return see.replace(
                     /^( *)([^ ]*)( *)$/,
                     function(match, spaceBegin, msg, spaceEnd, string) {
+                        var label = (msg === 'edit' || msg === 'редактировать') 
+                                        ? '<i class="fa fa-edit"></i>' : msg;
+
                         return  '&nbsp;'.repeat(spaceBegin.length)
-                                + '<span class="manip-cmd manip-ed" data-action="' + action + '" data-echo="' + action + '">' + msg + '</span>'
+                                + '<span class="manip-cmd manip-ed" data-action="' + action + '" data-echo="' + action + '">' + label + '</span>'
                                 + '&nbsp;'.repeat(spaceEnd.length);
                     });
                
@@ -113,10 +116,11 @@ function manipParseAndReplace(span) {
         var cmd = $(this).contents();
 
         $(this).replaceWith(function() {
+            var action = cmd.text().toLowerCase();
             var result = $('<span/>')
                 .addClass('manip-cmd')
-                .attr('data-action', cmd.text())
-				.attr('data-echo', cmd.text().toLowerCase())
+                .attr('data-action', action)
+				.attr('data-echo', action)
                 .append(cmd);
             return result;
         });
