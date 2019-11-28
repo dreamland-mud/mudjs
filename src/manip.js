@@ -99,8 +99,25 @@ function manipParseAndReplace(span) {
             return see.replace(
                     /^( *)([^ ]*)( *)$/,
                     function(match, spaceBegin, msg, spaceEnd, string) {
-                        var label = (msg === 'edit' || msg === 'редактировать') 
-                                        ? '<i class="fa fa-edit"></i>' : msg;
+                        var label;
+                        switch (msg) {
+                            case "edit":
+                                label = '<i class="fa fa-edit"></i>';
+                                break;
+                            case "save":
+                            case "done":
+                                label = '<i class="fa fa-save"></i>';
+                                break;
+                            case "cancel":
+                                label = '<i class="fa fa-window-close"></i>';
+                                break;
+                            case "show":
+                                label = '<i class="fa fa-eye"></i>';
+                                break;
+                            default:
+                                label = msg;
+                                break;
+                        }
 
                         return  '&nbsp;'.repeat(spaceBegin.length)
                                 + '<span class="manip-cmd manip-ed" data-action="' + action + '" data-echo="' + action + '">' + label + '</span>'
@@ -143,15 +160,16 @@ function manipParseAndReplace(span) {
         });
     });
 
-    // Replace "<hh>article name</hh>" tags surrounding help articles.
+    // Replace "<hh>article name</hh>" or "<hh id='333'>" tags surrounding help articles.
     span.find('hh').each(function(index) {
         var article= $(this).contents();
+        var id = $(this).attr('id') || article.text();
 
         $(this).replaceWith(function() {
             var result = $('<span/>')
                 .addClass('manip-cmd')
-                .attr('data-action', 'help ' + article.text())
-				.attr('data-echo', 'справка ' + article.text())
+                .attr('data-action', 'help ' + id)
+				.attr('data-echo', 'справка ' + id)
                 .append(article);
             return result;
         });
@@ -181,7 +199,7 @@ function manipParseAndReplace(span) {
             if (cmd.trim().length === 0)
 		return;
             var action = cmd.replace(/\$/, id);
-            var label = cmd.replace(/^([а-я ]+).*$/, '$1');
+            var label = cmd.replace(/^([а-яa-z ]+).*$/, '$1');
             menu.append($('<a/>')
                          .addClass('dropdown-item')
                          .addClass('manip-item')
