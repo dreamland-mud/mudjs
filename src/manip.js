@@ -97,7 +97,7 @@ function manipParseAndReplace(span) {
 
             // The link will only surround the message itself, spaces are not underlined.
             return see.replace(
-                    /^( *)([^ ]*)( *)$/,
+                    /^( *)(.*\w)( *)$/,
                     function(match, spaceBegin, msg, spaceEnd, string) {
                         var label;
                         switch (msg) {
