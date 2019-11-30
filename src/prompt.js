@@ -508,4 +508,33 @@ $(document).ready(function() {
             }
         });
     }); 
+
+    // Help keyword and id lookup inside webedit (if you run 'webedit help'):
+    var heditLookup = $('#textedit-modal input');
+    $.get("/help/hedit.json", function(data) { 
+        console.log('Retrieved', data.length, 'help ids.');
+        
+        // Convert retrieved JSON to format accepted by autocomplete plugin.
+        var topics = $.map(data, function(dataItem) { 
+            return {value: dataItem.id + ': ' + dataItem.kw.toLowerCase(), 
+                    data: dataItem.id}; 
+        });
+        
+        // Initialize autocomplete drop-down.
+        heditLookup.autocomplete({ 
+            lookup: topics, 
+            lookupLimit: 20, 
+            autoSelectFirst: true, 
+            showNoSuggestionNotice: true, 
+            noSuggestionNotice: 'Справка не найдена', 
+            onSelect: function(suggestion) { 
+                $('#textedit-modal .editor').focus();
+            } 
+        }); 
+
+    }, 'json').fail(function() {
+        console.log('Cannot retrieve help ids.');
+    }); 
+
+    
 });

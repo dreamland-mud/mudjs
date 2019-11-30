@@ -9,9 +9,14 @@ $(document).ready(function() {
 
     editor.setTheme('ace/theme/monokai');
 
-    $('#rpc-events').on('rpc-editor_open', function(e, text) {
+    $('#rpc-events').on('rpc-editor_open', function(e, text, arg) {
         editor.setValue(text);
         $('#textedit-modal').modal('show');
+
+        if (arg === 'help')
+            $('#textedit-modal input').show();
+        else
+            $('#textedit-modal input').hide();
 
         $('#textedit-modal .save-button')
             .off()
