@@ -164,10 +164,11 @@ function manipParseAndReplace(span) {
     span.find('hh').each(function(index) {
         var article= $(this).contents();
         var id = $(this).attr('id') || article.text();
-
+    
         $(this).replaceWith(function() {
             var result = $('<span/>')
                 .addClass('manip-cmd')
+                .addClass('manip-link')
                 .attr('data-action', 'help ' + id)
 				.attr('data-echo', 'справка ' + id)
                 .append(article);
