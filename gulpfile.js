@@ -15,7 +15,13 @@ gulp.task('default', function(){
             debug: true
         })
         .transform(babelify, {
-            presets: ['@babel/preset-env', '@babel/preset-react'],
+            presets: [
+                '@babel/preset-env', 
+                '@babel/preset-react',
+            ],
+            plugins: [
+                '@babel/plugin-proposal-class-properties'
+            ],
             sourceMaps: true
         })
         .bundle()

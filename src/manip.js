@@ -1,4 +1,6 @@
 
+const $ = require('jquery');
+
 var websock = require('./websock');
 var input = require('./input');
 
@@ -16,7 +18,7 @@ $(document).ready(function() {
 		var cmd = $(e.currentTarget).attr('data-action');
         var conf = $(e.currentTarget).attr('data-confirm');
 
-        if (conf !== undefined && !confirm('Вы действительно хотите ' + conf + '?'))
+        if (conf !== undefined && !global.confirm('Вы действительно хотите ' + conf + '?'))
             return;
             
         echo(cmd);

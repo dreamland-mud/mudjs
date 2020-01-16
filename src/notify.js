@@ -1,4 +1,6 @@
 
+const $ = require('jquery');
+
 $(document).ready(function() {
     if('Notification' in window) {
         Promise.resolve(Notification.permission)

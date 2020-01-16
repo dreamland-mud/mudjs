@@ -1,4 +1,6 @@
 
+const $ = require('jquery');
+
 require('brace');
 require('brace/mode/javascript');
 require('brace/theme/monokai');
@@ -45,7 +47,7 @@ $(document).ready(function() {
                 // has user ever edited settings?
                 if(localStorage.defaultsHash && settingsHash !== localStorage.defaultsHash) {
                     console.log(settingsHash + ': ' + localStorage.defaultsHash);
-                    if(confirm('Настройки по умолчанию изменились. Перезаписать собственные настройки настройками по умолчанию?')) {
+                    if(global.confirm('Настройки по умолчанию изменились. Перезаписать собственные настройки настройками по умолчанию?')) {
                         localStorage.settings = contents;
                     }
                 } else {
@@ -66,7 +68,7 @@ $(document).ready(function() {
         });
 
 
-    var editor = ace.edit($('#settings-modal .editor')[0]);
+    var editor = global.ace.edit($('#settings-modal .editor')[0]);
     editor.setTheme('ace/theme/monokai');
     editor.session.setMode('ace/mode/javascript');
 

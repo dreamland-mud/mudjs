@@ -1,6 +1,8 @@
 
 'use strict';
 
+const $ = require('jquery');
+
 var websock = require('./websock');
 var terminalInit = require('./terminal');
 var lastLocation = require('./location');

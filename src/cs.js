@@ -1,4 +1,6 @@
 
+const $ = require('jquery');
+
 require('brace');
 require('brace/theme/monokai');
 require('./ace/mode-fenia');
@@ -23,7 +25,7 @@ function tabsize4to8(str) {
 }
 
 $(document).ready(function() {
-    var editor = ace.edit($('#cs-modal .editor')[0], {
+    var editor = global.ace.edit($('#cs-modal .editor')[0], {
         tabSize: 4
     });
     editor.setTheme('ace/theme/monokai');

@@ -1,4 +1,6 @@
 
+const $ = require('jquery');
+
 var websock = require('./websock');
 var send = websock.send;
 

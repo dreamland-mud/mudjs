@@ -1,4 +1,6 @@
 
+const $ = require('jquery');
+
 require('brace');
 require('brace/theme/monokai');
 
@@ -34,7 +36,7 @@ function initHelpIds() {
 }
 
 $(document).ready(function() {
-    var editor = ace.edit($('#textedit-modal .editor')[0]);
+    var editor = global.ace.edit($('#textedit-modal .editor')[0]);
 
     editor.setTheme('ace/theme/monokai');
 

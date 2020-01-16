@@ -1,4 +1,6 @@
 
+const $ = require('jquery');
+
 var historyDb = require('./historydb');
 var ansi2html = require('./ansi2html');
 var manip = require('./manip');
