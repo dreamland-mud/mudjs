@@ -125,44 +125,5 @@ $(document).ready(function() {
         changeFontSize(-fontDelta);
     });
 
-    /*
-     * Handlers for 'keypad' key area.
-     */
-    // Long press: open/close direction etc.
-    var btnTimer;
-    var wasLongPress = false;
-    var longPressDelay = 800;
-
-    $('.btn-keypad').on('touchstart', function(e) {
-        wasLongPress = false;
-
-        // Send specified long-cmd once the delay has elapsed.
-        btnTimer = setTimeout(function() {
-            btnTimer = null;
-            wasLongPress = true;
-            var btn = $(e.currentTarget), cmd = btn.data('long-cmd');
-            if (cmd) {
-                send(cmd);
-            }
-
-        }, longPressDelay);
-
-    }).on('touchend', function(e) {
-        if (btnTimer)  
-            clearTimeout(btnTimer);
-    });
-
-    // Single click: go direction, look etc.`
-    $('.btn-keypad').click(function(e) {
-        if (wasLongPress)
-            return;
-
-        e.preventDefault();
-        var btn = $(e.currentTarget), cmd = btn.data('cmd');
-
-        if (cmd) {
-            send(cmd);
-        }
-    });
 });
 
