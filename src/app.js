@@ -8,6 +8,7 @@ import Panel from './components/panel'
 import SplitterLayout from 'react-splitter-layout';
 
 import 'react-splitter-layout/lib/index.css';
+import 'bootstrap';
 
 export default class App extends React.Component {
     state = { panel: true };
