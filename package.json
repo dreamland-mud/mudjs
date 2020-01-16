@@ -3,23 +3,7 @@
   "description": "Dreamland MUD Client",
   "version": "0.0.1",
   "devDependencies": {
-    "@babel/core": "^7.8.0",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/preset-env": "^7.8.2",
-    "@babel/preset-react": "^7.8.0",
-    "babelify": "^10.0.0",
-    "browserify": "^16.5.0",
-    "gulp": "^4.0.2",
-    "gulp-babel": "^8.0.0",
-    "gulp-bro": "^2.0.0",
-    "gulp-if": "^3.0.0",
-    "gulp-rename": "^2.0.0",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-uglify": "^3.0.2",
-    "react-scripts": "^3.3.0",
-    "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0",
-    "yargs": "^15.1.0"
+    "react-scripts": "^3.3.0"
   },
   "dependencies": {
     "brace": "^0.11.1",
@@ -27,12 +11,11 @@
     "jquery": "^3.4.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-split": "^2.0.7",
-    "react-split-pane": "^0.1.89",
     "react-splitter-layout": "^4.0.0"
   },
   "scripts": {
-    "build": "gulp"
+    "build": "react-scripts build",
+    "start": "react-scripts start"
   },
   "browserslist": {
     "production": [

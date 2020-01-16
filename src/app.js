@@ -5,8 +5,6 @@ import ReactDom from 'react-dom';
 import Terminal from './components/terminal';
 import Panel from './components/panel'
 
-//import SplitPane from 'react-split-pane';
-//import Split from 'react-split';
 import SplitterLayout from 'react-splitter-layout';
 
 import 'react-splitter-layout/lib/index.css';
@@ -27,10 +25,7 @@ export default class App extends React.Component {
             right: '0px',
             zIndex: '999'
         };
-                    // <!--SplitPane split="vertical" minSize={270} primary={ this.state.panel? "second" : "first" }-->
-                    // <!--/SplitPane-->
-                    // <Split direction="horizontal">
-                    // </Split>
+
         return <div id="page" className="flexcontainer-column">
                 <div className="flex-grow-shrink-auto main-content">
                     <div style={ hamburger }><button onClick={this.toggle}>Show/hide</button></div>
