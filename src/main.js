@@ -16,6 +16,8 @@ require('./prompt');
 require('./textedit');
 require('./cs');
 
+require('./main.css');
+
 var connect = websock.connect, rpccmd = websock.rpccmd, send = websock.send;
 
 
