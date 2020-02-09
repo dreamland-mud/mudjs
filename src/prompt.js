@@ -1,5 +1,7 @@
 const $ = require('jquery');
 
+require('devbridge-autocomplete');
+
 var websock = require('./websock');
 var input = require('./input');
 var send = websock.send;

@@ -3,6 +3,7 @@ const $ = require('jquery');
 
 require('brace');
 require('brace/theme/monokai');
+require('devbridge-autocomplete');
 
 var websock = require('./websock');
 
