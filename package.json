@@ -2,6 +2,7 @@
   "name": "dreamland-mud-client",
   "description": "Dreamland MUD Client",
   "version": "0.0.1",
+  "homepage": "./",
   "devDependencies": {
     "react-scripts": "^3.3.0"
   },
