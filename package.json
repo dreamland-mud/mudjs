@@ -13,6 +13,7 @@
     "popper.js": "^1.16.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-responsive": "^8.0.3",
     "react-splitter-layout": "^4.0.0"
   },
   "scripts": {
@@ -22,8 +23,8 @@
   "browserslist": {
     "production": [
       ">0.2%",
-      "not dead",
-      "not op_mini all"
+      "not ie 11",
+      "not dead"
     ],
     "development": [
       "last 1 chrome version",
