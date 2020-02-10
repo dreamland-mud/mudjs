@@ -115,6 +115,6 @@ const Overlay = props =>
 
 export default props => 
     <div id="terminal-wrap" className="flex-grow-shrink-auto">
-        <Overlay />
         <div id="terminal"></div>
+        <Overlay />
     </div>;
