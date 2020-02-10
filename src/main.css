@@ -70,9 +70,9 @@ body {
  * Nav pad is hidden on medium and bigger screens.
  */
 #overlay {
-    position: fixed;
+    position: absolute;
     top: 0;
-    right: 35em;
+    right: 1em;
     pointer-events: none;
     z-index: 500;
 }
@@ -87,11 +87,6 @@ body {
 }
 
 @media only screen and (max-width: 767px) {
-    /* Shift buttons closer to the border on narrow screens. Hack. */
-    #overlay {
-        right: 1em;
-    }
-
     /* Show nav pad on small screens. */
     .nav-hidden-md {
         display: table-row;
@@ -302,8 +297,7 @@ td.v-bottom {
        border: 1px solid #999;
     }
     #overlay {
-        /*top: 3px;*/
-        top: 5em;
+        top: 3px;
     }
     form#input {
         border: 1px solid #999;

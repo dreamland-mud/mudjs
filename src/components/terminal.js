@@ -113,8 +113,9 @@ const Overlay = props =>
         <button style={hide} id="terminal-activity" className="btn btn-sm btn-ctrl btn-outline-primary"><span></span></button>
     </div>;
 
-export default props => 
-    <div id="terminal-wrap" className="flex-grow-shrink-auto">
-        <div id="terminal"></div>
+export default props => <>
         <Overlay />
-    </div>;
+        <div id="terminal-wrap" className="flex-grow-shrink-auto">
+            <div id="terminal"></div>
+        </div>
+    </>;
