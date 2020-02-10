@@ -90,7 +90,12 @@ $(document).ready(function() {
             var drop = input_history.length - 1000; // store only 1000 most recent entries;
             if(drop < 0)
                 drop = 0;
-            localStorage.history = JSON.stringify(input_history.slice(drop));
+            const save = JSON.stringify(input_history.slice(drop));
+            try {
+                localStorage.history = save;
+            } catch(e) {
+                console.log('Opps, saving command history to the local storage: save.length=' + save.length, e);
+            }
         }
         var lines = t.split('\n');
         $(lines).each(function() {

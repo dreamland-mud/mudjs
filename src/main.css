@@ -303,7 +303,8 @@ td.v-bottom {
        border: 1px solid #999;
     }
     #overlay {
-       top: 3px;
+        /*top: 3px;*/
+        top: 5em;
     }
     form#input {
         border: 1px solid #999;
