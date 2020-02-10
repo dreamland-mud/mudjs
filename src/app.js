@@ -1,56 +1,64 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDom from 'react-dom';
 
-import Terminal from './components/terminal';
-import Panel from './components/panel'
-
 import SplitterLayout from 'react-splitter-layout';
-import MediaQuery from 'react-responsive';
-import {useMediaQuery} from 'react-responsive';
+import { useMediaQuery } from 'react-responsive';
+import AppBar from '@material-ui/core/AppBar';
+import { makeStyles } from '@material-ui/core/styles';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
 
 import 'react-splitter-layout/lib/index.css';
 import 'bootstrap';
 
-class Main extends React.Component {
-    constructor() {
-        super();
-        this.state = { panel: true };
-    }
+import Terminal from './components/terminal';
+import Panel from './components/panel'
 
-    toggle = e => {
-        console.log('Toggle!');
-        e.preventDefault();
-        this.setState({ panel: !this.state.panel });
-    };
+const useStyles = makeStyles(theme => ({
+    title: {
+        flexGrow: 1
+    },
+    menuButton: {
+        marginRight: theme.spacing(2),
+    },
+}));
 
-    render() {
-        const hamburger = {
-            position: 'absolute',
-            bottom: '0px',
-            right: '0px',
-            zIndex: '999'
-        };
+const Main = (props) => { 
+    // Hooks
+    const [panel, setPanel] = useState(true);
+    const classes = useStyles();
+    const bigScreen = useMediaQuery({ minDeviceWidth: 768 });
 
-        const { bigScreen } = this.props;
+    const toggle = e => setPanel(!panel);
 
-        return <div className="flex-grow-shrink-auto main-content">
-            { bigScreen ? <div style={ hamburger }><button onClick={this.toggle}>Show/hide</button></div> : [] }
+    const appBar = bigScreen &&
+        <AppBar position="static" color="default">
+            <Toolbar variant="dense">
+                <Typography className={classes.title}>I'm sure Ruffina will find some very important text to put in here.</Typography>
+                <IconButton edge="end" onClick={toggle} className={classes.menuButton} color="inherit" aria-label="menu">
+                    <MenuIcon />
+                </IconButton>
+            </Toolbar>
+        </AppBar>;
+
+    return <>
+        { appBar }
+        <div className="flex-grow-shrink-auto main-content">
             <SplitterLayout secondaryInitialSize={270} secondaryMinSize={270}>
                 <Terminal />
-                { this.state.panel && bigScreen ? <Panel /> : [] }
+                { panel && bigScreen && <Panel /> }
             </SplitterLayout>
-        </div>;
-    }
-}
+        </div>
+    </>;
+};
 
 export default () => {
-    const bigScreen = useMediaQuery(
-        { minDeviceWidth: 768 }
-    );
 
     return <div id="page" className="flexcontainer-column">
-        <Main bigScreen={bigScreen} />
+        <Main />
         <button id="reconnect" type="button" className="btn btn-primary">Reconnect</button>
         <form id="input">
             <input type="text"></input>
