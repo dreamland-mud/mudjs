@@ -506,19 +506,6 @@ td.v-bottom {
     color: white;
 }
 
-#stats #hits {
-    background-color: #bb0000;
-}
-
-#stats #mana {
-/*    background-color: #0053b3;*/
-    background-color: #3465a4;
-}
-
-#stats #moves {
-    background-color: #055705;
-}    
-
 @media only screen and (max-width: 767px) {
     #stats .progress {
         height: 5px;

@@ -4,6 +4,7 @@ import ReactDom from 'react-dom';
 
 import SplitterLayout from 'react-splitter-layout';
 import { useMediaQuery } from 'react-responsive';
+import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
 import { makeStyles } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -15,9 +16,19 @@ import 'react-splitter-layout/lib/index.css';
 import 'bootstrap';
 
 import Terminal from './components/terminal';
-import Panel from './components/panel'
+import Panel from './components/panel';
+import Stats from './components/stats';
 
 const useStyles = makeStyles(theme => ({
+    page: {
+        height: '100%',
+        width: '100%',
+        overflow: 'hidden',
+    },
+    main: {
+        overflow: 'hidden',
+        position: 'relative',
+    },
     title: {
         flexGrow: 1
     },
@@ -26,7 +37,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const Main = (props) => { 
+export default props => {
     // Hooks
     const [panel, setPanel] = useState(true);
     const classes = useStyles();
@@ -44,40 +55,19 @@ const Main = (props) => {
             </Toolbar>
         </AppBar>;
 
-    return <>
+    return <Box display="flex" flexDirection="column" className={classes.page}>
         { appBar }
-        <div className="flex-grow-shrink-auto main-content">
+        <Box flex="1 1 auto" className={classes.main}>
             <SplitterLayout secondaryInitialSize={270} secondaryMinSize={270}>
                 <Terminal />
                 { panel && bigScreen && <Panel /> }
             </SplitterLayout>
-        </div>
-    </>;
-};
-
-export default () => {
-
-    return <div id="page" className="flexcontainer-column">
-        <Main />
+        </Box>
         <button id="reconnect" type="button" className="btn btn-primary">Reconnect</button>
         <form id="input">
             <input type="text"></input>
         </form>
-        <div id="stats">
-            <div className="row">
-                <div className="progress col-sm-4 position-relative">
-                    <div id="hits" className="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                    <span className="justify-content-center d-flex position-absolute w-100"></span>
-                </div>
-                <div className="progress col-sm-4 position-relative">
-                    <div id="mana" className="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                    <span className="justify-content-center d-flex position-absolute w-100"></span>
-                </div>
-                <div className="progress col-sm-4 position-relative">
-                    <div id="moves" className="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                    <span className="justify-content-center d-flex position-absolute w-100"></span>
-                </div>
-            </div>
-        </div>
-    </div>;
+        <Stats />
+    </Box>;
 };
+

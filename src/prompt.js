@@ -162,22 +162,6 @@ $(document).ready(function() {
         // Later if needed. Showing sector type everywhere will discover a lot of funny things.
     }
 
-    function promptStats(b) {
-        $('#stats').show();
-
-        function stat($node, value, max, caption) {
-            var prct = 100*value/max;
-            $node.next().text(caption + ' ' + value + '/' + max);
-            $node.css({ width: prct + '%' });
-            $node.attr('aria-valuenow', value);
-            $node.attr('aria-valuemax', max);
-        }
-
-        stat($('#stats #hits'), b.hit, b.max_hit, 'Здоровье');
-        stat($('#stats #mana'), b.mana, b.max_mana, 'Мана');
-        stat($('#stats #moves'), b.move, b.max_move, 'Шаги');
-    }
-
     // Should the main affect window be hidden as it's empty?
     var affectsPanelHidden = true;
 
@@ -467,7 +451,6 @@ $(document).ready(function() {
         promptWho(b);
         promptParams(b);
         promptQuestor(b);
-        promptStats(b);
     });
 
     // Help search box: retrieve help topic hints and init the input box.
