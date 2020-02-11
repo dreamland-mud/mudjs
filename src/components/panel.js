@@ -1,8 +1,10 @@
 import React from 'react';
 import ReactDom from 'react-dom';
+import $ from 'jquery';
+
+import Help from './panel-help';
 
 const hide = { display: 'none' };
-const $ = require('jquery');
 
 export default class Panel extends React.Component {
 
@@ -99,14 +101,7 @@ export default class Panel extends React.Component {
                     </table>
                 </div>
             </div>
-            <div id="help" className="table-wrapper">
-                <span className="dark-panel-title" data-toggle="collapse" data-target="#help-table">Поиск по справке:</span>
-                <button className="close" type="button" data-toggle="collapse" data-target="#help-table"> </button>
-                <div id="help-table" className="" data-hint="hint-help">
-                    <span className="fa fa-search form-control-feedback"></span>
-                    <input type="text" className="form-control" placeholder="Введи ключевое слово" />
-                </div>
-            </div>
+            <Help />
 
             <div id="commands" className="table-wrapper" style={hide}>
                 <span className="dark-panel-title" data-toggle="collapse" data-target="#commands-table">Команды</span>

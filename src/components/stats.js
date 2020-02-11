@@ -59,6 +59,5 @@ export default function Stats(props) {
         <Stat caption="Здоровье" color="#bb0000" v={hit} max_v={max_hit}/>
         <Stat caption="Мана" color="#3465a4" v={mana} max_v={max_mana}/>
         <Stat caption="Шаги" color="#055705" v={move} max_v={max_move}/>
-        <Stat caption="Здоровье" color="#bb0000" v={hit} max_v={max_hit}/>
     </Box>;
 }
