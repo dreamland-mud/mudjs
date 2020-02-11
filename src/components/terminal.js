@@ -1,14 +1,56 @@
 
 import React from 'react';
 import ReactDom from 'react-dom';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { makeStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
 
 import { send } from '../websock';
 
+const useStyles = makeStyles(theme => ({
+    root: {
+        position: 'absolute',
+        height: '100%',
+        width: '100%',
+        pointerEvents: 'none',
+        zIndex: 500
+    },
+    nav: {
+        position: 'absolute',
+        right: '1em',
+        top: 0,
+        margin: '0.5em',
+
+        "& td": {
+            padding: '3px',
+
+            "& span": {
+                padding: '5px',
+                fontWeight: 'bold',
+                fontFamily: 'monospace'
+            }
+        }
+    },
+    activity: {
+        display: 'none',
+        position: 'absolute',
+        pointerEvents: 'all',
+        right: '1em',
+        bottom: 0,
+        margin: '0.5em'
+    },
+    btn: {
+        pointerEvents: 'all',
+        width: '2em'
+    }
+}));
+
 const OverlayCell = ({ aria, fa, children, ...props }) => {
+    const classes = useStyles();
     const ariaProps = aria ? { "aria-label": aria } : { "aria-hidden": true };
 
     return <td>
-        <button {...ariaProps} {...props} className="btn btn-sm btn-ctrl btn-outline-primary">
+        <button {...ariaProps} {...props} className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.btn}`}>
             { children }
         </button>
     </td>;
@@ -74,11 +116,41 @@ const KeypadCell = ({cmd, longCmd, children, ...props}) => {
     return <OverlayCell {...handlers} {...props}>{ children }</OverlayCell>;
 };
 
-const hide = { display: 'none' };
+const Keypad = props => {
+    const big = useMediaQuery(theme => theme.breakpoints.up('sm'));
 
-const Overlay = props =>
-    <div id="overlay">
-        <table id="nav" >
+    return !big && <>
+        <tr>
+            <td></td>
+            <td></td>
+            <KeypadCell cmd="scan"><i className="fa  fa-fw fa-refresh"></i></KeypadCell>
+            <KeypadCell cmd="n" longCmd="отпер север|откр север"><span>N</span></KeypadCell>
+            <KeypadCell cmd="u" longCmd="отпер вверх|откр вверх"><span>U</span></KeypadCell>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <KeypadCell cmd="w" longCmd="отпер запад|откр запад"><span>W</span></KeypadCell>
+            <KeypadCell cmd="l"> <i className="fa fa-fw  fa-eye"></i></KeypadCell>
+            <KeypadCell cmd="e" longCmd="отпер восток|откр восток"><span>E</span></KeypadCell>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <KeypadCell cmd="where"><i className="fa fa-fw fa-map-marker"></i></KeypadCell>
+            <KeypadCell cmd="s" longCmd="отпер юг|откр юг"><span>S</span></KeypadCell>
+            <KeypadCell cmd="d" longCmd="отпер вниз|откр вниз"><span>D</span></KeypadCell>
+        </tr>
+    </>;
+};
+
+const Overlay = props => {
+    const classes = useStyles();
+
+    const button= { display: 'none' };
+
+    return <Box className={classes.root}>
+        <table id="nav" className={classes.nav}>
             <tbody>
                 <tr>
                     <OverlayCell id="logs-button" aria="логи"> <i className="fa fa-download"></i> </OverlayCell>
@@ -87,31 +159,12 @@ const Overlay = props =>
                     <OverlayCell id="font-plus-button"> <i className="fa fa-plus"></i> </OverlayCell>
                     <OverlayCell id="font-minus-button"> <i className="fa fa-minus"></i> </OverlayCell>
                 </tr>
-                <tr className="nav-hidden-md">
-                    <td></td>
-                    <td></td>
-                    <KeypadCell cmd="scan"><i className="fa  fa-fw fa-refresh"></i></KeypadCell>
-                    <KeypadCell cmd="n" longCmd="отпер север|откр север"><span>N</span></KeypadCell>
-                    <KeypadCell cmd="u" longCmd="отпер вверх|откр вверх"><span>U</span></KeypadCell>
-                </tr>
-                <tr className="nav-hidden-md">
-                    <td></td>
-                    <td></td>
-                    <KeypadCell cmd="w" longCmd="отпер запад|откр запад"><span>W</span></KeypadCell>
-                    <KeypadCell cmd="l"> <i className="fa fa-fw  fa-eye"></i></KeypadCell>
-                    <KeypadCell cmd="e" longCmd="отпер восток|откр восток"><span>E</span></KeypadCell>
-                </tr>
-                <tr className="nav-hidden-md">
-                    <td></td>
-                    <td></td>
-                    <KeypadCell cmd="where"><i className="fa fa-fw fa-map-marker"></i></KeypadCell>
-                    <KeypadCell cmd="s" longCmd="отпер юг|откр юг"><span>S</span></KeypadCell>
-                    <KeypadCell cmd="d" longCmd="отпер вниз|откр вниз"><span>D</span></KeypadCell>
-                </tr>
+                <Keypad />
             </tbody>
         </table>
-        <button style={hide} id="terminal-activity" className="btn btn-sm btn-ctrl btn-outline-primary"><span></span></button>
-    </div>;
+        <button id="terminal-activity" className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.activity}`}><span></span></button>
+    </Box>;
+}
 
 export default props => <>
         <Overlay />

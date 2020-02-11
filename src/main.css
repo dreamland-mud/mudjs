@@ -53,58 +53,11 @@ body {
     white-space: pre-wrap;
 }
 
-#terminal-activity {
-    position: fixed;
-    bottom: 5em;
-}
-
 #input input {
     width: 100%;
     box-sizing: border-box;
     font-family: 'Roboto Mono', monospace;
     font-size: 1.3em;
-}
-
-/*
- * Section with control buttons and navigation pad.
- * Nav pad is hidden on medium and bigger screens.
- */
-#overlay {
-    position: absolute;
-    top: 0;
-    right: 1em;
-    pointer-events: none;
-    z-index: 500;
-}
-
-#overlay .btn {
-    pointer-events: all;
-}
-
-/* Hide nav pad on medium screens. */
-.nav-hidden-md {
-    display: none;
-}
-
-@media only screen and (max-width: 767px) {
-    /* Show nav pad on small screens. */
-    .nav-hidden-md {
-        display: table-row;
-    }
-}
-
-#nav button {
-    width: 2em;
-}
-
-#nav td {
-    padding: 3px;
-}
-
-#nav td span {
-    padding: 5px;
-    font-weight: bold;
-    font-family: monospace;
 }
 
 /*
@@ -492,25 +445,6 @@ td.v-bottom {
  */
 .echo-with-anchor {
   margin-left: -5px;
-}
-
-/*
- * Status bars
- */
-#stats {
-    padding: 0 20px;
-}
-
-#stats .progress {
-    padding: 0;
-    color: white;
-}
-
-@media only screen and (max-width: 767px) {
-    #stats .progress {
-        height: 5px;
-        color: transparent !important;
-    }
 }
 
 #app .layout-splitter {

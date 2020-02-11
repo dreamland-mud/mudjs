@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import ReactDom from 'react-dom';
 
 import SplitterLayout from 'react-splitter-layout';
-import { useMediaQuery } from 'react-responsive';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
 import { makeStyles } from '@material-ui/core/styles';
@@ -41,7 +41,7 @@ export default props => {
     // Hooks
     const [panel, setPanel] = useState(true);
     const classes = useStyles();
-    const bigScreen = useMediaQuery({ minDeviceWidth: 768 });
+    const bigScreen = useMediaQuery(theme => theme.breakpoints.up('sm'));
 
     const toggle = e => setPanel(!panel);
 
