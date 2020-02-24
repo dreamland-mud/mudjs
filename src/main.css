@@ -213,9 +213,10 @@ td.v-bottom {
 /* Autocomplete plugin styling for the help box. */
 .autocomplete-suggestions {  
     border: 1px solid #999;  
-    background: #343a40;  
+    background: #000;
     overflow: auto;  
     cursor: pointer; 
+    color: #d3d7cf;
   } 
 .autocomplete-suggestion { 
     padding: 2px 5px; 
