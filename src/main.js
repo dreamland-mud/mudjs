@@ -75,6 +75,9 @@ $(document).ready(function() {
         .then(function() {
             connect();
         })
+        .then(function () {
+            initTerminalFontSize();
+        })
         .catch(function(e) {
             console.log(e);
         });
@@ -107,12 +110,23 @@ $(document).ready(function() {
      * Handlers for plus-minus buttons to change terminal font size.
      */ 
     var fontDelta = 2;
+    var terminalFontSizeKey = "terminal-font-size"
     
     function changeFontSize(delta) {
         var terminal = $('#terminal');
         var style = terminal.css('font-size'); 
         var fontSize = parseFloat(style); 
         terminal.css('font-size', (fontSize + delta) + 'px');
+        localStorage.setItem(terminalFontSizeKey, fontSize + delta);
+    }
+
+    function initTerminalFontSize() {
+        var cacheFontSize = localStorage.getItem(terminalFontSizeKey);
+        if (cacheFontSize != null) {
+            var terminal = $('#terminal');
+            terminal.css('font-size', (cacheFontSize) + 'px');
+        }
+
     }
 
     $('#font-plus-button').click(function(e) {
