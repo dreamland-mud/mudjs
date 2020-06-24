@@ -84,7 +84,7 @@ function manipParseAndReplace(span) {
 
     // Replace random commands with data-action span.
     html = html.replace(
-        /\[cmd=([^,]{1,50}),see=([^,]{1,50}),nonce=(.{8})]/ig,
+        /\[cmd=([^,]{1,50}),see=([^\]]{1,50}),nonce=(.{8})]/ig,
         function(match, cmd, see, nonce, string) {
             // Ensure the command is coming from the server.
             if (nonce !== websock.ws().nonce) {
@@ -133,7 +133,7 @@ function manipParseAndReplace(span) {
         var cmd = $(this).contents();
 
         $(this).replaceWith(function() {
-            var action = cmd.text().toLowerCase();
+            var action = cmd.text();
             var result = $('<span/>')
                 .addClass('manip-cmd')
                 .attr('data-action', action)
