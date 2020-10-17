@@ -200,6 +200,20 @@ function manipParseAndReplace(span) {
         });
     });
 
+    // Replace "<hs>speedwalk</hs>" tags with 'run speedwalk' command.
+    span.find('hs').each(function(index) {
+        var article= $(this).contents();
+
+        $(this).replaceWith(function() {
+            var result = $('<span/>')
+                .addClass('manip-cmd')
+                .attr('data-action', 'run ' + article.text())
+                .attr('data-echo', 'бежать ' + article.text())
+                .append(article);
+            return result;
+        });
+    });
+
     // Replace item manipulation "<m i='234234' c='take $,put $ 12348'/>" tags surrounding every item.
     span.find('m').each(function(index) {
         // Populate menu node for each item based on the 'c' and 'l' attributes containing command lists.
