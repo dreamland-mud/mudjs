@@ -86,7 +86,7 @@ function manipParseAndReplace(span) {
 
     // Replace random commands with data-action span.
     html = html.replace(
-        /\[cmd=([^,]{1,50}),see=([^,]{1,50}),nonce=(.{8})]/ig,
+        /\[cmd=([^,]{1,50}),see=([^\]]{1,50}),nonce=(.{8})]/ig,
         function(match, cmd, see, nonce, string) {
             // Ensure the command is coming from the server.
             if (nonce !== websock.ws().nonce) {
@@ -135,7 +135,7 @@ function manipParseAndReplace(span) {
         var cmd = $(this).contents();
 
         $(this).replaceWith(function() {
-            var action = cmd.text().toLowerCase();
+            var action = cmd.text();
             var result = $('<span/>')
                 .addClass('manip-cmd')
                 .attr('data-action', action)
@@ -164,16 +164,26 @@ function manipParseAndReplace(span) {
 
     // Replace "<hh>article name</hh>" or "<hh id='333'>" tags surrounding help articles.
     span.find('hh').each(function(index) {
-        var article= $(this).contents();
-        var id = $(this).attr('id') || article.text();
-    
+        var article= $(this).contents().text();
+        var id = $(this).attr('id') || article;
+
+        // Split the string into <initial spaces><label ending with non-space><ending spaces>
+        var matches = article.match(/^( *)([\0-\uFFFF]*[^ ])( *)$/m);
+        var spaceBegin = matches[1].length;
+        var spaceEnd = matches[3].length;
+        var label = matches[2];
+
         $(this).replaceWith(function() {
-            var result = $('<span/>')
-                .addClass('manip-cmd')
-                .addClass('manip-link')
-                .attr('data-action', 'help ' + id)
-				.attr('data-echo', 'справка ' + id)
-                .append(article);
+            // Recreate initial and ending spaces as nbsp, so that the underlining link only surrounds the label.
+            var result = '&nbsp;'.repeat(spaceBegin)
+                + $('<span/>')
+                    .addClass('manip-cmd')
+                    .addClass('manip-link')
+                    .attr('data-action', 'help ' + id)
+                    .attr('data-echo', 'справка ' + id)
+                    .append(label)
+                    .get(0).outerHTML
+                 + '&nbsp;'.repeat(spaceEnd);
             return result;
         });
     });
@@ -187,6 +197,20 @@ function manipParseAndReplace(span) {
                 .addClass('manip-cmd')
                 .attr('data-action', 'glist ' + article.text())
                 .attr('data-echo', 'группаумен ' + article.text())
+                .append(article);
+            return result;
+        });
+    });
+
+    // Replace "<hs>speedwalk</hs>" tags with 'run speedwalk' command.
+    span.find('hs').each(function(index) {
+        var article= $(this).contents();
+
+        $(this).replaceWith(function() {
+            var result = $('<span/>')
+                .addClass('manip-cmd')
+                .attr('data-action', 'run ' + article.text())
+                .attr('data-echo', 'бежать ' + article.text())
                 .append(article);
             return result;
         });
