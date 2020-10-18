@@ -4,7 +4,7 @@
 var $ = require('jquery');
 var Telnet = require('./telnet');
 
-var PROTO_VERSION = 'DreamLand Web Client/1.10';
+var PROTO_VERSION = 'DreamLand Web Client/2.1';
 var wsUrl = "wss://dreamland.rocks/dreamland";
 
 var ws;
