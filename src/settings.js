@@ -62,9 +62,6 @@ $(document).ready(function() {
                 // has user ever edited settings?
                 if(localStorage.defaultsHash && settingsHash !== localStorage.defaultsHash) {
                     console.log(settingsHash + ': ' + localStorage.defaultsHash);
-                    if(global.confirm('Настройки по умолчанию изменились. Перезаписать собственные настройки настройками по умолчанию?')) {
-                        localStorage.settings = contents;
-                    }
                 } else {
                     // silently override
                     localStorage.settings = contents;
