@@ -45,9 +45,14 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const OverlayCell = ({ aria, fa, children, ...props }) => {
+const OverlayCell = ({ ariaLabel, ariaHidden, fa, children, ...props }) => {
     const classes = useStyles();
-    const ariaProps = aria ? { "aria-label": aria } : { "aria-hidden": true };
+    const ariaProps = {}
+    
+    if (ariaLabel)
+        ariaProps["aria-label"] = ariaLabel;
+    if (ariaHidden)
+        ariaProps["aria-hidden"] = ariaHidden;
 
     return <td>
         <button {...ariaProps} {...props} className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.btn}`}>
@@ -120,21 +125,21 @@ const Keypad = props => {
     const big = useMediaQuery(theme => theme.breakpoints.up('sm'));
 
     return !big && <>
-        <tr>
+        <tr aria-hidden="true">
             <td></td>
             <td></td>
             <KeypadCell cmd="scan"><i className="fa  fa-fw fa-refresh"></i></KeypadCell>
             <KeypadCell cmd="n" longCmd="отпер север|откр север"><span>N</span></KeypadCell>
             <KeypadCell cmd="u" longCmd="отпер вверх|откр вверх"><span>U</span></KeypadCell>
         </tr>
-        <tr>
+        <tr aria-hidden="true">
             <td></td>
             <td></td>
             <KeypadCell cmd="w" longCmd="отпер запад|откр запад"><span>W</span></KeypadCell>
             <KeypadCell cmd="l"> <i className="fa fa-fw  fa-eye"></i></KeypadCell>
             <KeypadCell cmd="e" longCmd="отпер восток|откр восток"><span>E</span></KeypadCell>
         </tr>
-        <tr>
+        <tr aria-hidden="true">
             <td></td>
             <td></td>
             <KeypadCell cmd="where"><i className="fa fa-fw fa-map-marker"></i></KeypadCell>
@@ -153,11 +158,11 @@ const Overlay = props => {
         <table id="nav" className={classes.nav}>
             <tbody>
                 <tr>
-                    <OverlayCell id="logs-button" aria="логи"> <i className="fa fa-download"></i> </OverlayCell>
-                    <OverlayCell id="settings-button" data-toggle="modal" data-target="#settings-modal" aria="настройки"> <i className="fa fa-cog"></i> </OverlayCell>
-                    <OverlayCell id="map-button" aria="карта"> <i className="fa fa-map"></i> </OverlayCell>
-                    <OverlayCell id="font-plus-button"> <i className="fa fa-plus"></i> </OverlayCell>
-                    <OverlayCell id="font-minus-button"> <i className="fa fa-minus"></i> </OverlayCell>
+                    <OverlayCell id="logs-button" ariaLabel="логи" ariaHidden="true"> <i className="fa fa-download"></i> </OverlayCell>
+                    <OverlayCell id="settings-button" data-toggle="modal" data-target="#settings-modal" ariaLabel="настройки" ariaHidden="false"> <i className="fa fa-cog"></i> </OverlayCell>
+                    <OverlayCell id="map-button" ariaLabel="карта" ariaHidden="true"> <i className="fa fa-map"></i> </OverlayCell>
+                    <OverlayCell id="font-plus-button" ariaHidden="true"> <i className="fa fa-plus"></i> </OverlayCell>
+                    <OverlayCell id="font-minus-button" ariaHidden="true"> <i className="fa fa-minus"></i> </OverlayCell>
                 </tr>
                 <Keypad />
             </tbody>
