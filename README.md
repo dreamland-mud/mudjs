@@ -75,7 +75,7 @@ export PATH=$NODEJS_HOME/bin:$PATH
 cd mudjs
 npm install
 ```
-И, наконец, сборка bundle.js из исходников:
+И, наконец, сборка из исходников:
 ```bash
 npm run build
 ```
