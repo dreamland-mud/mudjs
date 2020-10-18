@@ -1,4 +1,6 @@
 
+const $ = require('jquery');
+
 var sessionId = require('./sessionid')();
 var placeholders = require('./data/placeholders.json');
 

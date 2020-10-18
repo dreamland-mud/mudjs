@@ -1,17 +1,34 @@
 
+const $ = require('jquery');
+
 require('brace');
 require('brace/mode/javascript');
 require('brace/theme/monokai');
 
-var websock = require('./websock');
-var notify = require('./notify');
-var send = websock.send;
+const websock = require('./websock');
+const notify = require('./notify');
+const send = websock.send;
 
-function echo(txt) {
+const echo = txt => {
     $('#terminal').trigger('output', [txt]);
-}
+};
 
-var keydown = function(e) {};
+let keydown = function(e) {};
+
+const applySettings = s => {
+    const settings = `return function(params) {
+        'use strict';
+        // pupulate local scope from params
+        let { keydown, notify, send, echo, $ } = params;
+        (function() { ${s} })();
+        // return assigned callbacks
+        return { keydown };
+    }`;
+
+    // assign new values to potentially minified variables
+    const exports = Function(settings)()({ keydown, notify, send, echo, $ });
+    keydown = exports.keydown;
+};
 
 $(document).ready(function() {
     function hashCode(s) {
@@ -45,9 +62,6 @@ $(document).ready(function() {
                 // has user ever edited settings?
                 if(localStorage.defaultsHash && settingsHash !== localStorage.defaultsHash) {
                     console.log(settingsHash + ': ' + localStorage.defaultsHash);
-                    if(confirm('Настройки по умолчанию изменились. Перезаписать собственные настройки настройками по умолчанию?')) {
-                        localStorage.settings = contents;
-                    }
                 } else {
                     // silently override
                     localStorage.settings = contents;
@@ -58,7 +72,7 @@ $(document).ready(function() {
             editor.setValue(localStorage.settings);
 
             try {
-                eval(editor.getValue());
+                applySettings(editor.getValue());
             } catch(e) {
                 console.log(e);
                 echo(e);
@@ -66,7 +80,7 @@ $(document).ready(function() {
         });
 
 
-    var editor = ace.edit($('#settings-modal .editor')[0]);
+    var editor = global.ace.edit($('#settings-modal .editor')[0]);
     editor.setTheme('ace/theme/monokai');
     editor.session.setMode('ace/mode/javascript');
 
@@ -76,7 +90,7 @@ $(document).ready(function() {
             
             $('.trigger').off();
             var val = editor.getValue();
-            eval(val);
+            applySettings(val);
             localStorage.settings = val;
         });
 });

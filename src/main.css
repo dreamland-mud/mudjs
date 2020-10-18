@@ -2,7 +2,9 @@
  * Main page layout.
  */
 html, body {
-    height:100%;
+    height: 100%;
+    max-height: 100%;
+    width: 100%;
     margin:0;
     padding:0;
 }
@@ -10,10 +12,19 @@ html, body {
 body {
     color: #888;
     background-color: #353535;
+    width: 100%;
     height: 100%;
 }
 
 .main-content {
+    overflow: hidden;
+    position: relative;
+}
+
+#app {
+    min-height: 100%;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
 }
 
@@ -25,10 +36,13 @@ body {
 }
 
 #terminal-wrap {
-    overflow-y: auto;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
     background-color: #2e3436;
-    min-height: 100%;
     padding: 1px;
+    position: absolute;
+    height: 100%;
+    width: 100%
 }
 
 #terminal {
@@ -39,63 +53,11 @@ body {
     white-space: pre-wrap;
 }
 
-#terminal-activity {
-    position: fixed;
-    bottom: 5em;
-}
-
 #input input {
     width: 100%;
     box-sizing: border-box;
     font-family: 'Roboto Mono', monospace;
     font-size: 1.3em;
-}
-
-/*
- * Section with control buttons and navigation pad.
- * Nav pad is hidden on medium and bigger screens.
- */
-#overlay {
-    position: fixed;
-    top: 0;
-    right: 35em;
-    pointer-events: none;
-    z-index: 500;
-}
-
-#overlay .btn {
-    pointer-events: all;
-}
-
-/* Hide nav pad on medium screens. */
-.nav-hidden-md {
-    display: none;
-}
-
-@media only screen and (max-width: 767px) {
-    /* Shift buttons closer to the border on narrow screens. Hack. */
-    #overlay {
-        right: 1em;
-    }
-
-    /* Show nav pad on small screens. */
-    .nav-hidden-md {
-        display: table-row;
-    }
-}
-
-#nav button {
-    width: 2em;
-}
-
-#nav td {
-    padding: 3px;
-}
-
-#nav td span {
-    padding: 5px;
-    font-weight: bold;
-    font-family: monospace;
 }
 
 /*
@@ -278,7 +240,6 @@ td.v-bottom {
  */
 #terminal-wrap {
    padding: 0px 10px 10px 4px;
-   margin: 0px 4px 8px 1px;
 }
 
 /*
@@ -290,7 +251,7 @@ td.v-bottom {
        border: 1px solid #999;
     }
     #overlay {
-       top: 3px;
+        top: 3px;
     }
     form#input {
         border: 1px solid #999;
@@ -487,35 +448,6 @@ td.v-bottom {
   margin-left: -5px;
 }
 
-/*
- * Status bars
- */
-#stats {
-    padding: 0 20px;
+#app .layout-splitter {
+    width: 6px;
 }
-
-#stats .progress {
-    padding: 0;
-    color: white;
-}
-
-#stats #hits {
-    background-color: #bb0000;
-}
-
-#stats #mana {
-/*    background-color: #0053b3;*/
-    background-color: #3465a4;
-}
-
-#stats #moves {
-    background-color: #055705;
-}    
-
-@media only screen and (max-width: 767px) {
-    #stats .progress {
-        height: 5px;
-        color: transparent !important;
-    }
-}
-

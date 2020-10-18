@@ -75,7 +75,7 @@ function ansi2html(b) {
     }
 
     // Process main input in b, accumulating resolved HTML inside txt variable.
-    for(i in b) {
+    for(let i in b) {
         if(ansi) {
             ansi += b[i];
             var m = ansi.match('.(.)([0-9;]*)([A-Za-z])');
