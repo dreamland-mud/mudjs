@@ -21,29 +21,29 @@
             <div class="main-content flexcontainer-row flex-grow-shrink-auto">
                 <div id="terminal-wrap" class="flex-grow-shrink-auto">
                     <div id="overlay">
-                            <table id="nav" aria-hidden="true">
+                            <table id="nav">
                                 <tr>
-                                    <td><button id="logs-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-label="логи"> <i class="fa fa-download"></i> </button></td>
+                                    <td><button id="logs-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-hidden="true" aria-label="логи"> <i class="fa fa-download"></i> </button></td>
                                     <td><button id="settings-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" data-toggle="modal" data-target="#settings-modal" aria-label="настройки"> <i class="fa fa-cog"></i> </button></td>
-                                    <td><button id="map-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-label="карта"> <i class="fa fa-map"></i> </button></td>
+                                    <td><button id="map-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-hidden="true" aria-label="карта"> <i class="fa fa-map"></i> </button></td>
                                     <td><button id="font-plus-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-hidden="true"> <i class="fa fa-plus"></i> </button></td>
                                     <td><button id="font-minus-button" type="button" class="btn btn-sm btn-ctrl btn-outline-primary" aria-hidden="true"> <i class="fa fa-minus"></i> </button></td>
                                 </tr>
-                                <tr class="nav-hidden-md">
+                                <tr class="nav-hidden-md" aria-hidden="true">
                                     <td></td>
                                     <td></td>
                                     <td><button type="button" data-cmd="scan" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><i class="fa  fa-fw fa-refresh"></i></button></td>
                                     <td><button type="button" data-cmd="n" data-long-cmd="отпер север|откр север" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><span>N</span></button></td>
                                     <td><button type="button" data-cmd="u" data-long-cmd="отпер вверх|откр вверх" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><span>U</span></button></td>
                                 </tr>
-                                <tr class="nav-hidden-md">
+                                <tr class="nav-hidden-md" aria-hidden="true">
                                     <td></td>
                                     <td></td>
                                     <td><button type="button" data-cmd="w" data-long-cmd="отпер запад|откр запад" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><span>W</span></button></td>
                                     <td><button type="button" data-cmd="l" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"> <i class="fa fa-fw  fa-eye"></i></button></td>
                                     <td><button type="button" data-cmd="e" data-long-cmd="отпер восток|откр восток" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><span>E</span></button></td>
                                 </tr>
-                                <tr class="nav-hidden-md">
+                                <tr class="nav-hidden-md" aria-hidden="true">
                                     <td></td>
                                     <td></td>
                                     <td><button type="button" data-cmd="where" class="btn btn-sm btn-ctrl btn-keypad btn-outline-primary"><i class="fa fa-fw fa-map-marker"></i></button></td>
@@ -732,7 +732,7 @@
             <div class="trigger"></div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.4.10/jquery.autocomplete.js" integrity="sha256-YTLtOnJjjxFZqnbPof6n8/9l9kSZ+BdNK8/VzGRjo4s=" crossorigin="anonymous"></script>
-        <script src="dist/bundle.js?2.8"></script>
+        <script src="dist/bundle.js?2.11"></script>
         <link href="css/weather-icons.min.css" rel="stylesheet" type="text/css"></link>
     </body>
 </html>
