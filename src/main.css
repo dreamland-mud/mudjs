@@ -70,6 +70,31 @@ body {
     margin: 0px;
 }
 
+#map-wrap {
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+    background-color: #2e3436;
+    padding: 1px;
+    position: absolute;
+    height: 100%;
+    width: 100%
+}
+
+#map {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1em;
+    background-color: #2e3436;
+    color: #d3d7cf;
+    white-space: pre-wrap;
+}
+
+#map > pre {
+    overflow-y: unset;
+    overflow-x: unset;
+    margin-bottom: 0;
+}
+
+
 /*
  * Collapsible panels on the right-hand side.
  */
@@ -450,4 +475,9 @@ td.v-bottom {
 
 #app .layout-splitter {
     width: 6px;
+}
+
+/* Map higlighted room. */
+.active {
+    color: red;
 }

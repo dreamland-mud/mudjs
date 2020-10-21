@@ -46,7 +46,7 @@ export default class Panel extends React.Component {
                 <button className="close collapsed" type="button" data-toggle="collapse" data-target="#group-table"> </button>
                 <div id="group-table" className="collapse" data-hint="hint-group">
                     <table>
-                    <thead><th>Имя</th><th>Ур.</th><th>Здор.</th><th>Опыт</th></thead>
+                    <thead><tr><th>Имя</th><th>Ур.</th><th>Здор.</th><th>Опыт</th></tr></thead>
                     <tbody></tbody>
                     </table>
                 </div>
@@ -96,7 +96,7 @@ export default class Panel extends React.Component {
                 <button className="close" type="button" data-toggle="collapse" data-target="#who-table"> </button>
                 <div id="who-table" className="collapse show" data-hint="hint-who">
                     <table>
-                        <thead><th>Имя</th><th>Раса</th><th>Клан</th></thead>
+                        <thead><tr><th>Имя</th><th>Раса</th><th>Клан</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>

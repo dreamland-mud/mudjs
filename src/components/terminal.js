@@ -71,8 +71,6 @@ const KeypadCell = ({cmd, longCmd, children, ...props}) => {
     let btnTimer = null;
     let wasLongPress = false;
 
-    console.log(cmd, longCmd);
-
     const touchstart = e => {
         wasLongPress = false;
 
