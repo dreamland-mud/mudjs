@@ -43,16 +43,15 @@ export default props => {
     const classes = useStyles();
     const bigScreen = useMediaQuery(theme => theme.breakpoints.up('sm'));
     const hugeScreen = useMediaQuery(theme => theme.breakpoints.up('lg'));
-    const terminalSize = hugeScreen ? 50 : 90;
 
     return <Box display="flex" flexDirection="column" className={classes.page}>
         <Box flex="1 1 auto" className={classes.main}>
-            <SplitterLayout primaryInitialSize={terminalSize} percentage>
+            <SplitterLayout>
                 <Terminal />
-                <SplitterLayout primaryIndex={1} primaryInitialSize={500} secondaryInitialSize={270}>
-                    { bigScreen && <Panel /> }
+		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={500} secondaryInitialSize={270}>
+                    <Panel /> 
                     { hugeScreen && <Map /> }
-                </SplitterLayout>
+                </SplitterLayout> }
             </SplitterLayout>
         </Box>
         <button id="reconnect" type="button" className="btn btn-primary">Reconnect</button>
