@@ -86,6 +86,7 @@ body {
     background-color: #2e3436;
     color: #d3d7cf;
     white-space: pre-wrap;
+    padding: 1em;
 }
 
 #map > pre {
