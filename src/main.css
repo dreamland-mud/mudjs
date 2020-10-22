@@ -74,7 +74,7 @@ body {
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
     background-color: #2e3436;
-    padding: 1px;
+    padding-top: 3em;
     position: absolute;
     height: 100%;
     width: 100%
