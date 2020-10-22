@@ -6,6 +6,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from "@material-ui/core/styles";
+import { useState, useEffect } from 'react';
 import { Add, Remove } from "@material-ui/icons";
 import $ from 'jquery';
 import 'arrive';
@@ -38,140 +39,142 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-export default class Map extends React.Component {
-    AppBar = props => {
-        const classes = useStyles();
+// TODO integrate with the main Map componnt
+const MapControls = props => {
+    let mapComponent = this;
+    const classes = useStyles();
 
-        return (<AppBar className={classes.appbar} color="default">
-                <Toolbar variant="dense">
-                    <Typography id="areaName" className={classes.title}></Typography>
-                </Toolbar>
-            </AppBar>
+    const changeFontSize = delta => {
+        var map = $('#map');
+        var style = map.css('font-size'); 
+        var fontSize = parseFloat(style); 
+        map.css('font-size', (fontSize + delta) + 'px');
+        localStorage.setItem(mapFontSizeKey, fontSize + delta);
+
+        // TODO remember if the room was in view before font change, otherwise don't change position.
+        mapComponent.recenterPosition();
+    };
+
+    return (
+        <div className={classes.root}>
+            <ButtonGroup variant="contained" size="small" orientation="vertical" color="primary" aria-label="map resize buttons">
+                <Button onClick={() => { changeFontSize(1) }}> <Add /> </Button>
+                <Button onClick={() => { changeFontSize(-1) }}> <Remove /> </Button>
+            </ButtonGroup>
+        </div>
         );
-    };
+};
     
-    MapControls = props => {
-        let mapComponent = this;
-        const classes = useStyles();
-    
-        const changeFontSize = delta => {
-            var map = $('#map');
-            var style = map.css('font-size'); 
-            var fontSize = parseFloat(style); 
-            map.css('font-size', (fontSize + delta) + 'px');
-            localStorage.setItem(mapFontSizeKey, fontSize + delta);
-
-            // TODO remember if the room was in view before font change, otherwise don't change position.
-            mapComponent.recenterPosition();
-        };
-    
-        return (
-            <div className={classes.root}>
-              <ButtonGroup variant="contained" size="small" orientation="vertical" color="primary" aria-label="map resize buttons">
-                  <Button onClick={() => { changeFontSize(1) }}> <Add /> </Button>
-                  <Button onClick={() => { changeFontSize(-1) }}> <Remove /> </Button>
-              </ButtonGroup>
-            </div>
-          );
-    };
-    
-    
-    prevArea = ''
-
-    clearMap() {
-        $('#map').html("");
-        $('#areaName').html("");
+// TODO integrate with the main Map component    
+const initMapFontSize = () => {
+    let cacheFontSize = localStorage.getItem(mapFontSizeKey);
+    if (cacheFontSize != null) {
+        $('#map').css('font-size', (cacheFontSize) + 'px');
     }
+};
 
-    recenterPosition() {
-        var $active = $('#map .room.active');
-        if (!$active.length)
-            return;
+// Scroll map window so that the active room is in the center.
+const recenterPosition = () => {
+    var $active = $('#map .room.active');
+    if (!$active.length)
+        return;
 
-        $active.get(0).scrollIntoView({block: 'center', inline: 'center'});
-    }
+    $active.get(0).scrollIntoView({block: 'center', inline: 'center'});
+};
 
-    highlightPosition(currentRoom) {
-        $('#map .room').removeClass('active');
+// Highlight current room with red colour and strip highlighting from all other rooms.
+const highlightPosition = (currentRoom) => {
+    console.log(">>> highligtPosition", currentRoom);
+    $('#map .room').removeClass('active');
+
+    if (currentRoom && currentRoom !== '') {
         $('#map .room-' + currentRoom).addClass('active');
-
-        this.recenterPosition();
+        recenterPosition();
     }
+}
 
-    initLocationChannel() {
-        if('BroadcastChannel' in window) {
-            var locationChannel = new BroadcastChannel('location');
+
+// Invoked from Map's render function every time one of the states it refers to is changed.
+const useLocation = () => {
+    const [location, setLocation] = useState({}); // pass something so that location is never null.
+    console.log('>>> useLocation', location);
+
+    // Called only once on Map's componentDidMount, to subscribe to the channel.
+    useEffect(() => {
+        console.log('>>> useEffect([])');
+        if ('BroadcastChannel' in window) {
+            const locationChannel = new BroadcastChannel('location');
 
             locationChannel.onmessage = e => { 
                 if (e.data.what === 'location') { 
-                    let currentArea = e.data.location.area;
-                    let currentRoom = e.data.location.vnum;
-
-                    if (currentArea && this.prevArea !== currentArea) {
-                        this.refreshMap(currentArea, currentRoom);
-                        this.prevArea = currentArea;
-                    } else {
-                        this.highlightPosition(currentRoom);    
-                    }
+                    setLocation(e.data.location);
                 }
             }
+
+            // Stop reacting to messages when a component is unmounted.
+            return () => locationChannel.close();
         }
-    }
 
-    initMap() {
-        this.clearMap();
+    }, []);
 
-        if (!lastLocation)
+
+    return location;
+};
+
+// Invoked from Map's render function every time one of the states it refers to is changed.
+const useMapSource = (location) => {
+    console.log('>>> useMapSource', location);
+    const [mapSource, setMapSource] = useState();
+
+    // Called every time a location's area is changed.
+    useEffect(() => {
+        console.log('>>> useEffect(area)', location);
+        if (!location.area || location.area === '')
             return;
-                
-        let loc = lastLocation();
-        if (!loc)
-            return;
 
-        this.refreshMap(loc.area, loc.vnum);
-    }
-
-    initMapFontSize() {
-        let cacheFontSize = localStorage.getItem(mapFontSizeKey);
-        if (cacheFontSize != null) {
-            $('#map').css('font-size', (cacheFontSize) + 'px');
-        }
-    }
-
-    refreshMap(area, room) {
-        let mapName = area.replace(/are$/, 'html');
+        let mapName = location.area.replace(/are$/, 'html');
         let mapUrl = `/maps/sources/${mapName}`;
-        let areaName = areas[area] || '';
 
         $.get(mapUrl)
-            .then(data => {
-                // TODO reactify
-                $('#map').html("<pre>" + data + "</pre>");
-                document.arrive('.room-' + room, {onceOnly: true, existing: true}, () => {
-                    this.highlightPosition(room);
-                });
-
-                $('#areaName').html(areaName);
-
-            }).catch(e => {
+            .then(setMapSource)
+            .catch(e => {
                 console.log('Map error', e);
-                this.clearMap();
+                setMapSource('');
             });
-    }
+       
+    }, [location.area]);
 
-    componentDidMount() {
-        this.initLocationChannel();
-        this.initMap();
-        this.initMapFontSize();
-    }
+    // Called every time a location's room is changed.
+    useEffect(() => {
+        console.log('>>> useEffect(vnum)', location);
+        highlightPosition(location.vnum);
+    }, [location.vnum]);
 
-    render() {
-        return <>
-                <this.AppBar/>
-                <this.MapControls/>
-                <div id="map-wrap">
-                    <div id="map"></div>
-                </div>
-              </>;
-    }
+
+    return mapSource;
+};
+
+
+// TODO: first load (or a full render) of the map doesn't highlight the room.
+export default function Map(props) {
+    console.log('>>> Map.render');
+    const classes = useStyles();
+    const location = useLocation();
+    const mapSource = useMapSource(location);
+    let areaName = areas[location.area || ''] || '';
+
+    const appBar = <AppBar className={classes.appbar} color="default">
+                       <Toolbar variant="dense">
+                          <Typography id="areaName" className={classes.title}>{areaName}</Typography>
+                       </Toolbar>
+                    </AppBar>;
+
+    // Cannot use things like react-html-parser as it makes a mess out of many <span> tags in the maps.
+    // Browser rendering is much more reliable.
+    return <>
+            {appBar}            
+            <div id="map-wrap">
+                <div id="map"><pre dangerouslySetInnerHTML={{ __html: mapSource}} /></div>
+            </div>
+          </>;
 }
