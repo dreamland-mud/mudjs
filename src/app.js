@@ -18,6 +18,7 @@ import 'bootstrap';
 import Terminal from './components/terminal';
 import Panel from './components/panel';
 import Stats from './components/stats';
+import Map from './components/map';
 
 const useStyles = makeStyles(theme => ({
     page: {
@@ -41,12 +42,16 @@ export default props => {
     // Hooks
     const classes = useStyles();
     const bigScreen = useMediaQuery(theme => theme.breakpoints.up('sm'));
+    const hugeScreen = useMediaQuery(theme => theme.breakpoints.up('lg'));
 
     return <Box display="flex" flexDirection="column" className={classes.page}>
         <Box flex="1 1 auto" className={classes.main}>
-            <SplitterLayout secondaryInitialSize={270} secondaryMinSize={270}>
+            <SplitterLayout>
                 <Terminal />
-                { bigScreen && <Panel /> }
+		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={500} secondaryInitialSize={270}>
+                    <Panel /> 
+                    { hugeScreen && <Map /> }
+                </SplitterLayout> }
             </SplitterLayout>
         </Box>
         <button id="reconnect" type="button" className="btn btn-primary">Reconnect</button>
