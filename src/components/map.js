@@ -1,4 +1,5 @@
 import React from 'react';
+import TimerMixin from 'react-timer-mixin';
 import Button from "@material-ui/core/Button";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import AppBar from '@material-ui/core/AppBar';
@@ -57,7 +58,6 @@ const useLocation = () => {
             // Stop reacting to messages when a component is unmounted.
             return () => locationChannel.close();
         }
-
     }, []);
 
     return location;
@@ -89,6 +89,40 @@ const useMapSource = (location) => {
     return mapSource;
 };
 
+// Grab details such as full area name and store it as filename -> areaname map.
+const useAreaData = () => {
+    const [areaData, setAreaData] = useState({});
+    const areasUrl = `/maps/index.json`;
+    const refreshAreaData = () => {
+        console.log('Refreshing area data...');
+
+        $.get(areasUrl)
+            .then(data => {
+                setAreaData(data.reduce(function(map, obj) {
+                    map[obj.file] = obj.name;
+                    return map;
+                }, {}));
+            })
+            .catch(e => {
+                console.log('Error fetching', areasUrl, e);
+                setAreaData({});
+            });
+    };
+
+    // Called once on componentDidMount and then refreshed every fixed interval.
+    useEffect(() => {
+        const refreshTimeout = 1000 * 60 * 15; // 15 minutes
+
+        refreshAreaData();
+        
+        TimerMixin.setInterval(refreshAreaData, refreshTimeout);
+
+        // Nothing to do on dismount - the timer is cleared automatically.
+    }, []);
+
+    return areaData;
+};
+
 // Display plus/minus buttons in the bottom-right corner.
 const MapControls = props => {
     const classes = useStyles();
@@ -109,9 +143,11 @@ export default function Map(props) {
     const classes = useStyles();
     const location = useLocation();
     const mapSource = useMapSource(location);
+    const areaData = useAreaData();
+    let areaName = areaData[location.area || ''] || '';
+
     // Keeps the latest rendered map element as its .current field.
     const mapElement = useRef(null);
-    let areaName = areas[location.area || ''] || '';
 
     // Scroll map window so that the active room is in the center.
     const recenterPosition = () => {
