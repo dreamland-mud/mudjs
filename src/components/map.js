@@ -9,6 +9,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Add, Remove } from "@material-ui/icons";
 import $ from 'jquery';
 
+const lastLocation = require('../location');
+
 const areas = require('../data/areas.json').reduce(function(map, obj) {
     map[obj.file] = obj.name;
     return map;
@@ -36,8 +38,8 @@ const useStyles = makeStyles((theme) => ({
 
 // Invoked from Map's render function every time one of the states it refers to is changed.
 const useLocation = () => {
-    // TODO call lastLocation() here.
-    const [location, setLocation] = useState({}); // pass something so that location is never null.
+    // Ensure a saved location is used even when component is destroyed mid-game.
+    const [location, setLocation] = useState(lastLocation() || {}); // location is never null
     console.log('>>> useLocation', location);
 
     // Called only once on Map's componentDidMount, to subscribe to the channel.
@@ -87,6 +89,7 @@ const useMapSource = (location) => {
     return mapSource;
 };
 
+// Display plus/minus buttons in the bottom-right corner.
 const MapControls = props => {
     const classes = useStyles();
 
@@ -99,12 +102,14 @@ const MapControls = props => {
         </div>
     );
 };
-    
+
+// Rendering function for the Map react component.
 export default function Map(props) {
     console.log('>>> Map.render');
     const classes = useStyles();
     const location = useLocation();
     const mapSource = useMapSource(location);
+    // Keeps the latest rendered map element as its .current field.
     const mapElement = useRef(null);
     let areaName = areas[location.area || ''] || '';
 
@@ -131,7 +136,7 @@ export default function Map(props) {
 
     const mapFontSizeKey = "map-font-size";
 
-    // Called once on 'componentDidMount'.
+    // Called once on 'componentDidMount': resize map font with the saved one.
     useEffect(() => {
         let cacheFontSize = localStorage.getItem(mapFontSizeKey);
         if (cacheFontSize != null) {
@@ -139,6 +144,7 @@ export default function Map(props) {
         }
     }, []);
     
+    // Called from onClick handler of plus/minus buttons: resizes the font and saves in storage.
     const changeFontSize = delta => {
         var map = $(mapElement.current);
         var style = map.css('font-size'); 
@@ -150,6 +156,7 @@ export default function Map(props) {
         recenterPosition();
     };
 
+    // Called every time a mapSource is changed.
     useEffect(() => {
         console.log('>>> useEffect(mapSource)');        
         $(mapElement.current).html(mapSource);
