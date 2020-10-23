@@ -50,6 +50,8 @@ const Stat = ({v, max_v, caption, color}) => {
     </Box>
 };
 
+// Return Stats component declared in a functional style. This is the same as render() method.
+// Will be called every time a setState is invoked from any of the use* or props, e.g. after rpc-prompt event.
 export default function Stats(props) {
     const classes = useStyles();
     const { hit, max_hit, mana, max_mana, move, max_move } = usePrompt();
