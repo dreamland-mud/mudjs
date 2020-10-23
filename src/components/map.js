@@ -144,13 +144,6 @@ const useMapSource = (location) => {
        
     }, [location.area]);
 
-    // Called every time a location's room is changed.
-    useEffect(() => {
-        console.log('>>> useEffect(vnum)', location);
-        highlightPosition(location.vnum);
-    }, [location.vnum]);
-
-
     return mapSource;
 };
 
@@ -163,18 +156,28 @@ export default function Map(props) {
     const mapSource = useMapSource(location);
     let areaName = areas[location.area || ''] || '';
 
+    useEffect(() => {
+        console.log('>>> useEffect(mapSource)');
+        $('#map > pre').html(mapSource);
+        highlightPosition(location.vnum);
+    }, [mapSource]);
+
+    // Called every time a location's room is changed.
+    useEffect(() => {
+        console.log('>>> useEffect(vnum)', location);
+        highlightPosition(location.vnum);
+    }, [location.vnum]);
+
     const appBar = <AppBar className={classes.appbar} color="default">
                        <Toolbar variant="dense">
                           <Typography id="areaName" className={classes.title}>{areaName}</Typography>
                        </Toolbar>
                     </AppBar>;
-
-    // Cannot use things like react-html-parser as it makes a mess out of many <span> tags in the maps.
-    // Browser rendering is much more reliable.
+    
     return <>
             {appBar}            
             <div id="map-wrap">
-                <div id="map"><pre dangerouslySetInnerHTML={{ __html: mapSource}} /></div>
+                <div id="map"><pre/></div>
             </div>
           </>;
 }
