@@ -1,23 +1,18 @@
 import React from 'react';
-import Box from '@material-ui/core/Box';
 import Button from "@material-ui/core/Button";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from "@material-ui/core/styles";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Add, Remove } from "@material-ui/icons";
 import $ from 'jquery';
-import 'arrive';
-var lastLocation = require('../location');
 
 const areas = require('../data/areas.json').reduce(function(map, obj) {
     map[obj.file] = obj.name;
     return map;
 }, {});
-
-const mapFontSizeKey = "map-font-size";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,63 +34,9 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-// TODO integrate with the main Map componnt
-const MapControls = props => {
-    let mapComponent = this;
-    const classes = useStyles();
-
-    const changeFontSize = delta => {
-        var map = $('#map');
-        var style = map.css('font-size'); 
-        var fontSize = parseFloat(style); 
-        map.css('font-size', (fontSize + delta) + 'px');
-        localStorage.setItem(mapFontSizeKey, fontSize + delta);
-
-        // TODO remember if the room was in view before font change, otherwise don't change position.
-        mapComponent.recenterPosition();
-    };
-
-    return (
-        <div className={classes.root}>
-            <ButtonGroup variant="contained" size="small" orientation="vertical" color="primary" aria-label="map resize buttons">
-                <Button onClick={() => { changeFontSize(1) }}> <Add /> </Button>
-                <Button onClick={() => { changeFontSize(-1) }}> <Remove /> </Button>
-            </ButtonGroup>
-        </div>
-        );
-};
-    
-// TODO integrate with the main Map component    
-const initMapFontSize = () => {
-    let cacheFontSize = localStorage.getItem(mapFontSizeKey);
-    if (cacheFontSize != null) {
-        $('#map').css('font-size', (cacheFontSize) + 'px');
-    }
-};
-
-// Scroll map window so that the active room is in the center.
-const recenterPosition = () => {
-    var $active = $('#map .room.active');
-    if (!$active.length)
-        return;
-
-    $active.get(0).scrollIntoView({block: 'center', inline: 'center'});
-};
-
-// Highlight current room with red colour and strip highlighting from all other rooms.
-const highlightPosition = (currentRoom) => {
-    console.log(">>> highligtPosition", currentRoom);
-    $('#map .room').removeClass('active');
-
-    if (currentRoom && currentRoom !== '') {
-        $('#map .room-' + currentRoom).addClass('active');
-        recenterPosition();
-    }
-}
-
-
 // Invoked from Map's render function every time one of the states it refers to is changed.
 const useLocation = () => {
+    // TODO call lastLocation() here.
     const [location, setLocation] = useState({}); // pass something so that location is never null.
     console.log('>>> useLocation', location);
 
@@ -116,7 +57,6 @@ const useLocation = () => {
         }
 
     }, []);
-
 
     return location;
 };
@@ -147,25 +87,79 @@ const useMapSource = (location) => {
     return mapSource;
 };
 
+const MapControls = props => {
+    const classes = useStyles();
 
-// TODO: first load (or a full render) of the map doesn't highlight the room.
+    return (
+        <div className={classes.root}>
+            <ButtonGroup variant="contained" size="small" orientation="vertical" color="primary" aria-label="map resize buttons">
+                <Button onClick={() => { props.changeFontSize(1) }}> <Add /> </Button>
+                <Button onClick={() => { props.changeFontSize(-1) }}> <Remove /> </Button>
+            </ButtonGroup>
+        </div>
+    );
+};
+    
 export default function Map(props) {
     console.log('>>> Map.render');
     const classes = useStyles();
     const location = useLocation();
     const mapSource = useMapSource(location);
+    const mapElement = useRef(null);
     let areaName = areas[location.area || ''] || '';
 
+    // Scroll map window so that the active room is in the center.
+    const recenterPosition = () => {
+        var $active = $(mapElement.current).find('.room.active');
+        if (!$active.length)
+            return;
+
+        $active.get(0).scrollIntoView({block: 'center', inline: 'center'});
+    };
+
+    // Highlight current room with red colour and strip highlighting from all other rooms.
+    const highlightPosition = () => {
+        let room = location.vnum;
+        console.log(">>> highligtPosition", room);
+        $(mapElement.current).find('.room').removeClass('active');
+
+        if (room && room !== '') {
+            $(mapElement.current).find('.room-' + room).addClass('active');
+            recenterPosition();
+        }
+    };
+
+    const mapFontSizeKey = "map-font-size";
+
+    // Called once on 'componentDidMount'.
     useEffect(() => {
-        console.log('>>> useEffect(mapSource)');
-        $('#map > pre').html(mapSource);
-        highlightPosition(location.vnum);
+        let cacheFontSize = localStorage.getItem(mapFontSizeKey);
+        if (cacheFontSize != null) {
+            $(mapElement.current).css('font-size', (cacheFontSize) + 'px');
+        }
+    }, []);
+    
+    const changeFontSize = delta => {
+        var map = $(mapElement.current);
+        var style = map.css('font-size'); 
+        var fontSize = parseFloat(style); 
+        map.css('font-size', (fontSize + delta) + 'px');
+        localStorage.setItem(mapFontSizeKey, fontSize + delta);
+
+        // TODO remember if the room was in view before font change, otherwise don't change position.
+        recenterPosition();
+    };
+
+    useEffect(() => {
+        console.log('>>> useEffect(mapSource)');        
+        $(mapElement.current).html(mapSource);
+        highlightPosition();
     }, [mapSource]);
 
     // Called every time a location's room is changed.
     useEffect(() => {
         console.log('>>> useEffect(vnum)', location);
-        highlightPosition(location.vnum);
+        highlightPosition();
     }, [location.vnum]);
 
     const appBar = <AppBar className={classes.appbar} color="default">
@@ -175,9 +169,10 @@ export default function Map(props) {
                     </AppBar>;
     
     return <>
-            {appBar}            
+            {appBar}
+            <MapControls changeFontSize={changeFontSize} />
             <div id="map-wrap">
-                <div id="map"><pre/></div>
+                <div id="map"><pre ref={mapElement} /></div>
             </div>
           </>;
 }
