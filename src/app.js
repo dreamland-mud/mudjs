@@ -26,6 +26,11 @@ const useStyles = makeStyles(theme => ({
         width: '100%',
         overflow: 'hidden',
     },
+    mainSplitter: {
+        '& .layout-pane': {
+            display: 'flex'
+        }
+    },
     main: {
         overflow: 'hidden',
         position: 'relative',
@@ -46,7 +51,7 @@ export default props => {
 
     return <Box display="flex" flexDirection="column" className={classes.page}>
         <Box flex="1 1 auto" className={classes.main}>
-            <SplitterLayout>
+            <SplitterLayout customClassName={classes.mainSplitter}>
                 <Terminal />
 		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={500} secondaryInitialSize={270}>
                     <Panel /> 
@@ -54,10 +59,6 @@ export default props => {
                 </SplitterLayout> }
             </SplitterLayout>
         </Box>
-        <button id="reconnect" type="button" className="btn btn-primary">Reconnect</button>
-        <form id="input">
-            <input type="text"></input>
-        </form>
         <Stats />
     </Box>;
 };

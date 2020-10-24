@@ -1,6 +1,8 @@
 
 'use strict';
 
+const { store, onConnected, onDisconnected } = require('./store.js');
+
 var $ = require('jquery');
 var Telnet = require('./telnet');
 
@@ -78,14 +80,12 @@ function connect() {
     }
     ws.onclose = function(e) {
         process('\u001b[1;31m#################### DISCONNECTED ####################\u001b[0;37m\n');
-        $('#reconnect').show();
-        $('#input input').hide();
         ws = null;
+        store.dispatch(onDisconnected());
     }
 
     process('Connecting....\n');
-    $('#reconnect').hide();
-    $('#input input').show();
+    store.dispatch(onConnected());
 }
 
 module.exports = {

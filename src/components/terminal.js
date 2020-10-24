@@ -1,9 +1,11 @@
 
 import React from 'react';
 import ReactDom from 'react-dom';
+import { useSelector } from 'react-redux';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
+import CmdInput from './cmdinput';
 
 import { send } from '../websock';
 
@@ -169,9 +171,15 @@ const Overlay = props => {
     </Box>;
 }
 
-export default props => <>
-        <Overlay />
-        <div id="terminal-wrap">
-            <div id="terminal"></div>
-        </div>
-    </>;
+export default props => {
+    return <Box flex="1" display="flex" flexDirection="column">
+        <Box flex="1 1 auto" position="relative">
+            <Overlay />
+            <div id="terminal-wrap">
+                <div id="terminal"></div>
+            </div>
+        </Box>
+        <CmdInput />
+    </Box>
+};
+
