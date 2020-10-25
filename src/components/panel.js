@@ -112,7 +112,7 @@ export default class Panel extends React.Component {
                         <button type="button" className="btn btn-ctrl-panel" data-action="см">Смотреть</button>
                         <button type="button" className="btn btn-ctrl-panel" data-action="инв">Инвентарь</button>
                         <button type="button" className="btn btn-ctrl-panel" data-action="одежда">Одежда</button>
-                        <button type="button" className="btn btn-ctrl-panel" data-action="счет">Счет</button>
+                        <button type="button" className="btn btn-ctrl-panel" data-action="ссчет">Счет</button>
                         <button type="button" className="btn btn-ctrl-panel" data-action="/">Возврат</button>
                         <button type="button" className="btn btn-ctrl-panel" data-action="сбежать">Сбежать</button>
                     </div>
