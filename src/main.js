@@ -86,11 +86,6 @@ $(document).ready(function() {
             console.log(e);
         });
 
-    $('#reconnect').click(function(e) {
-        e.preventDefault();
-        connect();
-    });
-
     $('body').on('keydown', function(e) {
         var input = $('#input input');
 
