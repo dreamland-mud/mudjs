@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDom from 'react-dom';
+import Box from '@material-ui/core/Box';
 import $ from 'jquery';
 
 import Help from './panel-help';
@@ -14,7 +15,7 @@ export default class Panel extends React.Component {
     }
 
     render() {
-        return <div id="panel-wrap" className="flexcontainer-column flex-nogrow-shrink-panel" aria-hidden="true">
+        return <Box id="panel-wrap" flex="1" aria-hidden="true">
             <div id="time-weather" className="table-wrapper" style={hide}>
                 <span className="dark-panel-title" data-toggle="collapse" data-target="#time-weather-table">Погода и время:</span>
                 <button className="close" type="button" data-toggle="collapse" data-target="#time-weather-table"></button>
@@ -125,6 +126,6 @@ export default class Panel extends React.Component {
                     </div>
                 </div>
             </div>
-        </div>;
+        </Box>;
     }
 }
