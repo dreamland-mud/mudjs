@@ -81,10 +81,12 @@ function connect() {
     ws.onclose = function(e) {
         process('\u001b[1;31m#################### DISCONNECTED ####################\u001b[0;37m\n');
         ws = null;
+        // Dispatches an action to trigger a state change.
         store.dispatch(onDisconnected());
     }
 
     process('Connecting....\n');
+    // Dispatches an action to trigger a state change.
     store.dispatch(onConnected());
 }
 

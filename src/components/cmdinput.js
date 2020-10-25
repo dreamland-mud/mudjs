@@ -17,10 +17,18 @@ const input_history = localStorage.history ? JSON.parse(localStorage.history) : 
 let position = input_history.length;
 let current_cmd = '';
 
+// This component draws either a "Reconnect" button or the main input field for the terminal.
+// Handles command history browsing and terminal scrolling (pgUp/pgDown).
 const CmdInput = props => {
+    // A hook to access the redux store's state; takes a selector function as an argument. 
+    // The selector is called with the store state. Component's render will be called only when
+    // 'connection' field has changed.
     const connection = useSelector(state => state.connection);
+    // Input box value.
     const [ value, setValue ] = useState('');
 
+    // Arrow up. Retrieve previous command from history and populate the input box.
+    // Called from onKeyDown handler.
     const historyUp = () => {
         if(position > 0) {
             if(position == input_history.length)
@@ -36,6 +44,8 @@ const CmdInput = props => {
         }
     };
 
+    // Arrow down. Retrieve next command, if any, and populate the input box.
+    // Called from onKeyDown handler.
     const historyDown = () => {
         if(position < input_history.length) {
             var i;
@@ -51,6 +61,8 @@ const CmdInput = props => {
         }
     };
 
+    // Main onKeyDown handler. Reacts to pageUp/pageDown to scroll the main terminal window,
+    // arrow keys to navigate history, and passes everything else to the user-defined triggers (settings).
     const keydown = e => {
         e.stopPropagation();
 
@@ -75,9 +87,12 @@ const CmdInput = props => {
             }
         }
 
+        // Call user settings.
         settings.keydown()(e);
     };
 
+    // Handles enter key. Records command in history and passes it to the server via 'input' trigger.
+    // Allows to paste multi-line text.
     const submit = e => {
         e.preventDefault();
         const t = value;
@@ -100,6 +115,9 @@ const CmdInput = props => {
                 console.log('Opps, saving command history to the local storage: save.length=' + save.length, e);
             }
         }
+
+        // For each input line, trigger the 'input' event. Default 'input' handler will send the command
+        // to the server, and also user-defined triggers will be called.
         var lines = t.split('\n');
         $(lines).each(function() {
             echo(this);
@@ -107,6 +125,9 @@ const CmdInput = props => {
         });
     };
 
+    // Draws either 'Reconnect' button or input box, depending on the global state.
+    // onChange ensures that the state of this component changes whenever user inputs something.
+    // Current 'value' state is used from all key handlers.
     return connection.connected ?
             <form onSubmit={submit} id="input">
                 <input onKeyDown={keydown} value={value} onChange={e => setValue(e.target.value)} type="text" />
