@@ -31,7 +31,7 @@ function send(text) {
 }
 
 function process(s) {
-    $('#terminal').trigger('output', [s]);
+    $('.terminal').trigger('output', [s]);
 }
 
 // attach default RPC handlers

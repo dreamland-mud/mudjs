@@ -17,8 +17,8 @@ var unread = 0;
 var scrolling = false;
 
 function atBottom() {
-    var terminal = $('#terminal'),
-        wrap = $('#terminal-wrap');
+    var terminal = $('.terminal'),
+        wrap = $('.terminal-wrap');
 
     return wrap.scrollTop() > (terminal.height() - 2 * wrap.height() );
 }
@@ -44,7 +44,7 @@ function resetUnread() {
 // jQuery 'terminal' module initialization
 $.fn.terminal = function() {
     var terminal = this,
-        wrap = $('#terminal-wrap'),
+        wrap = $('.terminal-wrap'),
         append = function($chunk) {
             $chunk.appendTo(terminal);
 
@@ -60,7 +60,7 @@ $.fn.terminal = function() {
 
         // reload from the bottom up
         scrolling = true;
-        $('#terminal-wrap').scrollTop(0);
+        $('.terminal-wrap').scrollTop(0);
         terminal.empty();
         resetUnread();
 
@@ -131,7 +131,7 @@ $.fn.terminal = function() {
 // jQuery 'terminal-wrapper' module initialization
 $.fn.terminalWrap = function() {
     var wrap = this,
-        terminal = $('#terminal');
+        terminal = $('.terminal');
 
     this.on('scroll', function(e) {
         // We are already handling a scroll event. 
@@ -245,10 +245,10 @@ $.fn.terminalWrap = function() {
 };
 
 function terminalInit() {
-    var terminal = $('#terminal').terminal();
+    var terminal = $('.terminal').terminal();
 
     scrolling = true;
-    $('#terminal-wrap').scrollTop(0);
+    $('.terminal-wrap').scrollTop(0);
 
     return historyDb.then(function(db) {
         var chunks = [];
@@ -269,7 +269,7 @@ function terminalInit() {
                 terminal.prepend(this);
             });
 
-            $('#terminal-wrap')
+            $('.terminal-wrap')
                 .scrollTop(terminal.height()) // scroll to the bottom
                 .terminalWrap(); // initialize the wrapper
 

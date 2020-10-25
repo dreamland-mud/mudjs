@@ -12,9 +12,9 @@ function echo(txt) {
 
     if (txt.length !== 0) {
         var output = $('<div/>').addClass('echo-with-anchor').text(txt+'\n');
-        $('#terminal').trigger('output-html', [output[0].outerHTML]);
+        $('.terminal').trigger('output-html', [output[0].outerHTML]);
     } else {
-        $('#terminal').trigger('output', '\n');
+        $('.terminal').trigger('output', '\n');
     }
 }
 

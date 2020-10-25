@@ -10,7 +10,7 @@ const notify = require('./notify');
 const send = websock.send;
 
 const echo = txt => {
-    $('#terminal').trigger('output', [txt]);
+    $('.terminal').trigger('output', [txt]);
 };
 
 let keydown = function(e) {};

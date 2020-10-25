@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import websock from '../websock';
 
 const echo = txt => {
-    $('#terminal').trigger('output', [txt]);
+    $('.terminal').trigger('output', [txt]);
 };
 
 const send = websock.send;

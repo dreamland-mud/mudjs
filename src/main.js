@@ -112,7 +112,7 @@ $(document).ready(function() {
     var terminalFontSizeKey = "terminal-font-size";
     
     function changeFontSize(delta) {
-        var terminal = $('#terminal');
+        var terminal = $('.terminal');
         var style = terminal.css('font-size'); 
         var fontSize = parseFloat(style); 
         terminal.css('font-size', (fontSize + delta) + 'px');
@@ -122,7 +122,7 @@ $(document).ready(function() {
     function initTerminalFontSize() {
         var cacheFontSize = localStorage.getItem(terminalFontSizeKey);
         if (cacheFontSize != null) {
-            var terminal = $('#terminal');
+            var terminal = $('.terminal');
             terminal.css('font-size', (cacheFontSize) + 'px');
         }
     }

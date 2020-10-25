@@ -35,7 +35,7 @@ body {
     overflow: hidden;
 }
 
-#terminal-wrap {
+.terminal-wrap {
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
     background-color: #2e3436;
@@ -45,7 +45,7 @@ body {
     width: 100%
 }
 
-#terminal {
+.terminal {
     font-family: 'Roboto Mono', monospace;
     font-size: 1.3em;
     background-color: #2e3436;
@@ -252,7 +252,7 @@ td.v-bottom {
 /*
  * Add some space around main screen on all media sizes.
  */
-#terminal-wrap {
+.terminal-wrap {
    padding: 0px 10px 10px 4px;
 }
 
@@ -261,7 +261,7 @@ td.v-bottom {
  * Make input box styled as the rest of the page components.
  */
 @media only screen and (min-width: 768px) {
-    #terminal-wrap {
+    .terminal-wrap {
        border: 1px solid #999;
     }
     #overlay {

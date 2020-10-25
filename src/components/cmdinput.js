@@ -9,7 +9,7 @@ import settings from '../settings';
 import { connect } from '../websock';
 
 const scrollPage = dir => {
-    const wrap = $('#terminal-wrap');
+    const wrap = $('.terminal-wrap');
     wrap.scrollTop(wrap.scrollTop() + wrap.height()*dir);
 };
 
