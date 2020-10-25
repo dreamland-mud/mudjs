@@ -15,67 +15,6 @@ $(document).ready(function() {
         e.preventDefault();
     });
 
-    // prompt time fields: h - hour, tod - time of day, l - daylight
-    function promptTime(b) {
-        var $row = $('#tw-time');
-
-        // Time is unchanged since last prompt.
-        if (b.time === undefined)
-            return;
-        // Time is now hidden.
-        if (b.time === "none") {
-            $row.hide();
-            return;
-        }
-
-        // Display time.
-        $row.show();
-        $row.find('i').removeClass().addClass("wi wi-fw wi-time-" + b.time.h);
-
-        var txt = b.time.h + " " + b.time.tod;
-        // Daylight can be hidden.
-        if (b.time.l !== undefined)
-            txt = txt + ", " + b.time.l;
-        $row.find('span').text(txt);
-    }
-
-    // prompt date fields: d - day, m - month, y - year
-    function promptDate(b) {
-        var $row = $('#tw-date');
-
-        // Date is unchanged since last prompt.
-        if (b.date === undefined)
-            return;
-        // Date is now hidden.
-        if (b.date === "none") {
-            $row.hide();
-            return;
-        }
-
-        // Display date.
-        $row.show();
-        $row.find('span').text(b.date.d + " / " + b.date.m + " / " + b.date.y);
-    }
-
-    // prompt weather (w) fields: i - icon to use, m - weather message
-    function promptWeather(b) {
-        var $row = $('#tw-weather');
-
-        // Weather is unchanged since last prompt.
-        if (b.w === undefined)
-            return;
-        // Weather is now hidden.
-        if (b.w === "none") {
-            $row.hide();
-            return;
-        }
-
-        // Display weather.
-        $row.show();
-        $row.find('i').removeClass().addClass("wi wi-fw wi-" + b.w.i);
-        $row.find('span').text(b.w.m);
-    }
-
     // prompt zone field: string with area name
     function promptZone(b) {
         var $row = $('#pl-zone');
@@ -431,7 +370,6 @@ $(document).ready(function() {
             $.extend(window.mudprompt, b);
 
         // First prompt sent - show time and 'where' windows.
-        $('#time-weather').show();
         $('#player-location').show();
         $('#help').show();
         $('#who').show();
@@ -443,9 +381,6 @@ $(document).ready(function() {
         promptZone(b);
         promptRoom(b);
         promptExits(b);
-        promptTime(b);
-        promptDate(b);
-        promptWeather(b);
         promptSector(b);
         promptAffects(b);
         promptWho(b);

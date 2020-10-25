@@ -1,9 +1,81 @@
 import React from 'react';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import ReactDom from 'react-dom';
 import Box from '@material-ui/core/Box';
+import Collapse from '@material-ui/core/Collapse';
+import { makeStyles } from '@material-ui/core/styles';
 import $ from 'jquery';
 
 import Help from './panel-help';
+
+const useStyles = makeStyles(theme => ({
+    timeWeather: {
+        '& .wi': {
+            fontSize: '150%'
+        },
+
+        '& .fa': {
+            fontSize: '140%'
+        },
+
+        '& td > i': {
+            textAlign: 'left'
+        }
+    }
+}));
+
+const PanelItem = props => {
+    const [collapsed, setCollapsed] = useState(false);
+
+    const toggle = e => {
+        e.preventDefault();
+        setCollapsed(!collapsed);
+    };
+
+    return <div className="table-wrapper">
+        <span onClick={toggle} className="dark-panel-title">{props.title}</span>
+        <button onClick={toggle} className={`close ${collapsed && 'collapsed'}`} type="button" />
+        <Collapse in={!collapsed}>
+            { props.children }
+        </Collapse>
+    </div>;
+};
+
+const TimeRow = ({h, tod, l}) => <tr>
+        <td><i className={`wi wi-fw wi-time-${h}`}></i></td>
+        <td><span>{`${h} ${tod}`}{l && `, ${l}`}</span></td>
+    </tr>;
+
+const DateRow = ({d, m, y}) => <tr>
+        <td><i className="fa">&#xf073;</i></td>
+        <td><span>{`${d} / ${m} / ${y}`}</span></td>
+    </tr>;
+
+const WeatherRow = ({i, m}) => <tr>
+        <td><i className={`wi wi-fw wi-${i}`}></i></td>
+        <td><span>{m}</span></td>
+    </tr>;
+
+const TimeWeatherItem = props => {
+    const classes = useStyles();
+    const prompt = useSelector(state => state.prompt);
+
+    if(!prompt)
+        return null;
+
+    const { time, date, w: weather } = prompt;
+    
+    return <PanelItem title="Погода и время:">
+        <table className={`table-with-icons ${classes.timeWeather}`}>
+            <tbody>
+                { time && <TimeRow {...time} /> }
+                { date && <DateRow {...date} /> }
+                { weather && weather !== 'none' && <WeatherRow {...weather} /> }
+            </tbody>
+        </table>
+    </PanelItem>;
+};
 
 const hide = { display: 'none' };
 
@@ -16,19 +88,7 @@ export default class Panel extends React.Component {
 
     render() {
         return <Box id="panel-wrap" flex="1" aria-hidden="true">
-            <div id="time-weather" className="table-wrapper" style={hide}>
-                <span className="dark-panel-title" data-toggle="collapse" data-target="#time-weather-table">Погода и время:</span>
-                <button className="close" type="button" data-toggle="collapse" data-target="#time-weather-table"></button>
-                <div id="time-weather-table" className="collapse show">
-                    <table className="table-with-icons">
-                        <tbody>
-                            <tr id="tw-time" data-hint="hint-time" style={hide}><td><i className="wi wi-fw"></i></td><td><span></span></td></tr>
-                            <tr id="tw-date" data-hint="hint-date" style={hide}><td><i className="fa">&#xf073;</i></td><td><span></span></td></tr>
-                            <tr id="tw-weather" data-hint="hint-weather" style={hide}><td><i className="wi wi-fw"></i></td><td><span></span></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <TimeWeatherItem />
             <div id="player-location" className="table-wrapper" style={hide}>
                 <span className="dark-panel-title" data-toggle="collapse" data-target="#player-location-table">Твое местоположение:</span>
                 <button className="close" type="button" data-toggle="collapse" data-target="#player-location-table"></button>

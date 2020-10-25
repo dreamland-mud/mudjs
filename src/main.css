@@ -169,18 +169,6 @@ td.v-bottom {
     font-weight: 700;
 }
 
-#time-weather .wi {
-    font-size: 150%;
-}
-
-#time-weather .fa {
-    font-size: 140%;
-}
-
-#time-weather td > i {
-    text-align: left;
-}
-
 #player-location .fa {
     font-size: 150%;
 }
