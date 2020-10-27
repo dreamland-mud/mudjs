@@ -4,7 +4,6 @@
 const $ = require('jquery');
 
 var websock = require('./websock');
-var terminalInit = require('./terminal');
 var lastLocation = require('./location');
 var sessionId = require('./sessionid')();
 var historydb = require('./historydb');
@@ -75,16 +74,8 @@ $(document).ready(function() {
     });
 
 
-    terminalInit()
-        .then(function() {
-            connect();
-        })
-        .then(function() {
-            initTerminalFontSize();
-        })
-        .catch(function(e) {
-            console.log(e);
-        });
+    connect();
+    initTerminalFontSize();
 
     $('body').on('keydown', function(e) {
         var input = $('#input input');

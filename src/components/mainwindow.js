@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useState, useRef } from 'react';
 import ReactDom from 'react-dom';
 import { useSelector } from 'react-redux';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
@@ -35,7 +36,6 @@ const useStyles = makeStyles(theme => ({
         }
     },
     activity: {
-        display: 'none',
         position: 'absolute',
         pointerEvents: 'all',
         right: '1em',
@@ -150,7 +150,7 @@ const Keypad = props => {
     </>;
 };
 
-const Overlay = props => {
+const Overlay = ({unread, onScrollToBottom}) => {
     const classes = useStyles();
 
     const button= { display: 'none' };
@@ -168,15 +168,22 @@ const Overlay = props => {
                 <Keypad />
             </tbody>
         </table>
-        <button id="terminal-activity" className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.activity}`}><span></span></button>
+        { unread > 0 &&
+        <button onClick={onScrollToBottom} className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.activity}`}>
+            <span>{`${unread} unread message${unread > 1 ? 's' : ''}`}</span>
+        </button>
+        }
     </Box>;
 }
 
 export default props => {
+    const terminal = useRef();
+    const [unread, setUnread] = useState(0);
+
     return <Box flex="1" display="flex" flexDirection="column">
         <Box flex="1 1 auto" position="relative">
-            <Overlay />
-            <Terminal />
+            <Overlay unread={unread} onScrollToBottom={() => terminal.current.scrollToBottom()} />
+            <Terminal ref={terminal} resetUnread={() => setUnread(0)} bumpUnread={() => setUnread(unread+1)} />
         </Box>
         <CmdInput />
     </Box>
