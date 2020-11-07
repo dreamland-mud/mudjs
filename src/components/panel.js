@@ -69,8 +69,8 @@ const TimeWeatherItem = props => {
     return <PanelItem title="Погода и время:">
         <table className={`table-with-icons ${classes.timeWeather}`}>
             <tbody>
-                { time && <TimeRow {...time} /> }
-                { date && <DateRow {...date} /> }
+                { time && time !== 'none' && <TimeRow {...time} /> }
+                { date && date !== 'none' && <DateRow {...date} /> }
                 { weather && weather !== 'none' && <WeatherRow {...weather} /> }
             </tbody>
         </table>
