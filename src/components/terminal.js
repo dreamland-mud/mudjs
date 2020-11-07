@@ -59,23 +59,14 @@ function terminalInit(wrap) {
         scrolling = true;
 
         return loadChunks(startId, true, len)
-            .then(chunks => {
-                chunks.forEach(chunk => terminal.prepend(chunk));
-                scrolling = false;
-            });
+            .then(chunks => chunks.forEach(chunk => terminal.prepend(chunk)));
     };
 
     const loadBottom = (startId, len) => {
         scrolling = true;
 
         return loadChunks(startId, false, len)
-            .then(chunks => {
-                chunks.forEach(chunk => terminal.append(chunk));
-
-                while(terminal.html().length > maxBytesOnScreen) {
-                    terminal.children(':first').remove();
-                }
-            });
+            .then(chunks => chunks.forEach(chunk => terminal.append(chunk)));
     };
 
     const scrollToBottom = () => {
@@ -83,7 +74,10 @@ function terminalInit(wrap) {
         terminal.empty();
 
         return loadTop(null, maxBytesOnScreen)
-            .then(() => wrap.scrollTop(terminal.height())); // scroll to the bottom
+            .then(() => {
+                wrap.scrollTop(terminal.height());
+                scrolling = false;
+            }); // scroll to the bottom
     };
 
     wrap.on('scroll-to-bottom', e => scrollToBottom());
@@ -152,6 +146,7 @@ function terminalInit(wrap) {
                         terminal.children(':last').remove();
 
                     wrap.scrollTop(wrap.scrollTop() + $fst.offset().top - off);
+                    scrolling = false;
                 });
 
             return;
@@ -185,6 +180,7 @@ function terminalInit(wrap) {
                         terminal.children(':first').remove();
 
                     wrap.scrollTop(wrap.scrollTop() + $lst.offset().top - off);
+                    scrolling = false;
                 });
 
             return;
