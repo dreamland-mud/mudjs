@@ -42,21 +42,30 @@ const PanelItem = props => {
     </div>;
 };
 
+// Prompt time fields: h - hour, tod - time of day, l - daylight.
+// Daylight can be hidden.
 const TimeRow = ({h, tod, l}) => <tr>
         <td><i className={`wi wi-fw wi-time-${h}`}></i></td>
         <td><span>{`${h} ${tod}`}{l && `, ${l}`}</span></td>
     </tr>;
 
+// Prompt date fields: d - day, m - month, y - year.
 const DateRow = ({d, m, y}) => <tr>
         <td><i className="fa">&#xf073;</i></td>
         <td><span>{`${d} / ${m} / ${y}`}</span></td>
     </tr>;
 
+// Prompt weather (w) fields: i - icon to use, m - weather message.
 const WeatherRow = ({i, m}) => <tr>
         <td><i className={`wi wi-fw wi-${i}`}></i></td>
         <td><span>{m}</span></td>
     </tr>;
 
+/** 
+ * Render weather&time windowlet. Special values:
+ * undefined value -- time etc is unchanged since last prompt.
+ * 'none' value -- time etc is now hidden. 
+ */
 const TimeWeatherItem = props => {
     const classes = useStyles();
     const prompt = useSelector(state => state.prompt);
@@ -77,6 +86,84 @@ const TimeWeatherItem = props => {
     </PanelItem>;
 };
 
+// Prompt zone field: string with area name.
+const ZoneRow = ({zone}) => {
+    return <tr>
+        <td>&nbsp;<i className="fa">&#xf041;</i></td>
+        <td>"<span className="fg-ansi-dark-color-6">{zone}</span>"</td>
+    </tr>;
+}
+
+// Prompt room field: string with room name.
+const RoomRow = ({room}) => {
+    return <tr>
+        <td></td>
+        <td>"<span className="fg-ansi-bright-color-6">{room}</span>"</td>
+    </tr>;
+}
+
+// Draw a single exit letter or a dot if no such exit exists.
+const ExitCell = ({ex_ru, ex_en, ex_hidden, ex_visible, lang}) => {
+    let exit = ex_en.toLowerCase();
+
+    // See if this exit letter is among hidden exits.
+    let hidden = ex_hidden.indexOf(exit) !== -1;
+    // See if this exit letter is among visible exits.
+    let visible = ex_visible.indexOf(exit) !== -1;
+
+    // If found anywhere, draw a letter of selected language, otherwise a dot.
+    let letter;
+    if (hidden || visible) {
+        letter = (lang === 'r' ? ex_ru : ex_en);
+    } else {
+        letter = '\u00B7';
+    }
+
+    // Mark hidden exits with default color, other exits with bright blue.
+    let color = (hidden ? '' : 'fg-ansi-bright-color-6');
+
+    return <span className={`${color}`}>{letter}</span> 
+};
+
+// Prompt exits field: e - open exits, h - closed exits, l - language (r, e)
+const ExitsRow = ({e, h, l, sector}) => {
+    return <tr>
+        <td className="v-top">&nbsp;<i className="fa">&#xf277;</i></td>
+        <td className="v-bottom">выходы:&nbsp;
+            <ExitCell ex_ru='С' ex_en='N' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='В' ex_en='E' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='Ю' ex_en='S' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='З' ex_en='W' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='О' ex_en='D' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='П' ex_en='U' ex_hidden={h} ex_visible={e} lang={l} />
+        </td>
+    </tr>;
+};
+
+/**
+ * Render player location windowlet.
+ */
+const LocationItem = props => {
+    const classes = useStyles();
+    const prompt = useSelector(state => state.prompt);
+
+    if(!prompt)
+        return null;
+
+    const { zone, room, exits } = prompt;
+    console.log('zone', zone, 'room', room, 'exits', exits);
+
+    return <PanelItem title="Твое местоположение:">
+        <table>
+            <tbody>
+                { zone && zone !== 'none' && <ZoneRow zone={zone} /> }
+                { room && room !== 'none' && <RoomRow room={room} /> }
+                { exits && exits !== 'none' && <ExitsRow {...exits} /> }
+            </tbody>
+        </table>
+    </PanelItem>;
+};
+
 const hide = { display: 'none' };
 
 export default class Panel extends React.Component {
@@ -89,19 +176,7 @@ export default class Panel extends React.Component {
     render() {
         return <Box id="panel-wrap" flex="1" aria-hidden="true">
             <TimeWeatherItem />
-            <div id="player-location" className="table-wrapper" style={hide}>
-                <span className="dark-panel-title" data-toggle="collapse" data-target="#player-location-table">Твое местоположение:</span>
-                <button className="close" type="button" data-toggle="collapse" data-target="#player-location-table"></button>
-                <div id="player-location-table" className="collapse show">
-                    <table className="">
-                        <tbody>
-                            <tr id="pl-zone" data-hint="hint-zone" style={hide}><td>&nbsp;<i className="fa">&#xf041;</i></td><td>"<span className="fg-ansi-dark-color-6"></span>"</td></tr>
-                            <tr id="pl-room" data-hint="hint-room" style={hide}><td></td><td>"<span className="fg-ansi-bright-color-6"></span>"</td></tr>
-                            <tr id="pl-exits" data-hint="hint-exits" style={hide}><td className="v-top">&nbsp;<i className="fa">&#xf277;</i></td><td className="v-bottom">выходы: <span id="ple-n" className="fg-ansi-bright-color-6">&#183;</span> <span id="ple-e" className="fg-ansi-bright-color-6">&#183;</span> <span id="ple-s" className="fg-ansi-bright-color-6">&#183;</span> <span id="ple-w" className="fg-ansi-bright-color-6">&#183;</span> <span id="ple-u" className="fg-ansi-bright-color-6">&#183;</span> <span id="ple-d">&#183;</span></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <LocationItem />
             <div id="group" className="table-wrapper" style={hide}>
                 <span className="dark-panel-title" data-toggle="collapse" data-target="#group-table">Группа <span id="g_leader"></span>:</span>
                 <button className="close collapsed" type="button" data-toggle="collapse" data-target="#group-table"> </button>
@@ -130,8 +205,6 @@ export default class Panel extends React.Component {
                     </div>
                 </div>
             </div>
-
-
             <div id="player-params" className="table-wrapper" style={hide}>
                 <span className="dark-panel-title" data-toggle="collapse" data-target="#player-params-table">Твои параметры:</span>
                 <button className="close collapsed" type="button" data-toggle="collapse" data-target="#player-params-table"> </button>
