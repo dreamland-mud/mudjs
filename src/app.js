@@ -15,10 +15,11 @@ import MenuIcon from '@material-ui/icons/Menu';
 import 'react-splitter-layout/lib/index.css';
 import 'bootstrap';
 
-import Terminal from './components/terminal';
+import MainWindow from './components/mainwindow';
 import Panel from './components/panel';
 import Stats from './components/stats';
 import Map from './components/map';
+import Channels from './components/channels';
 
 const useStyles = makeStyles(theme => ({
     page: {
@@ -52,10 +53,15 @@ export default props => {
     return <Box display="flex" flexDirection="column" className={classes.page}>
         <Box flex="1 1 auto" className={classes.main}>
             <SplitterLayout customClassName={classes.mainSplitter}>
-                <Terminal />
+                <MainWindow />
 		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={500} secondaryInitialSize={270}>
                     <Panel /> 
-                    { hugeScreen && <Map /> }
+                    { hugeScreen && 
+                      <SplitterLayout primaryInitialSize={80} vertical percentage>
+                        <Map />
+                        <Channels />
+                      </SplitterLayout> 
+                    }
                 </SplitterLayout> }
             </SplitterLayout>
         </Box>

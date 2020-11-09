@@ -1,185 +1,227 @@
-
 import React from 'react';
+import { useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import ReactDom from 'react-dom';
 import { useSelector } from 'react-redux';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
-import CmdInput from './cmdinput';
 
-import { send } from '../websock';
+import $ from 'jquery';
 
-const useStyles = makeStyles(theme => ({
-    root: {
-        position: 'absolute',
-        height: '100%',
-        width: '100%',
-        pointerEvents: 'none',
-        zIndex: 500
-    },
-    nav: {
-        position: 'absolute',
-        right: '1em',
-        top: 0,
-        margin: '0.5em',
+import historyDb from '../historydb';
+import ansi2html from '../ansi2html';
+import manip from '../manip';
 
-        "& td": {
-            padding: '3px',
+// TODO: the following parameters should be replaced with two numbers - viewport size (in pixels) and the threshold (in pixels)
+const bytesToLoad = 10000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
+const scrollThreshold = 1000; // when to start loading more data (px)
+const maxBytesOnScreen = 100000;
 
-            "& span": {
-                padding: '5px',
-                fontWeight: 'bold',
-                fontFamily: 'monospace'
-            }
-        }
-    },
-    activity: {
-        display: 'none',
-        position: 'absolute',
-        pointerEvents: 'all',
-        right: '1em',
-        bottom: 0,
-        margin: '0.5em'
-    },
-    btn: {
-        pointerEvents: 'all',
-        width: '2em'
-    }
-}));
 
-const OverlayCell = ({ ariaLabel, ariaHidden, fa, children, ...props }) => {
-    const classes = useStyles();
-    const ariaProps = {}
-    
-    if (ariaLabel)
-        ariaProps["aria-label"] = ariaLabel;
-    if (ariaHidden)
-        ariaProps["aria-hidden"] = ariaHidden;
+var firstChunkId = -1; // id of the first chunk in history (only set when scrolled to the very top)
+var lastChunkId = -1; // id of the last chunk sent to the terminal
+var unread = 0;
+var scrolling = false;
 
-    return <td>
-        <button {...ariaProps} {...props} className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.btn}`}>
-            { children }
-        </button>
-    </td>;
+const loadChunks = (startId, direction, maxlen) => {
+    const chunks = [];
+
+    return historyDb
+        .then(db => db.load(startId, direction, maxlen, (id, value) => chunks.push({id, value})))
+        .then(() => {
+            // direction is backward, we start from the very bottom => the first returned record has the last chunk id 
+            if(!startId && direction && chunks.length > 0)
+                lastChunkId = chunks[0].id;
+
+            // direction is backward, we have initial key and no records returned => initial key is the first one in the database
+            if(startId && direction && chunks.length == 0)
+                firstChunkId = startId;
+
+            return chunks.map(({id, value}) => $('<span>').append(value).attr('data-chunk-id', id));
+        });
 };
 
-const longPressDelay = 800;
+function terminalInit(wrap) {
+    const terminal = wrap.find('.terminal');
 
-/*
- * Handlers for 'keypad' key area.
- */
-const KeypadCell = ({cmd, longCmd, children, ...props}) => {
-    // Long press: open/close direction etc.
-    let btnTimer = null;
-    let wasLongPress = false;
+    const append = $chunk => {
+        $chunk.appendTo(terminal);
 
-    const touchstart = e => {
-        wasLongPress = false;
+        while(terminal.html().length > maxBytesOnScreen)
+            terminal.children(':first').remove();
 
-        // send specified long-cmd once the delay has elapsed.
-        btnTimer = setTimeout(() => {
-            wasLongPress = true;
-            btnTimer = null;
-            send(longCmd);
-        }, longPressDelay);
+        wrap.scrollTop(terminal.height());
     };
 
-    const touchend = e => {
-        if (btnTimer)  
-            clearTimeout(btnTimer);
+    const atBottom = () => wrap.scrollTop() > (terminal.height() - 2 * wrap.height());
+
+    const loadTop = (startId, len) => {
+        scrolling = true;
+
+        return loadChunks(startId, true, len)
+            .then(chunks => chunks.forEach(chunk => terminal.prepend(chunk)));
     };
 
-    // Single click: go direction, look etc.`
-    const click = e => {
-        if (wasLongPress)
+    const loadBottom = (startId, len) => {
+        scrolling = true;
+
+        return loadChunks(startId, false, len)
+            .then(chunks => chunks.forEach(chunk => terminal.append(chunk)));
+    };
+
+    const scrollToBottom = () => {
+        wrap.scrollTop(0);
+        terminal.empty();
+
+        return loadTop(null, maxBytesOnScreen)
+            .then(() => {
+                wrap.scrollTop(terminal.height());
+                scrolling = false;
+            }); // scroll to the bottom
+    };
+
+    wrap.on('scroll-to-bottom', e => scrollToBottom());
+
+    terminal.on('output', function(e, txt) {
+        const span = $('<span/>');
+        span.html(ansi2html(txt));
+
+        manip.colorParseAndReplace(span);
+        manip.manipParseAndReplace(span);
+
+        terminal.trigger('output-html', [span.html()]);
+    });
+
+    // this may not be called from outside of terminal logic.
+    terminal.on('output-html', function(e, html) {
+        historyDb
+            .then(db => db.append(html))
+            .then(id => {
+                const $chunk = $('<span>')
+                    .append(html)
+                    .attr('data-chunk-id', id);
+
+                // only append a DOM node if we're at the bottom
+                if(atBottom()) {
+                    append($chunk);
+                } else {
+                    wrap.trigger('bump-unread', []);
+                }
+
+                lastChunkId = id;
+
+                const lines = $chunk.text().replace(/\xa0/g, ' ').split('\n');
+                lines.forEach(line => $('.trigger').trigger('text', [''+line]));
+            });
+    });
+
+    wrap.on('scroll', e => {
+        // We are already handling a scroll event. 
+        // Don't trigger another database operation until the current one completed.
+        if(scrolling) {
+            // Prevent scrolling, so that the user won't hit the limits of the scrolling window.
+            // e.preventDefault(); 
             return;
+        }
 
-        e.preventDefault();
-        send(cmd);
+        // Load top chunks while scrolling up.
+        if(wrap.scrollTop() < scrollThreshold) {
+            var $fst = terminal.find('span[data-chunk-id]:first-child');
+
+            // terminal is empty, can't scroll
+            if($fst.length === 0)
+                return;
+
+            var off = $fst.offset().top;
+            var fstId = parseInt($fst.attr('data-chunk-id'));
+
+            if(fstId === firstChunkId) {
+                // We're at the very top, no need to load anything
+                return;
+            }
+
+            loadTop(fstId, bytesToLoad)
+                .then(() => {
+                    while(terminal.html().length > maxBytesOnScreen)
+                        terminal.children(':last').remove();
+
+                    wrap.scrollTop(wrap.scrollTop() + $fst.offset().top - off);
+                    scrolling = false;
+                });
+
+            return;
+        }
+
+        // Load bottom chunks while scrolling down.
+        if(wrap.scrollTop() > (terminal.height() - wrap.height() - scrollThreshold)) {
+            var $lst = terminal.find('span[data-chunk-id]:last-child');
+
+            // terminal is empty, can't scroll
+            if($lst.length === 0)
+                return;
+
+            var off = $lst.offset().top;
+            var lstId = parseInt($lst.attr('data-chunk-id'));
+
+            // The last html element in the DOM is the last sent message, 
+            // so we're at the bottom, no need to load anything.
+            if(lstId === lastChunkId) {
+                // Check if we can reset the unread counter and return
+                if(atBottom()) {
+                    wrap.trigger('reset-unread', []);
+                }
+
+                return;
+            }
+
+            loadBottom(lstId, bytesToLoad)
+                .then(() => {
+                    while(terminal.html().length > maxBytesOnScreen)
+                        terminal.children(':first').remove();
+
+                    wrap.scrollTop(wrap.scrollTop() + $lst.offset().top - off);
+                    scrolling = false;
+                });
+
+            return;
+        }
+    });
+
+    scrollToBottom()
+        .then(() => {
+            const echo = html => terminal.trigger('output-html', [html]);
+
+            echo('<hr>');
+            echo(ansi2html('\u001b[1;31m#################### HISTORY LOADED ####################\u001b[0;37m\n'));
+            echo('<hr>');
+        });
+
+    return () => {
+        wrap.off();
+        terminal.off();
     };
-
-    let handlers = {};
-
-    if(longCmd) {
-        handlers = {
-            ...handlers,
-            onTouchStart: touchstart,
-            onTouchEnd: touchend,
-            onMouseDown: touchstart,
-            onMouseUp: touchend,
-            onMouseLeave: touchend
-        };
-    }
-
-    if(cmd) {
-        handlers = {
-            ...handlers,
-            onClick: click
-        };
-    }
-
-    return <OverlayCell {...handlers} {...props}>{ children }</OverlayCell>;
-};
-
-const Keypad = props => {
-    const big = useMediaQuery(theme => theme.breakpoints.up('sm'));
-
-    return !big && <>
-        <tr aria-hidden="true">
-            <td></td>
-            <td></td>
-            <KeypadCell cmd="scan"><i className="fa  fa-fw fa-refresh"></i></KeypadCell>
-            <KeypadCell cmd="n" longCmd="отпер север|откр север"><span>N</span></KeypadCell>
-            <KeypadCell cmd="u" longCmd="отпер вверх|откр вверх"><span>U</span></KeypadCell>
-        </tr>
-        <tr aria-hidden="true">
-            <td></td>
-            <td></td>
-            <KeypadCell cmd="w" longCmd="отпер запад|откр запад"><span>W</span></KeypadCell>
-            <KeypadCell cmd="l"> <i className="fa fa-fw  fa-eye"></i></KeypadCell>
-            <KeypadCell cmd="e" longCmd="отпер восток|откр восток"><span>E</span></KeypadCell>
-        </tr>
-        <tr aria-hidden="true">
-            <td></td>
-            <td></td>
-            <KeypadCell cmd="where"><i className="fa fa-fw fa-map-marker"></i></KeypadCell>
-            <KeypadCell cmd="s" longCmd="отпер юг|откр юг"><span>S</span></KeypadCell>
-            <KeypadCell cmd="d" longCmd="отпер вниз|откр вниз"><span>D</span></KeypadCell>
-        </tr>
-    </>;
-};
-
-const Overlay = props => {
-    const classes = useStyles();
-
-    const button= { display: 'none' };
-
-    return <Box className={classes.root}>
-        <table id="nav" className={classes.nav}>
-            <tbody>
-                <tr>
-                    <OverlayCell id="logs-button" ariaLabel="логи" ariaHidden="true"> <i className="fa fa-download"></i> </OverlayCell>
-                    <OverlayCell id="settings-button" data-toggle="modal" data-target="#settings-modal" ariaLabel="настройки" ariaHidden="false"> <i className="fa fa-cog"></i> </OverlayCell>
-                    <OverlayCell id="map-button" ariaLabel="карта" ariaHidden="true"> <i className="fa fa-map"></i> </OverlayCell>
-                    <OverlayCell id="font-plus-button" ariaHidden="true"> <i className="fa fa-plus"></i> </OverlayCell>
-                    <OverlayCell id="font-minus-button" ariaHidden="true"> <i className="fa fa-minus"></i> </OverlayCell>
-                </tr>
-                <Keypad />
-            </tbody>
-        </table>
-        <button id="terminal-activity" className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.activity}`}><span></span></button>
-    </Box>;
 }
 
-export default props => {
-    return <Box flex="1" display="flex" flexDirection="column">
-        <Box flex="1 1 auto" position="relative">
-            <Overlay />
-            <div id="terminal-wrap">
-                <div id="terminal"></div>
-            </div>
-        </Box>
-        <CmdInput />
-    </Box>
-};
+export default forwardRef(({bumpUnread, resetUnread}, ref) => {
+    const wrap = useRef();
 
+    useEffect(() => terminalInit($(wrap.current)), [wrap]);
+
+    useEffect(() => {
+        $(wrap.current).on('bump-unread', bumpUnread);
+        return () => $(wrap.current).off('bump-unread', bumpUnread);
+    }, [wrap, bumpUnread]);
+
+    useEffect(() => {
+        $(wrap.current).on('reset-unread', resetUnread);
+        return () => $(wrap.current).off('reset-unread', resetUnread);
+    }, [wrap, resetUnread]);
+
+    useImperativeHandle(ref, () => ({
+        scrollToBottom: () => $(wrap.current).trigger('scroll-to-bottom', [])
+    }), [wrap]);
+
+    return <div class="terminal-wrap" ref={wrap}>
+            <div class="terminal"></div>
+          </div>;
+});
