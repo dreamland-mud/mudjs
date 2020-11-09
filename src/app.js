@@ -54,14 +54,9 @@ export default props => {
         <Box flex="1 1 auto" className={classes.main}>
             <SplitterLayout customClassName={classes.mainSplitter}>
                 <MainWindow />
-		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={500} secondaryInitialSize={270}>
+        		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={500} secondaryInitialSize={270}>
                     <Panel /> 
-                    { hugeScreen && 
-                      <SplitterLayout primaryInitialSize={80} vertical percentage>
-                        <Map />
-                        <Channels />
-                      </SplitterLayout> 
-                    }
+                    { hugeScreen && <Map /> }
                 </SplitterLayout> }
             </SplitterLayout>
         </Box>
