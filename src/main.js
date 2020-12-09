@@ -77,6 +77,7 @@ $(document).ready(function() {
     connect();
     initTerminalFontSize();
 
+
     $('body').on('keydown', function(e) {
         var input = $('#input input');
 
@@ -94,7 +95,9 @@ $(document).ready(function() {
             return;
 
         input.focus();
+        document.getElementById('inputBox').dispatchEvent(new KeyboardEvent('keydown', e));
     });
+
 
     /*
      * Handlers for plus-minus buttons to change terminal font size.

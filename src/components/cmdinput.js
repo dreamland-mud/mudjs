@@ -130,7 +130,7 @@ const CmdInput = props => {
     // Current 'value' state is used from all key handlers.
     return connection.connected ?
             <form onSubmit={submit} id="input">
-                <input onKeyDown={keydown} value={value} onChange={e => setValue(e.target.value)} type="text" />
+                <input id="inputBox" onKeyDown={keydown} value={value} onChange={e => setValue(e.target.value)} type="text" />
             </form> :
             <button onClick={connect} type="button" className="btn btn-primary">Reconnect</button>;
 };

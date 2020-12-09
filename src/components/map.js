@@ -41,11 +41,9 @@ const useStyles = makeStyles((theme) => ({
 const useLocation = () => {
     // Ensure a saved location is used even when component is destroyed mid-game.
     const [location, setLocation] = useState(lastLocation() || {}); // location is never null
-    console.log('>>> useLocation', location);
 
     // Called only once on Map's componentDidMount, to subscribe to the channel.
     useEffect(() => {
-        console.log('>>> useEffect([])');
         if ('BroadcastChannel' in window) {
             const locationChannel = new BroadcastChannel('location');
 
@@ -65,12 +63,10 @@ const useLocation = () => {
 
 // Invoked from Map's render function every time one of the states it refers to is changed.
 const useMapSource = (location) => {
-    console.log('>>> useMapSource', location);
     const [mapSource, setMapSource] = useState();
 
     // Called every time a location's area is changed.
     useEffect(() => {
-        console.log('>>> useEffect(area)', location);
         if (!location.area || location.area === '')
             return;
 
@@ -139,7 +135,6 @@ const MapControls = props => {
 
 // Rendering function for the Map react component.
 export default function Map(props) {
-    console.log('>>> Map.render');
     const classes = useStyles();
     const location = useLocation();
     const mapSource = useMapSource(location);
@@ -161,7 +156,6 @@ export default function Map(props) {
     // Highlight current room with red colour and strip highlighting from all other rooms.
     const highlightPosition = () => {
         let room = location.vnum;
-        console.log(">>> highligtPosition", room);
         $(mapElement.current).find('.room').removeClass('active');
 
         if (room && room !== '') {
@@ -194,14 +188,12 @@ export default function Map(props) {
 
     // Called every time a mapSource is changed.
     useEffect(() => {
-        console.log('>>> useEffect(mapSource)');        
         $(mapElement.current).html(mapSource);
         highlightPosition();
     }, [mapSource]);
 
     // Called every time a location's room is changed.
     useEffect(() => {
-        console.log('>>> useEffect(vnum)', location);
         highlightPosition();
     }, [location.vnum]);
 
