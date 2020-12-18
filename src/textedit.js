@@ -11,7 +11,7 @@ var websock = require('./websock');
 function initHelpIds() {
     var heditLookup = $('#textedit-modal input');
 
-    $.get("/help/hedit.json", function(data) { 
+    $.get("hedit.json", function(data) { 
         console.log('Retrieved', data.length, 'help ids.');
         
         var topics = $.map(data, function(dataItem) { 
