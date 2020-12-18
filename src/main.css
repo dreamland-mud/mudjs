@@ -435,6 +435,13 @@ td.v-bottom {
     color: green;
 }
 
+.manip-speedwalk, .manip-speedwalk span {
+    color: #c4a000;
+}    
+.manip-speedwalk:hover, .manip-speedwalk:hover span {
+    color: #fdea56;
+}
+
 .btn-orange:hover, .btn-orange {
     border-color: #FF9900;
     letter-spacing: 0.05em;

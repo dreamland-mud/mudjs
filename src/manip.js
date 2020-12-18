@@ -209,6 +209,7 @@ function manipParseAndReplace(span) {
         $(this).replaceWith(function() {
             var result = $('<span/>')
                 .addClass('manip-cmd')
+                .addClass('manip-speedwalk')
                 .attr('data-action', 'run ' + article.text())
                 .attr('data-echo', 'бежать ' + article.text())
                 .append(article);
