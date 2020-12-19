@@ -227,7 +227,8 @@ function manipParseAndReplace(span) {
             if (cmd.trim().length === 0)
 		return;
             var action = cmd.replace(/\$/, id);
-            var label = cmd.replace(/^([а-яa-z ]+).*$/, '$1');
+            // Menu entry visible to the user will only contain a meaningful word, without IDs or $ placeholders.
+            var label = cmd.replace(/( *\$ *| *[0-9]{5,})/g, '');
             menu.append($('<a/>')
                          .addClass('dropdown-item')
                          .addClass('manip-item')
