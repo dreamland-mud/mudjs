@@ -151,7 +151,6 @@ const LocationItem = props => {
         return null;
 
     const { zone, room, exits } = prompt;
-    console.log('zone', zone, 'room', room, 'exits', exits);
 
     return <PanelItem title="Твое местоположение:">
         <table>

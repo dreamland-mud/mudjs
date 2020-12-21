@@ -13,9 +13,9 @@ import ansi2html from '../ansi2html';
 import manip from '../manip';
 
 // TODO: the following parameters should be replaced with two numbers - viewport size (in pixels) and the threshold (in pixels)
-const bytesToLoad = 10000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
+const bytesToLoad = 100000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
 const scrollThreshold = 1000; // when to start loading more data (px)
-const maxBytesOnScreen = 100000;
+const maxBytesOnScreen = 1000000;
 
 
 var firstChunkId = -1; // id of the first chunk in history (only set when scrolled to the very top)
