@@ -22,7 +22,7 @@ const useTypeahead = () => {
                 // Convert retrieved JSON to format accepted by autocomplete plugin.
                 const topics = $.map(data, dataItem => ({ 
                     value: dataItem.n.toLowerCase(), 
-                    data: dataItem.l
+                    data: { link: dataItem.l, title: dataItem.t, id: dataItem.id }
                 })); 
 
                 setState({ loading: false, topics, error: null });
@@ -70,7 +70,13 @@ export default function Help(props) {
                 autoSelectFirst: true, 
                 showNoSuggestionNotice: true, 
                 noSuggestionNotice: 'Справка не найдена', 
-                onSelect: suggestion => showTopic(suggestion.value)
+                formatResult: function(suggestion, currentValue) {
+                    let s = {};
+                    s.data = suggestion.data;
+                    s.value = "[" + currentValue + "] " + suggestion.data.title;
+                    return $.Autocomplete.defaults.formatResult(s, currentValue);
+                },
+                onSelect: suggestion => showTopic(suggestion.data.id)
             }); 
         }
 
