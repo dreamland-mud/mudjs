@@ -284,16 +284,22 @@ td.v-bottom {
 /*
  * Settings and editors modal windows.
  */
-#settings-modal  .modal-dialog {
-    max-width: 80%;
+.webeditor .modal-dialog {
+    max-width: 100%;
 }
 
-#textedit-modal .modal-dialog {
-    max-width: 80%;
+.webeditor .modal-body {
+    padding: 0px;
 }
 
-#cs-modal .modal-dialog {
-    max-width: 80%;
+.webeditor .form-group {
+    margin-bottom: 0px;
+}
+
+@media only screen and (min-width: 992px) {
+    .webeditor .modal-dialog {
+        max-width: 80%;
+    }
 }
 
 .btn-ctrl {
