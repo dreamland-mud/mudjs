@@ -271,7 +271,6 @@ td.v-bottom {
         border: 1px solid #999;
         margin: 8px 5px 10px 5px;
         background-color: #2e3436;
-        autocomplete: off;
     }
     form#input input {
         padding: 4px 10px 4px 5px;
