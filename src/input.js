@@ -4,8 +4,6 @@ const $ = require('jquery');
 var websock = require('./websock');
 var send = websock.send;
 
-var settings = require('./settings');
-
 function echo(txt) {
     if (!txt)
         return;

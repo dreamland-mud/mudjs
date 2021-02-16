@@ -1,11 +1,5 @@
 import React from 'react';
-import { useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
-import ReactDom from 'react-dom';
-import { useSelector } from 'react-redux';
-import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { makeStyles } from '@material-ui/core/styles';
-import Box from '@material-ui/core/Box';
-
+import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import $ from 'jquery';
 
 import historyDb from '../historydb';
@@ -20,7 +14,6 @@ const maxBytesOnScreen = 1000000;
 
 var firstChunkId = -1; // id of the first chunk in history (only set when scrolled to the very top)
 var lastChunkId = -1; // id of the last chunk sent to the terminal
-var unread = 0;
 var scrolling = false;
 
 const loadChunks = (startId, direction, maxlen) => {
@@ -34,7 +27,7 @@ const loadChunks = (startId, direction, maxlen) => {
                 lastChunkId = chunks[0].id;
 
             // direction is backward, we have initial key and no records returned => initial key is the first one in the database
-            if(startId && direction && chunks.length == 0)
+            if(startId && direction && chunks.length === 0)
                 firstChunkId = startId;
 
             return chunks.map(({id, value}) => $('<span>').append(value).attr('data-chunk-id', id));
@@ -126,14 +119,14 @@ function terminalInit(wrap) {
 
         // Load top chunks while scrolling up.
         if(wrap.scrollTop() < scrollThreshold) {
-            var $fst = terminal.find('span[data-chunk-id]:first-child');
+            let $fst = terminal.find('span[data-chunk-id]:first-child');
 
             // terminal is empty, can't scroll
             if($fst.length === 0)
                 return;
 
-            var off = $fst.offset().top;
-            var fstId = parseInt($fst.attr('data-chunk-id'));
+            let off = $fst.offset().top;
+            let fstId = parseInt($fst.attr('data-chunk-id'));
 
             if(fstId === firstChunkId) {
                 // We're at the very top, no need to load anything
@@ -154,14 +147,14 @@ function terminalInit(wrap) {
 
         // Load bottom chunks while scrolling down.
         if(wrap.scrollTop() > (terminal.height() - wrap.height() - scrollThreshold)) {
-            var $lst = terminal.find('span[data-chunk-id]:last-child');
+            let $lst = terminal.find('span[data-chunk-id]:last-child');
 
             // terminal is empty, can't scroll
             if($lst.length === 0)
                 return;
 
-            var off = $lst.offset().top;
-            var lstId = parseInt($lst.attr('data-chunk-id'));
+            let off = $lst.offset().top;
+            let lstId = parseInt($lst.attr('data-chunk-id'));
 
             // The last html element in the DOM is the last sent message, 
             // so we're at the bottom, no need to load anything.
@@ -208,13 +201,15 @@ export default forwardRef(({bumpUnread, resetUnread}, ref) => {
     useEffect(() => terminalInit($(wrap.current)), [wrap]);
 
     useEffect(() => {
-        $(wrap.current).on('bump-unread', bumpUnread);
-        return () => $(wrap.current).off('bump-unread', bumpUnread);
+        let cur = $(wrap.current);
+        cur.on('bump-unread', bumpUnread);
+        return () => cur.off('bump-unread', bumpUnread);
     }, [wrap, bumpUnread]);
 
     useEffect(() => {
-        $(wrap.current).on('reset-unread', resetUnread);
-        return () => $(wrap.current).off('reset-unread', resetUnread);
+        let cur = $(wrap.current);
+        cur.on('reset-unread', resetUnread);
+        return () => cur.off('reset-unread', resetUnread);
     }, [wrap, resetUnread]);
 
     useImperativeHandle(ref, () => ({

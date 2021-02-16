@@ -1,16 +1,10 @@
 
-import React, { useState } from 'react';
-import ReactDom from 'react-dom';
+import React from 'react';
 
 import SplitterLayout from 'react-splitter-layout';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Box from '@material-ui/core/Box';
-import AppBar from '@material-ui/core/AppBar';
 import { makeStyles } from '@material-ui/core/styles';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 
 import 'react-splitter-layout/lib/index.css';
 import 'bootstrap';
@@ -19,7 +13,6 @@ import MainWindow from './components/mainwindow';
 import Panel from './components/panel';
 import Stats from './components/stats';
 import Map from './components/map';
-import Channels from './components/channels';
 
 const useStyles = makeStyles(theme => ({
     page: {

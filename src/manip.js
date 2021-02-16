@@ -241,6 +241,7 @@ function manipParseAndReplace(span) {
         if (this.hasAttribute('c')) 
             $(this).attr('c').split(',').map(function(cmd) {
                 addToMenu(cmd);
+                return cmd;
             });
 
         // Commands only available in this room, below the divider.
@@ -249,6 +250,7 @@ function manipParseAndReplace(span) {
             menu.append(divider);
             $(this).attr('l').split(',').map(function(cmd) {
                 addToMenu(cmd);
+                return cmd;
             });
         }
 

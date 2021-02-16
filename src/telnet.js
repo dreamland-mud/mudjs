@@ -6,17 +6,7 @@ var TELNET_DO      = 'Щ';             /* please, you use option */
 var TELNET_WONT    = 'Э';             /* I won't use option */
 var TELNET_WILL    = 'Ш';             /* I will use option */
 var TELNET_SB      = 'З';             /* interpret as subnegotiation */
-var TELNET_GA      = 'Ы';             /* you may reverse the line */
-var TELNET_EL      = 'Ь';             /* erase the current line */
-var TELNET_EC      = 'В';             /* erase the current character */
-var TELNET_AYT     = 'Ж';             /* are you there */
-var TELNET_AO      = 'У';             /* abort output--but let prog finish */
-var TELNET_IP      = 'Т';             /* interrupt process--permanently */
-var TELNET_BREAK   = 'С';             /* break */
-var TELNET_DM      = 'Р';             /* data mark--for connect. cleaning */
-var TELNET_NOP     = 'Я';             /* nop */
 var TELNET_SE      = 'П';             /* end sub negotiation */
-var TELNET_EOR     = 'О';             /* end of record (transparent mode) */
 
 var TNS_NORMAL      = 0;
 var TNS_SUBNEG      = 1;
@@ -89,6 +79,9 @@ Telnet.prototype.process = function(b) {
                         this.handleSubneg(this.subneg);
                         this.telnet_state = TNS_NORMAL;
                         break;
+
+                    default:
+                        break;
                 }
                 break;
 
@@ -108,7 +101,8 @@ Telnet.prototype.process = function(b) {
                 this.handleWill(b.charAt(i));
                 this.telnet_state = TNS_NORMAL;
                 break;
-
+            default:
+                break;
         }
     }
 

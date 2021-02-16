@@ -51,7 +51,7 @@ function createPlaceholder(loc) {
     if (Array.isArray(roomhints)) {
         var index;
 
-        if (roomhints.length == 0)
+        if (roomhints.length === 0)
             return ''; 
         
         // When just entered a new room, show the first hint as the 'main' one.

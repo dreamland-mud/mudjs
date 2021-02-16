@@ -17,11 +17,11 @@ function fixindent(fn, str) {
 }
 
 function tabsize8to4(str) {
-    return str.replace(/\t/g, '        ').replace(/    /g, '\t');
+    return str.replace(/\t/g, '        ').replace(/ {4}/g, '\t');
 }
 
 function tabsize4to8(str) {
-    return str.replace(/\r/g,'').replace(/\t/g, '    ').replace(/        /g, '\t');
+    return str.replace(/\r/g,'').replace(/\t/g, '    ').replace(/ {8}/g, '\t');
 }
 
 $(document).ready(function() {
