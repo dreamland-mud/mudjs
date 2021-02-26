@@ -98,7 +98,7 @@ const CmdInput = props => {
         const t = value;
         setValue('');
 
-        if(t) {
+        if(t && (t != input_history[input_history.length-1] || input_history.length == 0)) {
             position = input_history.length;
             input_history[position++] = t;
 
