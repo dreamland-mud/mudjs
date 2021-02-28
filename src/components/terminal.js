@@ -216,7 +216,7 @@ export default forwardRef(({bumpUnread, resetUnread}, ref) => {
         scrollToBottom: () => $(wrap.current).trigger('scroll-to-bottom', [])
     }), [wrap]);
 
-    return <div class="terminal-wrap" ref={wrap}>
-            <div class="terminal"></div>
+    return <div className="terminal-wrap" ref={wrap}>
+            <div className="terminal"></div>
           </div>;
 });
