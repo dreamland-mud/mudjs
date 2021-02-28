@@ -84,7 +84,7 @@ const useMapSource = (location) => {
 const useAreaData = () => {
     const [areaData, setAreaData] = useState({});
     const areasUrl = `/maps/index.json`;
-    const refreshAreaData = () => {
+    const refreshAreaData = useCallback(() => {
         console.log('Refreshing area data...');
 
         $.get(areasUrl)
@@ -98,7 +98,7 @@ const useAreaData = () => {
                 console.log('Error fetching', areasUrl, e);
                 setAreaData({});
             });
-    };
+    }, [areasUrl]);
 
     // Called once on componentDidMount and then refreshed every fixed interval.
     useEffect(() => {
@@ -109,7 +109,7 @@ const useAreaData = () => {
         TimerMixin.setInterval(refreshAreaData, refreshTimeout);
 
         // Nothing to do on dismount - the timer is cleared automatically.
-    });
+    }, [refreshAreaData]);
 
     return areaData;
 };
