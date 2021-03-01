@@ -98,23 +98,25 @@ const CmdInput = props => {
         const t = value;
         setValue('');
 
-        if(t && (input_history.length === 0 || t !== input_history[input_history.length-1])) {
+        if(t) {
             position = input_history.length;
-            input_history[position++] = t;
+	    if (input_history.length === 0 || t !== input_history[input_history.length-1]) {
+                input_history[position++] = t;
 
-            let drop = input_history.length - 1000; // store only 1000 most recent entries;
+                let drop = input_history.length - 1000; // store only 1000 most recent entries;
             
-            if(drop < 0)
-                drop = 0;
+                if(drop < 0)
+                    drop = 0;
             
-            const save = JSON.stringify(input_history.slice(drop));
+                const save = JSON.stringify(input_history.slice(drop));
             
-            try {
-                localStorage.history = save;
-            } catch(e) {
-                console.log('Opps, saving command history to the local storage: save.length=' + save.length, e);
+                try {
+                    localStorage.history = save;
+                } catch(e) {
+                    console.log('Opps, saving command history to the local storage: save.length=' + save.length, e);
+                }
             }
-        }
+	}
 
         // For each input line, trigger the 'input' event. Default 'input' handler will send the command
         // to the server, and also user-defined triggers will be called.
