@@ -18,7 +18,6 @@ const scrollPage = dir => {
 
 const useStyles = makeStyles(theme => ({
     activity: {
-        // display: 'flex',
         flexDirection: 'row'
     },
     btn: {
@@ -28,7 +27,6 @@ const useStyles = makeStyles(theme => ({
     },
     history: {
         position: 'absolute',
-        // alignItems: 'flex-end',
         bottom: 0,
         right: 0
     }
