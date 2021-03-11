@@ -106,10 +106,12 @@ const CmdInput = props => {
     };
 
     const historyRepeat = () => {
+        let cmd;
+
         if (!input_history[position]) {
-            var cmd = input_history[position-1]
+            cmd = input_history[position-1]
         } else {
-            var cmd = input_history[position]
+            cmd = input_history[position]
         }
         setValue('');
         position = input_history.length;
