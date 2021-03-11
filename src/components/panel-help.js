@@ -58,7 +58,7 @@ export default function Help(props) {
         if(error) {
             // Default to just invoke 'help topic' on Enter.
             inputbox.on('keypress', function(e) {
-                if (e.keyCode == 13) {
+                if (e.keyCode === 13) {
                     showTopic($(this).val());
                 }
             });
@@ -81,7 +81,7 @@ export default function Help(props) {
         }
 
         return () => inputbox.off();
-    }, [ref.current, loading, topics, error]);
+    }, [loading, topics, error]);
 
     return <div id="help" className="table-wrapper">
         <span className="dark-panel-title" data-toggle="collapse" data-target="#help-table">Поиск по справке:</span>

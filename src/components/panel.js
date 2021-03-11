@@ -1,7 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import ReactDom from 'react-dom';
 import Box from '@material-ui/core/Box';
 import Collapse from '@material-ui/core/Collapse';
 import { makeStyles } from '@material-ui/core/styles';
@@ -144,7 +143,6 @@ const ExitsRow = ({e, h, l, sector}) => {
  * Render player location windowlet.
  */
 const LocationItem = props => {
-    const classes = useStyles();
     const prompt = useSelector(state => state.prompt);
 
     if(!prompt)

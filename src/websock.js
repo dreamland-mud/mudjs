@@ -1,6 +1,4 @@
 
-'use strict';
-
 const { store, onConnected, onDisconnected } = require('./store.js');
 
 var $ = require('jquery');

@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { useState, useEffect, useRef } from 'react';
-import ReactDom from 'react-dom';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import $ from 'jquery';
 import { echo } from '../input';
@@ -76,7 +75,7 @@ const CmdInput = props => {
 
     const historyUp = () => {
         if(position > 0) {
-            if(position == input_history.length)
+            if(position === input_history.length)
                 current_cmd = value;
 
             for(var i=position-1;i >= 0;i--) {
@@ -142,6 +141,8 @@ const CmdInput = props => {
                     e.preventDefault();
                     historyDown();
                     return;
+                default:
+                    break;
             }
         }
 

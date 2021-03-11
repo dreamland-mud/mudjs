@@ -2,11 +2,6 @@ const $ = require('jquery');
 
 require('devbridge-autocomplete');
 
-var websock = require('./websock');
-var input = require('./input');
-var send = websock.send;
-var echo = input.echo;
-
 $(document).ready(function() {
 
     $('body').delegate('[data-hint]', 'click', function(e) {
@@ -15,24 +10,19 @@ $(document).ready(function() {
         e.preventDefault();
     });
 
-    // prompt sector fields: s - sector type, l - light
-    function promptSector(b) {
-        // Later if needed. Showing sector type everywhere will discover a lot of funny things.
-    }
-
     // Should the main affect window be hidden as it's empty?
-    var affectsPanelHidden = true;
+    let affectsPanelHidden = true;
 
     // prompt affect helper function: draw a block of affects
     // prompt affect block fields: a - active bits, z - bits from affects with zero duration
     function drawAffectBlock(block, selector, blockName, bitNames, color) {
-        var clr_active = 'fg-ansi-bright-color-' + color;
-        var clr_zero = 'fg-ansi-bright-color-3';
-        var clr_header = 'fg-ansi-bright-color-7';
-        var $row = $(selector);
+        let clr_active = 'fg-ansi-bright-color-' + color;
+        let clr_zero = 'fg-ansi-bright-color-3';
+        let clr_header = 'fg-ansi-bright-color-7';
+        let $row = $(selector);
 
         // Nothing changed since last time.
-        if (block == undefined) {
+        if (block === undefined) {
             if ($row.is(':visible'))
                 affectsPanelHidden = false;
             return;
@@ -49,12 +39,12 @@ $(document).ready(function() {
         $row.empty();
         affectsPanelHidden = false;
 
-        var $span = $('<span/>').addClass(clr_header).text(blockName);
+        let $span = $('<span/>').addClass(clr_header).text(blockName);
         $row.append($span);
 
-        for (var bit in bitNames) {
+        for (let bit in bitNames) {
             if (bitNames.hasOwnProperty(bit)) {
-                var clr;
+                let clr;
 
                 // Draw active affect names in green, those about to
                 // disappear in yellow.
@@ -65,7 +55,7 @@ $(document).ready(function() {
                 else
                     continue;
 
-                var $span = $('<span/>').addClass(clr).text(bitNames[bit]);
+                let $span = $('<span/>').addClass(clr).text(bitNames[bit]);
                 $row.append($span);
             }
         }
@@ -116,12 +106,12 @@ $(document).ready(function() {
     // cn - first letter of clan name, cc - clan colour.
     function promptWho(b) {
         // Nothing changed since last time.
-        if (b.who == undefined) {
+        if (b.who === undefined) {
             return;
         }
 
         $('#who').show();
-        var body = $('#who tbody');
+        let body = $('#who tbody');
         body.empty();
 
         // Nothing in 'who' - shouldn't happen except in very specific cases.
@@ -140,11 +130,11 @@ $(document).ready(function() {
 
         // Draw single player line.
         function who_player(wch) {
-            var tr = $('<tr/>');
+            let tr = $('<tr/>');
 
             tr.append($('<td/>').append(wch.n));
             tr.append($('<td/>').append(races[wch.r]));
-            if (wch.cn == undefined)
+            if (wch.cn === undefined)
                 tr.append($('<td/>').append(""));
             else
                 tr.append($('<td/>').append("<span class='fg" + wch.cc + "'>" + clans[wch.cn] + "</span>"));
@@ -160,7 +150,7 @@ $(document).ready(function() {
     // prompt params fields p1: ps - array of permanent stats, cs - array of current stats.
     // prompt params fields p2: h - hitroll, d - damroll, a - armor class, s - saves vs spell.
     function promptParams(b) {
-        var params = $('#player-params'), p1 = $('#player-params-1'), p2 = $('#player-params-2');
+        let params = $('#player-params'), p1 = $('#player-params-1'), p2 = $('#player-params-2');
 
         params.show();
 
@@ -170,7 +160,7 @@ $(document).ready(function() {
             if (b.p1 === "none")  {
                 p1.hide();
             } else {
-                var body = p1.find('tbody'), tr;
+                let body = p1.find('tbody'), tr;
 
                 p1.show();
                 body.empty();
@@ -196,7 +186,7 @@ $(document).ready(function() {
             if (b.p2 === "none")  {
                 p2.hide();
             } else {
-                var body = p2.find('tbody'), tr;
+                let body = p2.find('tbody'), tr;
 
                 p2.show();
                 body.empty();
@@ -216,7 +206,7 @@ $(document).ready(function() {
     // prompt questor quest info 'q' fields: t - remaining time, i - short quest info.
     function promptQuestor(b) {
         // Nothing changed since last time.
-        if (b.q == undefined) {
+        if (b.q === undefined) {
             return;
         }
 
@@ -240,7 +230,7 @@ $(document).ready(function() {
     // tnl - exp to next level.
     function promptGroup(b) {
         // Nothing changed since last time.
-        if (b.group == undefined) {
+        if (b.group === undefined) {
             return;
         }
 
@@ -252,12 +242,12 @@ $(document).ready(function() {
 
         $('#group').show();
         $('#g_leader').text(b.group.ln);
-        var body = $('#group tbody');
+        let body = $('#group tbody');
         body.empty();
 
         // Function to display a row with individual group member.
         function group_member(gch) {
-            var tr = $('<tr/>');
+            let tr = $('<tr/>');
             tr.append($('<td/>').append(gch.sees));
             tr.append($('<td/>').append(gch.level));
             tr.append($('<td/>').append($('<span/>').addClass('fg-ansi-bright-color-'+gch.hit_clr).append(gch.health + "%")));

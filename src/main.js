@@ -1,6 +1,4 @@
 
-'use strict';
-
 const $ = require('jquery');
 
 var websock = require('./websock');
@@ -17,7 +15,7 @@ require('./cs');
 
 require('./main.css');
 
-var connect = websock.connect, rpccmd = websock.rpccmd, send = websock.send;
+var connect = websock.connect;
 
 
 $(window).bind('beforeunload', function() {
@@ -82,7 +80,7 @@ $(document).ready(function() {
         var input = $('#input input');
 
         // dont autofocus if modal dialog is present
-        if($('body.modal-open').length != 0)
+        if($('body.modal-open').length !== 0)
             return;
 
         if(e.ctrlKey || e.altKey)

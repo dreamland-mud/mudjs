@@ -6,16 +6,11 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from "@material-ui/core/styles";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Add, Remove } from "@material-ui/icons";
 import $ from 'jquery';
 
 const lastLocation = require('../location');
-
-const areas = require('../data/areas.json').reduce(function(map, obj) {
-    map[obj.file] = obj.name;
-    return map;
-}, {});
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -89,7 +84,7 @@ const useMapSource = (location) => {
 const useAreaData = () => {
     const [areaData, setAreaData] = useState({});
     const areasUrl = `/maps/index.json`;
-    const refreshAreaData = () => {
+    const refreshAreaData = useCallback(() => {
         console.log('Refreshing area data...');
 
         $.get(areasUrl)
@@ -103,7 +98,7 @@ const useAreaData = () => {
                 console.log('Error fetching', areasUrl, e);
                 setAreaData({});
             });
-    };
+    }, [areasUrl]);
 
     // Called once on componentDidMount and then refreshed every fixed interval.
     useEffect(() => {
@@ -114,7 +109,7 @@ const useAreaData = () => {
         TimerMixin.setInterval(refreshAreaData, refreshTimeout);
 
         // Nothing to do on dismount - the timer is cleared automatically.
-    }, []);
+    }, [refreshAreaData]);
 
     return areaData;
 };
@@ -154,7 +149,7 @@ export default function Map(props) {
     };
 
     // Highlight current room with red colour and strip highlighting from all other rooms.
-    const highlightPosition = () => {
+    const highlightPosition = useCallback(() => {
         let room = location.vnum;
         $(mapElement.current).find('.room').removeClass('active');
 
@@ -162,7 +157,7 @@ export default function Map(props) {
             $(mapElement.current).find('.room-' + room).addClass('active');
             recenterPosition();
         }
-    };
+    }, [location.vnum]);
 
     const mapFontSizeKey = "map-font-size";
 
@@ -190,12 +185,12 @@ export default function Map(props) {
     useEffect(() => {
         $(mapElement.current).html(mapSource);
         highlightPosition();
-    }, [mapSource]);
+    }, [mapSource, highlightPosition]);
 
     // Called every time a location's room is changed.
     useEffect(() => {
         highlightPosition();
-    }, [location.vnum]);
+    }, [location.vnum, highlightPosition]);
 
     const appBar = <AppBar className={classes.appbar} color="default">
                        <Toolbar variant="dense">

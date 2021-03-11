@@ -26,6 +26,7 @@ const applySettings = s => {
     }`;
 
     // assign new values to potentially minified variables
+    // eslint-disable-next-line
     const exports = Function(settings)()({ keydown, notify, send, echo, $ });
     keydown = exports.keydown;
 };

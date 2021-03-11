@@ -2,7 +2,6 @@
 const ace = global.ace;
 
 ace.define('ace/mode/fenia', function(acequire, exports, module) {
-"use strict";
 
 var oop = acequire("../lib/oop");
 var JavaScriptMode = acequire("./javascript").Mode;

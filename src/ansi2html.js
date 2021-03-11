@@ -19,20 +19,20 @@ function ansi2html(b) {
 
     // Tries to process matched ANSI sequence.
     function process_ansi(start, params, cmd) {
-        if(start != '[') {
+        if(start !== '[') {
             return;
         }
 
         switch(cmd) {
             case 'm':
-                if(params[0] == '0') {
+                if(params[0] === '0') {
                     // Escape sequence starting with [0; - dark colors.
                     bold = false;
-                } else if(params[0] == '1') {
+                } else if(params[0] === '1') {
                     // Escape sequence starting with [1; - bold, bright colors.
                     bold = true;
                 }
-                if (params.length == 1 || params[1] == 0) {
+                if (params.length === 1 || params[1] === 0) {
                     // Color reset [0m or [0;0m.
                     fg = 7;
                     bold = false;
@@ -64,7 +64,7 @@ function ansi2html(b) {
     }
 
     function addText(t) {
-        if(desired_class != actual_class) {
+        if(desired_class !== actual_class) {
             if(txt) {
                 txt += '</span>';
             }
@@ -92,7 +92,7 @@ function ansi2html(b) {
                     x = 0;
                     break;
                 case 0x9:
-                    while((++x % 8) != 0)
+                    while((++x % 8) !== 0)
                         addText(' ');
                     break;
                 case 0x1b:
