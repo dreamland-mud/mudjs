@@ -165,7 +165,18 @@ const CmdInput = props => {
         var lines = t.split('\n');
         $(lines).each(function() {
             echo(this);
-            $('.trigger').trigger('input', ['' + this]);
+            if (this.startsWith('#')) {
+                const numRep = this.split(' ')[0].substr(1);
+                if (numRep && Number.isInteger(+numRep)) {
+                    for (let i = 0; i < parseInt(numRep); i++) {
+                        $('.trigger').trigger('input', ['' + this.substr(numRep.length+1).trim()]);
+                    }
+                } else {
+                    $('.trigger').trigger('input', ['' + this]);
+                }
+            } else {
+                $('.trigger').trigger('input', ['' + this]);
+            }
         });
     };
 
