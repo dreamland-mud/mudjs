@@ -15,7 +15,7 @@ var areas = require('./data/areas.json').map(function(a) {
 $(document).ready(function() {
     // Control panel buttons.
     $('body').on('click', '.btn-ctrl-panel', function(e) {
-		var cmd = $(e.currentTarget).attr('data-action');
+        var cmd = $(e.currentTarget).attr('data-action');
         var conf = $(e.currentTarget).attr('data-confirm');
 
         if (conf !== undefined && !global.confirm('Вы действительно хотите ' + conf + '?'))
@@ -28,14 +28,14 @@ $(document).ready(function() {
     // Send comman to the server when command hyper link is clicked
     // e. g. 'read sign' or 'walk trap'.
     $('body').on('click', '.manip-cmd', function(e) {
-		var cmd = $(e.currentTarget);
+        var cmd = $(e.currentTarget);
         echo(cmd.attr('data-echo'));
         send(cmd.attr('data-action'));
     });
 
     // Send command to the server when individual menu item is clicked.
     $('body').on('click', '.manip-item', function(e) {
-		var cmd = $(e.currentTarget);
+        var cmd = $(e.currentTarget);
         echo(cmd.attr('data-echo'));
         send(cmd.attr('data-action'));
     });
@@ -139,7 +139,7 @@ function manipParseAndReplace(span) {
             var result = $('<span/>')
                 .addClass('manip-cmd')
                 .attr('data-action', action)
-				.attr('data-echo', action)
+                .attr('data-echo', action)
                 .append(cmd);
             return result;
         });
@@ -169,6 +169,11 @@ function manipParseAndReplace(span) {
 
         // Split the string into <initial spaces><label ending with non-space><ending spaces>
         var matches = article.match(/^( *)([\0-\uFFFF]*[^ ])( *)$/m);
+        if (!matches || matches.length < 4) {
+            // Do nothing for invalid help links.
+            return;
+        }
+        
         var spaceBegin = matches[1].length;
         var spaceEnd = matches[3].length;
         var label = matches[2];
@@ -225,7 +230,7 @@ function manipParseAndReplace(span) {
 
         function addToMenu(cmd) {
             if (cmd.trim().length === 0)
-		return;
+                return;
             var action = cmd.replace(/\$/, id);
             // Menu entry visible to the user will only contain a meaningful word, without IDs or $ placeholders.
             var label = cmd.replace(/( *\$ *| *[0-9]{5,}|\.'.*')/g, '');
