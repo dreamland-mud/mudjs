@@ -7,12 +7,12 @@ var keycode = require("keycode")
 const hotkeyStorage = localStorage.hotkey ? JSON.parse(localStorage.hotkey) : {};
 const metaKeys = ['ctrl', 'alt', 'shift', 'meta', 'tab', 'backspace', 'enter']
 
-const parseStringCmd = (value) => {
+const parseStringCmd = value => {
     const stringCmd = value.trim().split(' ')
     return stringCmd
 }
 
-const checkKey = (rawKey) => {
+const checkKey = rawKey => {
     rawKey.toLowerCase()
     let key = []
     let err = ''
@@ -43,7 +43,7 @@ const checkKey = (rawKey) => {
     }
 }
 
-const hotkeyCmdDelete = (rawKey) => {
+const hotkeyCmdDelete = rawKey => {
     const { key, err } = checkKey(rawKey)
     console.log(err)
     if (err) {
@@ -59,7 +59,7 @@ const hotkeyCmdDelete = (rawKey) => {
     }
 }
 
-const hotkeyCmdAdd = (stringCmd) => {
+const hotkeyCmdAdd = stringCmd => {
     const { key, err } = checkKey(stringCmd[0])
     if (err) {
         echo(err)
@@ -74,7 +74,7 @@ const hotkeyCmdAdd = (stringCmd) => {
     }
 }
 
-function hotkeyCmdList() {
+const hotkeyCmdList = () => {
     let hotkeyList = ''
     for (let i in hotkeyStorage) {
         hotkeyList = hotkeyList + i + ' : ' +  hotkeyStorage[i] + '\n'
@@ -82,7 +82,7 @@ function hotkeyCmdList() {
     echo(hotkeyList)
 }
 
-function hotkeyCmd(value) {
+const hotkeyCmd = value => {
     const stringCmd = parseStringCmd(value)
     if (!stringCmd[0]) {
         hotkeyCmdList()
