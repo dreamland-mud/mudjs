@@ -1,3 +1,4 @@
+import { sendHotCmd } from './components/SysCommands';
 
 const $ = require('jquery');
 
@@ -77,23 +78,37 @@ $(document).ready(function() {
 
 
     $('body').on('keydown', function(e) {
+        const hotkeyStorage = localStorage.hotkey ? JSON.parse(localStorage.hotkey) : {};
         var input = $('#input input');
-
-        // dont autofocus if modal dialog is present
+        // Ignore if modal dialog is present
         if($('body.modal-open').length !== 0)
             return;
 
-        if(e.ctrlKey || e.altKey)
-            return;
+        let str = ''
+        if (e.key && e.ctrlKey) {
+            str = 'ctrl+' + e.key.toLowerCase()
+        } else if (e.key && e.altKey) {
+            str = 'alt+' + e.key.toLowerCase()
+        } else if (e.key && e.shiftKey) {
+            str = 'shift+' + e.key.toLowerCase()
+        } else if (!e.ctrlKey && !e.altKey && !e.shiftKey) {
+            str = e.key.toLowerCase()
+        }
+        if (str && hotkeyStorage[str]) {
+            sendHotCmd(hotkeyStorage[str])
+        } else {
+            if(e.ctrlKey || e.altKey)
+                return;
 
-        if(input.is(':focus'))
-            return;
+            if(input.is(':focus'))
+                return;
 
-        if ($('#help input').is(':focus'))
-            return;
+            if ($('#help input').is(':focus'))
+                return;
 
-        input.focus();
-        document.getElementById('inputBox').dispatchEvent(new KeyboardEvent('keydown', e));
+            input.focus();
+            document.getElementById('inputBox').dispatchEvent(new KeyboardEvent('keydown', e));
+        }
     });
 
 

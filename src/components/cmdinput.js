@@ -9,6 +9,7 @@ import settings from '../settings';
 import { connect } from '../websock';
 import { makeStyles } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import Commands, { splitCommand } from './SysCommands'
 
 const scrollPage = dir => {
     const wrap = $('.terminal-wrap');
@@ -156,29 +157,52 @@ const CmdInput = props => {
     // Allows to paste multi-line text.
     const submit = e => {
         e.preventDefault();
-        const t = value;
+        const userCommand = value;
+        const commandList = Commands
         setValue('');
-        //Check if we must to store command
-        saveCmd(t)
-        // For each input line, trigger the 'input' event. Default 'input' handler will send the command
-        // to the server, and also user-defined triggers will be called.
-        var lines = t.split('\n');
-        $(lines).each(function() {
-            echo(this);
-            if (this.startsWith('#')) {
-                const numRep = this.split(' ')[0].substr(1);
-                if (numRep && Number.isInteger(+numRep)) {
-                    for (let i = 0; i < parseInt(numRep); i++) {
-                        $('.trigger').trigger('input', ['' + this.substr(numRep.length+1).trim()]);
-                    }
-                } else {
-                    $('.trigger').trigger('input', ['' + this]);
-                }
+
+        //Check if string is system command
+        if (userCommand.startsWith('#')) {
+            const { sysCmd,  sysCmdArgs} = splitCommand(userCommand)
+            if (Number.isInteger(+sysCmd)) {
+                saveCmd(userCommand)
+                commandList['multiCmd'](userCommand)
+            } else if (sysCmd in commandList) {
+                commandList[sysCmd](sysCmdArgs)
             } else {
-                $('.trigger').trigger('input', ['' + this]);
+                echo('Эта команда доступна только Богам!')
             }
-        });
-    };
+        } else {
+            saveCmd(userCommand)
+            var lines = userCommand.split('\n')
+            $(lines).each(function() {
+                $('.trigger').trigger('input', ['' + this])
+            })
+        }
+    }
+
+    //     //Store command if needed
+    //     saveCmd(userCommand)
+    //     // For each input line, trigger the 'input' event. Default 'input' handler will send the command
+    //     // to the server, and also user-defined triggers will be called.
+    //     var lines = userCommand.split('\n');
+    //     $(lines).each(function() {
+    //         echo(this);
+    //         if (this.startsWith('#')) {
+    //             const numRep = this.split(' ')[0].substr(1);
+    //             if (numRep && Number.isInteger(+numRep)) {
+    //                 for (let i = 0; i < parseInt(numRep); i++) {
+    //                     $('.trigger').trigger('input', ['' + this.substr(numRep.length+1).trim()]);
+    //                 }
+    //             } else {
+    //                 // $('.trigger').trigger('input', ['' + this]);
+    //                 console.log(localStorage);
+    //             }
+    //         } else {
+    //             $('.trigger').trigger('input', ['' + this]);
+    //         }
+    //     });
+    // };
 
     // Draws either 'Reconnect' button or input box, depending on the global state.
     // onChange ensures that the state of this component changes whenever user inputs something.
