@@ -181,29 +181,6 @@ const CmdInput = props => {
         }
     }
 
-    //     //Store command if needed
-    //     saveCmd(userCommand)
-    //     // For each input line, trigger the 'input' event. Default 'input' handler will send the command
-    //     // to the server, and also user-defined triggers will be called.
-    //     var lines = userCommand.split('\n');
-    //     $(lines).each(function() {
-    //         echo(this);
-    //         if (this.startsWith('#')) {
-    //             const numRep = this.split(' ')[0].substr(1);
-    //             if (numRep && Number.isInteger(+numRep)) {
-    //                 for (let i = 0; i < parseInt(numRep); i++) {
-    //                     $('.trigger').trigger('input', ['' + this.substr(numRep.length+1).trim()]);
-    //                 }
-    //             } else {
-    //                 // $('.trigger').trigger('input', ['' + this]);
-    //                 console.log(localStorage);
-    //             }
-    //         } else {
-    //             $('.trigger').trigger('input', ['' + this]);
-    //         }
-    //     });
-    // };
-
     // Draws either 'Reconnect' button or input box, depending on the global state.
     // onChange ensures that the state of this component changes whenever user inputs something.
     // Current 'value' state is used from all key handlers.
