@@ -12,66 +12,61 @@ const parseStringCmd = value => {
     return stringCmd
 }
 
+const checkCombinedKey = (rawKey) => {
+    let key = rawKey.split('+')
+    let err
+    if (key.length > 2) return  { key, err : 'В комбинации может быть только две клавиши' }
+    
+    if (!keycode(key[key.length-1]) || metaKeys.includes(key[key.length-1])) {
+        err = 'Недопустимый ключ'
+    }
+    if (!keycode(key[0]) || !metaKeys.slice(0,3).includes(key[0])) {
+        err = 'Недопустимый комманд-ключ'
+    }
+    key = key.join('+').toLowerCase()
+
+    return { key, err }
+} 
+
 const checkKey = rawKey => {
     rawKey.toLowerCase()
     let key = []
     let err = ''
     if (rawKey.indexOf('+') !== -1) {
-        key = rawKey.split('+')
-        if (key.length > 2) {
-            echo('В комбинации может быть только две клавиши')
-        } else {
-            if (!keycode(key[key.length-1]) || metaKeys.includes(key[key.length-1])) {
-                err = 'Недопустимый ключ. '
-            }
-            if (!keycode(key[0]) || !metaKeys.slice(0,3).includes(key[0])) {
-                err = err + 'Недопустимый комманд-ключ'
-            }
-            key = key.join('+').toLowerCase()
-        }
-    } else {
-        if (keycode(rawKey) && !metaKeys.includes(rawKey)) {
-            key = rawKey
-        } else {
-            err = 'Недопустимый ключ.'
-        }
-
+        return checkCombinedKey(rawKey)
     }
-    return {
-        key: key,
-        err: err
-    }
+    if (keycode(rawKey) && !metaKeys.includes(rawKey)) return { key: rawKey, err}
+    return { key, err: 'Недопустимый ключ.'}
 }
 
 const hotkeyCmdDelete = rawKey => {
     const { key, err } = checkKey(rawKey)
     console.log(err)
-    if (err) {
-        echo(err)
-    } else {
-        if (hotkeyStorage[key]){
-            delete hotkeyStorage[key]
-            localStorage.hotkey = JSON.stringify(hotkeyStorage)
-            echo(key + ' удален из списка.')
-        } else {
-            echo(key + ' не найден в списке.')
-        }
+    if (err) return echo(err)
+
+    if (hotkeyStorage[key]){
+        delete hotkeyStorage[key]
+        localStorage.hotkey = JSON.stringify(hotkeyStorage)
+        echo(key + ' удален из списка.')
+        return
     }
+    
+    return echo(key + ' не найден в списке.')
 }
 
 const hotkeyCmdAdd = stringCmd => {
     const { key, err } = checkKey(stringCmd[0])
-    if (err) {
-        echo(err)
-    } else {
-        if (!hotkeyStorage[key]) {
-            hotkeyStorage[key] = stringCmd.slice(1).join(' ')
-            localStorage.hotkey = JSON.stringify(hotkeyStorage)
-            echo('Команда для ' + key + ' добавлена.' )
-        } else {
-            echo('Такой ключ уже существует')
-        }
-    }
+    
+    if (err) return echo(err)
+
+    if (!hotkeyStorage[key]) {
+        hotkeyStorage[key] = stringCmd.slice(1).join(' ')
+        localStorage.hotkey = JSON.stringify(hotkeyStorage)
+        echo('Команда для ' + key + ' добавлена.' )
+        return
+    } 
+
+    return echo('Такой ключ уже существует')
 }
 
 const hotkeyCmdList = () => {
@@ -84,13 +79,9 @@ const hotkeyCmdList = () => {
 
 const hotkeyCmd = value => {
     const stringCmd = parseStringCmd(value)
-    if (!stringCmd[0]) {
-        hotkeyCmdList()
-    } else if (stringCmd.length === 1) {
-        hotkeyCmdDelete(stringCmd[0])
-    } else {
-        hotkeyCmdAdd(stringCmd)
-    }
+    if (!stringCmd[0]) return hotkeyCmdList()
+    if (stringCmd.length === 1) return hotkeyCmdDelete(stringCmd[0])
+    return hotkeyCmdAdd(stringCmd)
 }
 
 const Commands = {
