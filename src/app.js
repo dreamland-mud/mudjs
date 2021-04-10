@@ -1,6 +1,5 @@
 
 import React from 'react';
-
 import SplitterLayout from 'react-splitter-layout';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Box from '@material-ui/core/Box';
@@ -37,6 +36,8 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
+const propertyStorage = localStorage.properties ? JSON.parse(localStorage.properties) : {};
+
 export default props => {
     // Hooks
     const classes = useStyles();
@@ -45,9 +46,9 @@ export default props => {
 
     return <Box display="flex" flexDirection="column" className={classes.page}>
         <Box flex="1 1 auto" className={classes.main}>
-            <SplitterLayout customClassName={classes.mainSplitter}>
+            <SplitterLayout customClassName={classes.mainSplitter} primaryIndex={1} secondaryInitialSize={propertyStorage['terminalLayoutWidth']} >
                 <MainWindow />
-        		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={500} secondaryInitialSize={270}>
+        		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={propertyStorage['mapLayoutWidth'] || 500} secondaryInitialSize={propertyStorage['panelLayoutWidth'] || 270}>
                     <Panel /> 
                     { hugeScreen && <Map /> }
                 </SplitterLayout> }
