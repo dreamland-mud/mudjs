@@ -111,7 +111,6 @@ $(document).ready(function() {
         }
     });
 
-
     /*
      * Handlers for plus-minus buttons to change terminal font size.
      */ 
@@ -145,5 +144,16 @@ $(document).ready(function() {
         changeFontSize(-fontDelta);
     });
 
+    /* Save layout size */
+    let propertyStorage = localStorage.properties ? JSON.parse(localStorage.properties) : {};
+
+    $('.layout-splitter').on('click', function (e) {
+        propertyStorage = {
+            'terminalLayoutWidth': document.querySelector('.terminal-wrap').getBoundingClientRect().width,
+            'panelLayoutWidth': document.querySelector('#panel-wrap').getBoundingClientRect().width,
+            'mapLayoutWidth': document.querySelector('#map-wrap').getBoundingClientRect().width
+        }
+        localStorage.properties = JSON.stringify(propertyStorage)
+    })
 });
 
