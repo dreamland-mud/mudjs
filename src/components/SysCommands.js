@@ -90,8 +90,8 @@ const Commands = {
     },
     multiCmd: function(value) {
         const { sysCmd, sysCmdArgs } = splitCommand(value)
+        echo(value)
         for (let i = 0; i < parseInt(sysCmd); i++) {
-            echo(sysCmdArgs)
             $('.trigger').trigger('input', ['' + sysCmdArgs.trim()]);
         }
     }
