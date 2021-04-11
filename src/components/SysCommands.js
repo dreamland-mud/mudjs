@@ -91,6 +91,7 @@ const Commands = {
     multiCmd: function(value) {
         const { sysCmd, sysCmdArgs } = splitCommand(value)
         for (let i = 0; i < parseInt(sysCmd); i++) {
+            echo(sysCmdArgs)
             $('.trigger').trigger('input', ['' + sysCmdArgs.trim()]);
         }
     }
@@ -106,6 +107,7 @@ export function splitCommand(value) {
 }
 
 export function sendHotCmd(cmd) {
+    echo(cmd)
     send(cmd)
 }
 
