@@ -167,18 +167,22 @@ const CmdInput = props => {
             if (Number.isInteger(+sysCmd)) {
                 saveCmd(userCommand)
                 commandList['multiCmd'](userCommand)
-            } else if (sysCmd in commandList) {
-                commandList[sysCmd](sysCmdArgs)
-            } else {
-                echo('Эта команда доступна только Богам!')
+                return
             }
-        } else {
-            saveCmd(userCommand)
-            var lines = userCommand.split('\n')
-            $(lines).each(function() {
-                $('.trigger').trigger('input', ['' + this])
-            })
+            if (sysCmd in commandList) {
+                commandList[sysCmd](sysCmdArgs)
+                return
+            } 
+            echo('Эта команда доступна только Богам!')
+            return
         }
+        
+        saveCmd(userCommand)
+        var lines = userCommand.split('\n')
+        $(lines).each(function() {
+            echo(this)
+            $('.trigger').trigger('input', ['' + this])
+        })
     }
 
     // Draws either 'Reconnect' button or input box, depending on the global state.

@@ -45,10 +45,6 @@ body {
     width: 100%
 }
 
-.terminal-wrap::-webkit-scrollbar {
-    display: none;
-}
-
 .terminal {
     font-family: 'Roboto Mono', monospace;
     font-size: 1.3em;
@@ -257,7 +253,7 @@ td.v-bottom {
  * Add some space around main screen on all media sizes.
  */
 .terminal-wrap {
-    padding: 20px 10px 10px 20px;
+    padding: 5px 10px 10px 10px;
 }
 
 /*
