@@ -1,4 +1,5 @@
-import { sendHotCmd } from './components/SysCommands';
+import { sendHotKeyCmd } from './components/sysCommands/hotkey';
+import PropertiesStorage from './properties'
 
 const $ = require('jquery');
 
@@ -95,7 +96,7 @@ $(document).ready(function() {
             str = e.key.toLowerCase()
         }
         if (str && hotkeyStorage[str]) {
-            sendHotCmd(hotkeyStorage[str])
+            sendHotKeyCmd(hotkeyStorage[str])
         } else {
             if(e.ctrlKey || e.altKey)
                 return;
@@ -115,7 +116,8 @@ $(document).ready(function() {
      * Handlers for plus-minus buttons to change terminal font size.
      */ 
     var fontDelta = 2;
-    var terminalFontSizeKey = "terminal-font-size";
+    var terminalFontSizeKey = "terminalFontSize";
+    let propertiesStorage = PropertiesStorage
     
     function changeFontSize(delta) {
         var terminal = $('.terminal');
@@ -123,10 +125,12 @@ $(document).ready(function() {
         var fontSize = parseFloat(style); 
         terminal.css('font-size', (fontSize + delta) + 'px');
         localStorage.setItem(terminalFontSizeKey, fontSize + delta);
+        propertiesStorage['terminalFontSize'] = fontSize + delta
+        localStorage.properties = JSON.stringify(propertiesStorage)
     }
 
     function initTerminalFontSize() {
-        var cacheFontSize = localStorage.getItem(terminalFontSizeKey);
+        var cacheFontSize = JSON.parse(localStorage.properties)['terminalFontSize'];
         if (cacheFontSize != null) {
             var terminal = $('.terminal');
             terminal.css('font-size', (cacheFontSize) + 'px');
@@ -145,15 +149,11 @@ $(document).ready(function() {
     });
 
     /* Save layout size */
-    let propertyStorage = localStorage.properties ? JSON.parse(localStorage.properties) : {};
-
     $('.layout-splitter').on('click', function (e) {
-        propertyStorage = {
-            'terminalLayoutWidth': document.querySelector('.terminal-wrap').getBoundingClientRect().width,
-            'panelLayoutWidth': document.querySelector('#panel-wrap').getBoundingClientRect().width,
-            'mapLayoutWidth': document.querySelector('#map-wrap').getBoundingClientRect().width
-        }
-        localStorage.properties = JSON.stringify(propertyStorage)
+        propertiesStorage['terminalLayoutWidth'] = document.querySelector('.terminal-wrap').getBoundingClientRect().width
+        propertiesStorage['panelLayoutWidth'] = document.querySelector('#panel-wrap').getBoundingClientRect().width
+        propertiesStorage['mapLayoutWidth'] = document.querySelector('#map-wrap').getBoundingClientRect().width
+        localStorage.properties = JSON.stringify(propertiesStorage)
     })
 });
 
