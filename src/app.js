@@ -12,6 +12,7 @@ import MainWindow from './components/mainwindow';
 import Panel from './components/panel';
 import Stats from './components/stats';
 import Map from './components/map';
+import PropertiesStorage from './properties'
 
 const useStyles = makeStyles(theme => ({
     page: {
@@ -36,7 +37,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const propertyStorage = localStorage.properties ? JSON.parse(localStorage.properties) : {};
+const propertiesStorage = PropertiesStorage
 
 export default props => {
     // Hooks
@@ -46,9 +47,9 @@ export default props => {
 
     return <Box display="flex" flexDirection="column" className={classes.page}>
         <Box flex="1 1 auto" className={classes.main}>
-            <SplitterLayout customClassName={classes.mainSplitter} primaryIndex={1} secondaryInitialSize={propertyStorage['terminalLayoutWidth']} >
+            <SplitterLayout customClassName={classes.mainSplitter} primaryIndex={1} secondaryInitialSize={propertiesStorage['terminalLayoutWidth']} >
                 <MainWindow />
-        		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={propertyStorage['mapLayoutWidth'] || 500} secondaryInitialSize={propertyStorage['panelLayoutWidth'] || 270}>
+        		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={propertiesStorage['mapLayoutWidth']} secondaryInitialSize={propertiesStorage['panelLayoutWidth']}>
                     <Panel /> 
                     { hugeScreen && <Map /> }
                 </SplitterLayout> }

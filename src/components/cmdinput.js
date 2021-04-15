@@ -125,14 +125,17 @@ const CmdInput = props => {
     // arrow keys to navigate history, and passes everything else to the user-defined triggers (settings).
     const keydown = e => {
         e.stopPropagation();
-
+        const isPgKeysScroll = JSON.parse(localStorage.properties)['isPgKeysScroll']
+  
         if(!e.shiftKey && !e.ctrlKey && !e.altKey) {
             switch(e.which) {
                 case 33: // page up
+                    if (!isPgKeysScroll) return
                     e.preventDefault();
                     scrollPage(-0.8);
                     return;
                 case 34: // page down
+                    if (!isPgKeysScroll) return
                     e.preventDefault();
                     scrollPage(0.8);
                     return;
