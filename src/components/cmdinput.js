@@ -9,7 +9,15 @@ import settings from '../settings';
 import { connect } from '../websock';
 import { makeStyles } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import Commands, { splitCommand } from './SysCommands'
+import Commands, { splitCommand, echoHtml, errCmdDoesNotExist } from './SysCommands'
+
+
+$('body').on('click', '.builtin-cmd', function(e) {
+    var cmd = $(e.currentTarget);
+    const { sysCmd,  sysCmdArgs} = splitCommand(cmd.attr('data-action'))
+    echo(cmd.attr('data-echo'));
+    Commands[sysCmd]['payload'](sysCmdArgs);
+});
 
 const scrollPage = dir => {
     const wrap = $('.terminal-wrap');
@@ -49,9 +57,6 @@ const CmdInput = props => {
     // Input box value.
     const [ value, setValue ] = useState('');
 
-    // Arrow up. Retrieve previous command from history and populate the input box.
-    // Called from onKeyDown handler.
-
     function saveCmd(t) {
         if(t) {
             position = input_history.length;
@@ -74,6 +79,8 @@ const CmdInput = props => {
 	    }
     }
 
+    // Arrow up. Retrieve previous command from history and populate the input box.
+    // Called from onKeyDown handler.
     const historyUp = () => {
         if(position > 0) {
             if(position === input_history.length)
@@ -125,7 +132,7 @@ const CmdInput = props => {
     // arrow keys to navigate history, and passes everything else to the user-defined triggers (settings).
     const keydown = e => {
         e.stopPropagation();
-        const isPgKeysScroll = JSON.parse(localStorage.properties)['isPgKeysScroll']
+        const isPgKeysScroll = localStorage.properties ? JSON.parse(localStorage.properties)['isPgKeysScroll'] : true
   
         if(!e.shiftKey && !e.ctrlKey && !e.altKey) {
             switch(e.which) {
@@ -163,24 +170,30 @@ const CmdInput = props => {
         const userCommand = value;
         const commandList = Commands
         setValue('');
+        saveCmd(userCommand)
 
         //Check if string is system command
         if (userCommand.startsWith('#')) {
+            echo(userCommand)
             const { sysCmd,  sysCmdArgs} = splitCommand(userCommand)
             if (Number.isInteger(+sysCmd)) {
                 saveCmd(userCommand)
-                commandList['multiCmd'](userCommand)
+                commandList['multiCmd']['payload'](userCommand)
                 return
             }
-            if (sysCmd in commandList) {
-                commandList[sysCmd](sysCmdArgs)
-                return
-            } 
-            echo('Эта команда доступна только Богам!')
-            return
+            if (sysCmd.length < 3) {
+                return echoHtml(errCmdDoesNotExist)
+            }
+            const re = new RegExp(sysCmd)
+            for (let command in commandList) {
+                if (re.test(command)) {
+                    commandList[command]['payload'](sysCmdArgs)
+                    return 
+                }
+            }
+            return echoHtml(errCmdDoesNotExist)
         }
         
-        saveCmd(userCommand)
         var lines = userCommand.split('\n')
         $(lines).each(function() {
             echo(this)
