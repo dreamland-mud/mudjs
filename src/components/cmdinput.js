@@ -137,12 +137,12 @@ const CmdInput = props => {
         if(!e.shiftKey && !e.ctrlKey && !e.altKey) {
             switch(e.which) {
                 case 33: // page up
-                    if (!isPgKeysScroll) return
+                    if (!isPgKeysScroll) break;
                     e.preventDefault();
                     scrollPage(-0.8);
                     return;
                 case 34: // page down
-                    if (!isPgKeysScroll) return
+                    if (!isPgKeysScroll) break;
                     e.preventDefault();
                     scrollPage(0.8);
                     return;
