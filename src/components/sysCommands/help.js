@@ -3,12 +3,11 @@ import Commands, { echoHtml, clickableLink, parseStringCmd } from '../SysCommand
 
 export const helpHelp = {
     title: `Получить справку по встроенным командам, подробнее ${clickableLink('#help help')}`,
-    description: `
-Команда #help позволяет получить справку по встроенным командам.
+    description: `Команда #help позволяет получить справку по встроенным командам.
 Синтаксис:
 #help - вывести список доступных команд
-#help {command} - подробная справка по команде {command}
-`
+#help command - подробная справка по команде command
+\n`
 }
 
 
@@ -26,6 +25,7 @@ const helpList = () => {
     for (let i in Commands) {
         list += (`${clickableLink('#' + i)} :  ${Commands[i]['help']['title']}\n`)
     }
+    list += '\n';
     echoHtml(list)
 }
 

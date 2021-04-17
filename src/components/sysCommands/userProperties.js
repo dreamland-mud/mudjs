@@ -1,23 +1,21 @@
 import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands'
 
-
-
 export const settingsHelp = {
     title: `Установить или сбросить пользовательские настройки, подробнее ${clickableLink('#help settings')}`,
-    description: `
-Команда #settings позволяет изменять и запоминать пользовательские настройки.
+    description: `Команда #settings позволяет изменять и запоминать пользовательские настройки.
 
 Синтаксис:
 #settings - вывести список доступных настроек
-#settings {properties} - удаляет текущий параметр {properties} и сбрасывает его на значение "по умолчанию"
-#settings {properties} {value} - устанавливает значение {value} для параметра {properties}
+#settings property - удаляет текущий параметр property и сбрасывает его на значение "по умолчанию"
+#settings property value - устанавливает значение value для параметра property
 
 Список доступных настроек:
 terminalLayoutWidth - ширина окна терминала
-panelLayoutWidth - ширина окна панели виджетов
-mapLayoutWidth - ширина окна карты
-terminalFontSize - размер шрифта
-isPgKeysScroll - использовать ли клавишы PgUp и PgDown для скрола или сделать их доступными для использовать в качестве горячих клавиш. true (по умолчанию) - скролл, false - горячие клавиши
+panelLayoutWidth    - ширина окна панели виджетов
+mapLayoutWidth      - ширина окна карты
+terminalFontSize    - размер шрифта в окне терминала
+isPgKeysScroll      - использовать ли клавишы PgUp и PgDown для листания (true) или сделать их доступными для использования в качестве горячих клавиш (false).
+
 `
 }
 
@@ -64,6 +62,7 @@ const propertiesList = () => {
     for (let i in propertiesStorage) {
         properties = properties + i + ' : ' +  propertiesStorage[i] + '\n'
     }
+    properties += '\n';
     echoHtml(properties)
 }
 

@@ -5,12 +5,13 @@ import helpCmd, { helpHelp } from './sysCommands/help'
 
 const multiCmdHelp = {
     title: `Выполнить указанную команду несколько раз, подробнее ${clickableLink('#help multiCmd')}`,
-    description: `
-Синтаксис:
-#{number} {action} - выполнить команду {action} указанное число раз {number}
+    description: `Синтаксис:
+#number action - выполнить команду action указанное число раз (number)
 
-Пример:
-#3 say too too
+Примеры:
+#10 новость
+#3 сбежать|возврат
+
 `
 }
 
@@ -31,9 +32,7 @@ const Commands = {
                 $('.trigger').trigger('input', ['' + sysCmdArgs.trim()]);
             }
         },
-        help: {
-            title: multiCmdHelp.title
-        }
+        help: multiCmdHelp
     },
     settings: {
         payload: function(value) {
