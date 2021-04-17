@@ -19,6 +19,7 @@ require('./main.css');
 
 var connect = websock.connect;
 
+let propertiesStorage = PropertiesStorage
 
 $(window).bind('beforeunload', function() {
     return 'leaving already?';
@@ -117,8 +118,7 @@ $(document).ready(function() {
      */ 
     var fontDelta = 2;
     var terminalFontSizeKey = "terminalFontSize";
-    let propertiesStorage = PropertiesStorage
-    
+
     function changeFontSize(delta) {
         var terminal = $('.terminal');
         var style = terminal.css('font-size'); 
@@ -130,7 +130,7 @@ $(document).ready(function() {
     }
 
     function initTerminalFontSize() {
-        var cacheFontSize = JSON.parse(localStorage.properties)['terminalFontSize'];
+        var cacheFontSize = localStorage.properties ? JSON.parse(localStorage.properties)['terminalFontSize'] : propertiesStorage
         if (cacheFontSize != null) {
             var terminal = $('.terminal');
             terminal.css('font-size', (cacheFontSize) + 'px');

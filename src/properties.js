@@ -6,7 +6,11 @@ const DEFAULT_PROPERTIES = {
     'isPgKeysScroll': true,
 }
 
-let PropertiesStorage = localStorage.properties ? JSON.parse(localStorage.properties) : DEFAULT_PROPERTIES;
+if (!localStorage.properties) {
+    localStorage.properties = JSON.stringify(DEFAULT_PROPERTIES)
+}
+
+let PropertiesStorage = JSON.parse(localStorage.properties)
 
 if (Object.keys(PropertiesStorage).length !== Object.keys(DEFAULT_PROPERTIES).length) {
     for (let key in DEFAULT_PROPERTIES) {
