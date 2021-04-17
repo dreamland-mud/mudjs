@@ -1,8 +1,7 @@
 import { echo } from '../../input';
 import { send } from '../../websock';
 import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands'
-
-var keycode = require("keycode")
+import keycode from "./keycode"
 
 // TODO: List all accepted key codes, after testing all combinations.
 export const hotkeyHelp = {
