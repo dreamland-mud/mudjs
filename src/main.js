@@ -1,5 +1,6 @@
 import { sendHotKeyCmd } from './components/sysCommands/hotkey';
 import PropertiesStorage from './properties'
+import keycode from './components/sysCommands/keycode';
 
 const $ = require('jquery');
 
@@ -88,16 +89,20 @@ $(document).ready(function() {
 
         let str = ''
         if (e.key && e.ctrlKey) {
-            str = 'ctrl+' + e.key.toLowerCase()
+            str = 'ctrl+';
         } else if (e.key && e.altKey) {
-            str = 'alt+' + e.key.toLowerCase()
+            str = 'alt+';
         } else if (e.key && e.shiftKey) {
-            str = 'shift+' + e.key.toLowerCase()
-        } else if (!e.ctrlKey && !e.altKey && !e.shiftKey) {
-            str = e.key.toLowerCase()
-        }
+            str = 'shift+';
+        } 
+
+        str += keycode(e.which);
+
         if (str && hotkeyStorage[str]) {
+            e.stopPropagation();
+            e.preventDefault();
             sendHotKeyCmd(hotkeyStorage[str])
+
         } else {
             if(e.ctrlKey || e.altKey)
                 return;
