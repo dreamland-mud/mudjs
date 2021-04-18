@@ -181,9 +181,6 @@ const CmdInput = props => {
                 commandList['multiCmd']['payload'](userCommand)
                 return
             }
-            if (sysCmd.length < 3) {
-                return echoHtml(errCmdDoesNotExist)
-            }
             const re = new RegExp(sysCmd)
             for (let command in commandList) {
                 if (re.test(command)) {

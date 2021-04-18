@@ -16,6 +16,15 @@ const multiCmdHelp = {
 }
 
 const Commands = {
+    help: {
+        payload: function(value) {
+            helpCmd(value)
+        },
+        help: {
+            title: helpHelp.title,
+            description: helpHelp.description
+        }
+    },
     hotkey: {
         payload: function(value) {
             hotkeyCmd(value)
@@ -42,19 +51,10 @@ const Commands = {
             title: settingsHelp.title,
             description: settingsHelp.description
         }
-    },
-    help: {
-        payload: function(value) {
-            helpCmd(value)
-        },
-        help: {
-            title: helpHelp.title,
-            description: helpHelp.description
-        }
     }
 }
 
-export const errCmdDoesNotExist = `Этой команды не существует, набери ${clickableLink('#help')} для получения списка доступных команд.`
+export const errCmdDoesNotExist = `Этой команды не существует, набери ${clickableLink('#help')} для получения списка доступных команд.\n`
 
 export function clickableLink(cmd) {
     return `<span class="builtin-cmd manip-link" data-action="${cmd}" data-echo="${cmd}">${cmd}</span>`
