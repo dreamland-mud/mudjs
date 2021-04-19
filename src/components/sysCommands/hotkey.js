@@ -15,8 +15,8 @@ export const hotkeyHelp = {
 В качестве action могут использоваться любые игровые команды, в том числе перечисленные через разделитель команд |. 
 Если нужно задать более сложные реакции на нажатую клавишу с использованием JavaScript, используйте функцию keydown в редакторе настроек (шестеренка вверху экрана).
 
-В качестве key можно использовать буквы, цифры, функциональные клавиши f1-f12, клавиши кейпада kp0-kp9.
-Доступны комбинации с участием ctrl, alt, shift. Например: ctrl+a, alt+9
+В качестве key можно использовать маленькие буквы, цифры, знаки препинания, функциональные клавиши f1-f12, клавиши кейпада kp0-kp9, kp*, kp-, kp+, kp., kp/, стрелки up down left right, клавиши ins del home end pgup pgdown.
+Доступны комбинации с участием ctrl, alt, shift. Например: ctrl+a, alt+9. Далеко не все клавиши и комбинации удобны к использованию в браузере.
 
 Пример для стрелки "вниз" на кейпаде: просто стрелка -- идти на юг, alt+стрелка -- бежать до упора на юг, shift+стрелка -- пристально смотреть на юг.
 #hotkey kp2 ю
@@ -30,50 +30,37 @@ export const hotkeyHelp = {
 }
 
 const hotkeyStorage = localStorage.hotkey ? JSON.parse(localStorage.hotkey) : {};
-const metaKeys = ['ctrl', 'alt', 'shift', 'meta', 'tab', 'backspace', 'enter']
 
-const errHotkey = `Набери ${clickableLink('#help hotkey')} для справки`
-
-const checkCombinedKey = (rawKey) => {
-    let key = rawKey.split('+')
-    let err
-    if (key.length > 2) return  { key, err : `В комбинации может быть только две клавиши. ${errHotkey}` }
-    
-    if (!keycode(key[key.length-1]) || metaKeys.includes(key[key.length-1])) {
-        err = `Недопустимый ключ. ${errHotkey}`
-    }
-    if (!keycode(key[0]) || !metaKeys.slice(0,3).includes(key[0])) {
-        err = `Недопустимый комманд-ключ. ${errHotkey}`
-    }
-    key = key.join('+').toLowerCase()
-
-    return { key, err }
-} 
+const errHotkey = `Набери ${clickableLink('#help hotkey')} для справки.\n`
 
 const checkKey = rawKey => {
-    rawKey = rawKey.toLowerCase()
-    let key = []
+    let key = rawKey.toLowerCase().replace(/\s/g, '');
     let err = ''
-    if (rawKey.indexOf('+') !== -1) {
-        return checkCombinedKey(rawKey)
+
+    let combos = key.match(/^(ctrl|alt|shift)\+(.+)$/);
+    if (combos && combos.length > 2) {
+        if (!keycode(combos[2])) 
+            err = `Код клавиши ${combos[2]} не найден. ${errHotkey}\n`;
+
+    } else if (!keycode(key)) {
+        if (key.match(/^[a-z]+\+./))
+            err = `В комбинации клавиш можно использовать только ctrl, alt или shift.\n`;
+        else
+            err = `Код клавиши ${key} не найден. ${errHotkey}\n`;
     }
-    if (keycode(rawKey) && !metaKeys.includes(rawKey)) return { key: rawKey, err}
-    return { key, err: `Недопустимый ключ. ${errHotkey}`}
+
+    return {key, err};
 }
 
-const hotkeyCmdDelete = rawKey => {
-    const { key, err } = checkKey(rawKey)
-
-    if (err) return echoHtml(err)
-
+const hotkeyCmdDelete = key => {
     if (hotkeyStorage[key]){
         delete hotkeyStorage[key]
         localStorage.hotkey = JSON.stringify(hotkeyStorage)
-        echoHtml(key + ' удален из списка.')
+        echoHtml(`Горячая клавиша ${key} удалена из списка.\n`)
         return
     }
     
-    return echoHtml(key + ' не найден в списке.')
+    return echoHtml(`Такая горячая клавиша не задана.\n`)
 }
 
 const hotkeyCmdAdd = stringCmd => {
@@ -84,15 +71,15 @@ const hotkeyCmdAdd = stringCmd => {
     if (!hotkeyStorage[key]) {
         hotkeyStorage[key] = stringCmd.slice(1).join(' ')
         localStorage.hotkey = JSON.stringify(hotkeyStorage)
-        echoHtml('Команда для ' + key + ' добавлена.' )
+        echoHtml('Команда для ' + key + ' добавлена.\n' )
         return
     } 
 
-    return echoHtml(`Этот ключ уже существует, набери <span class="builtin-cmd manip-link" data-action="#hotkey ${key}" data-echo="#hotkey ${key}">#hotkey ${key}</span> для удаления`)
+    return echoHtml(`Этот ключ уже существует, набери <span class="builtin-cmd manip-link" data-action="#hotkey ${key}" data-echo="#hotkey ${key}">#hotkey ${key}</span> для удаления.\n`)
 }
 
 const hotkeyCmdList = () => {
-    let hotkeyList = 'Список хоткеев: \n'
+    let hotkeyList = 'Список горячих клавиш: \n'
     for (let i in hotkeyStorage) {
         hotkeyList = hotkeyList + i + ' : ' +  hotkeyStorage[i] + '\n'
     }
@@ -106,9 +93,23 @@ const hotkeyCmd = value => {
     return hotkeyCmdAdd(stringCmd)
 }
 
-export function sendHotKeyCmd(cmd) {
-    echo(cmd)
-    send(cmd)
+// Translate keyboard event into a symbolic name for a hotkey and run it, if defined in the storage.
+export function sendHotKeyCmd(e) {
+    const hotkey = keycode.hotkey(e);
+
+    if (!hotkey)
+        return false;
+
+    const cmd = hotkeyStorage[hotkey];
+    if (cmd) {
+        e.stopPropagation();
+        e.preventDefault();        
+        echo(cmd)
+        send(cmd)
+        return true;
+    }
+
+    return false;
 }
 
 export default hotkeyCmd

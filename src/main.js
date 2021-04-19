@@ -81,29 +81,14 @@ $(document).ready(function() {
 
 
     $('body').on('keydown', function(e) {
-        const hotkeyStorage = localStorage.hotkey ? JSON.parse(localStorage.hotkey) : {};
         var input = $('#input input');
         // Ignore if modal dialog is present
         if($('body.modal-open').length !== 0)
             return;
 
-        let str = ''
-        if (e.key && e.ctrlKey) {
-            str = 'ctrl+';
-        } else if (e.key && e.altKey) {
-            str = 'alt+';
-        } else if (e.key && e.shiftKey) {
-            str = 'shift+';
-        } 
-
-        str += keycode(e.which);
-
-        if (str && hotkeyStorage[str]) {
-            e.stopPropagation();
-            e.preventDefault();
-            sendHotKeyCmd(hotkeyStorage[str])
-
-        } else {
+        // First check for hotkeys defined via built-in #hotkey command, 
+        // then propagate to the main onKeyDown handler and hotkeys in settings.js.
+        if (!sendHotKeyCmd(e)) {
             if(e.ctrlKey || e.altKey)
                 return;
 
