@@ -9,6 +9,15 @@ import settings from '../settings';
 import { connect } from '../websock';
 import { makeStyles } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
+import Commands, { splitCommand, echoHtml, errCmdDoesNotExist } from './SysCommands'
+
+
+$('body').on('click', '.builtin-cmd', function(e) {
+    var cmd = $(e.currentTarget);
+    const { sysCmd,  sysCmdArgs} = splitCommand(cmd.attr('data-action'))
+    echo(cmd.attr('data-echo'));
+    Commands[sysCmd]['payload'](sysCmdArgs);
+});
 
 const scrollPage = dir => {
     const wrap = $('.terminal-wrap');
@@ -48,9 +57,6 @@ const CmdInput = props => {
     // Input box value.
     const [ value, setValue ] = useState('');
 
-    // Arrow up. Retrieve previous command from history and populate the input box.
-    // Called from onKeyDown handler.
-
     function saveCmd(t) {
         if(t) {
             position = input_history.length;
@@ -73,6 +79,8 @@ const CmdInput = props => {
 	    }
     }
 
+    // Arrow up. Retrieve previous command from history and populate the input box.
+    // Called from onKeyDown handler.
     const historyUp = () => {
         if(position > 0) {
             if(position === input_history.length)
@@ -124,14 +132,17 @@ const CmdInput = props => {
     // arrow keys to navigate history, and passes everything else to the user-defined triggers (settings).
     const keydown = e => {
         e.stopPropagation();
-
+        const isPgKeysScroll = localStorage.properties ? JSON.parse(localStorage.properties)['isPgKeysScroll'] : true
+  
         if(!e.shiftKey && !e.ctrlKey && !e.altKey) {
             switch(e.which) {
                 case 33: // page up
+                    if (!isPgKeysScroll) break;
                     e.preventDefault();
                     scrollPage(-0.8);
                     return;
                 case 34: // page down
+                    if (!isPgKeysScroll) break;
                     e.preventDefault();
                     scrollPage(0.8);
                     return;
@@ -156,29 +167,36 @@ const CmdInput = props => {
     // Allows to paste multi-line text.
     const submit = e => {
         e.preventDefault();
-        const t = value;
+        const userCommand = value;
+        const commandList = Commands
         setValue('');
-        //Check if we must to store command
-        saveCmd(t)
-        // For each input line, trigger the 'input' event. Default 'input' handler will send the command
-        // to the server, and also user-defined triggers will be called.
-        var lines = t.split('\n');
-        $(lines).each(function() {
-            echo(this);
-            if (this.startsWith('#')) {
-                const numRep = this.split(' ')[0].substr(1);
-                if (numRep && Number.isInteger(+numRep)) {
-                    for (let i = 0; i < parseInt(numRep); i++) {
-                        $('.trigger').trigger('input', ['' + this.substr(numRep.length+1).trim()]);
-                    }
-                } else {
-                    $('.trigger').trigger('input', ['' + this]);
-                }
-            } else {
-                $('.trigger').trigger('input', ['' + this]);
+        saveCmd(userCommand)
+
+        //Check if string is system command
+        if (userCommand.startsWith('#')) {
+            echo(userCommand)
+            const { sysCmd,  sysCmdArgs} = splitCommand(userCommand)
+            if (Number.isInteger(+sysCmd)) {
+                saveCmd(userCommand)
+                commandList['multiCmd']['payload'](userCommand)
+                return
             }
-        });
-    };
+            const re = new RegExp(sysCmd)
+            for (let command in commandList) {
+                if (re.test(command)) {
+                    commandList[command]['payload'](sysCmdArgs)
+                    return 
+                }
+            }
+            return echoHtml(errCmdDoesNotExist)
+        }
+        
+        var lines = userCommand.split('\n')
+        $(lines).each(function() {
+            echo(this)
+            $('.trigger').trigger('input', ['' + this])
+        })
+    }
 
     // Draws either 'Reconnect' button or input box, depending on the global state.
     // onChange ensures that the state of this component changes whenever user inputs something.

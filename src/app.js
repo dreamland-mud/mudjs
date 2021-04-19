@@ -1,6 +1,5 @@
 
 import React from 'react';
-
 import SplitterLayout from 'react-splitter-layout';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Box from '@material-ui/core/Box';
@@ -13,6 +12,7 @@ import MainWindow from './components/mainwindow';
 import Panel from './components/panel';
 import Stats from './components/stats';
 import Map from './components/map';
+import PropertiesStorage from './properties'
 
 const useStyles = makeStyles(theme => ({
     page: {
@@ -37,6 +37,8 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
+const propertiesStorage = PropertiesStorage
+
 export default props => {
     // Hooks
     const classes = useStyles();
@@ -45,9 +47,9 @@ export default props => {
 
     return <Box display="flex" flexDirection="column" className={classes.page}>
         <Box flex="1 1 auto" className={classes.main}>
-            <SplitterLayout customClassName={classes.mainSplitter}>
+            <SplitterLayout customClassName={classes.mainSplitter} primaryIndex={1} secondaryInitialSize={propertiesStorage['terminalLayoutWidth']} >
                 <MainWindow />
-        		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={500} secondaryInitialSize={270}>
+        		{ bigScreen && <SplitterLayout primaryIndex={1} primaryInitialSize={propertiesStorage['mapLayoutWidth']} secondaryInitialSize={propertiesStorage['panelLayoutWidth']}>
                     <Panel /> 
                     { hugeScreen && <Map /> }
                 </SplitterLayout> }

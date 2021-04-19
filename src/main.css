@@ -253,7 +253,7 @@ td.v-bottom {
  * Add some space around main screen on all media sizes.
  */
 .terminal-wrap {
-   padding: 0px 10px 10px 4px;
+    padding: 5px 10px 10px 10px;
 }
 
 /*

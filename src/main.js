@@ -1,3 +1,5 @@
+import { sendHotKeyCmd } from './components/sysCommands/hotkey';
+import PropertiesStorage from './properties'
 
 const $ = require('jquery');
 
@@ -17,6 +19,7 @@ require('./main.css');
 
 var connect = websock.connect;
 
+let propertiesStorage = PropertiesStorage
 
 $(window).bind('beforeunload', function() {
     return 'leaving already?';
@@ -78,41 +81,45 @@ $(document).ready(function() {
 
     $('body').on('keydown', function(e) {
         var input = $('#input input');
-
-        // dont autofocus if modal dialog is present
+        // Ignore if modal dialog is present
         if($('body.modal-open').length !== 0)
             return;
 
-        if(e.ctrlKey || e.altKey)
-            return;
+        // First check for hotkeys defined via built-in #hotkey command, 
+        // then propagate to the main onKeyDown handler and hotkeys in settings.js.
+        if (!sendHotKeyCmd(e)) {
+            if(e.ctrlKey || e.altKey)
+                return;
 
-        if(input.is(':focus'))
-            return;
+            if(input.is(':focus'))
+                return;
 
-        if ($('#help input').is(':focus'))
-            return;
+            if ($('#help input').is(':focus'))
+                return;
 
-        input.focus();
-        document.getElementById('inputBox').dispatchEvent(new KeyboardEvent('keydown', e));
+            input.focus();
+            document.getElementById('inputBox').dispatchEvent(new KeyboardEvent('keydown', e));
+        }
     });
-
 
     /*
      * Handlers for plus-minus buttons to change terminal font size.
      */ 
     var fontDelta = 2;
-    var terminalFontSizeKey = "terminal-font-size";
-    
+    var terminalFontSizeKey = "terminalFontSize";
+
     function changeFontSize(delta) {
         var terminal = $('.terminal');
         var style = terminal.css('font-size'); 
         var fontSize = parseFloat(style); 
         terminal.css('font-size', (fontSize + delta) + 'px');
         localStorage.setItem(terminalFontSizeKey, fontSize + delta);
+        propertiesStorage['terminalFontSize'] = fontSize + delta
+        localStorage.properties = JSON.stringify(propertiesStorage)
     }
 
     function initTerminalFontSize() {
-        var cacheFontSize = localStorage.getItem(terminalFontSizeKey);
+        var cacheFontSize = localStorage.properties ? JSON.parse(localStorage.properties)['terminalFontSize'] : propertiesStorage
         if (cacheFontSize != null) {
             var terminal = $('.terminal');
             terminal.css('font-size', (cacheFontSize) + 'px');
@@ -130,5 +137,12 @@ $(document).ready(function() {
         changeFontSize(-fontDelta);
     });
 
+    /* Save layout size */
+    $('.layout-splitter').on('click', function (e) {
+        propertiesStorage['terminalLayoutWidth'] = document.querySelector('.terminal-wrap').getBoundingClientRect().width
+        propertiesStorage['panelLayoutWidth'] = document.querySelector('#panel-wrap').getBoundingClientRect().width
+        propertiesStorage['mapLayoutWidth'] = document.querySelector('#map-wrap').getBoundingClientRect().width
+        localStorage.properties = JSON.stringify(propertiesStorage)
+    })
 });
 
