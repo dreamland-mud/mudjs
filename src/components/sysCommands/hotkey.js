@@ -1,6 +1,7 @@
 import { echo } from '../../input';
 import { send } from '../../websock';
 import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands'
+import { parseUserVars } from './var'
 import keycode from "./keycode"
 
 // TODO: List all accepted key codes, after testing all combinations.
@@ -29,8 +30,6 @@ export const hotkeyHelp = {
 `
 }
 
-const hotkeyStorage = localStorage.hotkey ? JSON.parse(localStorage.hotkey) : {};
-
 const errHotkey = `Набери ${clickableLink('#help hotkey')} для справки.\n`
 
 const checkKey = rawKey => {
@@ -53,6 +52,7 @@ const checkKey = rawKey => {
 }
 
 const hotkeyCmdDelete = key => {
+    const hotkeyStorage = localStorage.hotkey ? JSON.parse(localStorage.hotkey) : {};
     if (hotkeyStorage[key]){
         delete hotkeyStorage[key]
         localStorage.hotkey = JSON.stringify(hotkeyStorage)
@@ -64,6 +64,7 @@ const hotkeyCmdDelete = key => {
 }
 
 const hotkeyCmdAdd = stringCmd => {
+    const hotkeyStorage = localStorage.hotkey ? JSON.parse(localStorage.hotkey) : {};
     const { key, err } = checkKey(stringCmd[0])
     
     if (err) return echoHtml(err)
@@ -79,6 +80,8 @@ const hotkeyCmdAdd = stringCmd => {
 }
 
 const hotkeyCmdList = () => {
+    const hotkeyStorage = localStorage.hotkey ? JSON.parse(localStorage.hotkey) : {};
+    if (Object.keys(hotkeyStorage).length === 0) return echoHtml(`Список горячих клавиш пуст. Набери ${clickableLink('#help hotkey')} для справки`)
     let hotkeyList = 'Список горячих клавиш: \n'
     for (let i in hotkeyStorage) {
         hotkeyList = hotkeyList + i + ' : ' +  hotkeyStorage[i] + '\n'
@@ -96,16 +99,17 @@ const hotkeyCmd = value => {
 // Translate keyboard event into a symbolic name for a hotkey and run it, if defined in the storage.
 export function sendHotKeyCmd(e) {
     const hotkey = keycode.hotkey(e);
-
+    const hotkeyStorage = localStorage.hotkey ? JSON.parse(localStorage.hotkey) : {};
     if (!hotkey)
         return false;
 
     const cmd = hotkeyStorage[hotkey];
     if (cmd) {
         e.stopPropagation();
-        e.preventDefault();        
-        echo(cmd)
-        send(cmd)
+        e.preventDefault(); 
+        const parsedCmd = parseUserVars(cmd)       
+        echo(parsedCmd)
+        send(parsedCmd)
         return true;
     }
 
