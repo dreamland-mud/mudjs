@@ -98,7 +98,10 @@ $(document).ready(function() {
                 return;
 
             input.focus();
-            document.getElementById('inputBox').dispatchEvent(new KeyboardEvent('keydown', e));
+            if (document.getElementById('inputBox')) {
+                document.getElementById('inputBox').dispatchEvent(new KeyboardEvent('keydown', e));
+            }
+            return
         }
     });
 
