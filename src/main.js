@@ -1,6 +1,5 @@
 import { sendHotKeyCmd } from './components/sysCommands/hotkey';
 import PropertiesStorage from './properties'
-import keycode from './components/sysCommands/keycode';
 
 const $ = require('jquery');
 
