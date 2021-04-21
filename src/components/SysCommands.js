@@ -17,6 +17,14 @@ const multiCmdHelp = {
 `
 }
 
+const cmdAliases = {
+    'удалить' : 'delete',
+    'справка' : 'help',
+    'кнопка' : 'hotkey',
+    'настройки' : 'settings',
+    'переменная' : 'var'
+}
+
 const Commands = {
     delete: {
         payload: function(value) {
@@ -72,6 +80,38 @@ const Commands = {
             description: varHelp.description
         }
     }
+}
+
+export function getSystemCmd(cmd) {
+    const re = new RegExp(cmd)
+    for (let command in Commands) {
+        if (re.test(command)) {
+            return command
+        }
+    }
+    for (let command in cmdAliases) {
+        if (re.test(command)) {
+            return cmdAliases[command]
+        }
+    }
+}
+
+export function getSystemCmdAliases(cmd) {
+    let string = ''
+    let aliases = []
+    for (let alias in cmdAliases) {
+        if (cmdAliases[alias] === cmd) {
+            aliases.push(alias)
+        }
+    }
+    if(aliases[0]) {
+        string += '( '
+        for (let i = 0; i < aliases.length; i++) {
+            string += `${clickableLink('#' + aliases[i])} `
+        }
+        string += ') '
+    }
+    return string
 }
 
 export const errCmdDoesNotExist = `Этой команды не существует, набери ${clickableLink('#help')} для получения списка доступных команд. \n`

@@ -2,7 +2,7 @@ import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands'
 
 export const deleteHelp = {
     title: `Позволяет удалять горячие клавиши, переменные и пользовательские настройки, подробнее ${clickableLink('#help delete')}`,
-    description: `Команда #delete позволяет удалять горячие клавиши, переменные и пользовательские настройки.
+    description: `Команда ${clickableLink('#delete')} позволяет удалять горячие клавиши, переменные и пользовательские настройки.
 Синтаксис:
 #delete                 - вывести список хранилищ доступных для взаимодействия
 #delete storage         - вывести список записей из storage, которые можно удалить

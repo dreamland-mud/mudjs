@@ -7,7 +7,7 @@ import keycode from "./keycode"
 // TODO: List all accepted key codes, after testing all combinations.
 export const hotkeyHelp = {
     title: `Присвоить команду для горячей клавиши, подробнее ${clickableLink('#help hotkey')}`,
-    description: `Команда #hotkey позволяет назначать горячие клавиши для игровых команд.
+    description: `Команда ${clickableLink('#hotkey')} позволяет назначать горячие клавиши для игровых команд.
 Синтаксис:
 #hotkey            - вывести список назначенных клавиш
 #hotkey key        - удалить клавишу key из списка

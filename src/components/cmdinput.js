@@ -9,15 +9,17 @@ import settings from '../settings';
 import { connect } from '../websock';
 import { makeStyles } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import Commands, { splitCommand, echoHtml, errCmdDoesNotExist } from './SysCommands'
+import Commands, { splitCommand, echoHtml, errCmdDoesNotExist, getSystemCmd } from './SysCommands'
 import { sendHotKeyCmd } from './sysCommands/hotkey'
 
 
 $('body').on('click', '.builtin-cmd', function(e) {
     var cmd = $(e.currentTarget);
     const { sysCmd,  sysCmdArgs} = splitCommand(cmd.attr('data-action'))
+    const command = getSystemCmd(sysCmd)
     echo(cmd.attr('data-echo'));
-    Commands[sysCmd]['payload'](sysCmdArgs);
+    if (!command) return errCmdDoesNotExist
+    Commands[command]['payload'](sysCmdArgs);
 });
 
 const scrollPage = dir => {
@@ -78,8 +80,8 @@ const CmdInput = props => {
                 if ($('#help input').is(':focus'))
                     return;
     
-                textInput.current.focus();
                 if (document.getElementById('inputBox')) {
+                    textInput.current.focus();
                     document.getElementById('inputBox').dispatchEvent(new KeyboardEvent('keydown', e));
                 }
                 return
@@ -213,13 +215,11 @@ const CmdInput = props => {
                 commandList['multiCmd']['payload'](userCommand)
                 return
             }
-            const re = new RegExp(sysCmd)
-            for (let command in commandList) {
-                if (re.test(command)) {
+            const command = getSystemCmd(sysCmd)
+                if (command) {
                     commandList[command]['payload'](sysCmdArgs)
                     return 
                 }
-            }
             return echoHtml(errCmdDoesNotExist)
         }
         

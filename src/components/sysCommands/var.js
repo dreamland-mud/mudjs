@@ -2,7 +2,7 @@ import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands'
 
 export const varHelp = {
     title: `Позволяет создать переменную с указанным значением, подробнее ${clickableLink('#help var')}`,
-    description: `Команда #var позволяет создавать переменные.
+    description: `Команда ${clickableLink('#var')} позволяет создавать переменные.
 Синтаксис:
 #var                - вывести список заданных переменных
 #var variable       - вывести значение переменной variable
