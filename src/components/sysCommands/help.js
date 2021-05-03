@@ -1,9 +1,9 @@
-import Commands, { echoHtml, clickableLink, parseStringCmd } from '../SysCommands'
+import Commands, { echoHtml, clickableLink, parseStringCmd, getSystemCmd, errCmdDoesNotExist, getSystemCmdAliases } from '../SysCommands'
 
 
 export const helpHelp = {
     title: `Получить справку по встроенным командам, подробнее ${clickableLink('#help help')}`,
-    description: `Команда #help позволяет получить справку по встроенным командам.
+    description: `Команда ${clickableLink('#help')} позволяет получить справку по встроенным командам.
 Синтаксис:
 #help - вывести список доступных команд
 #help command - подробная справка по команде command
@@ -12,18 +12,20 @@ export const helpHelp = {
 
 
 const help = (cmd) => {
-    const re = new RegExp(cmd)
-    for (let command in Commands) {
-        if (re.test(command)) {
-            echoHtml(Commands[command]['help']['description'])
-        }
-    }
+    const command = getSystemCmd(cmd)
+    if (!command) return echoHtml(errCmdDoesNotExist)
+    echoHtml(Commands[command]['help']['description'])
 }
 
 const helpList = () => {
     let list = `Список доступных команд: \n`
-    for (let i in Commands) {
-        list += (`${clickableLink('#' + i)} :  ${Commands[i]['help']['title']}\n`)
+    for (let command in Commands) {
+        const aliases = getSystemCmdAliases(command)
+        list += `${clickableLink('#' + command)} `
+        if (aliases) {
+            list += `${aliases}`
+        }
+        list += `:  ${Commands[command]['help']['title']}\n`
     }
     list += '\n';
     echoHtml(list)

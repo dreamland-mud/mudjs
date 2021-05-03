@@ -9,7 +9,7 @@ import 'react-splitter-layout/lib/index.css';
 import 'bootstrap';
 
 import MainWindow from './components/mainwindow';
-import Panel from './components/panel';
+import Panel from './components/windowletsPanel/panel';
 import Stats from './components/stats';
 import Map from './components/map';
 import PropertiesStorage from './properties'

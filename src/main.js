@@ -1,4 +1,3 @@
-import { sendHotKeyCmd } from './components/sysCommands/hotkey';
 import PropertiesStorage from './properties'
 
 const $ = require('jquery');
@@ -77,30 +76,6 @@ $(document).ready(function() {
 
     connect();
     initTerminalFontSize();
-
-
-    $('body').on('keydown', function(e) {
-        var input = $('#input input');
-        // Ignore if modal dialog is present
-        if($('body.modal-open').length !== 0)
-            return;
-
-        // First check for hotkeys defined via built-in #hotkey command, 
-        // then propagate to the main onKeyDown handler and hotkeys in settings.js.
-        if (!sendHotKeyCmd(e)) {
-            if(e.ctrlKey || e.altKey)
-                return;
-
-            if(input.is(':focus'))
-                return;
-
-            if ($('#help input').is(':focus'))
-                return;
-
-            input.focus();
-            document.getElementById('inputBox').dispatchEvent(new KeyboardEvent('keydown', e));
-        }
-    });
 
     /*
      * Handlers for plus-minus buttons to change terminal font size.

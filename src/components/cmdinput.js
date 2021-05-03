@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import $ from 'jquery';
 import { echo } from '../input';
@@ -9,14 +9,17 @@ import settings from '../settings';
 import { connect } from '../websock';
 import { makeStyles } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import Commands, { splitCommand, echoHtml, errCmdDoesNotExist } from './SysCommands'
+import Commands, { splitCommand, echoHtml, errCmdDoesNotExist, getSystemCmd } from './SysCommands'
+import { sendHotKeyCmd } from './sysCommands/hotkey'
 
 
 $('body').on('click', '.builtin-cmd', function(e) {
     var cmd = $(e.currentTarget);
     const { sysCmd,  sysCmdArgs} = splitCommand(cmd.attr('data-action'))
+    const command = getSystemCmd(sysCmd)
     echo(cmd.attr('data-echo'));
-    Commands[sysCmd]['payload'](sysCmdArgs);
+    if (!command) return errCmdDoesNotExist
+    Commands[command]['payload'](sysCmdArgs);
 });
 
 const scrollPage = dir => {
@@ -56,6 +59,36 @@ const CmdInput = props => {
     const connection = useSelector(state => state.connection);
     // Input box value.
     const [ value, setValue ] = useState('');
+    const textInput = useRef(null);
+
+    React.useEffect(() => {
+        window.addEventListener('keydown', (e) => {
+            var input = $('#input input');
+            // Ignore if modal dialog is present
+            if($('body.modal-open').length !== 0)
+                return;
+    
+            // First check for hotkeys defined via built-in #hotkey command, 
+            // then propagate to the main onKeyDown handler and hotkeys in settings.js.
+            if (!sendHotKeyCmd(e)) {
+                if(e.ctrlKey || e.altKey)
+                    return;
+    
+                if(input.is(':focus'))
+                    return;
+    
+                if ($('#help input').is(':focus'))
+                    return;
+    
+                if (document.getElementById('inputBox')) {
+                    textInput.current.focus();
+                    document.getElementById('inputBox').dispatchEvent(new KeyboardEvent('keydown', e));
+                }
+                return
+            }
+          });
+    },[])
+
 
     function saveCmd(t) {
         if(t) {
@@ -158,9 +191,10 @@ const CmdInput = props => {
                     break;
             }
         }
-
-        // Call user settings.
-        settings.keydown()(e);
+        if (!sendHotKeyCmd(e)) {
+            // Call user settings.
+            settings.keydown()(e);
+        }
     };
 
     // Handles enter key. Records command in history and passes it to the server via 'input' trigger.
@@ -181,13 +215,11 @@ const CmdInput = props => {
                 commandList['multiCmd']['payload'](userCommand)
                 return
             }
-            const re = new RegExp(sysCmd)
-            for (let command in commandList) {
-                if (re.test(command)) {
+            const command = getSystemCmd(sysCmd)
+                if (command) {
                     commandList[command]['payload'](sysCmdArgs)
                     return 
                 }
-            }
             return echoHtml(errCmdDoesNotExist)
         }
         
@@ -204,7 +236,7 @@ const CmdInput = props => {
     return connection.connected ?
             <div flex="1" className={classes.activity}>
                 <form onSubmit={submit} id="input">
-                    <input id="inputBox" onKeyDown={keydown} value={value} onChange={e => setValue(e.target.value)} type="text" autoComplete="off" />
+                    <input ref={textInput} id="inputBox" onKeyDown={keydown} value={value} onChange={e => setValue(e.target.value)} type="text" autoComplete="off" />
                 </form> 
                 { !big > 0 &&
                 <table className={classes.history}>
