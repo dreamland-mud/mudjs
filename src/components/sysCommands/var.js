@@ -61,13 +61,13 @@ const varCmd = value => {
 
 export function parseUserVars(str) {
     const varsStorage = localStorage.vars ? JSON.parse(localStorage.vars) : {};
-    const stringArr = str.split(' ')
+    const stringArr = str.split(/([ ]|[(?=|)])/)
     for (let i in stringArr) {
-        if (stringArr[i].startsWith('$') && varsStorage[stringArr[i].slice(1)]) {
-        stringArr[i] = varsStorage[stringArr[i].slice(1)]
+        if (stringArr[i].startsWith('$') && (varsStorage[stringArr[i].slice(1)])) {
+                stringArr[i] = varsStorage[stringArr[i].slice(1)]
         }
     }
-    return stringArr.join(' ')
+    return stringArr.join('')
 }
 
 export default varCmd
