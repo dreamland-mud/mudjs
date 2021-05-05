@@ -21,31 +21,31 @@ const TeamMate = (stats) => {
 export default function GroupItem(prompt) {
 
     return <PanelItem title={'Группа ' + prompt.group.ln + ':'} collapsed={true} >
-                <div id="group-table" className="table-with-icons">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Имя</th>
-                                <th>Ур.</th>
-                                <th>Здор.</th>
-                                <th>Опыт</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {prompt.group.leader && <TeamMate {...prompt.group.leader}/>}
-                            {prompt.group.pc && prompt.group.pc.map((stats, i) => {
-                                return (
-                                    <TeamMate key={i} {...stats} />
-                                )
-                            })}
-                            {prompt.group.npc && prompt.group.npc.map((stats, i) => {
-                                return (
-                                    <TeamMate key={i} {...stats} />
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+            <div id="group-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Имя</th>
+                            <th>Ур.</th>
+                            <th>Здор.</th>
+                            <th>Опыт</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {prompt.group.leader && <TeamMate {...prompt.group.leader}/>}
+                        {prompt.group.pc && prompt.group.pc.map((stats, i) => {
+                            return (
+                                <TeamMate key={i} {...stats} />
+                            )
+                        })}
+                        {prompt.group.npc && prompt.group.npc.map((stats, i) => {
+                            return (
+                                <TeamMate key={i} {...stats} />
+                            )
+                        })}
+                    </tbody>
+                </table>
+            </div>
         </PanelItem>
 }
 
