@@ -2,7 +2,7 @@
 import $ from 'jquery';
 import React, { useState, useEffect, useRef } from 'react';
 
-import websock from '../websock';
+import websock from '../../websock';
 
 const echo = txt => {
     $('.terminal').trigger('output', [txt]);
@@ -38,7 +38,7 @@ const useTypeahead = () => {
     return state;
 };
 
-export default function Help(props) {
+export default function Help() {
     const ref = useRef();
     const { loading, topics, error } = useTypeahead();
 
