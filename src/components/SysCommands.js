@@ -26,15 +26,6 @@ const cmdAliases = {
 }
 
 const Commands = {
-    delete: {
-        payload: function(value) {
-            deleteCmd(value)
-        },
-        help: {
-            title: deleteHelp.title,
-            description: deleteHelp.description
-        }
-    },
     help: {
         payload: function(value) {
             helpCmd(value)
@@ -51,6 +42,15 @@ const Commands = {
         help: {
             title: hotkeyHelp.title,
             description: hotkeyHelp.description
+        }
+    },
+    var: {
+        payload: function(value) {
+            varCmd(value)
+        },
+        help: {
+            title: varHelp.title,
+            description: varHelp.description
         }
     },
     multiCmd: {
@@ -71,13 +71,13 @@ const Commands = {
             description: settingsHelp.description
         }
     },
-    var: {
+    delete: {
         payload: function(value) {
-            varCmd(value)
+            deleteCmd(value)
         },
         help: {
-            title: varHelp.title,
-            description: varHelp.description
+            title: deleteHelp.title,
+            description: deleteHelp.description
         }
     }
 }
