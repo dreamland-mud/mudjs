@@ -103,7 +103,10 @@ function terminalInit(wrap) {
 
                 lastChunkId = id;
 
-                const lines = $chunk.text().replace(/\xa0/g, ' ').split('\n');
+                // Transform output into clean text and call user-defined triggers.
+                const $chunkCopy = $chunk.clone();
+                $chunkCopy.find('.no-triggers').remove();
+                const lines = $chunkCopy.text().replace(/\xa0/g, ' ').split('\n');
                 lines.forEach(line => $('.trigger').trigger('text', [''+line]));
             });
     });

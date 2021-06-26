@@ -225,8 +225,9 @@ function manipParseAndReplace(span) {
     // Replace item manipulation "<m i='234234' c='take $,put $ 12348'/>" tags surrounding every item.
     span.find('m').each(function(index) {
         // Populate menu node for each item based on the 'c' and 'l' attributes containing command lists.
+        // Mark menu nodes so that they can be removed and not mess up the triggers.
         var id = $(this).attr('i');
-        var menu = $('<span class="dropdown-menu" />');
+        var menu = $('<span class="dropdown-menu no-triggers" />');
 
         function addToMenu(cmd) {
             if (cmd.trim().length === 0)
