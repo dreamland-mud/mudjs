@@ -30,6 +30,18 @@ const varAdd = (stringCmd) => {
     echoHtml(`Переменная '${varName}' теперь означает '${varValue}'.\n`);
 }
 
+const varDelete = key => {
+    const varsStorage = localStorage.hotkey ? JSON.parse(localStorage.vars) : {};
+    if (varsStorage[key]){
+        delete varsStorage[key]
+        localStorage.vars = JSON.stringify(varsStorage)
+        echoHtml(`Переменная ${key} удалена из списка.\n`)
+        return
+    }
+    
+    return echoHtml(`Переменная не задана.\n`)
+}
+
 const varShow = (userVar) => {
     const varsStorage = localStorage.vars ? JSON.parse(localStorage.vars) : {};
     if (!varsStorage[userVar]) return echoHtml(`Переменная не найдена. Для просмотра всех сохраненых переменных введи ${clickableLink('#var')}.\n`)
@@ -50,6 +62,8 @@ const varCmd = value => {
     const stringCmd = parseStringCmd(value)
     if (!stringCmd[0]) return varsListShow()
     if (stringCmd.length === 1) return varShow(stringCmd[0])
+    if (stringCmd.length === 2 && (stringCmd[1] === 'delete' || stringCmd[1] === 'удалить'))
+        return varDelete(stringCmd[0]);
     return varAdd(stringCmd)
 }
 
