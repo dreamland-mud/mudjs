@@ -115,8 +115,8 @@ $(document).ready(function() {
     /* Save layout size */
     $('.layout-splitter').on('click', function (e) {
         propertiesStorage['terminalLayoutWidth'] = document.querySelector('.terminal-wrap').getBoundingClientRect().width
-        propertiesStorage['panelLayoutWidth'] = document.querySelector('#panel-wrap').getBoundingClientRect().width
-        propertiesStorage['mapLayoutWidth'] = document.querySelector('#map-wrap').getBoundingClientRect().width
+        propertiesStorage['panelLayoutWidth'] = document.querySelector('#panel-wrap').getBoundingClientRect().width || 0
+        propertiesStorage['mapLayoutWidth'] = document.querySelector('#map-wrap').getBoundingClientRect().width || 0
         localStorage.properties = JSON.stringify(propertiesStorage)
     })
 });

@@ -1,7 +1,7 @@
 /* Этот файл будет сохранен в браузере (в LocalStorage.settings).
  * В переменной mudprompt хранится много полезной информации о персонаже.
  * Подробнее см. https://github.com/dreamland-mud/mudjs/wiki/MUD-prompt
- * Расшифровка аффектов: https://github.com/dreamland-mud/mudjs/blob/dreamland/src/prompt.js
+ * Расшифровка аффектов: https://github.com/dreamland-mud/mudjs/blob/dreamland/src/components/windowletsPanel/windowletsConstants.js
  */
 
 /*--------------------------------------------------------------------------
