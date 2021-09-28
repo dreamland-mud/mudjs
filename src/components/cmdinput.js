@@ -242,9 +242,9 @@ const CmdInput = props => {
                 <table className={classes.history}>
                     <tbody>
                         <tr>
-                            <button onClick={historyRepeat} cmd="repeat" className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.btn}`}><i className="fa fa-repeat"></i></button>
-                            <button onClick={historyDown} cmd="history-down" className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.btn}`}><i className="fa fa-arrow-down"></i></button>
-                            <button onClick={historyUp} cmd="history-up" className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.btn}`}><i className="fa fa-arrow-up"></i></button>		    
+                            <button onClick={historyRepeat} aria-label="Повторить команду" cmd="repeat" className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.btn}`}><i className="fa fa-repeat"></i></button>
+                            <button onClick={historyDown} aria-label="Следующая команда" cmd="history-down" className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.btn}`}><i className="fa fa-arrow-down"></i></button>
+                            <button onClick={historyUp} aria-label="Предыдущая команда" cmd="history-up" className={`btn btn-sm btn-ctrl btn-outline-primary ${classes.btn}`}><i className="fa fa-arrow-up"></i></button>		    
                         </tr>
                     </tbody>
                 </table>
