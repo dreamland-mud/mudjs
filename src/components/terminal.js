@@ -220,6 +220,6 @@ export default forwardRef(({bumpUnread, resetUnread}, ref) => {
     }), [wrap]);
 
     return <div className="terminal-wrap" ref={wrap}>
-            <div className="terminal"></div>
+            <div className="terminal" role="log" aria-live="polite" aria-relevant="text"></div>
           </div>;
 });
