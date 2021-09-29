@@ -1,0 +1,26 @@
+---
+kind: pipeline
+type: exec
+name: default
+concurrency:
+  limit: 1
+
+clone:
+  disable: true
+
+steps:
+- name: rebuild
+  commands:
+  - eval `ssh-agent -s`
+  - ssh-add /home/dreamland/.ssh/drone
+  - cd /var/www/mudjs
+  - git pull
+  - kill -9 $SSH_AGENT_PID
+  - npm ci
+  - npm run build
+  
+trigger:
+  branch:
+  - dreamland
+  event:
+  - push  
