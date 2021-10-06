@@ -90,9 +90,10 @@ function terminalInit(wrap) {
         historyDb
             .then(db => db.append(html))
             .then(id => {
-                const $chunk = $('<span>')
+                const $chunk = $('<div>')
                     .append(html)
-                    .attr('data-chunk-id', id);
+                    .attr('data-chunk-id', id)
+                    .attr('aria-live', 'alert');
 
                 // only append a DOM node if we're at the bottom
                 if(atBottom()) {
