@@ -30,7 +30,7 @@ const loadChunks = (startId, direction, maxlen) => {
             if(startId && direction && chunks.length === 0)
                 firstChunkId = startId;
 
-            return chunks.map(({id, value}) => $('<span>').append(value).attr('data-chunk-id', id));
+            return chunks.map(({id, value}) => $('<div>').append(value).attr('data-chunk-id', id));
         });
 };
 
@@ -95,6 +95,11 @@ function terminalInit(wrap) {
                     .attr('data-chunk-id', id)
                     .attr('aria-live', 'alert');
 
+                $chunk.find('.manip-cmd').each(function(){
+                    $(this)
+                    .attr('role','link')
+                    .attr('tabindex', 0)
+                })
                 // only append a DOM node if we're at the bottom
                 if(atBottom()) {
                     append($chunk);

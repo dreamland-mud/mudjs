@@ -63,6 +63,9 @@ const CmdInput = props => {
 
     React.useEffect(() => {
         window.addEventListener('keydown', (e) => {
+            if (e.which === 9) {
+                return
+            }
             var input = $('#input input');
             // Ignore if modal dialog is present
             if($('body.modal-open').length !== 0)
