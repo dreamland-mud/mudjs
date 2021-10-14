@@ -5,6 +5,7 @@ import $ from 'jquery';
 import historyDb from '../historydb';
 import ansi2html from '../ansi2html';
 import manip from '../manip';
+import { processTriggers } from './sysCommands/action';
 
 // TODO: the following parameters should be replaced with two numbers - viewport size (in pixels) and the threshold (in pixels)
 const bytesToLoad = 100000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
@@ -114,7 +115,11 @@ function terminalInit(wrap) {
                 const $chunkCopy = $chunk.clone();
                 $chunkCopy.find('.no-triggers').remove();
                 const lines = $chunkCopy.text().replace(/\xa0/g, ' ').split('\n');
-                lines.forEach(line => $('.trigger').trigger('text', [''+line]));
+                lines.forEach(line => {
+                    processTriggers(line);
+                    $('.trigger').trigger('text', [''+line])
+                });
+                // lines.forEach(line => $('.trigger').trigger('text', [''+line]));
             });
     });
 
