@@ -4,6 +4,7 @@ import propertiesCmd, { settingsHelp } from './sysCommands/userProperties'
 import helpCmd, { helpHelp } from './sysCommands/help'
 import varCmd, { varHelp } from './sysCommands/var'
 import deleteCmd, { deleteHelp } from './sysCommands/delete'
+import actionCmd, { actionHelp } from './sysCommands/action'
 
 const multiCmdHelp = {
     title: `Выполнить указанную команду несколько раз, подробнее ${clickableLink('#help multiCmd')}`,
@@ -22,10 +23,20 @@ const cmdAliases = {
     'справка' : 'help',
     'кнопка' : 'hotkey',
     'настройки' : 'settings',
-    'переменная' : 'var'
+    'переменная' : 'var',
+    'действие' : 'action'
 }
 
 const Commands = {
+    action: {
+        payload: function(value) {
+            actionCmd(value)
+        },
+        help: {
+            title: actionHelp.title,
+            description: actionHelp.description
+        }
+    },
     help: {
         payload: function(value) {
             helpCmd(value)
