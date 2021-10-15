@@ -134,7 +134,7 @@ function terminalInit(wrap) {
 
         // Load top chunks while scrolling up.
         if(wrap.scrollTop() < scrollThreshold) {
-            let $fst = terminal.find('span[data-chunk-id]:first-child');
+            let $fst = terminal.find('div[data-chunk-id]:first-child');
 
             // terminal is empty, can't scroll
             if($fst.length === 0)
@@ -162,7 +162,7 @@ function terminalInit(wrap) {
 
         // Load bottom chunks while scrolling down.
         if(wrap.scrollTop() > (terminal.height() - wrap.height() - scrollThreshold)) {
-            let $lst = terminal.find('span[data-chunk-id]:last-child');
+            let $lst = terminal.find('div[data-chunk-id]:last-child');
 
             // terminal is empty, can't scroll
             if($lst.length === 0)
