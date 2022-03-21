@@ -108,6 +108,9 @@ body {
     padding-left: 0.2em;
     cursor: pointer;
     overflow: hidden;
+    box-shadow: 0px 5px 10px 0px rgba(12,12,12,0.6);
+    -webkit-box-shadow: 0px 5px 10px 0px rgba(12,12,12,0.6);
+    -moz-box-shadow: 0px 5px 10px 0px rgba(12,12,12,0.6);    
 }
 
 /* Close plus-minus button in the panel corner. */
