@@ -101,9 +101,9 @@ body {
  */
 .table-wrapper {
     position: relative;
-    background-color: #202f31;
-    margin: 8px 5px 1px 5px;
-    border: 1px solid #999;
+    background-color: #2e2e2e;
+    margin: 0px 0px 10px 0px;
+    border: 0px solid #2e2e2e;
     padding-bottom: 0.1em;
     padding-left: 0.2em;
     cursor: pointer;
@@ -152,6 +152,8 @@ td.v-bottom {
 }
 
 .dark-panel-title {
+    color: #BB86FC;
+    font-weight: 600;
     padding: 5px;
     padding-bottom: 0px;
 }
