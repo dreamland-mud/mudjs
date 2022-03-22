@@ -478,6 +478,7 @@ td.v-bottom {
 
 #app .layout-splitter {
     width: 6px;
+    background-color: transparent;    
 }
 
 /* Map higlighted room. */
