@@ -200,7 +200,7 @@ function terminalInit(wrap) {
             const echo = html => terminal.trigger('output-html', [html]);
 
             echo('<hr>');
-            echo(ansi2html('\u001b[1;31m#################### HISTORY LOADED ####################\u001b[0;37m\n'));
+            echo(ansi2html('\u001b[1;31m#################### ИСТОРИЯ ЧАТА ЗАГРУЖЕНА ####################\u001b[0;37m\n'));
             echo('<hr>');
         });
 

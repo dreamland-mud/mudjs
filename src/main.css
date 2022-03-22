@@ -505,11 +505,11 @@ td.v-bottom {
 }
 
 /* Map header */
-.jss40 {
-    background-color: #2e2e2e;
+.MuiAppBar-colorDefault {
     color: #BB86FC;
-    
+    background-color: #2e2e2e !important;
 }
-.jss39 {
+
+.MuiTypography-body1 {
     font-weight: 600;  
 }
