@@ -20,14 +20,15 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 500
   },
   title: {
-    flexGrow: 1
+    flexGrow: 1,
+    color: '#BB86FC'
   },
   appbar: {
     position: 'absolute',
     top: 0,
     left: 0,
     zIndex: 500,
-    backgroundColor: '#202f31'
+    backgroundColor: '#2e2e2e'
   }
 
 }));
