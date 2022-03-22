@@ -192,20 +192,26 @@ td.v-bottom {
 
 /* Single button in the control panel . */
 .btn-ctrl-panel {
-    background-color: #2e3436;
-    color: white;
+    background-color: #BB86FC;
+    color: #121212;
     font-size: 1.1em;
-    border-color: grey;
+    border-color: transparent;
     width: 100%;
     margin-top: 3px;
     text-align: left;
 }
 
+.btn-ctrl-panel:hover {
+    color: #fff;
+    text-decoration: none;
+    background-color: #8043CA;
+}
+
 /* Help search box. */
 #help input {
-    width: 95%;
+    width: -webkit-fill-available;
     background-color: transparent;
-    color: #d3d7cf;    
+    color: #fff;    
     border: 1px solid #BB86FC;
     margin: 0.5rem 0.5rem 0.5rem 0.25rem;
     padding-left: 2rem;
@@ -227,8 +233,8 @@ td.v-bottom {
 
 /* Autocomplete plugin styling for the help box. */
 .autocomplete-suggestions {  
-    border: 1px solid #999;  
-    background: #000;
+    border: 0px solid #999;  
+    background: #121212;
     overflow: auto;  
     cursor: pointer; 
     color: #d3d7cf;
@@ -236,9 +242,9 @@ td.v-bottom {
 .autocomplete-suggestion { 
     padding: 2px 5px; 
     overflow: auto; 
-    border-bottom: 1px solid;
+    border-bottom: 0px solid;
 } 
-.autocomplete-selected { background: #5a6269; } 
+.autocomplete-selected { background: #BB86FC; color: #121212; } 
 .autocomplete-suggestions strong { font-weight: normal; color: #3399FF; } 
 .autocomplete-group { padding: 2px 5px; } 
 .autocomplete-group strong { display: block; border-bottom: 1px solid #000; } 
@@ -473,7 +479,7 @@ td.v-bottom {
 .echo-with-anchor::before {
   content: '\25b8';
   padding-right: 0.1em;
-  color: orange;
+  color: #BB86FC;
 }
 /*
  * Anchor sticks close to the border of the screen.
@@ -487,7 +493,11 @@ td.v-bottom {
     background-color: transparent;    
 }
 
+#app .layout-splitter:hover {
+    background-color: #BB86FC;    
+}
+
 /* Map higlighted room. */
 .active {
-    color: red;
+    color: #BB86FC;
 }
