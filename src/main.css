@@ -141,6 +141,7 @@ body {
 
 .table-with-icons tr td:first-child {
     width: 0%;
+    padding-left: 5px;
 }
 
 .table-with-icons tr td:nth-child(2) {
@@ -166,8 +167,8 @@ td.v-bottom {
 }
 
 #group-table td, #group-table th, #who-table td, #who-table th {
-    padding-left: 0px;
-    padding-right: 0px;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 #player-location .fa {
@@ -321,8 +322,9 @@ td.v-bottom {
 }
 
 .btn-ctrl:hover {
-    background-color: lightgrey;
-    border-color: lightgrey;
+    background-color: #BB86FC;
+    border-color: #BB86FC;
+    color: #121212;
 }
 
 .editor {
@@ -500,4 +502,14 @@ td.v-bottom {
 /* Map higlighted room. */
 .active {
     color: #BB86FC;
+}
+
+/* Map header */
+.jss40 {
+    background-color: #2e2e2e;
+    color: #BB86FC;
+    
+}
+.jss39 {
+    font-weight: 600;  
 }
