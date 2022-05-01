@@ -18,7 +18,25 @@ steps:
   - kill -9 $SSH_AGENT_PID
   - npm ci
   - npm run build
+
+- name: discord_failure
+  commands:
+  - >
+    echo "{\"embeds\":[{\"color\": 13632027,\"description\":\"Latest mudjs failed to build, what have you done, mate?\n\",\"title\":\"Deployment failed!\"}], \"username\":\"Drone Bot\", \"avatar_url\": \"https://docs.drone.io/logo.svg\"}" \
+    | /home/dreamland/runtime/bin/idiscord-code
+  when:
+    status:
+      - failure
   
+- name: discord_success
+  commands:
+  - >
+    echo "{\"embeds\":[{\"color\": 8311585,\"description\":\"DreamLand Web Client is updated, enjoy!\n\",\"title\":\"Deployment successful\"}], \"username\":\"Drone Bot\", \"avatar_url\": \"https://docs.drone.io/logo.svg\"}" \
+    | /home/dreamland/runtime/bin/idiscord-code
+  when:
+    status:
+      - success
+      
 trigger:
   branch:
   - dreamland
