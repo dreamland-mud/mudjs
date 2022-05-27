@@ -271,14 +271,7 @@ function manipParseAndReplace(span) {
     });
 };
 
-function hideElementsForScreenReaders(span) {
-    span.find('.fgbr').each(function(){
-        $(this).attr('aria-hidden', 'true')
-    })
-}
-
 module.exports = {
     manipParseAndReplace: manipParseAndReplace,
-    colorParseAndReplace: colorParseAndReplace,
-    hideElementsForScreenReaders: hideElementsForScreenReaders
+    colorParseAndReplace: colorParseAndReplace
 };

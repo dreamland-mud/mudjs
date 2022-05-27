@@ -82,7 +82,6 @@ function terminalInit(wrap) {
 
         manip.colorParseAndReplace(span);
         manip.manipParseAndReplace(span);
-        manip.hideElementsForScreenReaders(span);
 
         terminal.trigger('output-html', [span.html()]);
     });

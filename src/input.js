@@ -9,8 +9,13 @@ function echo(txt) {
         return;
 
     if (txt.length !== 0) {
-        var output = $('<div/>').addClass('echo-with-anchor').text(txt+'\n');
+        var output = $('<div/>')
+            .addClass('echo-with-anchor')
+            .attr('aria-hidden', 'true')
+            .text(txt+'\n');
+
         $('.terminal').trigger('output-html', [output[0].outerHTML]);
+
     } else {
         $('.terminal').trigger('output', '\n');
     }
