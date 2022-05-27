@@ -503,7 +503,8 @@ td.v-bottom {
 
 /* Map higlighted room. */
 .active {
-    color: red;
+    color: #2cf4eb;
+    font-weight: 600;
 }
 
 /* Map header */
