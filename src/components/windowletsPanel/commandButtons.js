@@ -29,8 +29,8 @@ export default function CommandButtons() {
                 </div>
                 <div className="flexcontainer-column">
                     <button type="button" className="btn btn-ctrl-panel" data-action="прак">Практика</button>
-                    <button type="button" className="btn btn-ctrl-panel" data-action="заклинания">Магия</button>
-                    <button type="button" className="btn btn-ctrl-panel" data-action="умения">Умения</button>
+                    <button type="button" className="btn btn-ctrl-panel" data-action="умения заклинания">Магия</button>
+                    <button type="button" className="btn btn-ctrl-panel" data-action="умения навыки">Умения</button>
                     <button type="button" className="btn btn-ctrl-panel" data-action="задания">Задания</button> 
                     <button type="button" className="btn btn-ctrl-panel" data-action="команды">Команды</button>
                     {/* <ButtonItem action='конец' confirm='покинуть мир' title='Конец'></ButtonItem> */}
