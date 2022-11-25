@@ -70,6 +70,9 @@ const useMapSource = (location) => {
         let mapUrl = `/maps/sources/${mapName}`;
 
         $.get(mapUrl)
+            .then((map) => {
+                map.replaceAll(/<a href=".*?\.html">(.*?)<\/a>/g, "<span class=\"fgdc\">$1</span>");
+            })
             .then(setMapSource)
             .catch(e => {
                 console.log('Map error', e);
