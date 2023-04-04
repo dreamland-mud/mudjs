@@ -86,7 +86,7 @@ function manipParseAndReplace(span) {
 
     // Replace random commands with data-action span.
     html = html.replace(
-        /\[cmd=([^,]{1,50}),see=([^\]]{1,50}),nonce=(.{8})]/ig,
+        /\[cmd=([^,]{1,70}),see=([^\]]{1,50}),nonce=(.{8})]/ig,
         function(match, cmd, see, nonce, string) {
             // Ensure the command is coming from the server.
             if (nonce !== websock.ws().nonce) {
@@ -122,7 +122,7 @@ function manipParseAndReplace(span) {
                         }
 
                         return  '&nbsp;'.repeat(spaceBegin.length)
-                                + '<span class="manip-cmd manip-ed" data-action="' + action + '" data-echo="' + action + '">' + label + '</span>'
+                                + '<span class="manip-cmd" data-action="' + action + '" data-echo="' + action + '">' + label + '</span>'
                                 + '&nbsp;'.repeat(spaceEnd.length);
                     });
                
