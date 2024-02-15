@@ -1,5 +1,5 @@
 
-const ace = global.ace;
+const ace = require('ace-builds/src-noconflict/ace.js');
 
 ace.define('ace/mode/fenia', function(acequire, exports, module) {
 

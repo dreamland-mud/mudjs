@@ -1,8 +1,7 @@
 
 const $ = require('jquery');
 
-require('brace');
-require('brace/theme/monokai');
+const ace = require('ace-builds/src-noconflict/ace.js');
 require('./ace/mode-fenia');
 
 var websock = require('./websock');
@@ -25,7 +24,7 @@ function tabsize4to8(str) {
 }
 
 $(document).ready(function() {
-    var editor = global.ace.edit($('#cs-modal .editor')[0], {
+    var editor = ace.edit($('#cs-modal .editor')[0], {
         tabSize: 4
     });
     editor.setTheme('ace/theme/monokai');
