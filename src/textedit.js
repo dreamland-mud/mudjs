@@ -1,8 +1,9 @@
 
 const $ = require('jquery');
 
-require('brace');
-require('brace/theme/monokai');
+const ace = require('ace-builds');
+require('ace-builds/webpack-resolver')
+require('ace-builds/src-noconflict/theme-monokai')
 require('devbridge-autocomplete');
 
 var websock = require('./websock');
@@ -37,7 +38,7 @@ function initHelpIds() {
 }
 
 $(document).ready(function() {
-    var editor = global.ace.edit($('#textedit-modal .editor')[0]);
+    var editor = ace.edit($('#textedit-modal .editor')[0]);
 
     editor.setTheme('ace/theme/monokai');
 

@@ -1,9 +1,10 @@
 
 const $ = require('jquery');
 
-require('brace');
-require('brace/mode/javascript');
-require('brace/theme/monokai');
+const ace = require('ace-builds');
+require('ace-builds/webpack-resolver')
+require('ace-builds/src-noconflict/mode-javascript')
+require('ace-builds/src-noconflict/worker-javascript')
 
 const websock = require('./websock');
 const notify = require('./notify');
@@ -81,9 +82,8 @@ $(document).ready(function() {
         });
 
 
-    var editor = global.ace.edit($('#settings-modal .editor')[0]);
-    editor.setTheme('ace/theme/monokai');
-    editor.session.setMode('ace/mode/javascript');
+    var editor = ace.edit($('#settings-modal .editor')[0]);
+    editor.session.setMode("ace/mode/javascript");
 
     $('#settings-save-button')
         .click(function(e) {

@@ -1,9 +1,10 @@
 
 const $ = require('jquery');
 
-require('brace');
-require('brace/theme/monokai');
-require('./ace/mode-fenia');
+const ace = require('ace-builds');
+require('ace-builds/webpack-resolver')
+require('ace-builds/src-noconflict/theme-monokai')
+const FeniaMode = require('./ace/mode-fenia').Mode;
 
 var websock = require('./websock');
 
@@ -25,11 +26,11 @@ function tabsize4to8(str) {
 }
 
 $(document).ready(function() {
-    var editor = global.ace.edit($('#cs-modal .editor')[0], {
+    var editor = ace.edit($('#cs-modal .editor')[0], {
         tabSize: 4
     });
     editor.setTheme('ace/theme/monokai');
-    editor.session.setMode('ace/mode/fenia');
+    editor.session.setMode(FeniaMode);
 
     $('#cs-modal .run-button').click(function(e) {
         var subj = $('#cs-subject').val(),
