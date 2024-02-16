@@ -1,7 +1,10 @@
 
 const $ = require('jquery');
 
-const ace = require('ace-builds/src-noconflict/ace.js');
+const ace = require('ace-builds');
+require('ace-builds/webpack-resolver')
+require('ace-builds/src-noconflict/mode-javascript')
+require('ace-builds/src-noconflict/worker-javascript')
 
 const websock = require('./websock');
 const notify = require('./notify');

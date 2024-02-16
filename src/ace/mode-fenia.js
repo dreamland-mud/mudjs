@@ -1,5 +1,8 @@
 
-const ace = require('ace-builds/src-noconflict/ace.js');
+const ace = require('ace-builds');
+require('ace-builds/webpack-resolver')
+require('ace-builds/src-noconflict/mode-javascript')
+require('ace-builds/src-noconflict/worker-javascript')
 
 ace.define('ace/mode/fenia', function(acequire, exports, module) {
 

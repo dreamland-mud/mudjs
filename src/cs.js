@@ -1,8 +1,10 @@
 
 const $ = require('jquery');
 
-const ace = require('ace-builds/src-noconflict/ace.js');
-require('./ace/mode-fenia');
+const ace = require('ace-builds');
+require('ace-builds/webpack-resolver')
+require('ace-builds/src-noconflict/theme-monokai')
+const FeniaMode = require('./ace/mode-fenia').Mode;
 
 var websock = require('./websock');
 
@@ -28,7 +30,7 @@ $(document).ready(function() {
         tabSize: 4
     });
     editor.setTheme('ace/theme/monokai');
-    editor.session.setMode('ace/mode/fenia');
+    editor.session.setMode(FeniaMode);
 
     $('#cs-modal .run-button').click(function(e) {
         var subj = $('#cs-subject').val(),

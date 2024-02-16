@@ -1,7 +1,9 @@
 
 const $ = require('jquery');
 
-const ace = require('ace-builds/src-noconflict/ace.js');
+const ace = require('ace-builds');
+require('ace-builds/webpack-resolver')
+require('ace-builds/src-noconflict/theme-monokai')
 require('devbridge-autocomplete');
 
 var websock = require('./websock');
