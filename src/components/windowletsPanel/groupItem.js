@@ -20,7 +20,7 @@ const TeamMate = (stats) => {
 
 export default function GroupItem(prompt) {
 
-    return <PanelItem title={'Группа ' + prompt.group.ln + ':'} collapsed={true} >
+    return <PanelItem title={'Группа ' + prompt.group.ln} collapsed={true} >
             <div id="group-table">
                 <table>
                     <thead>

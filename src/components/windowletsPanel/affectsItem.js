@@ -39,7 +39,7 @@ function AffectBlock(props) {
 export default function AffectsItem(prompt) {
 
     return (
-        <PanelItem title="Воздействия на тебе:">
+        <PanelItem title="Воздействия на тебе">
             <div id="player-affects-table" className="flexcontainer-row flexcontainer-wrap " data-hint="hint-affects">
                 {(prompt.pro && prompt.pro !== "none") &&
                     <AffectBlock block={prompt.pro} blockName="Защита" bitNames={Pnames} color="2" type="protect" />

@@ -84,7 +84,7 @@ export default function Help() {
     }, [loading, topics, error]);
 
     return <div id="help" className="table-wrapper">
-        <span className="dark-panel-title" data-toggle="collapse" data-target="#help-table">Поиск по справке:</span>
+        <span className="dark-panel-title" data-toggle="collapse" data-target="#help-table">Поиск по справке</span>
         <button className="close" type="button" data-toggle="collapse" data-target="#help-table"> </button>
         <div id="help-table" className="" data-hint="hint-help">
             <span className="fa fa-search form-control-feedback"></span>

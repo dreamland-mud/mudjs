@@ -19,7 +19,7 @@ const WhoPlayer = (person) => {
 export default function WhoItem(prompt) {
 
     return (
-        <PanelItem title="Сейчас в мире:">
+        <PanelItem title="Сейчас в мире">
             <div id="who-table" data-hint="hint-who">
                 <table>
                     <thead>

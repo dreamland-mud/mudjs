@@ -44,7 +44,7 @@ const SecondaryStats = (stats) => {
 export default function PlayerParamsItem(prompt) {
 
     return (
-        <PanelItem title="Твои параметры:" collapsed={true}>
+        <PanelItem title="Твои параметры" collapsed={true}>
             <div id="player-params-table" data-hint="hint-params">
                 {(prompt.p1 && prompt.p1 !== "none") && <BaseStats {...prompt.p1} />}
                 <br/>

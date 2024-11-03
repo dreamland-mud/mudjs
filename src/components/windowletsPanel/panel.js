@@ -10,6 +10,7 @@ import GroupItem from './groupItem';
 import PlayerParamsItem from './playerParamsItem'
 import WhoItem from './whoItem'
 import QuestorItem from './questorItem'
+import AreaQuestItem from './areaQuestItem'
 import AffectsItem from './affectsItem'
 
 export default function Panel() {
@@ -25,6 +26,8 @@ export default function Panel() {
         if (!prompt) return false
         if (prompt.group === undefined) return false
         if (prompt.group === "none") return false
+        if ((prompt.group.npc === undefined) &&
+            (prompt.group.pc === undefined)) return false 
         return true
     }    
 
@@ -52,6 +55,13 @@ export default function Panel() {
         return true
     }    
 
+    const isPromptAreaQuest = () => {
+        if (!prompt) return false
+        if (prompt.aq === undefined) return false
+        if (prompt.aq === "none") return false
+        return true
+    }    
+
     const isPromptWho = () => {
         if (!prompt) return false
         if (!prompt.who) return false
@@ -62,6 +72,7 @@ export default function Panel() {
         <Box id="panel-wrap" flex="1" aria-hidden="true">
             {isPrompt() && <TimeWeatherItem {...prompt} />}
             {isPrompt() && <LocationItem {...prompt} />}
+            {isPromptAreaQuest() && <AreaQuestItem {...prompt} />}
             {isPromptGroup() && <GroupItem {...prompt} />}
             {isPromptAffect() && <AffectsItem {...prompt} />}
             {isPromptParams() && <PlayerParamsItem {...prompt} />}

@@ -62,7 +62,7 @@ export default function LocationItem(prompt) {
 
     const { zone, room, exits } = prompt;
 
-    return <PanelItem title="Твое местоположение:">
+    return <PanelItem title="Твое местоположение">
         <table>
             <tbody>
                 { zone && zone !== 'none' && <ZoneRow zone={zone} /> }

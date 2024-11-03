@@ -48,7 +48,7 @@ export default function TimeWeatherItem(prompt) {
 
     const { time, date, w: weather } = prompt;
     
-    return <PanelItem title="Погода и время:">
+    return <PanelItem title="Погода и время">
         <table className={`table-with-icons ${classes.timeWeather}`}>
             <tbody>
                 { time && time !== 'none' && <TimeRow {...time} /> }
