@@ -73,10 +73,10 @@ export default function Panel() {
             {isPrompt() && <TimeWeatherItem {...prompt} />}
             {isPrompt() && <LocationItem {...prompt} />}
             {isPromptAreaQuest() && <AreaQuestItem {...prompt} />}
+            {isPromptQuestor() && <QuestorItem {...prompt} />}
             {isPromptGroup() && <GroupItem {...prompt} />}
             {isPromptAffect() && <AffectsItem {...prompt} />}
             {isPromptParams() && <PlayerParamsItem {...prompt} />}
-            {isPromptQuestor() && <QuestorItem {...prompt} />}
             {isPromptWho() && <WhoItem {...prompt} />}
             <Help />
             {isPrompt() && <CommandButtons />}
