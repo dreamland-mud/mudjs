@@ -41,7 +41,7 @@ const ExitCell = ({ex_ru, ex_en, ex_hidden, ex_visible, lang}) => {
 };
 
 // Prompt exits field: e - open exits, h - closed exits, l - language (r, e)
-const ExitsRow = ({e, h, l, sector}) => {
+const ExitsRow = ({e, h, l}) => {
     return <tr>
         <td className="v-top">&nbsp;<i className="fa">&#xf277;</i></td>
         <td className="v-bottom">выходы:&nbsp;
@@ -55,12 +55,20 @@ const ExitsRow = ({e, h, l, sector}) => {
     </tr>;
 };
 
+// Sector type info: i - sector icon unicode, n - sector name
+const SectorRow = ({i, n}) => {
+   return <tr>
+        <td className="v-top">&nbsp;<i className="fa">&#xf1bb;</i></td>
+        <td className="v-bottom">{n}&nbsp;</td>
+   </tr>;
+};
+
 /**
  * Render player location windowlet.
  */
 export default function LocationItem(prompt) {
 
-    const { zone, room, exits } = prompt;
+    const { zone, room, exits, sect } = prompt;
 
     return <PanelItem title="Твое местоположение">
         <table>
@@ -68,6 +76,7 @@ export default function LocationItem(prompt) {
                 { zone && zone !== 'none' && <ZoneRow zone={zone} /> }
                 { room && room !== 'none' && <RoomRow room={room} /> }
                 { exits && exits !== 'none' && <ExitsRow {...exits} /> }
+                { sect && sect !== 'none' && <SectorRow {...sect} /> }
             </tbody>
         </table>
     </PanelItem>;
