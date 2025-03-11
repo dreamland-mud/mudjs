@@ -12,225 +12,254 @@ const bytesToLoad = 100000; // how much stuff to load from the database in one g
 const scrollThreshold = 1000; // when to start loading more data (px)
 const maxBytesOnScreen = 1000000;
 
-
 var firstChunkId = -1; // id of the first chunk in history (only set when scrolled to the very top)
 var lastChunkId = -1; // id of the last chunk sent to the terminal
 var scrolling = false;
+var autoScrollEnabled = true;
 
 const loadChunks = (startId, direction, maxlen) => {
-    const chunks = [];
+  const chunks = [];
 
-    return historyDb
-        .then(db => db.load(startId, direction, maxlen, (id, value) => chunks.push({id, value})))
-        .then(() => {
-            // direction is backward, we start from the very bottom => the first returned record has the last chunk id 
-            if(!startId && direction && chunks.length > 0)
-                lastChunkId = chunks[0].id;
+  return historyDb
+    .then(db =>
+      db.load(startId, direction, maxlen, (id, value) =>
+        chunks.push({ id, value })
+      )
+    )
+    .then(() => {
+      // direction is backward, we start from the very bottom => the first returned record has the last chunk id
+      if (!startId && direction && chunks.length > 0)
+        lastChunkId = chunks[0].id;
 
-            // direction is backward, we have initial key and no records returned => initial key is the first one in the database
-            if(startId && direction && chunks.length === 0)
-                firstChunkId = startId;
+      // direction is backward, we have initial key and no records returned => initial key is the first one in the database
+      if (startId && direction && chunks.length === 0) firstChunkId = startId;
 
-            return chunks.map(({id, value}) => $('<div>').append(value).attr('data-chunk-id', id));
-        });
+      return chunks.map(({ id, value }) =>
+        $('<div>').append(value).attr('data-chunk-id', id)
+      );
+    });
 };
 
 function terminalInit(wrap) {
-    const terminal = wrap.find('.terminal');
+  const terminal = wrap.find('.terminal');
 
-    const append = $chunk => {
-        $chunk.appendTo(terminal);
+  const append = $chunk => {
+    $chunk.appendTo(terminal);
 
-        while(terminal.html().length > maxBytesOnScreen)
-            terminal.children(':first').remove();
+    while (terminal.html().length > maxBytesOnScreen)
+      terminal.children(':first').remove();
 
-        wrap.scrollTop(terminal.height());
-    };
+    wrap.scrollTop(terminal.height());
+  };
+  const atBottom = () => {
+    const lastMessage = terminal.children().last();
+    if (lastMessage.length === 0) return true;
 
-    const atBottom = () => wrap.scrollTop() > (terminal.height() - 2 * wrap.height());
+    const lastMessageBottom =
+      lastMessage.offset().top + lastMessage.outerHeight();
+    const wrapBottom = wrap.offset().top + wrap.outerHeight();
 
-    const loadTop = (startId, len) => {
-        scrolling = true;
+    const isAtBottom = lastMessageBottom <= wrapBottom;
+    console.log(`atBottom() =`, isAtBottom);
+    return isAtBottom;
+  };
 
-        return loadChunks(startId, true, len)
-            .then(chunks => chunks.forEach(chunk => terminal.prepend(chunk)));
-    };
+  const loadTop = (startId, len) => {
+    scrolling = true;
 
-    const loadBottom = (startId, len) => {
-        scrolling = true;
+    return loadChunks(startId, true, len).then(chunks =>
+      chunks.forEach(chunk => terminal.prepend(chunk))
+    );
+  };
 
-        return loadChunks(startId, false, len)
-            .then(chunks => chunks.forEach(chunk => terminal.append(chunk)));
-    };
+  const loadBottom = (startId, len) => {
+    scrolling = true;
 
-    const scrollToBottom = () => {
-        wrap.scrollTop(0);
-        terminal.empty();
+    return loadChunks(startId, false, len).then(chunks =>
+      chunks.forEach(chunk => terminal.append(chunk))
+    );
+  };
 
-        return loadTop(null, maxBytesOnScreen)
-            .then(() => {
-                wrap.scrollTop(terminal.height());
-                scrolling = false;
-            }); // scroll to the bottom
-    };
+  const scrollToBottom = () => {
+    wrap.scrollTop(0);
+    terminal.empty();
 
-    wrap.on('scroll-to-bottom', e => scrollToBottom());
+    return loadTop(null, maxBytesOnScreen).then(() => {
+      wrap.scrollTop(terminal.height());
+      scrolling = false;
+    }); // scroll to the bottom
+  };
 
-    terminal.on('output', function(e, txt) {
-        const span = $('<span/>');
-        span.html(ansi2html(txt));
+  wrap.on('scroll-to-bottom', e => scrollToBottom());
 
-        manip.colorParseAndReplace(span);
-        manip.manipParseAndReplace(span);
+  terminal.on('output', function (e, txt) {
+    const span = $('<span/>');
+    span.html(ansi2html(txt));
 
-        terminal.trigger('output-html', [span.html()]);
-    });
+    manip.colorParseAndReplace(span);
+    manip.manipParseAndReplace(span);
 
-    // this may not be called from outside of terminal logic.
-    terminal.on('output-html', function(e, html) {
-        historyDb
-            .then(db => db.append(html))
-            .then(id => {
-                const $chunk = $('<div>')
-                    .append(html)
-                    .attr('data-chunk-id', id)
-                    .attr('aria-live', 'alert');
+    terminal.trigger('output-html', [span.html()]);
+  });
 
-                $chunk.find('.manip-cmd').each(function(){
-                    $(this)
-                    .attr('role','link')
-                    .attr('tabindex', 0)
-                })
-                // only append a DOM node if we're at the bottom
-                if(atBottom()) {
-                    append($chunk);
-                } else {
-                    wrap.trigger('bump-unread', []);
-                }
+  // this may not be called from outside of terminal logic.
+  terminal.on('output-html', function (e, html) {
+    console.log(`Добавление сообщения, autoScrollEnabled =`, autoScrollEnabled);
+    historyDb
+      .then(db => db.append(html))
+      .then(id => {
+        const $chunk = $('<div>')
+          .append(html)
+          .attr('data-chunk-id', id)
+          .attr('aria-live', 'alert');
 
-                lastChunkId = id;
-
-                // Transform output into clean text and call user-defined triggers.
-                const $chunkCopy = $chunk.clone();
-                $chunkCopy.find('.no-triggers').remove();
-                const lines = $chunkCopy.text().replace(/\xa0/g, ' ').split('\n');
-                lines.forEach(line => {
-                    processTriggers(line);
-                    $('.trigger').trigger('text', [''+line])
-                });
-                // lines.forEach(line => $('.trigger').trigger('text', [''+line]));
-            });
-    });
-
-    wrap.on('scroll', e => {
-        // We are already handling a scroll event. 
-        // Don't trigger another database operation until the current one completed.
-        if(scrolling) {
-            // Prevent scrolling, so that the user won't hit the limits of the scrolling window.
-            // e.preventDefault(); 
-            return;
-        }
-
-        // Load top chunks while scrolling up.
-        if(wrap.scrollTop() < scrollThreshold) {
-            let $fst = terminal.find('div[data-chunk-id]:first-child');
-
-            // terminal is empty, can't scroll
-            if($fst.length === 0)
-                return;
-
-            let off = $fst.offset().top;
-            let fstId = parseInt($fst.attr('data-chunk-id'));
-
-            if(fstId === firstChunkId) {
-                // We're at the very top, no need to load anything
-                return;
-            }
-
-            loadTop(fstId, bytesToLoad)
-                .then(() => {
-                    while(terminal.html().length > maxBytesOnScreen)
-                        terminal.children(':last').remove();
-
-                    wrap.scrollTop(wrap.scrollTop() + $fst.offset().top - off);
-                    scrolling = false;
-                });
-
-            return;
-        }
-
-        // Load bottom chunks while scrolling down.
-        if(wrap.scrollTop() > (terminal.height() - wrap.height() - scrollThreshold)) {
-            let $lst = terminal.find('div[data-chunk-id]:last-child');
-
-            // terminal is empty, can't scroll
-            if($lst.length === 0)
-                return;
-
-            let off = $lst.offset().top;
-            let lstId = parseInt($lst.attr('data-chunk-id'));
-
-            // The last html element in the DOM is the last sent message, 
-            // so we're at the bottom, no need to load anything.
-            if(lstId === lastChunkId) {
-                // Check if we can reset the unread counter and return
-                if(atBottom()) {
-                    wrap.trigger('reset-unread', []);
-                }
-
-                return;
-            }
-
-            loadBottom(lstId, bytesToLoad)
-                .then(() => {
-                    while(terminal.html().length > maxBytesOnScreen)
-                        terminal.children(':first').remove();
-
-                    wrap.scrollTop(wrap.scrollTop() + $lst.offset().top - off);
-                    scrolling = false;
-                });
-
-            return;
-        }
-    });
-
-    scrollToBottom()
-        .then(() => {
-            const echo = html => terminal.trigger('output-html', [html]);
-
-            echo('<hr>');
-            echo(ansi2html('\u001b[1;31m#################### ИСТОРИЯ ЧАТА ЗАГРУЖЕНА ####################\u001b[0;37m\n'));
-            echo('<hr>');
+        $chunk.find('.manip-cmd').each(function () {
+          $(this).attr('role', 'link').attr('tabindex', 0);
         });
+        // only append a DOM node if we're at the bottom
+        if (autoScrollEnabled) {
+          append($chunk);
+        } else {
+          wrap.trigger('bump-unread', []);
+        }
 
-    return () => {
-        wrap.off();
-        terminal.off();
-    };
+        lastChunkId = id;
+
+        // Transform output into clean text and call user-defined triggers.
+        const $chunkCopy = $chunk.clone();
+        $chunkCopy.find('.no-triggers').remove();
+        const lines = $chunkCopy.text().replace(/\xa0/g, ' ').split('\n');
+        lines.forEach(line => {
+          processTriggers(line);
+          $('.trigger').trigger('text', ['' + line]);
+        });
+        // lines.forEach(line => $('.trigger').trigger('text', [''+line]));
+      });
+  });
+
+  wrap.on('scroll', e => {
+    autoScrollEnabled = atBottom();
+    console.log(`autoScrollEnabled изменен:`, autoScrollEnabled);
+    // We are already handling a scroll event.
+    // Don't trigger another database operation until the current one completed.
+    if (scrolling) {
+      // Prevent scrolling, so that the user won't hit the limits of the scrolling window.
+      // e.preventDefault();
+      return;
+    }
+
+    // Load top chunks while scrolling up.
+    if (wrap.scrollTop() < scrollThreshold) {
+      let $fst = terminal.find('div[data-chunk-id]:first-child');
+
+      // terminal is empty, can't scroll
+      if ($fst.length === 0) return;
+
+      let off = $fst.offset().top;
+      let fstId = parseInt($fst.attr('data-chunk-id'));
+
+      if (fstId === firstChunkId) {
+        // We're at the very top, no need to load anything
+        return;
+      }
+
+      loadTop(fstId, bytesToLoad).then(() => {
+        while (terminal.html().length > maxBytesOnScreen)
+          terminal.children(':last').remove();
+
+        wrap.scrollTop(wrap.scrollTop() + $fst.offset().top - off);
+        scrolling = false;
+      });
+
+      return;
+    }
+
+    // Load bottom chunks while scrolling down.
+    if (
+      wrap.scrollTop() >
+      terminal.height() - wrap.height() - scrollThreshold
+    ) {
+      let $lst = terminal.find('div[data-chunk-id]:last-child');
+
+      // terminal is empty, can't scroll
+      if ($lst.length === 0) return;
+
+      let off = $lst.offset().top;
+      let lstId = parseInt($lst.attr('data-chunk-id'));
+
+      // The last html element in the DOM is the last sent message,
+      // so we're at the bottom, no need to load anything.
+      if (lstId === lastChunkId) {
+        // Check if we can reset the unread counter and return
+        if (atBottom()) {
+          wrap.trigger('reset-unread', []);
+        }
+
+        return;
+      }
+
+      loadBottom(lstId, bytesToLoad).then(() => {
+        while (terminal.html().length > maxBytesOnScreen)
+          terminal.children(':first').remove();
+
+        wrap.scrollTop(wrap.scrollTop() + $lst.offset().top - off);
+        scrolling = false;
+      });
+
+      return;
+    }
+  });
+
+  scrollToBottom().then(() => {
+    const echo = html => terminal.trigger('output-html', [html]);
+
+    echo('<hr>');
+    echo(
+      ansi2html(
+        '\u001b[1;31m#################### ИСТОРИЯ ЧАТА ЗАГРУЖЕНА ####################\u001b[0;37m\n'
+      )
+    );
+    echo('<hr>');
+  });
+
+  return () => {
+    wrap.off();
+    terminal.off();
+  };
 }
 
-export default forwardRef(({bumpUnread, resetUnread}, ref) => {
-    const wrap = useRef();
+export default forwardRef(({ bumpUnread, resetUnread }, ref) => {
+  const wrap = useRef();
 
-    useEffect(() => terminalInit($(wrap.current)), [wrap]);
+  useEffect(() => terminalInit($(wrap.current)), [wrap]);
 
-    useEffect(() => {
-        let cur = $(wrap.current);
-        cur.on('bump-unread', bumpUnread);
-        return () => cur.off('bump-unread', bumpUnread);
-    }, [wrap, bumpUnread]);
+  useEffect(() => {
+    let cur = $(wrap.current);
+    cur.on('bump-unread', bumpUnread);
+    return () => cur.off('bump-unread', bumpUnread);
+  }, [wrap, bumpUnread]);
 
-    useEffect(() => {
-        let cur = $(wrap.current);
-        cur.on('reset-unread', resetUnread);
-        return () => cur.off('reset-unread', resetUnread);
-    }, [wrap, resetUnread]);
+  useEffect(() => {
+    let cur = $(wrap.current);
+    cur.on('reset-unread', resetUnread);
+    return () => cur.off('reset-unread', resetUnread);
+  }, [wrap, resetUnread]);
 
-    useImperativeHandle(ref, () => ({
-        scrollToBottom: () => $(wrap.current).trigger('scroll-to-bottom', [])
-    }), [wrap]);
+  useImperativeHandle(
+    ref,
+    () => ({
+      scrollToBottom: () => $(wrap.current).trigger('scroll-to-bottom', []),
+    }),
+    [wrap]
+  );
 
-    return <div className="terminal-wrap" ref={wrap}>
-            <div className="terminal" aria-live="polite" aria-relevant="additions"></div>
-          </div>;
+  return (
+    <div className="terminal-wrap" ref={wrap}>
+      <div
+        className="terminal"
+        aria-live="polite"
+        aria-relevant="additions"
+      ></div>
+    </div>
+  );
 });
