@@ -60,7 +60,7 @@ function terminalInit(wrap) {
     const wrapBottom = wrap.offset().top + wrap.outerHeight();
 
     const isAtBottom = lastMessageBottom <= wrapBottom;
-    console.log(`atBottom() =`, isAtBottom);
+
     return isAtBottom;
   };
 
@@ -104,7 +104,6 @@ function terminalInit(wrap) {
 
   // this may not be called from outside of terminal logic.
   terminal.on('output-html', function (e, html) {
-    console.log(`Добавление сообщения, autoScrollEnabled =`, autoScrollEnabled);
     historyDb
       .then(db => db.append(html))
       .then(id => {
@@ -139,7 +138,7 @@ function terminalInit(wrap) {
 
   wrap.on('scroll', e => {
     autoScrollEnabled = atBottom();
-    console.log(`autoScrollEnabled изменен:`, autoScrollEnabled);
+
     // We are already handling a scroll event.
     // Don't trigger another database operation until the current one completed.
     if (scrolling) {
