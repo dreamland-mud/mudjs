@@ -16,7 +16,7 @@ steps:
   - cd /var/www/mudjs
   - git pull
   - kill -9 $SSH_AGENT_PID
-  - npm ci
+  - npm ci --legacy-peer-deps
   - npm run build
 
 - name: discord_failure
