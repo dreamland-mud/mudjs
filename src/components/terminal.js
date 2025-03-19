@@ -244,6 +244,24 @@ export default forwardRef(({ bumpUnread, resetUnread }, ref) => {
     return () => cur.off('reset-unread', resetUnread);
   }, [wrap, resetUnread]);
 
+  useEffect(() => {
+    const enableAutoScroll = () => {
+        autoScrollEnabled = true; // Включаем автоскролл
+    };
+
+    document.addEventListener('click', enableAutoScroll);
+    document.addEventListener('keydown', enableAutoScroll);
+    document.addEventListener('input', enableAutoScroll);
+    document.addEventListener('change', enableAutoScroll);
+
+    return () => {
+        document.removeEventListener('click', enableAutoScroll);
+        document.removeEventListener('keydown', enableAutoScroll);
+        document.removeEventListener('input', enableAutoScroll);
+        document.removeEventListener('change', enableAutoScroll);
+    };
+}, []);
+
   useImperativeHandle(
     ref,
     () => ({
