@@ -11,6 +11,8 @@
     "@material-ui/icons": "^4.11.3",
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
+    "ajv": "^8.17.1",
+    "ajv-keywords": "^5.1.0",
     "ansi-regex": "^6.0.1",
     "arrive": "^2.4.1",
     "bootstrap": "^4.5.3",
