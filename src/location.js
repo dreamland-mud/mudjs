@@ -1,32 +1,31 @@
+import $ from 'jquery';
+import getSessionId from './sessionid.js';
+import placeholders from './data/placeholders.json' assert { type: 'json' };
 
-const $ = require('jquery');
-
-var sessionId = require('./sessionid')();
-var placeholders = require('./data/placeholders.json');
-
+const sessionId = getSessionId();
 var lastLocation, locationChannel;
 
-if('BroadcastChannel' in window) {
-    locationChannel = new BroadcastChannel('location');
+if ('BroadcastChannel' in window) {
+  locationChannel = new BroadcastChannel('location');
 
-    locationChannel.onmessage = function(e) {
-        if(e.data.what === 'where am i' && lastLocation) {
-            bcastLocation(lastLocation);
-        }
-    };
+  locationChannel.onmessage = function (e) {
+    if (e.data.what === 'where am i' && lastLocation) {
+      bcastLocation(lastLocation);
+    }
+  };
 }
 
 function bcastLocation(loc) {
-    lastLocation = loc;
+  lastLocation = loc;
 
-    if(locationChannel) {
-        locationChannel.postMessage({
-            what: 'location',
-            location: lastLocation,
-            sessionId: sessionId
-        });
-    }
-};
+  if (locationChannel) {
+    locationChannel.postMessage({
+      what: 'location',
+      location: lastLocation,
+      sessionId: sessionId,
+    });
+  }
+}
 
 /** 
   Choose a placeholder text for the main command input. Placeholders are 
@@ -34,49 +33,42 @@ function bcastLocation(loc) {
   Room placeholders can be an array of hint commands, or an entire hint string.
  */
 function createPlaceholder(loc) {
-    if (!placeholders)
-        return '';
+  if (!placeholders) return '';
 
-    var areahint = placeholders[loc.area] || placeholders["*"];
-    if (!areahint) 
-        return '';
-   
-    var roomhints = areahint[loc.vnum] || areahint["*"];
-    if (!roomhints) 
-        return '';
+  var areahint = placeholders[loc.area] || placeholders['*'];
+  if (!areahint) return '';
 
-    if (typeof roomhints === 'string')
-        return roomhints;
+  var roomhints = areahint[loc.vnum] || areahint['*'];
+  if (!roomhints) return '';
 
-    if (Array.isArray(roomhints)) {
-        var index;
+  if (typeof roomhints === 'string') return roomhints;
 
-        if (roomhints.length === 0)
-            return ''; 
-        
-        // When just entered a new room, show the first hint as the 'main' one.
-        if (!lastLocation || loc.vnum !== lastLocation.vnum)
-            index = 0;
-        else
-            index = Math.floor(Math.random() * roomhints.length);
-    
-        return 'Введи команду, например: ' + roomhints[index];        
-    }
+  if (Array.isArray(roomhints)) {
+    var index;
 
-    return '';
+    if (roomhints.length === 0) return '';
+
+    // When just entered a new room, show the first hint as the 'main' one.
+    if (!lastLocation || loc.vnum !== lastLocation.vnum) index = 0;
+    else index = Math.floor(Math.random() * roomhints.length);
+
+    return 'Введи команду, например: ' + roomhints[index];
+  }
+
+  return '';
 }
 
-$(document).ready(function() {
-    $('#rpc-events').on('rpc-prompt', function(e, b) {
-        var loc = {
-            area: b.area,
-            vnum: b.vnum
-        };
-        $("#input input").attr("placeholder", createPlaceholder(loc));
-        bcastLocation(loc);
-    });
+$(document).ready(function () {
+  $('#rpc-events').on('rpc-prompt', function (e, b) {
+    var loc = {
+      area: b.area,
+      vnum: b.vnum,
+    };
+    $('#input input').attr('placeholder', createPlaceholder(loc));
+    bcastLocation(loc);
+  });
 });
 
-module.exports = function() {
-    return lastLocation;
-};
+export default function getLastLocation() {
+  return lastLocation;
+}

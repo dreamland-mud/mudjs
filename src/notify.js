@@ -1,31 +1,28 @@
+import $ from 'jquery';
 
-const $ = require('jquery');
+let notificationPermission = Notification.permission;
 
-$(document).ready(function() {
-    if('Notification' in window) {
-        Promise.resolve(Notification.permission)
-            .then(function(perm) {
-                if(perm === 'granted') {
-                    return perm;
-                } else {
-                    return Notification.requestPermission();
-                }
-            })
-            .then(function(perm) {
-                if(perm === 'granted') {
-                    $('#rpc-events')
-                        .on('rpc-notify', function(e, text) {
-                            if(document.hidden) {
-                                new Notification(text);
-                            }
-                        });
-                }
-            });
-    }
+// Один раз реєструємо обробник після першого кліку
+$(document).one('click', () => {
+  if ('Notification' in window && notificationPermission !== 'granted') {
+    Notification.requestPermission().then(perm => {
+      notificationPermission = perm;
+    });
+  }
 });
 
-function notify(txt) {
-    $('#rpc-events').trigger('rpc-notify', [txt]);
-}
+// Реєстрація події при готовності документа
+$(document).ready(function () {
+  if ('Notification' in window && notificationPermission === 'granted') {
+    $('#rpc-events').on('rpc-notify', function (e, text) {
+      if (document.hidden) {
+        new Notification(text);
+      }
+    });
+  }
+});
 
-module.exports = notify;
+// Функція виклику повідомлення
+export default function notify(txt) {
+  $('#rpc-events').trigger('rpc-notify', [txt]);
+}

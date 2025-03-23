@@ -246,7 +246,7 @@ export default forwardRef(({ bumpUnread, resetUnread }, ref) => {
 
   useEffect(() => {
     const enableAutoScroll = () => {
-        autoScrollEnabled = true; // Включаем автоскролл
+      autoScrollEnabled = true; // Включаем автоскролл
     };
 
     document.addEventListener('click', enableAutoScroll);
@@ -255,12 +255,12 @@ export default forwardRef(({ bumpUnread, resetUnread }, ref) => {
     document.addEventListener('change', enableAutoScroll);
 
     return () => {
-        document.removeEventListener('click', enableAutoScroll);
-        document.removeEventListener('keydown', enableAutoScroll);
-        document.removeEventListener('input', enableAutoScroll);
-        document.removeEventListener('change', enableAutoScroll);
+      document.removeEventListener('click', enableAutoScroll);
+      document.removeEventListener('keydown', enableAutoScroll);
+      document.removeEventListener('input', enableAutoScroll);
+      document.removeEventListener('change', enableAutoScroll);
     };
-}, []);
+  }, []);
 
   useImperativeHandle(
     ref,
