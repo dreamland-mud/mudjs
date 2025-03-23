@@ -29,8 +29,7 @@
     "react-mosaic-component": "^6.1.1",
     "react-redux": "^9.1.0",
     "react-timer-mixin": "^0.13.4",
-    "redux": "^5.0.1",
-    "redux-thunk": "^2.3.0"
+    "redux": "^5.0.1"
   },
   "scripts": {
     "dev": "vite",
