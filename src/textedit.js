@@ -1,21 +1,19 @@
 import $ from 'jquery';
-
-import 'brace';
-import 'brace/theme/monokai';
+import loader from '@monaco-editor/loader';
 import 'devbridge-autocomplete';
-
 import { rpccmd } from './websock';
 
-// Help keyword and id lookup inside webedit (if you run 'webedit help'):
+let monacoEditor;
+
 function initHelpIds() {
-  var heditLookup = $('#textedit-modal input');
+  const heditLookup = $('#textedit-modal input');
 
   $.get(
     'hedit.json',
     function (data) {
       console.log('Retrieved', data.length, 'help ids.');
 
-      var topics = $.map(data, function (dataItem) {
+      const topics = $.map(data, function (dataItem) {
         return {
           value: dataItem.id + ': ' + dataItem.kw.toLowerCase(),
           data: dataItem.id,
@@ -41,30 +39,49 @@ function initHelpIds() {
 }
 
 $(document).ready(function () {
-  var editor = window.ace.edit($('#textedit-modal .editor')[0]);
+  loader.init().then(monaco => {
+    const editorElement = $('#textedit-modal .editor')[0];
 
-  editor.setTheme('ace/theme/monokai');
+    monacoEditor = monaco.editor.create(editorElement, {
+      value: '',
+      language: 'plaintext',
+      theme: 'vs-dark',
+      wordWrap: 'on',
+      lineNumbers: 'off',
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      fontSize: 16,
+      fontFamily: 'serif',
+      padding: { top: 20, bottom: 20 },
+      automaticLayout: true,
+      minimap: { enabled: false },
+    });
 
-  $('#rpc-events').on('rpc-editor_open', function (e, text, arg) {
-    editor.setValue(text);
-    $('#textedit-modal').modal('show');
+    $('#rpc-events').on('rpc-editor_open', function (e, text, arg) {
+      monacoEditor.setValue(text || '');
+      $('#textedit-modal').modal('show');
 
-    if (arg === 'help') {
-      $('#textedit-modal input').show();
-      initHelpIds();
-    } else $('#textedit-modal input').hide();
+      if (arg === 'help') {
+        $('#textedit-modal input').show();
+        initHelpIds();
+      } else {
+        $('#textedit-modal input').hide();
+      }
 
-    $('#textedit-modal .save-button')
-      .off()
-      .click(function (e) {
-        e.preventDefault();
-        rpccmd('editor_save', editor.getValue());
-      });
+      $('#textedit-modal .save-button')
+        .off()
+        .click(function (e) {
+          e.preventDefault();
+          const val = monacoEditor.getValue();
+          rpccmd('editor_save', val);
+        });
 
-    $('#textedit-modal .cancel-button')
-      .off()
-      .click(function (e) {
-        e.preventDefault();
-      });
+      $('#textedit-modal .cancel-button')
+        .off()
+        .click(function (e) {
+          e.preventDefault();
+          $('#textedit-modal').modal('hide');
+        });
+    });
   });
 });

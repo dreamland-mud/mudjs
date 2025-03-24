@@ -307,6 +307,27 @@ td.v-bottom {
 /*
  * Settings and editors modal windows.
  */
+
+#textedit-modal.webeditor .modal-content {
+  width: 70%;
+  background-color: #2b2b2b;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+#textedit-modal.webeditor .modal-dialog {
+  max-width: 900px;
+  margin: 2rem auto;
+}
+
+#textedit-modal.webeditor .modal-body {
+  padding: 20px;
+  font-family: 'Georgia', serif;
+  font-size: 16px;
+  color: #ddd;
+}
+
 .webeditor .modal-dialog {
   max-width: 100%;
 }
@@ -341,6 +362,15 @@ td.v-bottom {
   background-color: #bb86fc;
   border-color: #bb86fc;
   color: #121212;
+}
+
+#textedit-modal .editor {
+  height: 500px;
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: 'Georgia', serif !important;
+  background-color: black;
+  color: white;
 }
 
 .editor {
@@ -606,4 +636,17 @@ header.MuiPaper-root.MuiAppBar-root {
 
 .mosaic-root {
   height: 100%;
+}
+
+@media (max-width: 1279px) {
+  #map-wrap {
+    display: none !important;
+  }
+}
+
+@media (max-width: 599px) {
+  #map-wrap,
+  #panel-wrap {
+    display: none !important;
+  }
 }
