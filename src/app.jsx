@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Mosaic, MosaicWindow } from 'react-mosaic-component';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
@@ -12,8 +12,6 @@ import Stats from './components/stats';
 import Map from './components/map';
 import PropertiesStorage from './properties';
 
-import 'react-mosaic-component/react-mosaic-component.css';
-
 const propertiesStorage = PropertiesStorage;
 
 const ELEMENT_MAP = {
@@ -22,48 +20,51 @@ const ELEMENT_MAP = {
   map: <Map />,
 };
 
-const getInitialLayout = (bigScreen, hugeScreen) => {
+const getResponsiveLayout = (bigScreen, hugeScreen) => {
   if (!bigScreen) return 'terminal';
 
-  const panelPart = hugeScreen
-    ? {
-        direction: 'row',
-        first: 'panel',
-        second: 'map',
-        splitPercentage:
-          (propertiesStorage['panelLayoutWidth'] /
-            (propertiesStorage['panelLayoutWidth'] +
-              propertiesStorage['mapLayoutWidth'])) *
-          100,
-      }
-    : 'panel';
+  if (!hugeScreen) {
+    return {
+      direction: 'row',
+      first: 'terminal',
+      second: 'panel',
+      splitPercentage: 70,
+    };
+  }
 
   return {
     direction: 'row',
     first: 'terminal',
-    second: panelPart,
+    second: {
+      direction: 'row',
+      first: 'panel',
+      second: 'map',
+      splitPercentage:
+        (propertiesStorage['panelLayoutWidth'] /
+          (propertiesStorage['panelLayoutWidth'] +
+            propertiesStorage['mapLayoutWidth'])) *
+        100,
+    },
     splitPercentage:
       (propertiesStorage['terminalLayoutWidth'] /
         (propertiesStorage['terminalLayoutWidth'] +
           propertiesStorage['panelLayoutWidth'] +
-          (hugeScreen ? propertiesStorage['mapLayoutWidth'] : 0))) *
+          propertiesStorage['mapLayoutWidth'])) *
       100,
   };
 };
 
 export default function App() {
-  const bigScreen = useMediaQuery(theme => theme.breakpoints.up('sm'));
-  const hugeScreen = useMediaQuery(theme => theme.breakpoints.up('lg'));
+  const bigScreen = useMediaQuery('(min-width:600px)');
+  const hugeScreen = useMediaQuery('(min-width:1280px)');
 
-  const [layout, setLayout] = useState(() => {
-    const saved = localStorage.getItem('layout');
-    return saved ? JSON.parse(saved) : getInitialLayout(bigScreen, hugeScreen);
-  });
+  const [layout, setLayout] = useState(() =>
+    getResponsiveLayout(bigScreen, hugeScreen)
+  );
 
-  // Сохраняем при изменении
   useEffect(() => {
-    localStorage.setItem('layout', JSON.stringify(layout));
-  }, [layout]);
+    setLayout(getResponsiveLayout(bigScreen, hugeScreen));
+  }, [bigScreen, hugeScreen]);
 
   return (
     <Box

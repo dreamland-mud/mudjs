@@ -287,9 +287,7 @@
 <p>
 Положительные воздействия рисуются ярко-зеленым, отрицательные - ярко-красным. Если воздействие
 исчезнет в течение ближайшей минуты, оно рисуется ярко-желтым.</p>
-<p>
-Подробнее читай: ? эффекты и подсказку по каждой из колонок.</p>
-                        </p>
+<p>Подробнее читай: ? эффекты и подсказку по каждой из колонок.</p>                        
                     </div>
                 </div>
             </div>
@@ -500,7 +498,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-body">
-                        <input style="display:none;" type=text class="form-control" placeholder="Быстрый поиск по справке">
+                        <input style="display:none;" type="text" class="form-control" placeholder="Быстрый поиск по справке">
                         <div class="editor"></div>
                     </div>
                     <div class="modal-footer">
@@ -516,7 +514,10 @@
                 <div class="modal-content">
                     <div class="modal-body">
                         <div class="form-group">
-                            <input id="cs-subject" class="form-control" placeholder="Subject" required="true"></input>
+                            <input id="cs-subject" class="form-control" placeholder="Subject" required="true"/>
+                            <ul id="editor-tabs" class="nav nav-tabs">
+                     <!-- вкладки будут добавляться как <li><a></a></li> -->
+                            </ul>   
                             <div class="editor"></div>
                         </div>
                     </div>
