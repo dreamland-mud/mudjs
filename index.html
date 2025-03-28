@@ -494,20 +494,30 @@
             </div>
         </div>
 
-        <div id="textedit-modal" class="webeditor modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <input style="display:none;" type="text" class="form-control" placeholder="Быстрый поиск по справке">
-                        <div class="editor"></div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="cancel-button btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="save-button btn btn-primary" data-dismiss="modal">Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div id="textedit-modal" class="webeditor modal fade" tabindex="-1" role="dialog" aria-labelledby="textedit-modal-title" aria-modal="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h2 id="textedit-modal-title" class="sr-only">Редактор описания персонажа</h2>
+        <label for="help-search" class="sr-only">Поиск по справке</label>
+        <input id="help-search" style="display:none;" type="text" class="form-control" placeholder="Быстрый поиск по справке" />
+        <div class="editor" role="textbox" aria-multiline="true" aria-label="Текстовое поле редактора" tabindex="0"></div>
+        <div id="textedit-live-alert" class="sr-only" aria-live="assertive" role="alert"></div>
+      </div>
+      <div class="modal-footer">        
+        <button type="button" class="cancel-button btn btn-secondary" data-dismiss="modal" aria-label="Закрыть редактор">Close</button>
+        <button type="button" class="save-button btn btn-primary" data-dismiss="modal" aria-label="Сохранить изменения">Save</button>
+        <button type="button" id="start-voice" class="voice-button btn btn-secondary" aria-label="Начать голосовой ввод">🎤 Dictate</button>
+      <select id="voice-lang" class="form-select btn btn-secondary" style="width: auto;" aria-label="Выбор языка">
+            <option value="en-US" selected>English</option>
+            <option value="ru-RU" >Русский</option>
+            <option value="uk-UA">Українська</option>          
+        </select>
+    
+    </div>
+    </div>
+  </div>
+</div>
 
         <div id="cs-modal" class="webeditor modal fade" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">

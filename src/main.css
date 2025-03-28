@@ -293,8 +293,13 @@ td.v-bottom {
   }
   form#input {
     border: 1px solid #bb86fc;
-    margin: 8px 5px 10px 5px;
+
     background-color: #121212;
+  }
+
+  form#input input:focus {
+    outline: none;
+    box-shadow: none;
   }
   form#input input {
     padding: 4px 10px 4px 5px;
@@ -308,26 +313,124 @@ td.v-bottom {
  * Settings and editors modal windows.
  */
 
+/* === Базовые стили (по умолчанию — mobile) === */
+
 #textedit-modal.webeditor .modal-content {
-  width: 70%;
-  background-color: #2b2b2b;
-  border-radius: 12px;
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+  padding: 0 !important;
+  border-radius: 0;
+  display: flex;
+  align-items: start;
+  justify-content: center;
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
 
 #textedit-modal.webeditor .modal-dialog {
-  max-width: 900px;
-  margin: 2rem auto;
+  height: 100%;
+  margin: 0;
+}
+#textedit-modal.webeditor .modal-content {
+  height: 100%;
+  border: 0px;
 }
 
 #textedit-modal.webeditor .modal-body {
-  padding: 20px;
-  font-family: 'Georgia', serif;
-  font-size: 16px;
-  color: #ddd;
+  width: 100%;
+  height: 90dvh;
+  padding: 0;
 }
 
+#textedit-modal .save-button,
+#textedit-modal .cancel-button,
+#textedit-modal .voice-button {
+  width: 100%;
+  margin: 0;
+  border: 0px;
+  border: 0px;
+  border-radius: 0px;
+}
+
+#textedit-modal .modal-footer {
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 0px;
+  border-top: 0px;
+}
+
+/* === Планшеты (600px и выше) === */
+@media (min-width: 600px) {
+  #textedit-modal.webeditor .modal-content {
+    height: 80vh;
+    min-width: 600px;
+    width: 90vw;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  #textedit-modal.webeditor .modal-content {
+    width: 90vw;
+    min-width: 600px;
+    width: 90vw;
+    max-width: 900px;
+  }
+
+  #textedit-modal.webeditor .modal-body {
+    padding: 10px 20px 0px 20px;
+    height: 70vh;
+
+    min-width: 600px;
+    width: 90vw;
+    max-width: 900px;
+  }
+
+  #textedit-modal .save-button,
+  #textedit-modal .cancel-button,
+  #textedit-modal .voice-button {
+    width: auto;
+    border-radius: 4px;
+  }
+
+  #textedit-modal .modal-footer {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: end;
+    gap: 0.5em;
+    padding: 10px 20px;
+  }
+}
+
+/* === Десктоп (1280px и выше) === */
+
+@media (min-width: 1280px) {
+  #textedit-modal.webeditor .modal-content {
+    height: 80vh;
+
+    width: 70vw;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  #textedit-modal.webeditor .modal-content {
+    width: 70vw;
+    max-width: 1000px;
+  }
+
+  #textedit-modal.webeditor .modal-body {
+    width: 70vw;
+    max-width: 1000px;
+    padding: 20px 30px 0px 30px;
+  }
+}
+
+/* =================================================== */
 .webeditor .modal-dialog {
   max-width: 100%;
 }
@@ -362,15 +465,6 @@ td.v-bottom {
   background-color: #bb86fc;
   border-color: #bb86fc;
   color: #121212;
-}
-
-#textedit-modal .editor {
-  height: 500px;
-  border-radius: 8px;
-  overflow: hidden;
-  font-family: 'Georgia', serif !important;
-  background-color: black;
-  color: white;
 }
 
 .editor {
@@ -649,4 +743,75 @@ header.MuiPaper-root.MuiAppBar-root {
   #panel-wrap {
     display: none !important;
   }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.voice-button.mic-on {
+  background-color: rgb(28, 187, 28);
+  color: white;
+}
+
+.cmdinput-voice-controls {
+  display: flex;
+  align-items: center;
+  background: #111;
+  border: 1px solid #444;
+  height: 100%;
+  gap: 0.2em;
+  padding: 0;
+}
+
+.cmdinput-voice-controls select,
+.cmdinput-voice-controls button {
+  background: #111;
+  color: #ccc;
+  border: none;
+  padding: 0 0.2em;
+  height: 100%;
+  font-size: 1em;
+  font-family: monospace;
+  cursor: pointer;
+}
+
+.cmdinput-voice-controls select:hover,
+.cmdinput-voice-controls button:hover {
+  background: #222;
+  color: #fff;
+}
+
+.cmdinput-voice-controls select:focus,
+.cmdinput-voice-controls button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.cmdinput-voice-controls button:active,
+.cmdinput-voice-controls button.active {
+  background: #222;
+  color: lime;
+}
+
+.cmdinput-wrapper {
+  padding: 8px 0;
+  display: flex;
+  gap: 0.1em;
+}
+
+#cmd-voice.mic-on {
+  color: lime;
+}
+
+#cmd-voice-lang {
+  font-size: 1em;
 }

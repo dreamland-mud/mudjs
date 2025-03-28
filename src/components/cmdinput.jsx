@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import MicIcon from '@mui/icons-material/Mic';
 import { useSelector } from 'react-redux';
 import $ from 'jquery';
 import { echo } from '../input';
@@ -15,6 +16,8 @@ import Commands, {
   getSystemCmd,
 } from './SysCommands';
 import { sendHotKeyCmd } from './sysCommands/hotkey';
+import { setupSpeechRecognition } from '../speech';
+import { handleSpeechCommand } from '../handleSpeechCommand';
 
 const input_history = localStorage.history
   ? JSON.parse(localStorage.history)
@@ -42,12 +45,40 @@ const CmdInput = () => {
   const connection = useSelector(state => state.connection);
 
   const [value, setValue] = useState('');
+  const [lang, setLang] = useState('en-US');
   const textInput = useRef(null);
+  const recognitionRef = useRef(null);
+
+  const startSpeech = () => {
+    console.log('🎤 startSpeech вызван через клавишу');
+    if (recognitionRef.current) {
+      recognitionRef.current.abort();
+      recognitionRef.current = null;
+    }
+
+    setTimeout(() => {
+      recognitionRef.current = setupSpeechRecognition({
+        lang,
+        buttonSelector: '#cmd-voice',
+        onResult: transcript => {
+          setValue(prev => prev + ' ' + transcript);
+        },
+        onError: e => {
+          console.error('Speech error:', e.error);
+        },
+      });
+
+      try {
+        recognitionRef.current?.start();
+      } catch (err) {
+        console.warn('Recognition start failed:', err.message);
+      }
+    }, 100);
+  };
 
   useEffect(() => {
     const handleKey = e => {
       if (e.which === 9) return;
-
       const input = $('#input input');
       if ($('body.modal-open').length !== 0) return;
 
@@ -67,6 +98,40 @@ const CmdInput = () => {
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, []);
+
+  // useEffect(() => {
+  //   const onKeyDown = e => {
+  //     console.log('Key pressed:', e.code, e.key, e.keyCode); // для отладки
+  //     if (e.ctrlKey && e.code === 'KeyM') {
+  //       e.preventDefault();
+  //       console.log('🎙️ Ctrl+M shortcut сработал');
+  //       startSpeech();
+  //     }
+  //   };
+
+  //   window.addEventListener('keydown', onKeyDown);
+  //   return () => window.removeEventListener('keydown', onKeyDown);
+  // }, []);
+
+  useEffect(() => {
+    // Каждый раз, как меняется lang, убить старое распознавание и создать новое
+    if (recognitionRef.current) {
+      recognitionRef.current.abort();
+      recognitionRef.current = null;
+    }
+
+    recognitionRef.current = setupSpeechRecognition({
+      lang,
+      buttonSelector: '#cmd-voice',
+      onResult: transcript => {
+        const wasHandled = handleSpeechCommand(transcript, setValue);
+        if (!wasHandled) {
+          setValue(prev => prev + ' ' + transcript);
+        }
+      },
+      onError: e => {},
+    });
+  }, [lang]); // <-- следим за изменением lang
 
   const saveCmd = t => {
     if (t) {
@@ -125,6 +190,12 @@ const CmdInput = () => {
   };
 
   const keydown = e => {
+    if (e.ctrlKey && e.code === 'KeyM') {
+      e.preventDefault();
+      console.log('🎙️ Ctrl+M shortcut сработал в инпуте');
+      startSpeech();
+      return;
+    }
     e.stopPropagation();
     const isPgKeysScroll = localStorage.properties
       ? JSON.parse(localStorage.properties)['isPgKeysScroll']
@@ -202,16 +273,39 @@ const CmdInput = () => {
 
   return (
     <div
-      sx={{
+      className="cmdinput-wrapper"
+      style={{
         display: 'flex',
         flexDirection: 'row',
-        flexWrap: 'wrap',
+        alignItems: 'center',
+
         maxWidth: '1920px',
         margin: '0 auto',
         width: '100%',
       }}
     >
-      <form onSubmit={submit} id="input">
+      <div className="cmdinput-voice-controls">
+        <select
+          id="cmd-voice-lang"
+          value={lang}
+          onChange={e => setLang(e.target.value)}
+        >
+          <option value="ru-RU">RU</option>
+          <option value="uk-UA">UA</option>
+          <option value="en-US">EN</option>
+        </select>
+
+        <button
+          id="cmd-voice"
+          onClick={startSpeech}
+          title="Ctrl+M"
+          aria-label="Cntrl+M"
+        >
+          <MicIcon />
+        </button>
+      </div>
+
+      <form onSubmit={submit} id="input" style={{ flexGrow: 1 }}>
         <input
           ref={textInput}
           id="inputBox"
@@ -220,8 +314,10 @@ const CmdInput = () => {
           onChange={e => setValue(e.target.value)}
           type="text"
           autoComplete="off"
+          style={{ width: '100%' }}
         />
       </form>
+
       {!big && (
         <table
           style={{
@@ -238,11 +334,7 @@ const CmdInput = () => {
                   aria-label="Повторить команду"
                   cmd="repeat"
                   className="btn btn-sm btn-ctrl btn-outline-primary"
-                  style={{
-                    height: '1.7em',
-                    width: '1.7em',
-                    pointerEvents: 'all',
-                  }}
+                  style={{ height: '1.7em', width: '1.7em' }}
                 >
                   <i className="fa fa-repeat"></i>
                 </button>
@@ -253,11 +345,7 @@ const CmdInput = () => {
                   aria-label="Следующая команда"
                   cmd="history-down"
                   className="btn btn-sm btn-ctrl btn-outline-primary"
-                  style={{
-                    height: '1.7em',
-                    width: '1.7em',
-                    pointerEvents: 'all',
-                  }}
+                  style={{ height: '1.7em', width: '1.7em' }}
                 >
                   <i className="fa fa-arrow-down"></i>
                 </button>
@@ -268,11 +356,7 @@ const CmdInput = () => {
                   aria-label="Предыдущая команда"
                   cmd="history-up"
                   className="btn btn-sm btn-ctrl btn-outline-primary"
-                  style={{
-                    height: '1.7em',
-                    width: '1.7em',
-                    pointerEvents: 'all',
-                  }}
+                  style={{ height: '1.7em', width: '1.7em' }}
                 >
                   <i className="fa fa-arrow-up"></i>
                 </button>

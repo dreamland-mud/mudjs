@@ -4,7 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/mudjs/', // 👈 путь, с которого будет искаться index.html и ассеты
+  base: '/', // 👈 путь, с которого будет искаться index.html и ассеты
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
