@@ -8,6 +8,7 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
+  overflow-y: hidden;
 }
 
 body {
@@ -102,7 +103,7 @@ body {
 .table-wrapper {
   position: relative;
   background-color: #2e2e2e;
-  margin: 0px 5px 10px 0px;
+  margin: 0px 6px 10px 0px;
   border: 0px solid #2e2e2e;
   padding-bottom: 0.1em;
   padding-left: 0.2em;
@@ -449,6 +450,32 @@ td.v-bottom {
   }
 }
 
+.btn-chat {
+  position: absolute;
+  bottom: 20px;
+  left: 1px;
+  z-index: 1000;
+  background-color: transparent;
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  outline: none;
+  border: 1px solid gray;
+}
+
+.btn-chat:hover {
+  background-color: #bb86fc;
+  border-color: #bb86fc;
+  color: #121212;
+}
+.btn-chat:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 .btn-ctrl {
   float: right;
   font-size: 1.5em;
@@ -596,10 +623,6 @@ td.v-bottom {
 .fgbw {
   color: #fff;
 } /* W */
-
-.fg-ansi-bold {
-  /*    font-weight: bold; */
-}
 
 /*
  * Item manip dropdowns
@@ -814,4 +837,69 @@ header.MuiPaper-root.MuiAppBar-root {
 
 #cmd-voice-lang {
   font-size: 1em;
+}
+
+.chat-line {
+  margin-bottom: 4px;
+}
+
+.chat-line.say {
+  color: #389a06;
+}
+.chat-line.pronounce {
+  color: #7ee34f;
+}
+.chat-line.shout {
+  color: #ed2330;
+  font-weight: bold;
+}
+.chat-line.talk {
+  color: #ad84cb;
+}
+.chat-line.ooc {
+  color: #24f4eb;
+  font-style: italic;
+}
+.chat-line.sing {
+  color: #24f4eb;
+}
+.chat-line.congrats {
+  color: #c784cb;
+}
+
+.chat-line.clan-shalafi {
+  color: #357ce6;
+}
+.chat-line.clan-invader {
+  color: #555749;
+}
+.chat-line.clan-battlerager {
+  color: #ed2330;
+}
+.chat-line.clan-knight {
+  color: #eeeee0;
+}
+.chat-line.clan-ruler {
+  color: #d3d7cf;
+}
+.chat-line.clan-chaos {
+  color: #d384ae;
+}
+.chat-line.clan-hunter {
+  color: #fdde45;
+}
+.chat-line.clan-lion {
+  color: #429a06;
+}
+.chat-line.clan-ghost {
+  color: #069880;
+}
+.chat-line.clan-flowers {
+  color: #75e34f;
+}
+.css-yduayu-MuiTableCell-root {
+  padding: 0px !important;
+}
+.css-irgv3z-MuiTableCell-root {
+  padding: 0px !important;
 }

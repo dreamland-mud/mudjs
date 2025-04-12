@@ -39,7 +39,6 @@ $(document).ready(function () {
           url = URL.createObjectURL(blob);
 
         logs = null;
-        console.log(url);
 
         // create a link
         var link = $('<a>').attr({
@@ -124,7 +123,7 @@ $(document).ready(function () {
   });
 
   /* Save layout size */
-  $('.layout-splitter').on('click', function (e) {
+  $('.layout-splitter').on('click', function () {
     propertiesStorage['terminalLayoutWidth'] =
       document.querySelector('.terminal-wrap').getBoundingClientRect().width ||
       0;

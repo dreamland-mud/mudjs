@@ -10,14 +10,24 @@ import MainWindow from './components/mainwindow';
 import Panel from './components/windowletsPanel/panel';
 import Stats from './components/stats';
 import Map from './components/map';
+import PlayerMessages from './components/windowletsPanel/PlayerMessages';
 import PropertiesStorage from './properties';
 
 const propertiesStorage = PropertiesStorage;
 
-const ELEMENT_MAP = {
-  terminal: <MainWindow />,
-  panel: <Panel />,
-  map: <Map />,
+const MapWithToggle = ({ onToggleChat }) => {
+  return (
+    <div style={{ position: 'relative', height: '100%', width: '100%' }}>
+      <Map />
+      <button
+        onClick={onToggleChat}
+        title="Показати/сховати чат"
+        className="btn-chat"
+      >
+        💬
+      </button>
+    </div>
+  );
 };
 
 const getResponsiveLayout = (bigScreen, hugeScreen) => {
@@ -66,6 +76,60 @@ export default function App() {
     setLayout(getResponsiveLayout(bigScreen, hugeScreen));
   }, [bigScreen, hugeScreen]);
 
+  const addChatToLayout = prev => {
+    if (
+      typeof prev !== 'object' ||
+      typeof prev.second !== 'object' ||
+      typeof prev.second.second !== 'string'
+    )
+      return prev;
+
+    return {
+      ...prev,
+      second: {
+        ...prev.second,
+        second: {
+          direction: 'column',
+          first: prev.second.second,
+          second: 'playerChat',
+          splitPercentage: 70,
+        },
+      },
+    };
+  };
+
+  const removeChatFromLayout = prev => {
+    if (
+      typeof prev !== 'object' ||
+      typeof prev.second !== 'object' ||
+      typeof prev.second.second !== 'object' ||
+      prev.second.second.second !== 'playerChat'
+    )
+      return prev;
+
+    return {
+      ...prev,
+      second: {
+        ...prev.second,
+        second: prev.second.second.first,
+      },
+    };
+  };
+
+  const togglePlayerChat = () => {
+    const hasChat = JSON.stringify(layout).includes('playerChat');
+    setLayout(prev =>
+      hasChat ? removeChatFromLayout(prev) : addChatToLayout(prev)
+    );
+  };
+
+  const ELEMENT_MAP = {
+    terminal: <MainWindow />,
+    panel: <Panel />,
+    map: <MapWithToggle onToggleChat={togglePlayerChat} />,
+    playerChat: <PlayerMessages />,
+  };
+
   return (
     <Box
       display="flex"
@@ -85,6 +149,8 @@ export default function App() {
         }}
       >
         <Mosaic
+          role="main"
+          aria-label="Ігровий інтерфейс"
           value={layout}
           onChange={setLayout}
           renderTile={(id, path) => (

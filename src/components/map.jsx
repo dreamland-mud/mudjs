@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import TimerMixin from 'react-timer-mixin';
+
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import AppBar from '@mui/material/AppBar';
@@ -90,7 +90,9 @@ const useAreaData = () => {
   useEffect(() => {
     const refreshTimeout = 1000 * 60 * 15;
     refreshAreaData();
-    TimerMixin.setInterval(refreshAreaData, refreshTimeout);
+
+    const intervalId = setInterval(refreshAreaData, refreshTimeout);
+    return () => clearInterval(intervalId);
   }, [refreshAreaData]);
 
   return areaData;

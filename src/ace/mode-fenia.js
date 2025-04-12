@@ -1,6 +1,6 @@
 const ace = window.ace;
 
-ace.define('ace/mode/fenia', function (acequire, exports, module) {
+ace.define('ace/mode/fenia', function (acequire, exports) {
   var oop = acequire('../lib/oop');
   var JavaScriptMode = acequire('./javascript').Mode;
   var FeniaHighlightRules = acequire(
@@ -14,7 +14,7 @@ ace.define('ace/mode/fenia', function (acequire, exports, module) {
   oop.inherits(Mode, JavaScriptMode);
 
   (function () {
-    this.createWorker = function (session) {
+    this.createWorker = function () {
       return null;
     };
 
@@ -24,105 +24,102 @@ ace.define('ace/mode/fenia', function (acequire, exports, module) {
   exports.Mode = Mode;
 });
 
-ace.define(
-  'ace/mode/fenia_highlight_rules',
-  function (acequire, exports, module) {
-    var oop = acequire('../lib/oop');
-    var DocCommentHighlightRules = acequire(
-      './doc_comment_highlight_rules'
-    ).DocCommentHighlightRules;
-    var TextHighlightRules = acequire(
-      './text_highlight_rules'
-    ).TextHighlightRules;
+ace.define('ace/mode/fenia_highlight_rules', function (acequire, exports) {
+  var oop = acequire('../lib/oop');
+  var DocCommentHighlightRules = acequire(
+    './doc_comment_highlight_rules'
+  ).DocCommentHighlightRules;
+  var TextHighlightRules = acequire(
+    './text_highlight_rules'
+  ).TextHighlightRules;
 
-    var FeniaHighlightRules = function () {
-      var keywords =
-        'null|if|else|for|break|continue|return|function|var|try|catch|throw';
+  var FeniaHighlightRules = function () {
+    var keywords =
+      'null|if|else|for|break|continue|return|function|var|try|catch|throw';
 
-      var buildinConstants = 'null';
+    var buildinConstants = 'null';
 
-      var langClasses = 'Map|RegList';
+    var langClasses = 'Map|RegList';
 
-      // TODO var importClasses = "";
+    // TODO var importClasses = "";
 
-      var keywordMapper = this.createKeywordMapper(
+    var keywordMapper = this.createKeywordMapper(
+      {
+        'variable.language': 'this',
+        keyword: keywords,
+        'support.function': langClasses,
+        'constant.language': buildinConstants,
+      },
+      'identifier'
+    );
+
+    this.$rules = {
+      start: [
         {
-          'variable.language': 'this',
-          keyword: keywords,
-          'support.function': langClasses,
-          'constant.language': buildinConstants,
+          token: 'comment',
+          regex: '\\/\\/.*$',
         },
-        'identifier'
-      );
-
-      this.$rules = {
-        start: [
-          {
-            token: 'comment',
-            regex: '\\/\\/.*$',
-          },
-          DocCommentHighlightRules.getStartRule('doc-start'),
-          {
-            token: 'comment', // multi line comment
-            regex: '\\/\\*',
-            next: 'comment',
-          },
-          {
-            token: 'string', // single line
-            regex: '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]',
-          },
-          {
-            token: 'string', // single line
-            regex: "['](?:(?:\\\\.)|(?:[^'\\\\]))*?[']",
-          },
-          {
-            token: 'constant.numeric',
-            regex: '[0-9a-fA-F]+\\b',
-          },
-          {
-            token: 'constant.language.boolean',
-            regex: '(?:true|false)\\b',
-          },
-          {
-            token: keywordMapper,
-            regex: '[a-zA-Z_$][a-zA-Z0-9_$]*\\b',
-          },
-          {
-            token: 'keyword.operator',
-            regex: '!|%|&|\\*|\\-|\\+|~|==|=|!=|<=|>=|<|>|&&|\\|\\|',
-          },
-          {
-            token: 'lparen',
-            regex: '[[({]',
-          },
-          {
-            token: 'rparen',
-            regex: '[\\])}]',
-          },
-          {
-            token: 'text',
-            regex: '\\s+',
-          },
-        ],
-        comment: [
-          {
-            token: 'comment', // closing comment
-            regex: '\\*\\/',
-            next: 'start',
-          },
-          {
-            defaultToken: 'comment',
-          },
-        ],
-      };
-
-      this.embedRules(DocCommentHighlightRules, 'doc-', [
-        DocCommentHighlightRules.getEndRule('start'),
-      ]);
+        DocCommentHighlightRules.getStartRule('doc-start'),
+        {
+          token: 'comment', // multi line comment
+          regex: '\\/\\*',
+          next: 'comment',
+        },
+        {
+          token: 'string', // single line
+          regex: '["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]',
+        },
+        {
+          token: 'string', // single line
+          regex: "['](?:(?:\\\\.)|(?:[^'\\\\]))*?[']",
+        },
+        {
+          token: 'constant.numeric',
+          regex: '[0-9a-fA-F]+\\b',
+        },
+        {
+          token: 'constant.language.boolean',
+          regex: '(?:true|false)\\b',
+        },
+        {
+          token: keywordMapper,
+          regex: '[a-zA-Z_$][a-zA-Z0-9_$]*\\b',
+        },
+        {
+          token: 'keyword.operator',
+          regex: '!|%|&|\\*|\\-|\\+|~|==|=|!=|<=|>=|<|>|&&|\\|\\|',
+        },
+        {
+          token: 'lparen',
+          regex: '[[({]',
+        },
+        {
+          token: 'rparen',
+          regex: '[\\])}]',
+        },
+        {
+          token: 'text',
+          regex: '\\s+',
+        },
+      ],
+      comment: [
+        {
+          token: 'comment', // closing comment
+          regex: '\\*\\/',
+          next: 'start',
+        },
+        {
+          defaultToken: 'comment',
+        },
+      ],
     };
 
-    oop.inherits(FeniaHighlightRules, TextHighlightRules);
+    this.embedRules(DocCommentHighlightRules, 'doc-', [
+      DocCommentHighlightRules.getEndRule('start'),
+    ]);
+  };
 
-    exports.FeniaHighlightRules = FeniaHighlightRules;
-  }
-);
+  oop.inherits(FeniaHighlightRules, TextHighlightRules);
+
+  exports.FeniaHighlightRules = FeniaHighlightRules;
+});

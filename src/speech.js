@@ -44,13 +44,11 @@ export function setupSpeechRecognition({
   };
 
   recognition.onstart = () => {
-    console.log('Speech input started');
     toggleVoiceButtonClass(true);
     playBeep(600); // старт
   };
 
   recognition.onend = () => {
-    console.log('Speech input ended');
     toggleVoiceButtonClass(false);
     playBeep(800); // конец
   };

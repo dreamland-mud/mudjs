@@ -70,7 +70,7 @@ function initIndexedHistoryDb() {
       reject(e.target.error);
     };
 
-    request.onsuccess = function (e) {
+    request.onsuccess = function () {
       accept(request.result);
     };
   })
@@ -83,7 +83,7 @@ function initIndexedHistoryDb() {
         // last window/tab wins: overwrite any existing session
         var request = store.put(sessionId, 'current');
 
-        request.onsuccess = function (e) {
+        request.onsuccess = function () {
           accept(db);
         };
       });
@@ -178,7 +178,7 @@ function initIndexedHistoryDb() {
         remove: function () {},
       };
     })
-    .catch(function (e) {
+    .catch(function () {
       console.log(
         'indexedDb initialization failed, falling back to stub implementation'
       );

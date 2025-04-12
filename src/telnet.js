@@ -111,13 +111,12 @@ class Telnet {
   }
 
   // Override these:
-  handleRaw(b) {}
-  handleDont(b) {}
-  handleDo(b) {}
-  handleWont(b) {}
-  handleWill(b) {}
-  handleSubneg(b) {}
+  handleRaw() {}
+  handleDont() {}
+  handleDo() {}
+  handleWont() {}
+  handleWill() {}
+  handleSubneg() {}
 }
 
-// 🟢 Вот эта строчка ключевая для Vite:
 export default Telnet;

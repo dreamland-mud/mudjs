@@ -26,7 +26,11 @@ let currentFile = null;
 
 $(document).ready(function () {
   loader.init().then(monaco => {
-    monaco.languages.setMonarchTokensProvider('javascript', {
+    // 🧠 Регистрация языка "fenia"
+    monaco.languages.register({ id: 'fenia' });
+
+    // 🧠 Настройка подсветки (токенов) для fenia
+    monaco.languages.setMonarchTokensProvider('fenia', {
       keywords: [
         'if',
         'else',
@@ -72,17 +76,18 @@ $(document).ready(function () {
         '>>',
         '>>>',
       ],
-      symbols: /[=><!~?:&|+\-*\/^%]+/,
+      symbols: /[=><!~?:&|+\-*/^%]+/,
       tokenizer: {
         root: [
+          [/\.[a-zA-Z_$][\w$]*/, 'identifier'], // поддержка .tmp, ._Map
           [
             /[a-zA-Z_$][\w$]*/,
             { cases: { '@keywords': 'keyword', '@default': 'identifier' } },
           ],
           { include: '@whitespace' },
-          [/[{}()\[\]]/, '@brackets'],
-          [/@symbols/, 'operator'],
           [/\d+/, 'number'],
+          [/[{}()[\]]/, '@brackets'],
+          [/@symbols/, 'operator'],
           [/"([^"\\]|\\.)*$/, 'string.invalid'],
           [/'([^'\\]|\\.)*$/, 'string.invalid'],
           [/"/, 'string', '@string_double'],
@@ -94,9 +99,9 @@ $(document).ready(function () {
           [/\/\/.*$/, 'comment'],
         ],
         comment: [
-          [/[^\/*]+/, 'comment'],
+          [/[^/*]+/, 'comment'],
           [/\*\//, 'comment', '@pop'],
-          [/[\/*]/, 'comment'],
+          [/[/*]/, 'comment'],
         ],
         string_double: [
           [/[^\\"]+/, 'string'],
@@ -111,10 +116,11 @@ $(document).ready(function () {
       },
     });
 
+    // 👇 Установка редактора с языком "fenia"
     const editorElement = $('#cs-modal .editor')[0];
     monacoEditor = monaco.editor.create(editorElement, {
       value: '',
-      language: 'javascript',
+      language: 'fenia',
       theme: 'vs-dark',
       fontSize: 16,
       lineNumbers: 'off',
@@ -142,7 +148,6 @@ $(document).ready(function () {
       switchToFile(filename);
     });
 
-    // Run
     $('#cs-modal .run-button').click(function (e) {
       e.preventDefault();
       const subj = $('#cs-subject').val();
@@ -164,7 +169,7 @@ $(document).ready(function () {
 
     $('#rpc-events').on('rpc-cs_edit', function (e, subj, body) {
       if (subj) $('#cs-subject').val(subj);
-      if (body) openFileTab(subj || 'file.js', fixindent(tabsize8to4, body));
+      if (body) openFileTab(subj || 'file.fenia', fixindent(tabsize8to4, body));
       $('#cs-modal').modal('show');
     });
   });

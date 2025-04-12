@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import getSessionId from './sessionid.js';
-import placeholders from './data/placeholders.json' assert { type: 'json' };
+import placeholders from './data/placeholders.json';
 
 const sessionId = getSessionId();
 var lastLocation, locationChannel;

@@ -50,7 +50,6 @@ const CmdInput = () => {
   const recognitionRef = useRef(null);
 
   const startSpeech = () => {
-    console.log('🎤 startSpeech вызван через клавишу');
     if (recognitionRef.current) {
       recognitionRef.current.abort();
       recognitionRef.current = null;
@@ -99,22 +98,7 @@ const CmdInput = () => {
     return () => window.removeEventListener('keydown', handleKey);
   }, []);
 
-  // useEffect(() => {
-  //   const onKeyDown = e => {
-  //     console.log('Key pressed:', e.code, e.key, e.keyCode); // для отладки
-  //     if (e.ctrlKey && e.code === 'KeyM') {
-  //       e.preventDefault();
-  //       console.log('🎙️ Ctrl+M shortcut сработал');
-  //       startSpeech();
-  //     }
-  //   };
-
-  //   window.addEventListener('keydown', onKeyDown);
-  //   return () => window.removeEventListener('keydown', onKeyDown);
-  // }, []);
-
   useEffect(() => {
-    // Каждый раз, как меняется lang, убить старое распознавание и создать новое
     if (recognitionRef.current) {
       recognitionRef.current.abort();
       recognitionRef.current = null;
@@ -129,9 +113,9 @@ const CmdInput = () => {
           setValue(prev => prev + ' ' + transcript);
         }
       },
-      onError: e => {},
+      onError: () => {},
     });
-  }, [lang]); // <-- следим за изменением lang
+  }, [lang]);
 
   const saveCmd = t => {
     if (t) {
@@ -192,7 +176,7 @@ const CmdInput = () => {
   const keydown = e => {
     if (e.ctrlKey && e.code === 'KeyM') {
       e.preventDefault();
-      console.log('🎙️ Ctrl+M shortcut сработал в инпуте');
+
       startSpeech();
       return;
     }
@@ -289,6 +273,7 @@ const CmdInput = () => {
           id="cmd-voice-lang"
           value={lang}
           onChange={e => setLang(e.target.value)}
+          aria-label="Вибір мови голосового введення"
         >
           <option value="ru-RU">RU</option>
           <option value="uk-UA">UA</option>
@@ -299,7 +284,7 @@ const CmdInput = () => {
           id="cmd-voice"
           onClick={startSpeech}
           title="Ctrl+M"
-          aria-label="Cntrl+M"
+          aria-label="Голосове введення, натисни або Ctrl+M"
         >
           <MicIcon />
         </button>
@@ -315,6 +300,7 @@ const CmdInput = () => {
           type="text"
           autoComplete="off"
           style={{ width: '100%' }}
+          aria-label="Командний ввід"
         />
       </form>
 
@@ -331,7 +317,7 @@ const CmdInput = () => {
               <td>
                 <button
                   onClick={historyRepeat}
-                  aria-label="Повторить команду"
+                  aria-label="Повторити останню команду"
                   cmd="repeat"
                   className="btn btn-sm btn-ctrl btn-outline-primary"
                   style={{ height: '1.7em', width: '1.7em' }}

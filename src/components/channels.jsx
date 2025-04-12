@@ -1,5 +1,5 @@
 import React from 'react';
 
-export default function Channels(props) {
-    return <div/>;
+export default function Channels() {
+  return <div />;
 }

@@ -7,7 +7,7 @@ const echo = txt => {
   $('.terminal').trigger('output', [txt]);
 };
 
-let keydown = function (e) {};
+let keydown = function () {};
 
 const applySettings = s => {
   const settings = `return function(params) {
@@ -79,8 +79,6 @@ $(document).ready(function () {
         scrollBeyondLastLine: false,
         automaticLayout: true,
         padding: { top: 20, bottom: 20 },
-        automaticLayout: true,
-        minimap: { enabled: false },
         tabSize: 4,
         insertSpaces: false,
         detectIndentation: true,
@@ -97,7 +95,7 @@ $(document).ready(function () {
       $('#settings-save-button').click(function (e) {
         e.preventDefault();
 
-        $('.trigger').off();
+        $('.trigger').off('input.myNamespace text.myNamespace');
         const val = editor.getValue();
         applySettings(val);
         localStorage.settings = val;

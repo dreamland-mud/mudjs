@@ -16,7 +16,10 @@ const Stat = ({ v, max_v, caption, color }) => {
   };
 
   const span = big && (
-    <Box component="span" className="justify-content-center d-flex position-absolute w-100">
+    <Box
+      component="span"
+      className="justify-content-center d-flex position-absolute w-100"
+    >
       {`${caption} ${v}/${max_v}`}
     </Box>
   );
@@ -31,7 +34,14 @@ const Stat = ({ v, max_v, caption, color }) => {
         color: 'white',
       }}
     >
-      <Box style={style} className="progress-bar" role="progressbar" aria-valuenow={v} aria-valuemin={0} aria-valuemax={max_v} />
+      <Box
+        style={style}
+        className="progress-bar"
+        role="progressbar"
+        aria-valuenow={v}
+        aria-valuemin={0}
+        aria-valuemax={max_v}
+      />
       {span}
     </Box>
   );
@@ -49,7 +59,10 @@ const StatPercent = ({ percent, caption, color }) => {
   };
 
   const span = big && (
-    <Box component="span" className="justify-content-center d-flex position-absolute w-100">
+    <Box
+      component="span"
+      className="justify-content-center d-flex position-absolute w-100"
+    >
       {`${caption} ${percent}%`}
     </Box>
   );
@@ -64,15 +77,20 @@ const StatPercent = ({ percent, caption, color }) => {
         color: 'white',
       }}
     >
-      <Box style={style} className="progress-bar" role="progressbar" aria-valuenow={percent} aria-valuemin={1} aria-valuemax={100} />
+      <Box
+        style={style}
+        className="progress-bar"
+        role="progressbar"
+        aria-valuenow={percent}
+        aria-valuemin={1}
+        aria-valuemax={100}
+      />
       {span}
     </Box>
   );
 };
 
 export default function Stats() {
-  const theme = useTheme();
-  const big = useMediaQuery(theme.breakpoints.up('sm'));
   const { hit, max_hit, mana, max_mana, move, max_move, fight } = usePrompt();
 
   return (

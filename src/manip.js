@@ -50,7 +50,7 @@ $(document).ready(function () {
 
 // Replace colour "<c c='fgbr'/>" tags coming from the server with spans.
 function colorParseAndReplace(span) {
-  span.find('c').each(function (index) {
+  span.find('c').each(function () {
     var style = $(this).attr('c');
     $(this).replaceWith(function () {
       var result = $('<span/>').append($(this).contents());
@@ -65,7 +65,7 @@ function manipParseAndReplace(span) {
   // or with an empty string, if area is not found in the areas.json.
   var html = span
     .html()
-    .replace(/\[map=([-0-9a-z_]{1,15})\.are\]/g, function (match, p1, string) {
+    .replace(/\[map=([-0-9a-z_]{1,15})\.are\]/g, function (match, p1) {
       if (areas.indexOf(p1) === -1) return '';
       return (
         '<a class="btn btn-sm btn-outline-info btn-orange" href="https://dreamland.rocks/maps/' +
@@ -78,7 +78,7 @@ function manipParseAndReplace(span) {
   // Returns empty string if 'see' part is not contained within 'read' part.
   html = html.replace(
     /\[read=([^,]{1,100}),see=([^\]]{1,30})]/gi,
-    function (match, p1, p2, string) {
+    function (match, p1, p2) {
       if (p1.toLowerCase().split(' ').indexOf(p2.toLowerCase()) === -1)
         return '';
       return (
@@ -112,7 +112,7 @@ function manipParseAndReplace(span) {
       // The link will only surround the message itself, spaces are not underlined.
       return see.replace(
         /^( *)(.*[^ ])( *)$/,
-        function (match, spaceBegin, msg, spaceEnd, string) {
+        function (match, spaceBegin, msg, spaceEnd) {
           var label;
           switch (msg) {
             case 'edit':
@@ -152,7 +152,7 @@ function manipParseAndReplace(span) {
   span.html(html);
 
   // Replace "<hc>command</hc>" tags surrounding commands to send as is.
-  span.find('hc').each(function (index) {
+  span.find('hc').each(function () {
     var cmd = $(this).contents();
 
     $(this).replaceWith(function () {
@@ -168,7 +168,7 @@ function manipParseAndReplace(span) {
 
   // Replace "<hl>hyper link</hl>" tags surrounding hyper links.
   // Basic sanitization of the links.
-  span.find('hl').each(function (index) {
+  span.find('hl').each(function () {
     var content = $(this).contents();
     var href = content.text();
     if (!href.startsWith('http')) return;
@@ -183,7 +183,7 @@ function manipParseAndReplace(span) {
   });
 
   // Replace "<hh>article name</hh>" or "<hh id='333'>" tags surrounding help articles.
-  span.find('hh').each(function (index) {
+  span.find('hh').each(function () {
     var article = $(this).contents().text();
     var id = $(this).attr('id') || article;
 
@@ -215,7 +215,7 @@ function manipParseAndReplace(span) {
   });
 
   // Replace "<hg>skill group</hg>" tags surrounding group names.
-  span.find('hg').each(function (index) {
+  span.find('hg').each(function () {
     var article = $(this).contents();
 
     $(this).replaceWith(function () {
@@ -229,7 +229,7 @@ function manipParseAndReplace(span) {
   });
 
   // Replace "<hs>speedwalk</hs>" tags with 'run speedwalk' command.
-  span.find('hs').each(function (index) {
+  span.find('hs').each(function () {
     var article = $(this).contents();
 
     $(this).replaceWith(function () {
@@ -244,7 +244,7 @@ function manipParseAndReplace(span) {
   });
 
   // Replace item manipulation "<m i='234234' c='take $,put $ 12348'/>" tags surrounding every item.
-  span.find('m').each(function (index) {
+  span.find('m').each(function () {
     // Populate menu node for each item based on the 'c' and 'l' attributes containing command lists.
     // Mark menu nodes so that they can be removed and not mess up the triggers.
     var id = $(this).attr('i');

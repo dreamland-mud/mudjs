@@ -8,8 +8,6 @@ import Terminal from './terminal';
 import { send } from '../websock';
 
 const OverlayCell = ({ ariaLabel, ariaHidden, children, ...props }) => {
-  const theme = useTheme();
-
   const ariaProps = {};
   if (ariaLabel) ariaProps['aria-label'] = ariaLabel;
   if (ariaHidden) ariaProps['aria-hidden'] = ariaHidden;
@@ -37,7 +35,7 @@ const KeypadCell = ({ cmd, longCmd, children, ...props }) => {
   let btnTimer = null;
   let wasLongPress = false;
 
-  const touchstart = e => {
+  const touchstart = () => {
     wasLongPress = false;
     btnTimer = setTimeout(() => {
       wasLongPress = true;

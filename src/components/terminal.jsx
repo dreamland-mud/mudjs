@@ -90,7 +90,7 @@ function terminalInit(wrap) {
     }); // scroll to the bottom
   };
 
-  wrap.on('scroll-to-bottom', e => scrollToBottom());
+  wrap.on('scroll-to-bottom', () => scrollToBottom());
 
   terminal.on('output', function (e, txt) {
     const span = $('<span/>');
@@ -107,10 +107,7 @@ function terminalInit(wrap) {
     historyDb
       .then(db => db.append(html))
       .then(id => {
-        const $chunk = $('<div>')
-          .append(html)
-          .attr('data-chunk-id', id)
-          .attr('aria-live', 'alert');
+        const $chunk = $('<div>').append(html).attr('data-chunk-id', id);
 
         $chunk.find('.manip-cmd').each(function () {
           $(this).attr('role', 'link').attr('tabindex', 0);
@@ -136,7 +133,7 @@ function terminalInit(wrap) {
       });
   });
 
-  wrap.on('scroll', e => {
+  wrap.on('scroll', () => {
     autoScrollEnabled = atBottom();
 
     // We are already handling a scroll event.
@@ -227,7 +224,7 @@ function terminalInit(wrap) {
   };
 }
 
-export default forwardRef(({ bumpUnread, resetUnread }, ref) => {
+const Terminal = forwardRef(({ bumpUnread, resetUnread }, ref) => {
   const wrap = useRef();
 
   useEffect(() => terminalInit($(wrap.current)), [wrap]);
@@ -280,3 +277,5 @@ export default forwardRef(({ bumpUnread, resetUnread }, ref) => {
     </div>
   );
 });
+
+export default Terminal;

@@ -22,7 +22,6 @@ const voiceCommands = [
 
 export function handleSpeechCommand(transcript, setValue) {
   const normalized = transcript.trim().toLowerCase();
-  console.log('🎙️ Распознано:', normalized);
 
   for (const { match, buildCommand } of voiceCommands) {
     const matchResult = normalized.match(match);
