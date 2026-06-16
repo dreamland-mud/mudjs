@@ -79,7 +79,10 @@ export function useGraphMapper(location, enabled) {
   useEffect(() => {
     if (!enabled || index != null) return;
     let cancelled = false;
-    fetch(`${GRAPH_BASE}/index.json`)
+    // `no-cache` = always revalidate (conditional GET, cheap 304 when unchanged). Without it
+    // the 24h `Cache-Control: max-age` on /maps/graph/ serves a stale graph from the HTTP cache
+    // even after a hard reload, because this fetch fires after page load (on area change).
+    fetch(`${GRAPH_BASE}/index.json`, { cache: 'no-cache' })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error('http ' + r.status))))
       .then((data) => { if (!cancelled) setIndex(data); })
       .catch((e) => {
@@ -96,7 +99,7 @@ export function useGraphMapper(location, enabled) {
     if (!enabled || !areaFile) return;
     let cancelled = false;
     setStatus('loading');
-    fetch(`${GRAPH_BASE}/area-${areaFile}.json`)
+    fetch(`${GRAPH_BASE}/area-${areaFile}.json`, { cache: 'no-cache' })
       .then((r) => {
         if (r.status === 404) throw new Error('missing');
         if (!r.ok) throw new Error('http ' + r.status);
