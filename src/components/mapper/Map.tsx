@@ -563,11 +563,13 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
             const cx = fromS.sx + TILE_W / 2;
             const cy = fromS.sy + TILE_H / 2;
             const [x1, y1] = clipFromCenter(cx, cy, cx + ux * STUB_LEN * 4, cy + uy * STUB_LEN * 4, portFromW, portFromH);
-            const STICK = 22;
+            // Self-loop (exit returns to its own room — a disorientation / wrap tile). A compact
+            // ↻ glyph at the exit face reads as "loops back" without a dangling stick.
+            const gx = x1 + ux * 9, gy = y1 + uy * 9;
             return (
-              <g key={`e${i}`} opacity={opa * 0.45}>
-                <line x1={x1} y1={y1} x2={x1 + ux * STICK} y2={y1 + uy * STICK}
-                      stroke={COLOR.warp} strokeWidth={1.3} strokeDasharray="2 3" strokeLinecap="round" />
+              <g key={`e${i}`} opacity={opa * 0.6} pointerEvents="none">
+                <text x={gx} y={gy + 5} fontSize={15} textAnchor="middle" fill={COLOR.warp}
+                      style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}>↻</text>
               </g>
             );
           }
@@ -619,7 +621,11 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
             if (!toP) return null;
             const fromVisible = visibleVnumSet.has(edge.from);
             const toVisible = visibleVnumSet.has(edge.to);
-            if (fromVisible && toVisible) {
+            // Clean vertical (target cleanly stacked above/below) → short axonometric line.
+            // Warp vertical (z-stack: target bumped off the column) → compact stub instead of
+            // a long, map-crossing diagonal to an offset tile. Anchors on the source so it
+            // reads as "go up/down here to <room>".
+            if (fromVisible && toVisible && edge.style !== 'warp') {
               const toScale = isolating ? 1 : layerScale(toP.z, activeZ);
               return renderVerticalLine(layout, edge, i, opa, fromScale, toScale);
             }
