@@ -1,0 +1,522 @@
+/* ============================================================================
+   DL Mapper — mudjs integration styles.
+   --------------------------------------------------------------------------
+   A scoped subset of the standalone dreamland_mapper's main.css. Everything is
+   nested under `.dl-mapper-root` so the generic class names (.btn, .panel, .toast,
+   .section, .search ...) cannot leak into — or be clobbered by — mudjs/bootstrap
+   globals. The palette/type already mirror the mudjs terminal (#121212 / #bb86fc /
+   Roboto Mono), so it sits inside the map mosaic tile without a seam.
+   ============================================================================ */
+
+.dl-mapper-root {
+  /* Inks */
+  --ink-deep:      #0c0c0c;
+  --ink-base:      #121212;
+  --ink-panel:     #1a1a1a;
+  --ink-elevated:  #2b2b2b;
+  --ink-deeper:    #080808;
+  /* Rules */
+  --rule-faint:    #1f1f1f;
+  --rule:          #2e2e2e;
+  --rule-strong:   #3a3a3a;
+  /* Text */
+  --text-faint:    #6a6a6a;
+  --text-dim:      #888888;
+  --text-body:     #d3d7cf;
+  --text-bright:   #ffffff;
+  /* Accents */
+  --parchment:     #eeeeec;
+  --amber:         #bb86fc;
+  --amber-dim:     #9a66d4;
+  --lapis:         #55a3f2;
+  --rust:          #cc0000;
+  --cyan:          #2cf4eb;
+  --cyan-dark:     #06989a;
+  /* Type */
+  --font-mono:  'Roboto Mono', ui-monospace, Menlo, Consolas, monospace;
+  --font-serif: 'Georgia', 'Times New Roman', 'Source Serif Pro', serif;
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink-base);
+  color: var(--text-body);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.dl-mapper-root *,
+.dl-mapper-root *::before,
+.dl-mapper-root *::after { box-sizing: border-box; }
+
+/* ---- topbar (lives in the MUI AppBar) ---- */
+.dl-mapper-root .dl-mapper-topbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 48px;
+  padding: 4px 4px 4px 8px;
+}
+.dl-mapper-root .dl-mapper-areaname {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* Match the .dark-panel-title widget headers: purple, 600, app sans font at 14px. */
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #bb86fc;
+}
+
+/* Equal control heights across the topbar: room search, layer select, ASCII toggle. */
+.dl-mapper-root .dl-mapper-topbar .search-input,
+.dl-mapper-root .dl-mapper-topbar .select--small,
+.dl-mapper-root .dl-mapper-topbar .toggle-btn {
+  height: 30px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.dl-mapper-root .dl-mapper-topbar .toggle-btn {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ---- graph body ---- */
+.dl-mapper-root .dl-mapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink-base);
+}
+.dl-mapper-root .dl-mapper-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dl-mapper-root .dl-mapper-notice {
+  text-align: center;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  padding: 24px;
+}
+.dl-mapper-root .dl-mapper-notice p {
+  margin: 0 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+/* ---- map svg ---- */
+.dl-mapper-root .map-svg {
+  width: 100%;
+  height: 100%;
+  background: var(--ink-base);
+  cursor: grab;
+  display: block;
+}
+.dl-mapper-root .map-svg:active { cursor: grabbing; }
+.dl-mapper-root .map-svg [role="button"]:focus,
+.dl-mapper-root .map-svg [role="button"]:focus-visible { outline: none; }
+
+/* ---- +/- zoom buttons (in the topbar, right of the # toggle; purple like .btn-ctrl-panel) ---- */
+.dl-mapper-root .dl-mapper-zoom-btn {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  font-family: var(--font-mono);
+  font-size: 18px;
+  line-height: 1;
+  background: var(--amber);
+  color: #121212;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 140ms;
+}
+.dl-mapper-root .dl-mapper-zoom-btn:hover { background: #8043ca; color: #fff; }
+
+/* ---- selects (terminal-style) ---- */
+.dl-mapper-root .select {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background-color: var(--ink-base);
+  color: var(--text-bright);
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  padding: 5px 24px 5px 8px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath fill='%23888888' d='M0 0h8L4 6z'/%3E%3C/svg%3E");
+  background-position: calc(100% - 8px) center;
+  background-size: 8px 6px;
+  background-repeat: no-repeat;
+  transition: border-color 140ms ease, color 140ms ease;
+}
+.dl-mapper-root .select:hover { border-color: var(--amber-dim); color: var(--parchment); }
+.dl-mapper-root .select:focus-visible { outline: none; border-color: var(--amber); }
+.dl-mapper-root .select option { background: var(--ink-elevated); color: var(--text-bright); }
+.dl-mapper-root .select--small { font-size: 11px; padding: 3px 22px 3px 6px; flex: 0 0 auto; }
+
+/* ---- ASCII toggle ---- */
+.dl-mapper-root .toggle-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  padding: 5px 10px;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: border-color 140ms, color 140ms, background 140ms;
+}
+.dl-mapper-root .toggle-btn:hover { color: var(--text-bright); border-color: var(--amber-dim); }
+.dl-mapper-root .toggle-btn.is-on {
+  background: var(--amber);
+  color: var(--ink-deep);
+  border-color: transparent;
+}
+
+/* ---- search (compacted for the narrow tile) ---- */
+.dl-mapper-root .search { position: relative; flex: 0 1 150px; min-width: 88px; }
+.dl-mapper-root .search-input-wrap { position: relative; display: flex; align-items: center; }
+/* fa-search magnifier, mirroring the middle-section "search help" box. */
+.dl-mapper-root .dl-mapper-search-icon {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 2;
+}
+.dl-mapper-root .search-input {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: transparent;
+  color: var(--text-bright);
+  border: 1px solid var(--amber);
+  padding: 6px 10px 6px 26px;
+  outline: none;
+  transition: border-color 140ms;
+  letter-spacing: 0.02em;
+}
+.dl-mapper-root .search-input::placeholder { color: var(--text-faint); letter-spacing: 0; }
+.dl-mapper-root .search-input:focus {
+  background: #000;
+  color: var(--text-bright);
+  border-color: var(--cyan);
+  box-shadow: none;
+  outline: none;
+}
+.dl-mapper-root .search-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 240px;
+  max-width: 80vw;
+  background: var(--ink-deeper);
+  border: 1px solid var(--rule-strong);
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  z-index: 50;
+  max-height: 280px;
+  overflow: auto;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+}
+.dl-mapper-root .search-result {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-body);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 100ms, color 100ms;
+}
+.dl-mapper-root .search-result::before {
+  content: '› ';
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  margin-right: 4px;
+}
+.dl-mapper-root .search-result-name { flex: 1; }
+.dl-mapper-root .search-result:hover { background: var(--amber); color: var(--ink-deep); }
+.dl-mapper-root .search-result:hover::before { color: var(--ink-deep); }
+
+/* ---- detail drawer (overlay over the map; tile too narrow for a docked aside) ---- */
+.dl-mapper-root .dl-mapper-drawer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--ink-panel);
+  border-top: 1px solid var(--rule-strong);
+  box-shadow: 0 -14px 36px rgba(0, 0, 0, 0.5);
+  transform: translateY(102%);
+  transition: transform 200ms ease;
+  z-index: 60;
+}
+.dl-mapper-root .dl-mapper-drawer[data-open="true"] { transform: translateY(0); }
+.dl-mapper-root .dl-mapper-drawer-body { overflow: auto; }
+
+/* Room name + sector/layer + close stay pinned while the panel body scrolls. */
+.dl-mapper-root .panel-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--ink-panel);
+}
+
+/* ---- side panel (compact, to match the other right-hand widgets) ---- */
+.dl-mapper-root .panel { padding: 6px 8px 10px; }
+.dl-mapper-root .panel-empty {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.7;
+  border-left: 2px solid var(--rule);
+  padding: 4px 0 4px 14px;
+  margin-top: 8px;
+}
+/* Header row: room name left, sector/layer + close right-justified — one line. */
+.dl-mapper-root .panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+/* Room name matches the .dark-panel-title widget headers (purple, 600, sans). */
+.dl-mapper-root .panel-title {
+  margin: 0;
+  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--amber);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dl-mapper-root .panel-head-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.dl-mapper-root .panel-meta {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.dl-mapper-root .panel-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  align-self: center;
+}
+.dl-mapper-root .panel-close:hover { color: var(--text-bright); }
+.dl-mapper-root .panel-void {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--rust);
+  background: rgba(176, 73, 55, 0.06);
+  border-left: 2px solid var(--rust);
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+.dl-mapper-root .panel-void::before { content: '✦ '; font-style: normal; }
+
+.dl-mapper-root .section { margin-bottom: 13px; }
+.dl-mapper-root .section-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dl-mapper-root .section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+.dl-mapper-root .description {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-body);
+  white-space: pre-wrap;
+}
+
+.dl-mapper-root .exits-empty {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+}
+.dl-mapper-root .exits { list-style: none; margin: 0; padding: 0; }
+.dl-mapper-root .exit {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 10px;
+  padding: 5px 0;
+  align-items: baseline;
+  border-bottom: 1px dashed var(--rule-faint);
+}
+.dl-mapper-root .exit:last-child { border-bottom: none; }
+.dl-mapper-root .exit-dir {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--amber);
+}
+.dl-mapper-root .exit-target {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-body);
+}
+.dl-mapper-root .exit-target-link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  border-bottom: 1px dotted transparent;
+  transition: color 120ms, border-color 120ms;
+}
+.dl-mapper-root .exit-target-link:hover {
+  color: var(--parchment);
+  border-bottom-color: var(--amber-dim);
+}
+.dl-mapper-root .exit-target-cross { color: var(--cyan-dark); }
+.dl-mapper-root .exit-emoji { font-style: normal; font-size: 12px; margin-left: 6px; }
+
+.dl-mapper-root .panel-actions {
+  display: flex;
+  gap: 8px;
+  position: sticky;
+  bottom: 0;
+  margin-top: 14px;
+  padding: 10px 0 4px;
+  border-top: 1px solid var(--rule);
+  background: var(--ink-panel);
+}
+
+/* ---- buttons (override bootstrap .btn within scope via specificity) ---- */
+.dl-mapper-root .btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  padding: 7px 14px;
+  cursor: pointer;
+  flex: 1;
+  transition: border-color 140ms, color 140ms, background 140ms;
+}
+.dl-mapper-root .btn:hover {
+  border-color: var(--amber);
+  color: var(--ink-deep);
+  background: var(--amber);
+}
+.dl-mapper-root .btn--primary {
+  background: var(--amber);
+  color: var(--ink-deep);
+  border-color: transparent;
+}
+.dl-mapper-root .btn--primary:hover {
+  background: var(--amber-dim);
+  color: var(--text-bright);
+  border-color: transparent;
+}
+.dl-mapper-root .dl-mapper-notice .btn { flex: 0 0 auto; }
+
+/* ---- toast ---- */
+.dl-mapper-root .toast {
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink-deeper);
+  color: var(--parchment);
+  border: 1px solid var(--amber-dim);
+  padding: 10px 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  z-index: 100;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+  animation: dl-mapper-toast-in 200ms ease-out;
+  max-width: 92%;
+  text-align: center;
+}
+.dl-mapper-root .toast::before { content: '> '; color: var(--amber); }
+@keyframes dl-mapper-toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ---- loading ---- */
+.dl-mapper-root .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: var(--ink-base);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.dl-mapper-root .loading::before {
+  content: '◆';
+  display: inline-block;
+  margin-right: 14px;
+  animation: dl-mapper-pulse 1.6s ease-in-out infinite;
+  color: var(--amber);
+  font-size: 10px;
+}
+@keyframes dl-mapper-pulse {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 1; }
+}

@@ -16,9 +16,14 @@ const Stat = ({ v, max_v, caption, color }) => {
   };
 
   const span = big && (
-    <Box component="span" className="justify-content-center d-flex position-absolute w-100">
-      {`${caption} ${v}/${max_v}`}
-    </Box>
+    <>
+      <Box component="span" className="position-absolute" sx={{ left: '4px' }}>
+        {caption}
+      </Box>
+      <Box component="span" className="d-flex justify-content-center position-absolute w-100">
+        <b>{v}</b>/{max_v}
+      </Box>
+    </>
   );
 
   return (
@@ -50,7 +55,7 @@ const StatPercent = ({ percent, caption, color }) => {
 
   const span = big && (
     <Box component="span" className="justify-content-center d-flex position-absolute w-100">
-      {`${caption} ${percent}%`}
+      {caption} <b>{percent}</b>%
     </Box>
   );
 
@@ -82,10 +87,10 @@ export default function Stats() {
         flexDirection: 'row',
       }}
     >
-      <Stat caption="Здоровье" color="#bb0000" v={hit} max_v={max_hit} />
+      <Stat caption="Здоровье" color="#cc0000" v={hit} max_v={max_hit} />
       <StatPercent caption="Противник" color="#ff0000" percent={fight} />
       <Stat caption="Мана" color="#3465a4" v={mana} max_v={max_mana} />
-      <Stat caption="Шаги" color="#055705" v={move} max_v={max_move} />
+      <Stat caption="Шаги" color="#4e9a06" v={move} max_v={max_move} />
     </Box>
   );
 }

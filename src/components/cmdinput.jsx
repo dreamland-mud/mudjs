@@ -53,7 +53,12 @@ const CmdInput = () => {
 
       if (!sendHotKeyCmd(e)) {
         if (e.ctrlKey || e.altKey) return;
-        if (input.is(':focus') || $('#help input').is(':focus')) return;
+        if (
+          input.is(':focus') ||
+          $('#help input').is(':focus') ||
+          $('.dl-mapper-root .search-input').is(':focus')
+        )
+          return;
 
         if (document.getElementById('inputBox')) {
           textInput.current.focus();

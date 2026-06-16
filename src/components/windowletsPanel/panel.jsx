@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux'
 import Box from '@mui/material/Box';
 
 import TimeWeatherItem from './timeWeatherItem'
-import LocationItem from './locationItem'
 import CommandButtons from './commandButtons'
 import Help from './panelHelp';
 import GroupItem from './groupItem';
@@ -71,7 +70,6 @@ export default function Panel() {
     return (
         <Box id="panel-wrap" flex="1" aria-hidden="true">
             {isPrompt() && <TimeWeatherItem {...prompt} />}
-            {isPrompt() && <LocationItem {...prompt} />}
             {isPromptAreaQuest() && <AreaQuestItem {...prompt} />}
             {isPromptQuestor() && <QuestorItem {...prompt} />}
             {isPromptGroup() && <GroupItem {...prompt} />}

@@ -12,7 +12,7 @@ import TableCell from '@mui/material/TableCell';
 const TimeRow = ({ h, tod, l }) => (
   <TableRow>
     <TableCell sx={{ textAlign: 'left' }}>
-      <i className={`wi wi-fw wi-time-${h}`} style={{ fontSize: '150%' }}></i>
+      <i className={`wi wi-fw wi-time-${h}`}></i>
     </TableCell>
     <TableCell>{`${h} ${tod}`}{l && `, ${l}`}</TableCell>
   </TableRow>
@@ -24,7 +24,7 @@ const TimeRow = ({ h, tod, l }) => (
 const DateRow = ({ d, m, y }) => (
   <TableRow>
     <TableCell sx={{ textAlign: 'left' }}>
-      <i className="fa" style={{ fontSize: '140%' }}>&#xf073;</i>
+      <i className="fa">&#xf073;</i>
     </TableCell>
     <TableCell>{`${d} / ${m} / ${y}`}</TableCell>
   </TableRow>
@@ -36,7 +36,7 @@ const DateRow = ({ d, m, y }) => (
 const WeatherRow = ({ i, m }) => (
   <TableRow>
     <TableCell sx={{ textAlign: 'left' }}>
-      <i className={`wi wi-fw wi-${i}`} style={{ fontSize: '150%' }}></i>
+      <i className={`wi wi-fw wi-${i}`}></i>
     </TableCell>
     <TableCell>{m}</TableCell>
   </TableRow>
@@ -51,9 +51,18 @@ export default function TimeWeatherItem(prompt) {
   return (
     <PanelItem title="Погода и время">
       <Table sx={{
-        '& .wi': { fontSize: '150%' },
-        '& .fa': { fontSize: '140%' },
-        '& td > i': { textAlign: 'left' },
+        // Compact rows; icons share one uniform box, aligned to the left edge with an
+        // 8px gap to the text, tinted to the client purple.
+        '& .MuiTableCell-root': { padding: '1px 0', border: 0 },
+        // Left-align icons with the .dark-panel-title header (which has 5px padding).
+        '& td:first-of-type': { width: '1.4em', paddingLeft: '5px', paddingRight: '8px' },
+        '& .wi, & .fa': {
+          fontSize: '16px',
+          width: '1.4em',
+          display: 'inline-block',
+          textAlign: 'left',
+          color: '#bb86fc',
+        },
       }}>
         <TableBody>
           {time && time !== 'none' && <TimeRow {...time} />}
