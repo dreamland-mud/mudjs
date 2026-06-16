@@ -6,6 +6,41 @@
         <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no, shrink-to-fit=no">
         <meta name="Description" content="DreamLand MUD (Мир Грез, Мир Снов, Dream Land, МУД, МАД) текстовая многопользовательская ролевая онлайн игра на тематику фентези">
 
+        <!-- Fatal-load reporter: if an uncaught error/rejection leaves #root empty (a blank
+             client, e.g. an old mobile WebKit choking on the bundle), surface the message
+             on-screen instead of a silent blank. Delayed 1.5s so a transient handled error
+             on an otherwise-working client never clobbers a rendered app. -->
+        <script>
+        (function () {
+          var lastErr = null;
+          function rootEmpty() { var r = document.getElementById('root'); return !r || r.childElementCount === 0; }
+          function record(msg) {
+            lastErr = msg;
+            setTimeout(function () {
+              if (!rootEmpty() || !lastErr) return;
+              try {
+                var d = document.getElementById('fatal-error');
+                if (!d) {
+                  d = document.createElement('pre');
+                  d.id = 'fatal-error';
+                  d.style.cssText = 'white-space:pre-wrap;word-break:break-word;padding:14px;margin:0;color:#ff8080;background:#161616;font:13px/1.45 monospace;position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;overflow:auto';
+                  (document.body || document.documentElement).appendChild(d);
+                }
+                d.textContent = 'DREAMLAND CLIENT FAILED TO LOAD\n\n' + lastErr;
+              } catch (_) {}
+            }, 1500);
+          }
+          window.addEventListener('error', function (e) {
+            record(e.error && e.error.stack ? e.error.stack
+              : (e.message + ' @ ' + (e.filename || '') + ':' + (e.lineno || 0) + ':' + (e.colno || 0)));
+          });
+          window.addEventListener('unhandledrejection', function (e) {
+            var r = e.reason;
+            record('UnhandledRejection: ' + (r && r.stack ? r.stack : (r && r.message ? r.message : String(r))));
+          });
+        })();
+        </script>
+
         <link href="https://fonts.googleapis.com/css?family=Roboto+Mono&amp;subset=cyrillic" rel="stylesheet" />
         <link href="css/bootswatch-cyborg.min.css" rel="stylesheet" type="text/css" />
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
