@@ -133,6 +133,13 @@ $(document).ready(function () {
       overviewRulerLanes: 0,
       overviewRulerBorder: false,
       hideCursorInOverviewRuler: true,
+      // Fenia strings are full of Cyrillic; stop Monaco boxing/hovering
+      // "ambiguous" characters (о vs o, б vs 6, etc.).
+      unicodeHighlight: {
+        ambiguousCharacters: false,
+        invisibleCharacters: false,
+        nonBasicASCII: false,
+      },
       padding: { top: 20, bottom: 20 },
       tabSize: 4,
       insertSpaces: false,

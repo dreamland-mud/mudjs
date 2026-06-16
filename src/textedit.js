@@ -59,7 +59,15 @@ $(document).ready(function () {
       minimap: { enabled: false },
       scrollBeyondLastLine: false,
       fontSize: 16,
-      fontFamily: 'serif',
+      // Monospace (same font as the in-game terminal) so the column-80 ruler
+      // and wrap line up with real character columns and mirror what players
+      // see. The text is mostly Cyrillic, so also turn off Unicode highlight.
+      fontFamily: "'Roboto Mono', monospace",
+      unicodeHighlight: {
+        ambiguousCharacters: false,
+        invisibleCharacters: false,
+        nonBasicASCII: false,
+      },
       padding: { top: 20, bottom: 20 },
       automaticLayout: true,
     });
