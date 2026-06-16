@@ -2,6 +2,7 @@ import $ from 'jquery';
 import loader from '@monaco-editor/loader';
 import 'devbridge-autocomplete';
 import { rpccmd } from './websock';
+import { defineMonokai } from './monaco-monokai.js';
 
 let monacoEditor;
 
@@ -40,13 +41,20 @@ function initHelpIds() {
 
 $(document).ready(function () {
   loader.init().then(monaco => {
+    defineMonokai(monaco);
+
     const editorElement = $('#textedit-modal .editor')[0];
 
     monacoEditor = monaco.editor.create(editorElement, {
       value: '',
       language: 'plaintext',
-      theme: 'vs-dark',
-      wordWrap: 'on',
+      theme: 'monokai',
+      // In-game help/description text is laid out for an 80-column terminal,
+      // so wrap exactly at column 80 and draw a guide there to match.
+      wordWrap: 'bounded',
+      wordWrapColumn: 80,
+      wrappingIndent: 'same',
+      rulers: [80],
       lineNumbers: 'off',
       minimap: { enabled: false },
       scrollBeyondLastLine: false,
@@ -54,7 +62,6 @@ $(document).ready(function () {
       fontFamily: 'serif',
       padding: { top: 20, bottom: 20 },
       automaticLayout: true,
-      minimap: { enabled: false },
     });
 
     $('#rpc-events').on('rpc-editor_open', function (e, text, arg) {

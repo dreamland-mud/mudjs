@@ -38,6 +38,7 @@ body {
 
 .terminal-wrap {
   overflow-y: scroll;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   background-color: #121212;
   padding: 1px;
@@ -52,6 +53,24 @@ body {
   background-color: #121212;
   color: #d3d7cf;
   white-space: pre-wrap;
+  /* Anchor the 80-column guide and let it span the full visible height even
+     when there is little output. */
+  position: relative;
+  min-height: 100%;
+}
+
+/* Faint guide at the 80-character mark — the MUD's terminal width. The font is
+   monospace, so 80ch is exactly column 80. Clipped horizontally by
+   .terminal-wrap's overflow-x on narrow screens. */
+.terminal::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 80ch;
+  width: 1px;
+  background-color: #2e2e2e;
+  pointer-events: none;
 }
 
 #input input {
@@ -356,26 +375,6 @@ td.v-bottom {
  * Settings and editors modal windows.
  */
 
-#textedit-modal.webeditor .modal-content {
-  width: 70%;
-  background-color: #2b2b2b;
-  border-radius: 12px;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-}
-
-#textedit-modal.webeditor .modal-dialog {
-  max-width: 900px;
-  margin: 2rem auto;
-}
-
-#textedit-modal.webeditor .modal-body {
-  padding: 20px;
-  font-family: 'Georgia', serif;
-  font-size: 16px;
-  color: #ddd;
-}
-
 .webeditor .modal-dialog {
   max-width: 100%;
 }
@@ -392,6 +391,57 @@ td.v-bottom {
   .webeditor .modal-dialog {
     max-width: 80%;
   }
+}
+
+/*
+ * Full-screen layout for the two editors only (#cs-modal, #textedit-modal).
+ * The settings modal is also .webeditor but must keep its sized box, so these
+ * rules are scoped by id, not by the shared .webeditor class. The flex chain
+ * (content -> body -> form-group -> editor) lets Monaco fill the viewport;
+ * automaticLayout: true picks up the resize.
+ */
+#cs-modal .modal-dialog,
+#textedit-modal.webeditor .modal-dialog {
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+#cs-modal .modal-content,
+#textedit-modal.webeditor .modal-content {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #272822;
+  overflow: hidden;
+}
+
+#cs-modal .modal-body,
+#textedit-modal.webeditor .modal-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0;
+}
+
+#cs-modal .form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-bottom: 0;
+}
+
+#cs-modal .editor,
+#textedit-modal .editor {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
 }
 
 .btn-ctrl {
@@ -431,8 +481,7 @@ td.v-bottom {
 }
 
 #textedit-modal .editor {
-  height: 500px;
-  border-radius: 8px;
+  border-radius: 0;
   overflow: hidden;
   font-family: 'Georgia', serif !important;
   background-color: black;
