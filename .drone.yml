@@ -11,12 +11,19 @@ clone:
 steps:
 - name: rebuild
   commands:
+  # Ubuntu 18.04 (glibc 2.27) ships node 16; vite 6 needs node 18+.
+  # node 22 (glibc-217 unofficial build) lives at ~/.nodejs/current — prepend so node+npm resolve to it.
+  - export PATH=/home/dreamland/.nodejs/current/bin:$PATH
   - eval `ssh-agent -s`
   - ssh-add /home/dreamland/.ssh/drone
   - cd /var/www/mudjs
-  - git pull
+  # self-healing: snap the deploy tree to origin/dreamland from any state (fixes detached HEAD)
+  - git fetch origin dreamland
+  - git checkout -B dreamland origin/dreamland
+  - git reset --hard origin/dreamland
   - kill -9 $SSH_AGENT_PID
-  - npm ci --legacy-peer-deps
+  # package-lock.json is gitignored, so use install (not ci) to resolve from package.json
+  - npm install --legacy-peer-deps
   - npm run build
 
 - name: discord_failure

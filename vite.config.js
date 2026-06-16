@@ -30,6 +30,10 @@ function devMapperGraph() {
 export default defineConfig({
   plugins: [react(), devMapperGraph()],
   base: '/mudjs/', // 👈 путь, с которого будет искаться index.html и ассеты
+  build: {
+    // nginx serves /var/www/mudjs/build; vite defaults to dist/, so pin it to build/
+    outDir: 'build',
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
