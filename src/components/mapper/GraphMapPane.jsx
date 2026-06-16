@@ -6,11 +6,12 @@
  * and, since the tile is too narrow for a docked 340px aside, the room detail <SidePanel>
  * lives in a bottom overlay-drawer that slides over the map and is dismissable.
  */
+import { memo } from 'react';
 import { Map as GraphMap } from './Map';
 import { SidePanel } from './SidePanel';
 import { t } from './i18n.js';
 
-export default function GraphMapPane({
+function GraphMapPane({
   zoomApiRef,
   index,
   layout,
@@ -91,3 +92,7 @@ export default function GraphMapPane({
     </div>
   );
 }
+
+// Memoized: the parent (map.jsx) re-renders on drawer/toast/areaName ticks, but the heavy
+// d3 map body only needs to rebuild when its own props (layout/currentVnum/...) change.
+export default memo(GraphMapPane);

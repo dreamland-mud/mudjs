@@ -20,7 +20,14 @@ const useLocation = () => {
       const locationChannel = new BroadcastChannel('location');
       locationChannel.onmessage = e => {
         if (e.data.what === 'location') {
-          setLocation(e.data.location);
+          const next = e.data.location || {};
+          // location.js re-broadcasts on EVERY rpc-prompt, so most messages repeat the
+          // same area+vnum. Keep the previous object identity when nothing changed — a
+          // fresh reference re-renders the whole map tree (incl. the heavy d3 graph) on
+          // every prompt, which is what made movement/typing hang.
+          setLocation(prev =>
+            prev && prev.area === next.area && prev.vnum === next.vnum ? prev : next
+          );
         }
       };
       return () => locationChannel.close();
@@ -231,6 +238,10 @@ export default function Map() {
   // only -- walking through them happens in-game and the map follows automatically.
   const handleCrossArea = useCallback(() => {}, []);
 
+  // Stable so memo(GraphMapPane) isn't defeated by a fresh inline closure each render.
+  const handleCloseDrawer = useCallback(() => setDrawerOpen(false), []);
+  const handleRequestAscii = useCallback(() => setModePersisted('ascii'), [setModePersisted]);
+
   const graphReady = mode === 'graph' && graph.status === 'ready' && graph.layout != null;
 
   return (
@@ -314,8 +325,8 @@ export default function Map() {
           onChangeZ={graph.setZFilter}
           onCrossArea={handleCrossArea}
           drawerOpen={drawerOpen}
-          onCloseDrawer={() => setDrawerOpen(false)}
-          onRequestAscii={() => setModePersisted('ascii')}
+          onCloseDrawer={handleCloseDrawer}
+          onRequestAscii={handleRequestAscii}
           toast={graph.toast}
         />
       )}

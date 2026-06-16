@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { select } from 'd3-selection';
 import { zoom, zoomIdentity, type ZoomBehavior } from 'd3-zoom';
 import type { AreaLayout, Direction, ExitStyle, MapperIndex, PlacedExit, PlacedRoom } from './types.js';
@@ -350,7 +350,7 @@ function cardinalArc(
   return `M${sxp},${syp} Q${ctrlX},${ctrlY} ${txp},${typ}`;
 }
 
-export function Map({ layout, index, currentVnum, selectedVnum, activeZ, onSelectRoom, onSetCurrent, onCrossArea, onChangeZ, zFilter, zoomApiRef }: Props) {
+export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum, activeZ, onSelectRoom, onSetCurrent, onCrossArea, onChangeZ, zFilter, zoomApiRef }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const gRef = useRef<SVGGElement>(null);
   const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -812,7 +812,7 @@ export function Map({ layout, index, currentVnum, selectedVnum, activeZ, onSelec
       </g>
     </svg>
   );
-}
+});
 
 /** Direct line between corner ports for vertical exits when both layers visible.
  *  Source port: top-right corner (up) or bottom-left (down).
