@@ -99,10 +99,27 @@ body {
 /*
  * Collapsible panels on the right-hand side.
  */
+/* First widget (weather/time) sits flush with the top of the panel. */
+#panel-wrap > .table-wrapper:first-child {
+  margin-top: 0;
+}
+
+/* Smaller body text across the middle widgets; the .dark-panel-title headers keep
+   their size. MUI table cells set their own size, so pull them back to inherit. */
+#panel-wrap {
+  font-size: 12px;
+}
+#panel-wrap .dark-panel-title {
+  font-size: 14px;
+}
+#panel-wrap .MuiTableCell-root {
+  font-size: inherit;
+}
+
 .table-wrapper {
   position: relative;
-  background-color: #2e2e2e;
-  margin: 0px 5px 10px 0px;
+  background-color: #1e1e1e;
+  margin: 4px;
   border: 0px solid #2e2e2e;
   padding-bottom: 0.1em;
   padding-left: 0.2em;
@@ -116,8 +133,8 @@ body {
 /* Close plus-minus button in the panel corner. */
 .table-wrapper .close {
   position: absolute;
-  top: 0em;
-  right: 0.3em;
+  top: 5px;
+  right: 5px;
 }
 
 /* Change icon between plus and minus depending on collapse state. */
@@ -158,8 +175,9 @@ td.v-bottom {
 .dark-panel-title {
   color: #bb86fc;
   font-weight: 600;
+  display: block;
   padding: 5px;
-  padding-bottom: 0px;
+  padding-bottom: 6px;
 }
 
 #player-params-table {
@@ -174,6 +192,13 @@ td.v-bottom {
   padding-right: 5px;
 }
 
+/* Label/header text in light gray (matches the map room description). */
+#who-table th,
+#player-params-1 td:nth-child(odd),
+#player-params-2 td:nth-child(odd) {
+  color: #d3d7cf;
+}
+
 #player-location .fa {
   font-size: 150%;
 }
@@ -186,6 +211,12 @@ td.v-bottom {
 
 #questor-table p {
   padding: 4px 4px 0px 4px;
+}
+
+/* Quest body text is dark-yellow; the quest title within it is brightened inline
+   (see areaQuestItem.jsx). The header ("Задание в зоне X") keeps the default purple. */
+#questor-table p {
+  color: #c4a000;
 }
 
 /* Control panel with buttons. */
@@ -222,6 +253,13 @@ td.v-bottom {
   margin: 0.5rem 0.5rem 0.5rem 0.25rem;
   padding-left: 2rem;
   font-size: 1.1em;
+}
+
+#help input:focus {
+  background-color: #000;
+  outline: none;
+  box-shadow: none;
+  border-color: #2cf4eb;
 }
 
 /* Magnifier glass icon in the help search box. */
@@ -293,14 +331,24 @@ td.v-bottom {
   }
   form#input {
     border: 1px solid #bb86fc;
-    margin: 8px 5px 10px 5px;
+    margin: 4px;
     background-color: #121212;
   }
   form#input input {
     padding: 4px 10px 4px 5px;
-    color: #d3d7cf;
+    color: #fff;
     border-color: transparent;
     background-color: transparent;
+  }
+  /* Single bright-cyan focus stroke: drop bootstrap's blue/white glow + inner border,
+     turn the box's purple border cyan. */
+  form#input:focus-within {
+    border-color: #2cf4eb;
+  }
+  form#input input:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: transparent;
   }
 }
 
@@ -362,6 +410,24 @@ td.v-bottom {
   background-color: #bb86fc;
   border-color: #bb86fc;
   color: #121212;
+}
+
+/* All terminal nav + movement-keypad buttons: always-filled purple with a smaller icon,
+   matching the map's +/- zoom buttons. Scoped to #nav so the input-area hotkey buttons
+   and the unread-messages button keep their own look. */
+#nav .btn-ctrl {
+  background-color: #bb86fc;
+  color: #121212;
+  border-color: transparent;
+  font-size: 15px;
+}
+#nav .btn-ctrl:hover {
+  background-color: #8043ca;
+  color: #fff;
+  border-color: transparent;
+}
+#nav .btn-ctrl:focus {
+  box-shadow: none;
 }
 
 #textedit-modal .editor {
@@ -588,6 +654,7 @@ td.v-bottom {
  */
 .echo-with-anchor {
   margin-left: -5px;
+  color: #bb86fc;
 }
 
 #root .layout-splitter {
@@ -599,6 +666,12 @@ td.v-bottom {
   background-color: #bb86fc;
 }
 
+/* Square hp/mana/move bars (drop bootstrap's rounded corners). */
+.progress,
+.progress-bar {
+  border-radius: 0;
+}
+
 /* Map higlighted room. */
 .active {
   color: #2cf4eb;
@@ -607,8 +680,8 @@ td.v-bottom {
 
 /* Map header */
 header.MuiPaper-root.MuiAppBar-root {
-  background-color: #2e2e2e !important;
-  max-width: calc(100% - 20px);
+  background-color: #1e1e1e !important;
+  max-width: 100%;
 }
 .MuiAppBar-colorDefault {
   color: #bb86fc;

@@ -1,7 +1,10 @@
+// Layout widths are used only as ratios to derive the mosaic split percentages
+// (see getResponsiveLayout in app.jsx), so 43/14/43 yields a 43% / 14% / 43%
+// terminal / panel / map split of the content area (gaps/grabbers excluded).
 const DEFAULT_PROPERTIES = {
-    'terminalLayoutWidth': 1150,
-    'panelLayoutWidth': 270,
-    'mapLayoutWidth': 500,
+    'terminalLayoutWidth': 43,
+    'panelLayoutWidth': 14,
+    'mapLayoutWidth': 43,
     'terminalFontSize': 20,
     'isPgKeysScroll': true,
 }

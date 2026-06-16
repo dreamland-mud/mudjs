@@ -22,7 +22,12 @@ const OverlayCell = ({ ariaLabel, ariaHidden, children, ...props }) => {
         className="btn btn-sm btn-ctrl btn-outline-primary"
         style={{
           pointerEvents: 'all',
-          width: '2em',
+          width: '30px',
+          height: '30px',
+          padding: 0,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
         {children}
@@ -140,9 +145,9 @@ const Overlay = ({ unread, onScrollToBottom }) => {
         id="nav"
         style={{
           position: 'absolute',
-          right: '1em',
-          top: 0,
-          margin: '0.5em',
+          right: '10px',
+          top: '10px',
+          margin: 0,
         }}
       >
         <tbody>

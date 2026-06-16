@@ -7,7 +7,6 @@ import { Cnames, Dnames, Enames, Pnames, Tnames, Mnames } from './windowletsCons
 function AffectBlock(props) {
     const clr_active = 'fg-ansi-bright-color-' + props.color
     const clr_zero = 'fg-ansi-bright-color-3'
-    const clr_header = 'fg-ansi-bright-color-7'
 
     let rows = []
     for (let bit in props.bitNames) {
@@ -29,7 +28,7 @@ function AffectBlock(props) {
 
     return (
         <div id={"pa-" + props.type} className="flexcontainer-column" data-hint={"hint-" + props.type}>
-            <span className={clr_header}>{props.blockName}</span>
+            <span style={{ color: '#d3d7cf' }}>{props.blockName}</span>
             { rows }
         </div>
     )

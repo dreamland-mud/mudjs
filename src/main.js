@@ -113,12 +113,15 @@ $(document).ready(function () {
     }
   }
 
-  $('#font-plus-button').click(function (e) {
+  // Delegated from document so the binding survives React mounting these buttons after
+  // this script runs (a direct $('#id').click() at load time finds nothing and silently
+  // no-ops, which is why the buttons appeared dead).
+  $(document).on('click', '#font-plus-button', function (e) {
     e.preventDefault();
     changeFontSize(fontDelta);
   });
 
-  $('#font-minus-button').click(function (e) {
+  $(document).on('click', '#font-minus-button', function (e) {
     e.preventDefault();
     changeFontSize(-fontDelta);
   });
