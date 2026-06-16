@@ -19,16 +19,30 @@ export function Search({ layout, onPick }: Props) {
     }));
     return new Fuse(items, {
       keys: ['name'],
-      threshold: 0.4,
+      threshold: 0.3,
       minMatchCharLength: 2,
       ignoreLocation: true,
     });
   }, [layout]);
 
   const results = useMemo(() => {
-    if (query.trim().length < 2) return [];
+    const q = query.trim().toLowerCase();
+    if (q.length < 2) return [];
+    // Substring-first: an exact case-insensitive contains is what players expect
+    // ("спа" -> "Небольшая Спальня"), ranked by match position then shorter name.
+    // Plain fuzzy (Fuse) wrongly surfaced unrelated rooms like "Край Леса" for "спа".
+    const subs = Object.values(layout.rooms)
+      .filter((r) => (r.name || '').toLowerCase().includes(q))
+      .sort((a, b) => {
+        const ia = a.name.toLowerCase().indexOf(q);
+        const ib = b.name.toLowerCase().indexOf(q);
+        return ia - ib || a.name.length - b.name.length;
+      })
+      .map((r) => ({ item: { vnum: r.vnum, name: r.name } }));
+    if (subs.length > 0) return subs.slice(0, 8);
+    // Fall back to fuzzy only when nothing contains the query (typo tolerance).
     return fuse.search(query).slice(0, 8);
-  }, [query, fuse]);
+  }, [query, fuse, layout]);
 
   useEffect(() => { setOpen(query.length >= 2 && results.length > 0); }, [query, results]);
 
