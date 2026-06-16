@@ -31,8 +31,14 @@
             }, 1500);
           }
           window.addEventListener('error', function (e) {
-            record(e.error && e.error.stack ? e.error.stack
-              : (e.message + ' @ ' + (e.filename || '') + ':' + (e.lineno || 0) + ':' + (e.colno || 0)));
+            var err = e.error;
+            // WebKit stacks omit the error name/message, so capture them explicitly.
+            var head = err && (err.name || err.message)
+              ? (err.name || 'Error') + ': ' + (err.message || '')
+              : (e.message || 'Unknown error');
+            var loc = err && err.stack ? err.stack
+              : (e.filename || '') + ':' + (e.lineno || 0) + ':' + (e.colno || 0);
+            record(head + '\n' + loc);
           });
           window.addEventListener('unhandledrejection', function (e) {
             var r = e.reason;

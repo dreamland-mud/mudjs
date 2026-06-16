@@ -1,6 +1,10 @@
 import $ from 'jquery';
 
-let notificationPermission = Notification.permission;
+// iOS Safari/WebKit has no Notification API, so this runs at module eval before any
+// guard could help -- reading Notification.permission unguarded threw a ReferenceError
+// during init and blanked the whole client on iPhone. Feature-detect first.
+let notificationPermission =
+  'Notification' in window ? Notification.permission : 'denied';
 
 // Один раз реєструємо обробник після першого кліку
 $(document).one('click', () => {
