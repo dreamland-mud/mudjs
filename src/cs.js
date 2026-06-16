@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import loader from '@monaco-editor/loader';
 import { rpccmd } from './websock.js';
+import { defineMonokai } from './monaco-monokai.js';
 
 function fixindent(fn, str) {
   const lines = str.replace(/\r/g, '').split('\n');
@@ -26,7 +27,14 @@ let currentFile = null;
 
 $(document).ready(function () {
   loader.init().then(monaco => {
-    monaco.languages.setMonarchTokensProvider('javascript', {
+    defineMonokai(monaco);
+
+    // Fenia is not JavaScript: register it as its own language so Monaco's
+    // built-in JS/TS worker never validates it. The worker used to flag
+    // valid Fenia (e.g. a statement starting with `.tmp...`) as a JS syntax
+    // error and paint red markers in the overview ruler.
+    monaco.languages.register({ id: 'fenia' });
+    monaco.languages.setMonarchTokensProvider('fenia', {
       keywords: [
         'if',
         'else',
@@ -114,14 +122,17 @@ $(document).ready(function () {
     const editorElement = $('#cs-modal .editor')[0];
     monacoEditor = monaco.editor.create(editorElement, {
       value: '',
-      language: 'javascript',
-      theme: 'vs-dark',
+      language: 'fenia',
+      theme: 'monokai',
       fontSize: 16,
       lineNumbers: 'off',
       wordWrap: 'on',
       minimap: { enabled: false },
       automaticLayout: true,
       scrollBeyondLastLine: false,
+      overviewRulerLanes: 0,
+      overviewRulerBorder: false,
+      hideCursorInOverviewRuler: true,
       padding: { top: 20, bottom: 20 },
       tabSize: 4,
       insertSpaces: false,
