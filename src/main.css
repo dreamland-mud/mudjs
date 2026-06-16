@@ -483,7 +483,7 @@ td.v-bottom {
 #textedit-modal .editor {
   border-radius: 0;
   overflow: hidden;
-  font-family: 'Georgia', serif !important;
+  font-family: 'Roboto Mono', monospace !important;
   background-color: black;
   color: white;
 }
