@@ -236,6 +236,21 @@ function warpWrongSide(dir: Direction, fromP: PlacedRoom, toP: PlacedRoom): bool
   return false;
 }
 
+/**
+ * A warp edge is "blocked" when the target is collinear with the source along the exit axis
+ * AND on the correct side — i.e. a straight cardinal corridor that only became a warp because
+ * another tile sits on the direct line (the layout's pathClear check failed). The direction is
+ * honest; it's just obstructed. The renderer routes these as a recessive grey detour lane (the
+ * same Manhattan detour the clean obstructed cardinals use) rather than a purple arc.
+ */
+function warpBlocked(dir: Direction, fromP: PlacedRoom, toP: PlacedRoom): boolean {
+  if (fromP.z !== toP.z) return false;
+  const [ddx, ddy] = DIR_DELTAS[dir];
+  if (ddx !== 0) return toP.y === fromP.y && Math.sign(toP.x - fromP.x) === Math.sign(ddx);
+  if (ddy !== 0) return toP.x === fromP.x && Math.sign(toP.y - fromP.y) === Math.sign(ddy);
+  return false;
+}
+
 /** Cardinal port (mid of a tile side) for the given direction. */
 function cardinalPort(cx: number, cy: number, halfW: number, halfH: number, dir: Direction): [number, number] {
   switch (dir) {
@@ -654,8 +669,25 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
             const cy1 = fromS.sy + TILE_H / 2;
             const cx2 = toS.sx + TILE_W / 2;
             const cy2 = toS.sy + TILE_H / 2;
-            const wrong = warpWrongSide(edge.dir, fromP, toP);
             const oneway = !edge.bidirectional;
+
+            // Blocked warp — a real cardinal corridor (collinear, correct side) that only became
+            // a warp because another tile sits on the direct line. Route it as a recessive grey
+            // detour lane (the same Manhattan detour the clean obstructed cardinals use) instead
+            // of a purple arc; the direction is honest, just obstructed.
+            if (!oneway && warpBlocked(edge.dir, fromP, toP)) {
+              const portToWb = TILE_W * toScaleArc / 2 + EDGE_GAP;
+              const portToHb = TILE_H * toScaleArc / 2 + EDGE_GAP;
+              const detourRoute = manhattanPath(cx1, cy1, portFromW, portFromH, cx2, cy2, portToWb, portToHb, edge.dir, true);
+              return (
+                <g key={`e${i}`} opacity={opa * 0.85}>
+                  <path d={detourRoute.d} fill="none" stroke={COLOR.edge} strokeWidth={2}
+                        strokeDasharray="4 5" strokeLinejoin="round" strokeLinecap="round" />
+                </g>
+              );
+            }
+
+            const wrong = warpWrongSide(edge.dir, fromP, toP);
             const d = cardinalArc(cx1, cy1, portFromW, portFromH,
               cx2, cy2, TILE_W * toScaleArc / 2 + EDGE_GAP, TILE_H * toScaleArc / 2 + EDGE_GAP, edge.dir);
             // Bidirectional warps are recessive — thin, faint, dashed — so the clean grid reads
