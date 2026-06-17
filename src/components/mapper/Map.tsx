@@ -910,6 +910,11 @@ function renderVerticalStub(
   const toP = layout.placed[edge.to];
   if (!fromP || !toP) return null;
 
+  // A one-way vertical (e.g. a drop INTO a maze) is not traversable from the target end, so
+  // don't draw an up/down stub there implying you can climb back — only the source advertises
+  // it. Without this, every `A down→B` with no return shows a phantom "up" exit at B.
+  if (!edge.bidirectional && !fromIsAnchor) return null;
+
   const anchorP = fromIsAnchor ? fromP : toP;
   const otherVnum = fromIsAnchor ? edge.to : edge.from;
   const dirIsUp = fromIsAnchor ? edge.dir === 'up' : edge.dir === 'down';
