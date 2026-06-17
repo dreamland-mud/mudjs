@@ -639,6 +639,13 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
           // Warp link — curved arc to the correct face of the destination (see cardinalArc).
           // Red for wrong-side cycle/contradiction warps (target in the opposite half-plane),
           // purple for ordinary warps. Never a straight grid corridor.
+          //
+          // Exception — ONE-WAY warps (no exit back): drawn as a neutral grey connector with
+          // the one-way chevron instead of a purple/red arc. "Warp" only means the layout
+          // couldn't embed the link on the grid (it's still a real, mundane passage); the
+          // salient fact for a one-way passage is its direction, not its grid-embeddability.
+          // This makes one-way warps read like the clean-cardinal one-ways (grey stick + ›),
+          // differing only in the bowed geometry that keeps the link off intervening tiles.
           if (edge.style === 'warp') {
             const toScaleArc = isolating ? 1 : layerScale(toP.z, activeZ);
             const fromS = placedToScreen(fromP, layout.bounds);
@@ -648,15 +655,19 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
             const cx2 = toS.sx + TILE_W / 2;
             const cy2 = toS.sy + TILE_H / 2;
             const wrong = warpWrongSide(edge.dir, fromP, toP);
+            const oneway = !edge.bidirectional;
             const d = cardinalArc(cx1, cy1, portFromW, portFromH,
               cx2, cy2, TILE_W * toScaleArc / 2 + EDGE_GAP, TILE_H * toScaleArc / 2 + EDGE_GAP, edge.dir);
-            // Warps are recessive — thin, faint, dashed — so the clean grid reads first.
+            // Bidirectional warps are recessive — thin, faint, dashed — so the clean grid reads
+            // first. One-way warps are real passages: neutral grey, a touch stronger, with ›.
+            const arcColor = oneway ? COLOR.edge : wrong ? COLOR.rust : COLOR.warp;
+            const arcMarker = oneway ? 'url(#arrow-oneway)' : wrong ? 'url(#arrow-cycle)' : 'url(#arrow-warp)';
             return (
-              <g key={`e${i}`} opacity={opa * 0.45}>
+              <g key={`e${i}`} opacity={oneway ? opa * 0.75 : opa * 0.45}>
                 <path d={d} fill="none"
-                      stroke={wrong ? COLOR.rust : COLOR.warp} strokeWidth={1.3}
+                      stroke={arcColor} strokeWidth={oneway ? 1.8 : 1.3}
                       strokeDasharray="4 5" strokeLinecap="round"
-                      markerEnd={wrong ? 'url(#arrow-cycle)' : 'url(#arrow-warp)'} />
+                      markerEnd={arcMarker} />
               </g>
             );
           }
