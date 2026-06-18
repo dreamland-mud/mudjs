@@ -4,6 +4,9 @@ import placeholders from './data/placeholders.json' assert { type: 'json' };
 
 const sessionId = getSessionId();
 var lastLocation, locationChannel;
+// Remembered across prompts: the server may send the player's sex once (delta prompt), so
+// hold the last value seen and keep attaching it to every location broadcast.
+var lastSex;
 
 if ('BroadcastChannel' in window) {
   locationChannel = new BroadcastChannel('location');
@@ -60,9 +63,11 @@ function createPlaceholder(loc) {
 
 $(document).ready(function () {
   $('#rpc-events').on('rpc-prompt', function (e, b) {
+    if (b.sex != null) lastSex = b.sex;
     var loc = {
       area: b.area,
       vnum: b.vnum,
+      sex: lastSex,
     };
     $('#input input').attr('placeholder', createPlaceholder(loc));
     bcastLocation(loc);
