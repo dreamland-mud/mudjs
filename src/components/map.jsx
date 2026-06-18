@@ -26,7 +26,12 @@ const useLocation = () => {
           // fresh reference re-renders the whole map tree (incl. the heavy d3 graph) on
           // every prompt, which is what made movement/typing hang.
           setLocation(prev =>
-            prev && prev.area === next.area && prev.vnum === next.vnum ? prev : next
+            prev &&
+            prev.area === next.area &&
+            prev.vnum === next.vnum &&
+            prev.sex === next.sex
+              ? prev
+              : next
           );
         }
       };

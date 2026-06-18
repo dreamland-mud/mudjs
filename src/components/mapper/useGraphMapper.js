@@ -14,6 +14,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { findPath, pathToSpeedwalk } from './pathfinding.js';
 import { DIR_LETTERS } from './types.js';
 import { t } from './i18n.js';
+import { resolveLayoutFlexer } from './flexer.js';
 import { send } from '../../websock.js';
 
 const GRAPH_BASE = '/maps/graph';
@@ -66,14 +67,22 @@ export function useGraphMapper(location, enabled) {
   const areaFile = areaKey(location.area);
   const currentVnum =
     location.vnum != null && location.vnum !== '' ? Number(location.vnum) : null;
+  // Player sex drives gender (flexer) resolution in room text; absent until the server
+  // sends it, in which case resolveLayoutFlexer falls back to the male form.
+  const sex = location.sex;
 
   const [index, setIndex] = useState(null);
-  const [layout, setLayout] = useState(null);
+  const [rawLayout, setRawLayout] = useState(null);
   const [selectedVnum, setSelectedVnum] = useState(null);
   const [zFilter, setZFilter] = useState(0);
   const [toast, setToast] = useState(null);
   // 'idle' | 'loading' | 'ready' | 'missing' | 'error' — drives the pane's fallback notice.
   const [status, setStatus] = useState('idle');
+
+  // Resolve gender (flexer) switches in room text for the current player. Memoized so an
+  // area without any flexer keeps its identity (resolveLayoutFlexer returns it unchanged),
+  // and re-resolves only when the area or the player's sex actually changes.
+  const layout = useMemo(() => resolveLayoutFlexer(rawLayout, sex), [rawLayout, sex]);
 
   // Cross-area index (vnum -> area, area names): loaded once, lazily, when first enabled.
   useEffect(() => {
@@ -108,12 +117,12 @@ export function useGraphMapper(location, enabled) {
       .then((l) => {
         if (cancelled) return;
         rebaseZ(l); // ground layer -> z=0 before choosing the active layer
-        setLayout(l);
+        setRawLayout(l);
         setStatus('ready');
       })
       .catch((err) => {
         if (cancelled) return;
-        setLayout(null);
+        setRawLayout(null);
         setStatus(err.message === 'missing' ? 'missing' : 'error');
         if (err.message !== 'missing') console.warn('[mapper] area load failed', areaFile, err);
       });
