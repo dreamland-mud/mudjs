@@ -4,6 +4,7 @@ import { connect } from './websock';
 import lastLocation from './location';
 import getSessionId from './sessionid.js';
 import historydb from './historydb';
+import { startAutoUpdate } from './autoupdate';
 
 import './notify';
 import './input';
@@ -86,6 +87,7 @@ $(document).ready(function () {
 
   connect();
   initTerminalFontSize();
+  startAutoUpdate();
 
   /*
    * Handlers for plus-minus buttons to change terminal font size.

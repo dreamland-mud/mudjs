@@ -10,7 +10,7 @@
  * Graph JSON is fetched on demand from /maps/graph/ (served beside the legacy ASCII
  * /maps/sources/*.html), mirroring how the ASCII map already fetches per-area.
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { findPath, pathToSpeedwalk } from './pathfinding.js';
 import { DIR_LETTERS } from './types.js';
 import { t } from './i18n.js';
@@ -18,6 +18,10 @@ import { resolveLayoutFlexer } from './flexer.js';
 import { send } from '../../websock.js';
 
 const GRAPH_BASE = '/maps/graph';
+
+// How often to re-pull the current area's graph in the background, so a server-side regen
+// shows up without the player re-entering the area (or hard-refreshing the client).
+const AREA_REFRESH_MS = 5 * 60 * 1000;
 
 /** Live area filename ("newthalos.are") -> mapper graph key ("newthalos"). */
 export function areaKey(area) {
@@ -103,6 +107,10 @@ export function useGraphMapper(location, enabled) {
     return () => { cancelled = true; };
   }, [enabled, index]);
 
+  // Raw graph bytes of the loaded area, so the background refresh below can tell whether a
+  // re-fetch actually changed anything and skip a needless re-render when it didn't.
+  const rawTextRef = useRef(null);
+
   // Load the player's area graph whenever the area changes (and the graph view is active).
   useEffect(() => {
     if (!enabled || !areaFile) return;
@@ -112,21 +120,53 @@ export function useGraphMapper(location, enabled) {
       .then((r) => {
         if (r.status === 404) throw new Error('missing');
         if (!r.ok) throw new Error('http ' + r.status);
-        return r.json();
+        return r.text();
       })
-      .then((l) => {
+      .then((text) => {
         if (cancelled) return;
+        rawTextRef.current = text;
+        const l = JSON.parse(text);
         rebaseZ(l); // ground layer -> z=0 before choosing the active layer
         setRawLayout(l);
         setStatus('ready');
       })
       .catch((err) => {
         if (cancelled) return;
+        rawTextRef.current = null;
         setRawLayout(null);
         setStatus(err.message === 'missing' ? 'missing' : 'error');
         if (err.message !== 'missing') console.warn('[mapper] area load failed', areaFile, err);
       });
     return () => { cancelled = true; };
+  }, [enabled, areaFile]);
+
+  // Background refresh: re-pull the current area's graph on an interval and whenever the tab
+  // regains focus, so a server-side regen appears without re-entering the area. It never flips
+  // `status` (no loading flicker) and only swaps the layout in when the bytes actually change.
+  useEffect(() => {
+    if (!enabled || !areaFile) return;
+    let cancelled = false;
+    const refresh = () => {
+      fetch(`${GRAPH_BASE}/area-${areaFile}.json`, { cache: 'no-cache' })
+        .then((r) => (r.ok ? r.text() : Promise.reject(new Error('http ' + r.status))))
+        .then((text) => {
+          if (cancelled || text === rawTextRef.current) return; // unchanged -> no re-render
+          rawTextRef.current = text;
+          const l = JSON.parse(text);
+          rebaseZ(l);
+          setRawLayout(l);
+          setStatus('ready'); // also recover if the area only just gained a graph
+        })
+        .catch(() => {}); // transient/missing -> keep what we have
+    };
+    const id = setInterval(refresh, AREA_REFRESH_MS);
+    const onVisible = () => { if (!document.hidden) refresh(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
   }, [enabled, areaFile]);
 
   // Follow the player: on area-load and on every move, refocus the panel + active layer

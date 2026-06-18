@@ -27,8 +27,29 @@ function devMapperGraph() {
   };
 }
 
+// Per-build identifier the running client polls (version.json) to detect a new deploy and
+// self-update (see src/autoupdate.js). A timestamp guarantees it changes on every build.
+const BUILD_ID = String(Date.now());
+
+/** Emit build/version.json carrying BUILD_ID, served beside the bundle for the update poll. */
+function emitVersion() {
+  return {
+    name: 'dl-emit-version',
+    generateBundle() {
+      this.emitFile({
+        type: 'asset',
+        fileName: 'version.json',
+        source: JSON.stringify({ build: BUILD_ID }),
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), devMapperGraph()],
+  plugins: [react(), devMapperGraph(), emitVersion()],
+  define: {
+    __BUILD_ID__: JSON.stringify(BUILD_ID),
+  },
   base: '/mudjs/', // 👈 путь, с которого будет искаться index.html и ассеты
   build: {
     // nginx serves /var/www/mudjs/build; vite defaults to dist/, so pin it to build/
