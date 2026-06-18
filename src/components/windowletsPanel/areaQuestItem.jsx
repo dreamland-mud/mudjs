@@ -13,7 +13,7 @@ export default function AreaQuestItem(prompt) {
         : raw
 
     return (
-        <PanelItem title={<span>{prompt.aq.t}</span>}>
+        <PanelItem storageKey="areaquest" title={<span>{prompt.aq.t}</span>}>
             <div id="questor-table" data-hint="hint-questor">
                 <p className="fgbw">{body}</p>
             </div>

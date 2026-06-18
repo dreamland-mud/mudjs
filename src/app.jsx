@@ -54,6 +54,29 @@ const getResponsiveLayout = (bigScreen, hugeScreen) => {
   };
 };
 
+// Persist the terminal/panel/map split when a resize-drag ends. We read the percentages
+// straight off the mosaic layout tree (no DOM querying), so this never touches a missing
+// #map-wrap the way the old splitter handler did. Only the full three-pane (huge-screen)
+// tree carries all three widths; smaller layouts use a fixed split and aren't persisted.
+const persistLayout = value => {
+  if (!value || typeof value !== 'object') return;
+  const inner = value.second;
+  if (!inner || typeof inner !== 'object' || inner.second !== 'map') return;
+  const outerPct = value.splitPercentage;
+  const innerPct = inner.splitPercentage;
+  if (typeof outerPct !== 'number' || typeof innerPct !== 'number') return;
+
+  const terminal = outerPct;
+  const rest = 100 - outerPct;
+  const panel = rest * (innerPct / 100);
+  const map = rest - panel;
+
+  propertiesStorage['terminalLayoutWidth'] = terminal;
+  propertiesStorage['panelLayoutWidth'] = panel;
+  propertiesStorage['mapLayoutWidth'] = map;
+  localStorage.properties = JSON.stringify(propertiesStorage);
+};
+
 export default function App() {
   const bigScreen = useMediaQuery('(min-width:600px)');
   const hugeScreen = useMediaQuery('(min-width:1280px)');
@@ -87,6 +110,7 @@ export default function App() {
         <Mosaic
           value={layout}
           onChange={setLayout}
+          onRelease={persistLayout}
           renderTile={(id, path) => (
             <MosaicWindow
               path={path}

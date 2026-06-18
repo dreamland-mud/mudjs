@@ -33,6 +33,7 @@ export interface Strings {
   // integration (mudjs)
   noGraphMap: string;
   graphMapError: string;
+  noAsciiMap: string;
   showAscii: string;
   closePanel: string;
   // search
@@ -93,6 +94,7 @@ const ru: Strings = {
   loadingArea: 'Загрузка зоны',
   noGraphMap: 'Графической карты для этой зоны пока нет.',
   graphMapError: 'Не удалось загрузить карту зоны.',
+  noAsciiMap: 'ASCII-карты для этой зоны нет.',
   showAscii: 'Показать ASCII-карту',
   closePanel: 'Закрыть',
   searchRooms: 'поиск комнат…',
@@ -146,6 +148,7 @@ const en: Strings = {
   loadingArea: 'Loading area',
   noGraphMap: 'No graphical map for this zone yet.',
   graphMapError: 'Failed to load the zone map.',
+  noAsciiMap: 'No ASCII map for this zone.',
   showAscii: 'Show ASCII map',
   closePanel: 'Close',
   searchRooms: 'search rooms…',
