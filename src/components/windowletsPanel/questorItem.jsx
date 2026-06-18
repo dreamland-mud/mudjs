@@ -5,7 +5,7 @@ import PanelItem from "./panelItem"
 export default function QuestorItem(prompt) {
 
     return (
-        <PanelItem title={<span>{'Задание квестора: '}<span className='fgby'> {prompt.q.t} </span>{' мин'}</span>}>
+        <PanelItem storageKey="questor" title={<span>{'Задание квестора: '}<span className='fgby'> {prompt.q.t} </span>{' мин'}</span>}>
             <div id="questor-table" data-hint="hint-questor">
                 <p className="fgbw">{prompt.q.i}</p>
             </div>

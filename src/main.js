@@ -126,15 +126,8 @@ $(document).ready(function () {
     changeFontSize(-fontDelta);
   });
 
-  /* Save layout size */
-  $('.layout-splitter').on('click', function (e) {
-    propertiesStorage['terminalLayoutWidth'] =
-      document.querySelector('.terminal-wrap').getBoundingClientRect().width ||
-      0;
-    propertiesStorage['panelLayoutWidth'] =
-      document.querySelector('#panel-wrap').getBoundingClientRect().width || 0;
-    propertiesStorage['mapLayoutWidth'] =
-      document.querySelector('#map-wrap').getBoundingClientRect().width || 0;
-    localStorage.properties = JSON.stringify(propertiesStorage);
-  });
+  // Layout-width persistence now lives in app.jsx (Mosaic onRelease), which reads the split
+  // off the layout tree instead of querying #map-wrap — the dead '.layout-splitter' handler
+  // here both never fired (react-mosaic uses .mosaic-split) and crashed on a missing #map-wrap
+  // when the map pane was hidden at narrow widths.
 });

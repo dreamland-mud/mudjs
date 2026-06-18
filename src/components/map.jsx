@@ -165,9 +165,18 @@ const AsciiMapBody = ({ location, apiRef }) => {
     };
   });
 
+  // useMapSource resolves to '' on fetch failure or an empty body. Without a notice the
+  // <pre> just renders blank, which reads as a broken panel; show why the map is missing.
+  const mapUnavailable = mapSource === '';
+
   return (
     <div id="map-wrap">
       <div id="map">
+        {mapUnavailable && (
+          <div className="dl-mapper-notice">
+            <p>{t.noAsciiMap}</p>
+          </div>
+        )}
         <pre ref={mapElement} />
       </div>
     </div>
