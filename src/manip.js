@@ -95,7 +95,7 @@ function manipParseAndReplace(span) {
 
   // Replace random commands with data-action span.
   html = html.replace(
-    /\[cmd=([^,]{1,70}),see=([^\]]{1,50}),nonce=(.{8})]/gi,
+    /\[cmd=([^,]{1,200}),see=([^\]]{1,50}),nonce=(.{8})]/gi,
     function (match, cmd, see, nonce, string) {
       // Ensure the command is coming from the server.
       if (nonce !== ws?.nonce) {
