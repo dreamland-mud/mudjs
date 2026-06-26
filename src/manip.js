@@ -77,7 +77,7 @@ function manipParseAndReplace(span) {
   // Replace extra-description placeholders [read=sign знак,see=sign] with (<span class="manip-cmd manip-ed" data-action="read 'sign знак'">sign</span>).
   // Returns empty string if 'see' part is not contained within 'read' part.
   html = html.replace(
-    /\[read=([^,]{1,100}),see=([^\]]{1,30})]/gi,
+    /\[read=([^,]{1,200}),see=([^\]]{1,30})]/gi,
     function (match, p1, p2, string) {
       if (p1.toLowerCase().split(' ').indexOf(p2.toLowerCase()) === -1)
         return '';
