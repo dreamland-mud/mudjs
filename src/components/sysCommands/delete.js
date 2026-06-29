@@ -7,7 +7,7 @@ export const deleteHelp = {
 #delete                 - вывести список хранилищ доступных для взаимодействия
 #delete storage         - вывести список записей из storage, которые можно удалить
 #delete storage record  - удалить запись record из хранилища storage
-#delete storage all     - ключевое своло all позволяет удалить все записи из хранилища storage 
+#delete storage all     - ключевое слово all позволяет удалить все записи из хранилища storage
 
 `
 }

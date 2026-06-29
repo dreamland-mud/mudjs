@@ -37,8 +37,24 @@ export const hotkeyHelp = {
 
 const errHotkey = `Набери ${clickableLink('#help hotkey')} для справки.\n`;
 
+// Normalize any key spelling to the canonical name a keypress produces
+// (keycode.names[keycode(...)]), so "#hotkey я" and "#hotkey z" -- and their
+// ctrl/alt/shift combos -- all resolve to the same stored key. Falls back to the
+// raw (lowercased) string when the key can't be resolved, which keeps prefix
+// lookups like "#hotkey kp" working.
+const canonicalKey = rawKey => {
+  const key = String(rawKey).toLowerCase().replace(/\s/g, '');
+  const combo = key.match(/^(ctrl|alt|shift)\+(.+)$/);
+  if (combo) {
+    const name = keycode.names[keycode(combo[2])];
+    return name ? `${combo[1]}+${name}` : key;
+  }
+  const name = keycode.names[keycode(key)];
+  return name || key;
+};
+
 const checkKey = rawKey => {
-  let key = rawKey.toLowerCase().replace(/\s/g, '');
+  let key = canonicalKey(rawKey);
   let err = '';
 
   let combos = key.match(/^(ctrl|alt|shift)\+(.+)$/);
@@ -54,7 +70,8 @@ const checkKey = rawKey => {
   return { key, err };
 };
 
-const hotkeyCmdDelete = key => {
+const hotkeyCmdDelete = rawKey => {
+  const key = canonicalKey(rawKey);
   const hotkeyStorage = localStorage.hotkey
     ? JSON.parse(localStorage.hotkey)
     : {};
@@ -68,7 +85,8 @@ const hotkeyCmdDelete = key => {
   return echoHtml(`Такая горячая клавиша не задана.\n`);
 };
 
-const hotkeyCmdShow = key => {
+const hotkeyCmdShow = rawKey => {
+  const key = canonicalKey(rawKey);
   const hotkeyStorage = localStorage.hotkey
     ? JSON.parse(localStorage.hotkey)
     : {};

@@ -110,4 +110,24 @@ for (let alias in keyCode.aliases) {
   keyCode.codes[alias] = keyCode.aliases[alias];
 }
 
+// Cyrillic (ЙЦУКЕН, RU + UK) letters share physical keys with QWERTY. The
+// browser reports e.which by physical key, so pressing я yields 90 (the Z key).
+// Map each Cyrillic letter to the code of the Latin key it sits on, so that
+// "#hotkey я" binds the same physical key the keypress reports. Added AFTER the
+// reverse map on purpose, so names[] keeps the Latin label (e.g. 90 -> "z").
+const cyrillicLayout = {
+  // top row
+  й: 'q', ц: 'w', у: 'e', к: 'r', е: 't', н: 'y', г: 'u', ш: 'i', щ: 'o', з: 'p', х: '[', ъ: ']', ї: ']',
+  // home row
+  ф: 'a', ы: 's', і: 's', в: 'd', а: 'f', п: 'g', р: 'h', о: 'j', л: 'k', д: 'l', ж: ';', э: "'", є: "'",
+  // bottom row
+  я: 'z', ч: 'x', с: 'c', м: 'v', и: 'b', т: 'n', ь: 'm', б: ',', ю: '.',
+  // extras: ё on backtick, UK ґ on backslash
+  ё: '`', ґ: '\\',
+};
+for (let cyr in cyrillicLayout) {
+  const code = keyCode.codes[cyrillicLayout[cyr]];
+  if (code !== undefined) keyCode.codes[cyr] = code;
+}
+
 export default keyCode;
