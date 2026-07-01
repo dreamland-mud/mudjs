@@ -74,7 +74,9 @@ function manipParseAndReplace(span) {
       );
     });
 
-  // Replace extra-description placeholders [read=sign знак,see=sign] with (<span class="manip-cmd manip-ed" data-action="read 'sign знак'">sign</span>).
+  // Replace extra-description placeholders [read=sign знак,see=sign] with <span class="manip-cmd manip-ed" data-action="read 'sign знак'">sign</span>.
+  // The link styling is the affordance in the web client; the literal (parentheses)
+  // stay telnet-only (server keeps them in the {IW non-web branch of decorateExtraDescr).
   // Returns empty string if 'see' part is not contained within 'read' part.
   html = html.replace(
     /\[read=([^,]{1,200}),see=([^\]]{1,30})]/gi,
@@ -82,13 +84,13 @@ function manipParseAndReplace(span) {
       if (p1.toLowerCase().split(' ').indexOf(p2.toLowerCase()) === -1)
         return '';
       return (
-        '(<span class="manip-cmd manip-ed" data-action="read \'' +
+        '<span class="manip-cmd manip-ed" data-action="read \'' +
         p1 +
         '\'" data-echo="читать ' +
         p2 +
         '">' +
         p2 +
-        '</span>)'
+        '</span>'
       );
     }
   );
