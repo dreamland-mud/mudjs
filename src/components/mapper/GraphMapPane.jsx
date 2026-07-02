@@ -13,6 +13,7 @@ import { t } from './i18n.js';
 
 function GraphMapPane({
   zoomApiRef,
+  locale,
   index,
   layout,
   status,
@@ -60,6 +61,7 @@ function GraphMapPane({
       <GraphMap
         layout={layout}
         index={index}
+        locale={locale}
         currentVnum={currentVnum}
         selectedVnum={selectedVnum}
         activeZ={activeZ}
@@ -76,6 +78,7 @@ function GraphMapPane({
           <SidePanel
             layout={layout}
             index={index}
+            locale={locale}
             vnum={selectedVnum}
             currentVnum={currentVnum}
             onClose={onCloseDrawer}

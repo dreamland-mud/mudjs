@@ -4,7 +4,7 @@ import { zoom, zoomIdentity, type ZoomBehavior } from 'd3-zoom';
 import type { AreaLayout, Direction, ExitStyle, MapperIndex, PlacedExit, PlacedRoom } from './types.js';
 import { DIR_DELTAS, REVERSE_DIR } from './types.js';
 import { sectorStyle, sectorLabel } from './sectors.js';
-import { t } from './i18n.js';
+import { t, nameFor, type Locale } from './i18n.js';
 
 /* ---- visual scale ---- */
 const TILE_W = 124;
@@ -26,6 +26,10 @@ const STUB_LEN = 40;
 interface Props {
   layout: AreaLayout;
   index: MapperIndex;
+  /** Active display locale (from the player's `config language`). Drives room/area name
+   *  selection via nameFor(); also the prop that re-renders this memoized Map on a pure
+   *  language switch (no layout/vnum change would otherwise bust the memo). */
+  locale: Locale;
   currentVnum: number | null;
   selectedVnum: number | null;
   activeZ: number;
@@ -365,7 +369,7 @@ function cardinalArc(
   return `M${sxp},${syp} Q${ctrlX},${ctrlY} ${txp},${typ}`;
 }
 
-export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum, activeZ, onSelectRoom, onSetCurrent, onCrossArea, onChangeZ, zFilter, zoomApiRef }: Props) {
+export const Map = memo(function Map({ layout, index, locale, currentVnum, selectedVnum, activeZ, onSelectRoom, onSetCurrent, onCrossArea, onChangeZ, zFilter, zoomApiRef }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const gRef = useRef<SVGGElement>(null);
   const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -394,9 +398,9 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
   // component is named `Map`, which shadows the global Map constructor in this module.
   const areaNameByFile = useMemo(() => {
     const m: Record<string, string> = {};
-    for (const a of index.areas) m[a.file] = a.name;
+    for (const a of index.areas) m[a.file] = nameFor(a, locale);
     return m;
-  }, [index]);
+  }, [index, locale]);
 
   const visibleEdges = useMemo(() => {
     return layout.exits.filter((e) => {
@@ -504,7 +508,7 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
   const labelZoom = Math.min(2.4, Math.max(1, 1 / transform.k));
 
   return (
-    <svg ref={svgRef} className="map-svg" role="group" aria-label={t.mapOf(layout.meta.name)}>
+    <svg ref={svgRef} className="map-svg" role="group" aria-label={t.mapOf(nameFor(layout.meta, locale))}>
       <defs>
         {/* Soft drop shadow filter — replaces the manual offset rect for a more painterly look. */}
         <filter id="tile-shadow" x="-30%" y="-30%" width="160%" height="160%">
@@ -756,6 +760,7 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
         {visibleRooms.map((p) => {
           const room = layout.rooms[p.vnum];
           if (!room) return null;
+          const roomName = nameFor(room, locale);
           const { sx, sy } = placedToScreen(p, layout.bounds);
           // 'indoors'-flagged rooms render like the 'inside' sector.
           const effectiveSector = room.flags.includes('indoors') ? 'inside' : room.sector;
@@ -774,7 +779,7 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
           const hasNeighborY = occupied.has(`${p.x},${p.y - 1},${p.z}`) || occupied.has(`${p.x},${p.y + 1},${p.z}`);
           const maxW = hasNeighborX ? TILE_W - 8 : TILE_W + GAP_X * 0.8;
           const maxH = hasNeighborY ? TILE_H - 6 : TILE_H + GAP_Y * 0.8;
-          const base = boxedLabel(room.name, maxW, maxH, 22);
+          const base = boxedLabel(roomName, maxW, maxH, 22);
           const bw = base.lines.reduce((m, l) => Math.max(m, l.length), 0) * base.fontSize * 0.6;
           const bh = base.lines.length * base.fontSize * 1.15;
           const growCap = Math.max(1, Math.min(maxW / (bw || 1), maxH / (bh || 1)));
@@ -813,7 +818,7 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
                transform={`translate(${cx} ${cy}) scale(${scale}) translate(${-cx} ${-cy})`}
                role="button"
                tabIndex={0}
-               aria-label={`${room.name || t.unnamedRoom}, ${sectorLabel(effectiveSector)}${p.z !== 0 ? t.layerZ(p.z) : ''}${isCurrent ? ', ' + t.currentLocation : ''}`}
+               aria-label={`${roomName || t.unnamedRoom}, ${sectorLabel(effectiveSector)}${p.z !== 0 ? t.layerZ(p.z) : ''}${isCurrent ? ', ' + t.currentLocation : ''}`}
                style={{ cursor: 'pointer' }}
                onClick={() => onSelectRoom(p.vnum)}
                onDoubleClick={() => onSetCurrent(p.vnum)}>
@@ -854,7 +859,7 @@ export const Map = memo(function Map({ layout, index, currentVnum, selectedVnum,
                 </>
               )}
 
-              <title>{`${room.name || t.unnamedRoom}\n${sectorLabel(room.sector)}\n${t.exits}: ${room.exits.map((e) => t.dir[e.dir] ?? e.dir).join(', ') || '—'}`}</title>
+              <title>{`${roomName || t.unnamedRoom}\n${sectorLabel(room.sector)}\n${t.exits}: ${room.exits.map((e) => t.dir[e.dir] ?? e.dir).join(', ') || '—'}`}</title>
             </g>
           );
         })}
@@ -921,7 +926,9 @@ function renderVerticalStub(
 
   const otherP = layout.placed[otherVnum];
   const otherRoom = layout.rooms[otherVnum];
-  const targetName = otherRoom?.name || '(unknown)';
+  // Module helper (no locale param): nameFor() defaults to the active locale, which the
+  // top-of-tree setLocale() has already pointed at the player's language this render.
+  const targetName = nameFor(otherRoom) || '(unknown)';
   const targetZ = otherP?.z ?? anchorP.z;
 
   const { sx, sy } = placedToScreen(anchorP, layout.bounds);
