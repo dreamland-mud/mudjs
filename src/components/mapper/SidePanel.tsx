@@ -1,10 +1,12 @@
 import type { AreaLayout, MapperIndex } from './types.js';
 import { sectorLabel, sectorStyle } from './sectors.js';
-import { t } from './i18n.js';
+import { t, nameFor, descFor, type Locale } from './i18n.js';
 
 interface Props {
   layout: AreaLayout;
   index: MapperIndex;
+  /** Active display locale (player's `config language`) for room/zone names + description. */
+  locale: Locale;
   vnum: number | null;
   currentVnum: number | null;
   onSetCurrent: (vnum: number) => void;
@@ -25,7 +27,7 @@ function exitEmoji(flags: string[], targetSector?: string): string {
   return '';
 }
 
-export function SidePanel({ layout, index, vnum, currentVnum, onSetCurrent, onRunTo, onClose, onWalk }: Props) {
+export function SidePanel({ layout, index, locale, vnum, currentVnum, onSetCurrent, onRunTo, onClose, onWalk }: Props) {
   if (vnum == null) {
     return (
       <div className="panel">
@@ -42,7 +44,7 @@ export function SidePanel({ layout, index, vnum, currentVnum, onSetCurrent, onRu
   return (
     <div className="panel">
       <div className="panel-head">
-        <h2 className="panel-title">{room.name || t.unnamed}</h2>
+        <h2 className="panel-title">{nameFor(room, locale) || t.unnamed}</h2>
         <div className="panel-head-right">
           <span className="panel-meta">
             {sectorLabel(room.sector)} / {t.layer} {zText}
@@ -76,8 +78,9 @@ export function SidePanel({ layout, index, vnum, currentVnum, onSetCurrent, onRu
               const targetRoom = layout.rooms[ex.target];
               // Cross-area target: resolve the destination zone's localized name.
               const crossFile = targetRoom ? undefined : index.vnumToArea[ex.target];
-              const crossZone = crossFile ? index.areas.find((a) => a.file === crossFile)?.name : undefined;
-              const tgtName = targetRoom?.name || crossZone || t.anotherArea;
+              const crossArea = crossFile ? index.areas.find((a) => a.file === crossFile) : undefined;
+              const crossZone = crossArea ? nameFor(crossArea, locale) : undefined;
+              const tgtName = nameFor(targetRoom, locale) || crossZone || t.anotherArea;
               // Colour the destination by its sector (indoors → inside), matching the map tiles.
               const tgtColor = targetRoom
                 ? sectorStyle(targetRoom.flags.includes('indoors') ? 'inside' : targetRoom.sector).text
@@ -110,9 +113,9 @@ export function SidePanel({ layout, index, vnum, currentVnum, onSetCurrent, onRu
         )}
       </section>
 
-      {room.description && (
+      {descFor(room, locale) && (
         <section className="section">
-          <div className="description">{room.description}</div>
+          <div className="description">{descFor(room, locale)}</div>
         </section>
       )}
 

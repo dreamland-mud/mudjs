@@ -9,7 +9,7 @@ import lastLocation from '../location';
 import { Search } from './mapper/Search';
 import GraphMapPane from './mapper/GraphMapPane';
 import { useGraphMapper } from './mapper/useGraphMapper';
-import { t } from './mapper/i18n.js';
+import { t, setLocale, localeFromLang, nameFor } from './mapper/i18n.js';
 import './mapper/mapper.css';
 
 const useLocation = () => {
@@ -29,7 +29,8 @@ const useLocation = () => {
             prev &&
             prev.area === next.area &&
             prev.vnum === next.vnum &&
-            prev.sex === next.sex
+            prev.sex === next.sex &&
+            prev.lang === next.lang
               ? prev
               : next
           );
@@ -211,13 +212,28 @@ const LayerSelect = ({ layout, zFilter, onChange }) => {
 export default function Map() {
   const location = useLocation();
   const areaData = useAreaData();
-  const areaName = areaData[location.area || ''] || '';
+
+  // Follow the player's in-game `config language`: point the mapper's shared string
+  // table + name-picker at the matching locale before any child renders. setLocale is a
+  // no-op when unchanged; the top-of-tree call means the fresh `t`/`locale`/`nameFor`
+  // are already live when GraphMapPane/Map/Search (below) read them this render. The
+  // `locale` prop threaded to the memoized children is what actually re-triggers their
+  // render on a pure language switch (no area/vnum change to bust their memo otherwise).
+  const locale = localeFromLang(location.lang);
+  setLocale(locale);
 
   // 'graph' = new DL mapper (default); 'ascii' = legacy HTML map. Persisted per-browser.
   const [mode, setMode] = useState(() => localStorage.getItem('map-mode') || 'graph');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const graph = useGraphMapper(location, mode === 'graph');
+
+  // Prefer the graph's own area meta (carries the en/ua i18n block) for the topbar name;
+  // fall back to the legacy /maps/index.json name (RU only) in ASCII mode / ungraphed zones.
+  const areaName =
+    (graph.layout?.meta ? nameFor(graph.layout.meta, locale) : '') ||
+    areaData[location.area || ''] ||
+    '';
 
   const setModePersisted = useCallback(next => {
     setMode(next);
@@ -283,7 +299,7 @@ export default function Map() {
 
           {graphReady && (
             <>
-              <Search layout={graph.layout} onPick={handleSelectRoom} />
+              <Search layout={graph.layout} locale={locale} onPick={handleSelectRoom} />
               <LayerSelect
                 layout={graph.layout}
                 zFilter={graph.zFilter}
@@ -326,6 +342,7 @@ export default function Map() {
       ) : (
         <GraphMapPane
           zoomApiRef={zoomApiRef}
+          locale={locale}
           index={graph.index}
           layout={graph.layout}
           status={graph.status}
