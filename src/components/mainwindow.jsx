@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
@@ -6,6 +7,7 @@ import CmdInput from './cmdinput';
 import Terminal from './terminal';
 
 import { send } from '../websock';
+import { t, fmt } from '../i18n';
 
 const OverlayCell = ({ ariaLabel, ariaHidden, children, ...props }) => {
   const theme = useTheme();
@@ -130,7 +132,7 @@ const Keypad = () => {
   );
 };
 
-const Overlay = ({ unread, onScrollToBottom }) => {
+const Overlay = ({ unread, onScrollToBottom, lang }) => {
   return (
     <Box
       sx={{
@@ -152,19 +154,19 @@ const Overlay = ({ unread, onScrollToBottom }) => {
       >
         <tbody>
           <tr>
-            <OverlayCell id="logs-button" ariaLabel="логи" ariaHidden="true">
+            <OverlayCell id="logs-button" ariaLabel={t('ov.logs', lang)} ariaHidden="true">
               <i className="fa fa-download"></i>
             </OverlayCell>
             <OverlayCell
               id="settings-button"
               data-toggle="modal"
               data-target="#settings-modal"
-              ariaLabel="настройки"
+              ariaLabel={t('ov.settings', lang)}
               ariaHidden="false"
             >
               <i className="fa fa-cog"></i>
             </OverlayCell>
-            <OverlayCell id="map-button" ariaLabel="карта" ariaHidden="true">
+            <OverlayCell id="map-button" ariaLabel={t('ov.map', lang)} ariaHidden="true">
               <i className="fa fa-map"></i>
             </OverlayCell>
             <OverlayCell id="font-plus-button" ariaHidden="true">
@@ -190,7 +192,7 @@ const Overlay = ({ unread, onScrollToBottom }) => {
             margin: '0.5em',
           }}
         >
-          <span>{`${unread} unread message${unread > 1 ? 's' : ''}`}</span>
+          <span>{fmt('ov.unread', unread, lang)}</span>
         </button>
       )}
     </Box>
@@ -200,6 +202,7 @@ const Overlay = ({ unread, onScrollToBottom }) => {
 export default function MainWindow() {
   const terminal = useRef();
   const [unread, setUnread] = useState(0);
+  const lang = useSelector(state => state.prompt && state.prompt.lang);
 
   return (
     <Box flex="1" display="flex" flexDirection="column">
@@ -207,6 +210,7 @@ export default function MainWindow() {
         <Overlay
           unread={unread}
           onScrollToBottom={() => terminal.current.scrollToBottom()}
+          lang={lang}
         />
         <Terminal
           ref={terminal}

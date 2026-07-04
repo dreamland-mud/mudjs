@@ -1,5 +1,6 @@
 import React from 'react'
 import PanelItem from './panelItem'
+import { t } from '../../i18n'
 
 
 // prompt 'group' fields: ln - leader name in genitive case,
@@ -20,15 +21,15 @@ const TeamMate = (stats) => {
 
 export default function GroupItem(prompt) {
 
-    return <PanelItem storageKey="group" title={'Группа ' + prompt.group.ln} collapsed={true} >
+    return <PanelItem storageKey="group" title={t('grp.title', prompt.lang) + ' ' + prompt.group.ln} collapsed={true} >
             <div id="group-table">
                 <table>
                     <thead>
                         <tr>
-                            <th>Имя</th>
-                            <th>Ур.</th>
-                            <th>Здор.</th>
-                            <th>Опыт</th>
+                            <th>{t('grp.name', prompt.lang)}</th>
+                            <th>{t('grp.lvl', prompt.lang)}</th>
+                            <th>{t('grp.health', prompt.lang)}</th>
+                            <th>{t('grp.exp', prompt.lang)}</th>
                         </tr>
                     </thead>
                     <tbody>

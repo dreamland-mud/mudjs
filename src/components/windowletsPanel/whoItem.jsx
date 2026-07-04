@@ -1,6 +1,7 @@
 import React from 'react'
 import PanelItem from "./panelItem"
-import { Races, Clans } from './windowletsConstants' 
+import { Races, Clans } from './windowletsConstants'
+import { t } from '../../i18n'
 
 // prompt 'who' fields: p - list of players, v - visible player count,
 // t - total player count.
@@ -19,14 +20,14 @@ const WhoPlayer = (person) => {
 export default function WhoItem(prompt) {
 
     return (
-        <PanelItem title="Сейчас в мире">
+        <PanelItem storageKey="who" title={t('who.title', prompt.lang)}>
             <div id="who-table" data-hint="hint-who">
                 <table>
                     <thead>
                         <tr>
-                            <th>Имя</th>
-                            <th>Раса</th>
-                            <th>Клан</th>
+                            <th>{t('who.name', prompt.lang)}</th>
+                            <th>{t('who.race', prompt.lang)}</th>
+                            <th>{t('who.clan', prompt.lang)}</th>
                         </tr>
                     </thead>
                     <tbody>

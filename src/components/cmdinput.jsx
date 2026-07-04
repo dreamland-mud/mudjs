@@ -4,6 +4,7 @@ import $ from 'jquery';
 import { echo } from '../input';
 import { send, connect } from '../websock';
 import { getKeydown } from '../settings';
+import { t } from '../i18n';
 
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -40,6 +41,8 @@ const CmdInput = () => {
   const theme = useTheme();
   const big = useMediaQuery(theme.breakpoints.up('sm'));
   const connection = useSelector(state => state.connection);
+  // prompt is merged in the store, so lang stays stable -> re-renders only on a real switch.
+  const lang = useSelector(state => state.prompt && state.prompt.lang);
 
   const [value, setValue] = useState('');
   const textInput = useRef(null);
@@ -200,7 +203,7 @@ const CmdInput = () => {
   if (!connection.connected) {
     return (
       <button onClick={connect} type="button" className="btn btn-primary">
-        Reconnect
+        {t('in.reconnect', lang)}
       </button>
     );
   }
@@ -240,7 +243,7 @@ const CmdInput = () => {
               <td>
                 <button
                   onClick={historyRepeat}
-                  aria-label="Повторить команду"
+                  aria-label={t('in.repeat', lang)}
                   cmd="repeat"
                   className="btn btn-sm btn-ctrl btn-outline-primary"
                   style={{
@@ -255,7 +258,7 @@ const CmdInput = () => {
               <td>
                 <button
                   onClick={historyDown}
-                  aria-label="Следующая команда"
+                  aria-label={t('in.next', lang)}
                   cmd="history-down"
                   className="btn btn-sm btn-ctrl btn-outline-primary"
                   style={{
@@ -270,7 +273,7 @@ const CmdInput = () => {
               <td>
                 <button
                   onClick={historyUp}
-                  aria-label="Предыдущая команда"
+                  aria-label={t('in.prev', lang)}
                   cmd="history-up"
                   className="btn btn-sm btn-ctrl btn-outline-primary"
                   style={{

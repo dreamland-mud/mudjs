@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import getSessionId from './sessionid.js';
 import placeholders from './data/placeholders.json' assert { type: 'json' };
+import { fmt } from './i18n';
 
 const sessionId = getSessionId();
 var lastLocation, locationChannel;
@@ -59,7 +60,7 @@ function createPlaceholder(loc) {
     if (!lastLocation || loc.vnum !== lastLocation.vnum) index = 0;
     else index = Math.floor(Math.random() * roomhints.length);
 
-    return 'Введи команду, например: ' + roomhints[index];
+    return fmt('ph.example', roomhints[index], loc.lang);
   }
 
   return '';

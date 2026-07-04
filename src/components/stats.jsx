@@ -1,5 +1,6 @@
 import React from 'react';
 import { usePrompt } from '../react-hooks';
+import { t } from '../i18n';
 import Box from '@mui/material/Box';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -78,7 +79,9 @@ const StatPercent = ({ percent, caption, color }) => {
 export default function Stats() {
   const theme = useTheme();
   const big = useMediaQuery(theme.breakpoints.up('sm'));
-  const { hit, max_hit, mana, max_mana, move, max_move, fight } = usePrompt();
+  const prompt = usePrompt();
+  const { hit, max_hit, mana, max_mana, move, max_move, fight } = prompt;
+  const lang = prompt.lang;
 
   return (
     <Box
@@ -87,10 +90,10 @@ export default function Stats() {
         flexDirection: 'row',
       }}
     >
-      <Stat caption="Здоровье" color="#cc0000" v={hit} max_v={max_hit} />
-      <StatPercent caption="Противник" color="#ff0000" percent={fight} />
-      <Stat caption="Мана" color="#3465a4" v={mana} max_v={max_mana} />
-      <Stat caption="Шаги" color="#4e9a06" v={move} max_v={max_move} />
+      <Stat caption={t('st.health', lang)} color="#cc0000" v={hit} max_v={max_hit} />
+      <StatPercent caption={t('st.enemy', lang)} color="#ff0000" percent={fight} />
+      <Stat caption={t('st.mana', lang)} color="#3465a4" v={mana} max_v={max_mana} />
+      <Stat caption={t('st.moves', lang)} color="#4e9a06" v={move} max_v={max_move} />
     </Box>
   );
 }

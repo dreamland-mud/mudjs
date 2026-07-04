@@ -2,6 +2,8 @@ import $ from 'jquery';
 import React, { useState, useEffect, useRef } from 'react';
 
 import { send } from '../../websock';
+import { usePrompt } from '../../react-hooks';
+import { t } from '../../i18n';
 
 const echo = txt => {
   $('.terminal').trigger('output', [txt]);
@@ -42,6 +44,10 @@ const useTypeahead = () => {
 export default function Help() {
   const ref = useRef();
   const { loading, topics, error } = useTypeahead();
+  // Subscribe to the prompt so a `config language` switch re-renders the labels.
+  // t() falls back to the last-known language when a delta prompt omits lang.
+  const prompt = usePrompt();
+  const lang = prompt && prompt.lang;
 
   const showTopic = function (topic) {
     const inputbox = $(ref.current);
@@ -70,7 +76,7 @@ export default function Help() {
         lookupLimit: 10,
         autoSelectFirst: true,
         showNoSuggestionNotice: true,
-        noSuggestionNotice: 'Справка не найдена',
+        noSuggestionNotice: t('help.notFound', lang),
         formatResult: function (suggestion, currentValue) {
           let s = {};
           s.data = suggestion.data;
@@ -82,7 +88,7 @@ export default function Help() {
     }
 
     return () => inputbox.off();
-  }, [loading, topics, error]);
+  }, [loading, topics, error, lang]);
 
   return (
     <div id="help" className="table-wrapper">
@@ -91,7 +97,7 @@ export default function Help() {
         data-toggle="collapse"
         data-target="#help-table"
       >
-        Поиск по справке
+        {t('help.title', lang)}
       </span>
       <button
         className="close"
@@ -107,7 +113,7 @@ export default function Help() {
           ref={ref}
           type="text"
           className="form-control"
-          placeholder="Введи ключевое слово"
+          placeholder={t('help.placeholder', lang)}
           disabled={loading}
         />
       </div>
