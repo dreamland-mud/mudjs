@@ -17,7 +17,9 @@ function hdr(lang) { return HEADERS[lang] || HEADERS.en; }
 const LEGACY_NAMES = { pro: Pnames, det: Dnames, trv: Tnames, enh: Enames, mal: Mnames, cln: Cnames };
 
 // Six fixed columns; membership is now driven by the server, not hardcoded here.
-// color: 2 = green (active), 1 = red (maladictions); 3 = yellow (about to expire).
+// Base column color: 2 = green (buffs), 1 = red (maladictions) -- kept for the active state.
+// Duration only adds two overrides on top: permanent = cyan (6), about to expire = yellow (3).
+// See affColor().
 const COLUMNS = [
     { key: 'pro', type: 'protect', color: '2' },
     { key: 'det', type: 'detects', color: '2' },
@@ -33,6 +35,22 @@ function hasAffects(block) {
     return block.a != null && block.a !== '';            // legacy {a,z}
 }
 
+// Color one affect by its remaining duration `d` (ticks; -1 = permanent). This only
+// adds two overrides on top of the column's base color (red maladictions / green buffs):
+//   permanent    -> light cyan  ({C, ANSI bright 6)
+//   about to expire (<= 1 tick) -> yellow (bright 3)
+//   otherwise    -> column base color (unchanged: red maladictions, green buffs)
+// Falls back to the legacy binary `x` expiring flag when the server hasn't sent `d` yet.
+function affColor(aff, baseColor) {
+    const d = aff.d;
+    if (d === -1) return 'fg-ansi-bright-color-6';        // permanent -> cyan
+    if (d != null) {
+        if (d <= 1) return 'fg-ansi-bright-color-3';      // about to expire -> yellow
+        return 'fg-ansi-bright-color-' + baseColor;       // otherwise -> column base
+    }
+    return aff.x ? 'fg-ansi-bright-color-3' : 'fg-ansi-bright-color-' + baseColor;
+}
+
 // Draw one column. Handles BOTH the new dynamic format and the legacy char-dict format.
 function AffectBlock(props) {
     const clr_active = 'fg-ansi-bright-color-' + props.color;
@@ -40,9 +58,9 @@ function AffectBlock(props) {
     const rows = [];
 
     if (Array.isArray(props.block)) {
-        // New format: server already localized `n`; `x` marks a zero-duration affect.
+        // New format: server already localized `n`; `d` = remaining ticks (-1 = permanent).
         props.block.forEach(function (aff, idx) {
-            rows.push(<span key={idx} className={aff.x ? clr_zero : clr_active}>{aff.n}</span>);
+            rows.push(<span key={idx} className={affColor(aff, props.color)}>{aff.n}</span>);
         });
     } else {
         // Legacy format: {a,z} char strings mapped through the hardcoded RU dict.
