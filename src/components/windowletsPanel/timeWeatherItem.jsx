@@ -1,5 +1,6 @@
 import React from 'react';
 import PanelItem from './panelItem';
+import { t } from '../../i18n';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
@@ -49,7 +50,7 @@ export default function TimeWeatherItem(prompt) {
   const { time, date, w: weather } = prompt;
 
   return (
-    <PanelItem title="Погода и время">
+    <PanelItem storageKey="timeWeather" title={t('tw.title', prompt.lang)}>
       <Table sx={{
         // Compact rows; icons share one uniform box, aligned to the left edge with an
         // 8px gap to the text, tinted to the client purple.

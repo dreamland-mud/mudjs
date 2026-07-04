@@ -1,5 +1,6 @@
 import React from 'react'
 import PanelItem from './panelItem'
+import { t } from '../../i18n'
 
 // Prompt zone field: string with area name.
 const ZoneRow = ({zone}) => {
@@ -40,11 +41,12 @@ const ExitCell = ({ex_ru, ex_en, ex_hidden, ex_visible, lang}) => {
     return <span className={`${color}`}>{letter}</span> 
 };
 
-// Prompt exits field: e - open exits, h - closed exits, l - language (r, e)
-const ExitsRow = ({e, h, l}) => {
+// Prompt exits field: e - open exits, h - closed exits, l - exit-letter language (r, e).
+// uilang is the UI display language (en/ru/ua) for the "exits:" label, kept separate.
+const ExitsRow = ({e, h, l, uilang}) => {
     return <tr>
         <td className="v-top">&nbsp;<i className="fa">&#xf277;</i></td>
-        <td className="v-bottom">выходы:&nbsp;
+        <td className="v-bottom">{t('loc.exits', uilang)}&nbsp;
             <ExitCell ex_ru='С' ex_en='N' ex_hidden={h} ex_visible={e} lang={l} />
             <ExitCell ex_ru='В' ex_en='E' ex_hidden={h} ex_visible={e} lang={l} />
             <ExitCell ex_ru='Ю' ex_en='S' ex_hidden={h} ex_visible={e} lang={l} />
@@ -70,12 +72,12 @@ export default function LocationItem(prompt) {
 
     const { zone, room, exits, sect } = prompt;
 
-    return <PanelItem title="Твое местоположение">
+    return <PanelItem storageKey="location" title={t('loc.title', prompt.lang)}>
         <table>
             <tbody>
                 { zone && zone !== 'none' && <ZoneRow zone={zone} /> }
                 { room && room !== 'none' && <RoomRow room={room} /> }
-                { exits && exits !== 'none' && <ExitsRow {...exits} /> }
+                { exits && exits !== 'none' && <ExitsRow {...exits} uilang={prompt.lang} /> }
                 { sect && sect !== 'none' && <SectorRow {...sect} /> }
             </tbody>
         </table>

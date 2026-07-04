@@ -6,6 +6,7 @@ import historyDb from '../historydb';
 import ansi2html from '../ansi2html';
 import manip from '../manip';
 import { processTriggers } from './sysCommands/action';
+import { t } from '../i18n';
 
 // TODO: the following parameters should be replaced with two numbers - viewport size (in pixels) and the threshold (in pixels)
 const bytesToLoad = 100000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
@@ -215,7 +216,7 @@ function terminalInit(wrap) {
     echo('<hr>');
     echo(
       ansi2html(
-        '\u001b[1;31m#################### ИСТОРИЯ ЧАТА ЗАГРУЖЕНА ####################\u001b[0;37m\n'
+        '\u001b[1;31m#################### ' + t('term.historyLoaded') + ' ####################\u001b[0;37m\n'
       )
     );
     echo('<hr>');
