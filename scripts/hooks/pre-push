@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+#
+# pre-push: build the web client locally (vite, ~2s) before pushing, so a broken
+# import / JSX / syntax error is caught here instead of only on drone after merge
+# (drone deploys straight to production on merge to `dreamland`).
+#
+# Runs `npm run build` (vite build). Self-skips when node_modules is absent, so a
+# fresh checkout without `npm install` can still push (drone remains the backstop).
+#
+# Bypass a single push with:  git push --no-verify
+#
+# Install (once):
+#   ln -sf ../../scripts/hooks/pre-push .git/hooks/pre-push
+#
+set -uo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT" || exit 0
+
+if [ ! -d node_modules ]; then
+  echo "[pre-push] node_modules absent -- skipping build check (run 'npm install'; drone will verify)." >&2
+  exit 0
+fi
+
+echo "[pre-push] building web client before push (npm run build)..." >&2
+if npm run build >/tmp/mudjs-prepush-build.log 2>&1; then
+  echo "[pre-push] build OK -- pushing." >&2
+  exit 0
+fi
+
+echo "" >&2
+echo "[pre-push] BUILD FAILED -- push aborted. Tail of the build log:" >&2
+tail -25 /tmp/mudjs-prepush-build.log >&2
+echo "[pre-push] Fix the errors above, or bypass with: git push --no-verify" >&2
+exit 1
