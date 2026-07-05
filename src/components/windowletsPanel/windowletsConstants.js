@@ -1,169 +1,62 @@
-export const Races = {
-    'ar': 'Ариал',
-    'ce': 'Кентавр',
-    'cl': 'ОбВелик',
-    'da': 'ТемЭльф',
-    'dr': 'Дроу',
-    'du': 'Дуэргар',
-    'dw': 'Дварф',
-    'el': 'Эльф',
-    'fa': 'Фея',
-    'fe': 'Фелар',
-    'fi': 'ОгВелик',
-    'fr': 'ИнВелик',
-    'gi': 'Гитианк',
-    'gn': 'Гном',
-    'ha': 'ПолЭльф',
-    'ho': 'Хоббит',
-    'hu': 'Человек',
-    'ke': 'Кендер',
-    'ma': 'Чес',
-    'ro': 'Роксир',
-    'sa': 'Сатир',
-    'st': 'ШтВелик',
-    'sv': 'Свирф',
-    'tr': 'Тролль',
-    'ur': 'Урукха'
+// "Who" panel race + clan names, keyed by the short code the server sends.
+// Terse (<=8 chars) to fit the narrow panel column. EN = the engine's own <nameWho>
+// (races/*.xml); RU = the historical panel abbrev; UA from RACES_UA.md / clans/*.xml.
+// Game text everywhere else is localized on the server; these stay client-side because
+// the who prompt sends only a 2-letter code, not a full localized name.
+
+const RACE_NAMES = {
+    ar: { en: 'Arial', ru: 'Ариал',   ua: 'Аріал' },
+    ce: { en: 'Centa', ru: 'Кентавр', ua: 'Кентавр' },
+    cl: { en: 'ClGia', ru: 'ОбВелик', ua: 'ХмВелет' },
+    da: { en: 'D-Elf', ru: 'ТемЭльф', ua: 'ТемЕльф' },
+    dr: { en: 'Drow',  ru: 'Дроу',    ua: 'Дроу' },
+    du: { en: 'Duerg', ru: 'Дуэргар', ua: 'Дуергар' },
+    dw: { en: 'Dwarf', ru: 'Дварф',   ua: 'Дварф' },
+    el: { en: 'Elf',   ru: 'Эльф',    ua: 'Ельф' },
+    fa: { en: 'Faery', ru: 'Фея',     ua: 'Фея' },
+    fe: { en: 'Felar', ru: 'Фелар',   ua: 'Фелар' },
+    fi: { en: 'FiGia', ru: 'ОгВелик', ua: 'ВгВелет' },
+    fr: { en: 'FrGia', ru: 'ИнВелик', ua: 'КрВелет' },
+    gi: { en: 'Githy', ru: 'Гитианк', ua: 'Гітіанки' },
+    gn: { en: 'Gnome', ru: 'Гном',    ua: 'Гном' },
+    ha: { en: 'H-Elf', ru: 'ПолЭльф', ua: 'НапЕльф' },
+    ho: { en: 'Hobbi', ru: 'Хоббит',  ua: 'Гобіт' },
+    hu: { en: 'Human', ru: 'Человек', ua: 'Людина' },
+    ke: { en: 'Kendr', ru: 'Кендер',  ua: 'Кендер' },
+    ma: { en: 'Mawg',  ru: 'Чес',     ua: 'Псюрень' },
+    ro: { en: 'Rocks', ru: 'Роксир',  ua: 'Роксір' },
+    sa: { en: 'Satyr', ru: 'Сатир',   ua: 'Сатир' },
+    st: { en: 'StGia', ru: 'ШтВелик', ua: 'ШтВелет' },
+    sv: { en: 'Svirf', ru: 'Свирф',   ua: 'Свірф' },
+    tr: { en: 'Troll', ru: 'Тролль',  ua: 'Троль' },
+    ur: { en: 'Urkhi', ru: 'Урукха',  ua: 'Урукхай' },
+};
+
+const CLAN_NAMES = {
+    b: { en: 'Fury',     ru: 'Ярости',     ua: 'Ярості' },
+    c: { en: 'Chaos',    ru: 'Хаос',       ua: 'Хаос' },
+    e: { en: 'Exiles',   ru: 'Изгои',      ua: 'Ізгої' },
+    f: { en: 'Flowers',  ru: 'Цветы',      ua: 'Квіти' },
+    g: { en: 'Ghosts',   ru: 'Призраки',   ua: 'Привиди' },
+    h: { en: 'Hunters',  ru: 'Охотники',   ua: 'Мисливці' },
+    i: { en: 'Invaders', ru: 'Захватчики', ua: 'Загарбники' },
+    k: { en: 'Knights',  ru: 'Рыцари',     ua: 'Лицарі' },
+    l: { en: 'Lions',    ru: 'Львы',       ua: 'Леви' },
+    o: { en: 'Loners',   ru: 'Одиночки',   ua: 'Одинаки' },
+    r: { en: 'Rulers',   ru: 'Правители',  ua: 'Правителі' },
+    s: { en: 'Shalafi',  ru: 'Шалафи',     ua: 'Шалафі' },
+    n: { en: '',         ru: '',           ua: '' },
+};
+
+// Look up a localized who-panel name; fall back to EN, then the raw code.
+export function raceName(code, lang) {
+    const e = RACE_NAMES[code];
+    if (e == null) return code || '';
+    return e[lang] || e.en;
 }
 
-export const Clans = {
-    'b': 'Ярости',
-    'c': 'Хаос',
-    'e': 'Изгои',
-    'f': 'Цветы',
-    'g': 'Призраки',
-    'h': 'Охотники',
-    'i': 'Захватчики',
-    'k': 'Рыцари',
-    'l': 'Львы',
-    'o': 'Одиночки',
-    'r': 'Правители',
-    's': 'Шалафи', 
-    'n': ''
-}
-
-export const Dnames = {
-    'h': 'Скрыт', 
-    'i': 'Невид', 
-    'w': 'ОНевид', 
-    'f': 'Спрят', 
-    'a': 'Камуф', 
-    'e': 'Зло', 
-    'g': 'Добро', 
-    'u': 'Нежить', 
-    'm': 'Магия', 
-    'o': 'Диагн', 
-    'l': 'Жизнь', 
-    'r': 'Инфра' 
-}
-
-export const Tnames = {
-    'i': 'Невид',
-    'h': 'Скрыт',
-    'F': 'Спрят',
-    'I': 'УНевд',
-    's': 'Подкр',
-    'f': 'Полет',
-    'p': 'Прозр',
-    'm': 'МБлок',
-    'c': 'Камуфл'
-}
-
-export const Enames = { 
-    'r': 'Реген',
-    'h': 'Ускор',
-    'g': 'ГигСил',
-    'l': 'Обуч', 
-    'b': 'Благос',
-    'f': 'Неист',
-    'B': 'Блгсть',
-    'i': 'Вдохн',
-    'c': 'Спокой',
-    'C': 'Концен',
-    'z': 'Берсрк',
-    'w': 'Клич',
-    'F': 'Лес',
-    'm': 'МагФок',
-    't': 'Тигр',
-    'v': 'Вампир'
-}
-
-export const Pnames = { 
-    'z': 'Звезд',
-    's': 'ЗащСвя',
-    'd': 'ТАура',
-    'p': 'ЗащЩит',
-    'e': 'Зло',
-    'g': 'Добро',
-    'm': 'Заклин',
-    'P': 'Молит',
-    'n': 'Негат',
-    'a': 'Броня',
-    'A': 'УлБрон',
-    'S': 'Щит',
-    'D': 'КжДрак',
-    'k': 'КамКж',
-    'r': 'СКамн',
-    'c': 'Холод',
-    'h': 'Жар',
-    'b': 'ЛМыш',
-    'F': 'Немощь',
-    'E': 'Выносл',
-    'R': 'Радуга',
-    'M': 'Мантия',
-    'Z': 'Себат', 
-    'B': 'ДревКж'
-}
-
-export const Mnames = {
-    'b': 'Слеп',
-    'p': 'Яд',
-    'P': 'Чума',
-    'C': 'Гниени',
-    'f': 'ОгФей',
-    'W': 'Очаров',
-    'c': 'Прокл',
-    'w': 'Слабо',
-    's': 'Замедл',
-    'S': 'Крик',
-    'B': 'ЖажКрв',
-    'T': 'Оглуш',
-    'i': 'НетРук',
-    'I': 'Стрела',
-    'j': 'Сосуд',
-    'a': 'Анафем',
-    'e': 'Паут',
-    'E': 'Терн',
-    'r': 'КНож',
-    'n': 'Нервы',
-    'y': 'Укус',
-    'A': 'Шипы',
-    'l': 'Сон'
-}
-
-export const Cnames = {
-    'r': 'Сопрот',
-    's': 'Спелба',
-    'B': 'ЖажКрв',
-    'b': 'Повязк',
-    't': 'Трофей',
-    'T': 'Зрение',
-    'd': 'ОбнЛов',
-    'e': 'Лев',
-    'p': 'Предот',
-    'f': 'Трансф',
-    'g': 'ЗолАур',
-    'h': 'СвщБрн',
-    'S': 'Плащ',
-    'D': 'Доппел',
-    'm': 'Зеркал',
-    'R': 'Рандом',
-    'i': 'Компро',
-    'G': 'Гарбл',
-    'c': 'Конфуз',
-    'M': 'Наруч',
-    'u': 'Повест',
-    'j': 'Тюрьма',
-    'J': 'НеРули',
-    'A': 'АураПр' 
+export function clanName(letter, lang) {
+    const e = CLAN_NAMES[letter];
+    if (e == null) return letter || '';
+    return e[lang] || e.en;
 }

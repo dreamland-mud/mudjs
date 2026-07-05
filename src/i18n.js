@@ -34,6 +34,14 @@ export function setLang(lang) {
 
 const STRINGS = {
   en: {
+    // affects panel (title + column headers)
+    'aff.title': 'Affects on you',
+    'aff.pro': 'Prot',
+    'aff.det': 'Detect',
+    'aff.trv': 'Travel',
+    'aff.enh': 'Boost',
+    'aff.mal': 'Curse',
+    'aff.cln': 'Clan',
     // time & weather panel
     'tw.title': 'Weather & time',
     // group panel
@@ -104,6 +112,13 @@ const STRINGS = {
     'ph.example': 'Type a command, e.g.: %s',
   },
   ru: {
+    'aff.title': 'Воздействия на тебе',
+    'aff.pro': 'Защита',
+    'aff.det': 'Обнар',
+    'aff.trv': 'Трансп',
+    'aff.enh': 'Усилен',
+    'aff.mal': 'Отриц',
+    'aff.cln': 'Клан',
     'tw.title': 'Погода и время',
     'grp.title': 'Группа',
     'grp.name': 'Имя',
@@ -161,6 +176,13 @@ const STRINGS = {
     'ph.example': 'Введи команду, например: %s',
   },
   ua: {
+    'aff.title': 'Впливи на тебе',
+    'aff.pro': 'Захист',
+    'aff.det': 'Виявл',
+    'aff.trv': 'Трансп',
+    'aff.enh': 'Підсил',
+    'aff.mal': 'Негат',
+    'aff.cln': 'Клан',
     'tw.title': 'Погода і час',
     'grp.title': 'Група',
     'grp.name': 'Імʼя',
