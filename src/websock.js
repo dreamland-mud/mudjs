@@ -4,6 +4,12 @@ import Telnet from './telnet';
 
 const PROTO_VERSION = 'DreamLand Web Client/2.1';
 
+// Decode incoming UTF-8 frames. Must NOT use String.fromCharCode.apply(null,
+// bytes): apply spreads every byte as a separate argument, which overflows the
+// engine's argument limit on large messages and crashes the tab (a big webedit
+// payload -- e.g. `fedit` on a config file -- was doing exactly this).
+const utf8Decoder = new TextDecoder('utf-8');
+
 let wsUrl = 'wss://dreamland.rocks/dreamland';
 let ws;
 
@@ -73,11 +79,8 @@ function connect() {
   ws.binaryType = 'arraybuffer';
 
   ws.onmessage = function (e) {
-    let b = new Uint8Array(e.data);
-    b = String.fromCharCode.apply(null, b);
-    b = decodeURIComponent(escape(b));
-    b = JSON.parse(b);
-    
+    const b = JSON.parse(utf8Decoder.decode(e.data));
+
     $('#rpc-events').trigger('rpc-' + b.command, b.args);
   };
 
