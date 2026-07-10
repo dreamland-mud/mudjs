@@ -95,6 +95,23 @@ function manipParseAndReplace(span) {
     }
   );
 
+  // Replace exit-keyword placeholders [look=door,see=door] with a clickable
+  // <span> that sends "look door" -- room exits resolve via 'look', not 'read'.
+  html = html.replace(
+    /\[look=([^,]{1,200}),see=([^\]]{1,30})]/gi,
+    function (match, p1, p2, string) {
+      return (
+        '<span class="manip-cmd manip-ed" data-action="look ' +
+        p1 +
+        '" data-echo="смотреть ' +
+        p2 +
+        '">' +
+        p2 +
+        '</span>'
+      );
+    }
+  );
+
   // Replace random commands with data-action span.
   html = html.replace(
     /\[cmd=([^,]{1,200}),see=([^\]]{1,50}),nonce=(.{8})]/gi,
