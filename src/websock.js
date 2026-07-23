@@ -15,8 +15,15 @@ let ws;
 
 if (globalThis.location.hash === '#build') {
   wsUrl = 'wss://dreamland.rocks/buildplot';
-} else if (globalThis.location.hash === '#local') {
-  wsUrl = 'ws://localhost:1234';
+} else if (
+  globalThis.location.hash === '#local' ||
+  globalThis.location.hash === '#bd'
+) {
+  // local dev: auto-login bridge (Ukrainization/localdev/bridge.js) that logs
+  // into the backdoor as Kadm, bypassing the not-locally-available nanny.
+  // (The native local websocket on :1234 runs the nanny and stalls locally,
+  // so #local points here too.)
+  wsUrl = 'ws://localhost:1237';
 }
 
 function rpccmd(cmd, ...args) {
@@ -85,7 +92,10 @@ function connect() {
   };
 
   ws.onopen = function () {
-    send('1');
+    // (Previously sent '1' here to auto-pick English at the nanny language menu,
+    // but that was race-prone -- it often arrived before the nanny was ready to
+    // read it. The language menu is now auto-answered from the saved choice in
+    // src/langsync.js, after the menu actually appears.)
   };
 
   ws.onclose = function () {
