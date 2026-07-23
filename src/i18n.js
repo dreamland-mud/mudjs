@@ -15,11 +15,30 @@ import $ from 'jquery';
 // Only UI CHROME lives here. Game text (room/act/affect labels) is localized on the
 // server and arrives already in the player's language.
 
-let currentLang = 'en';
+// Seed from the browser's remembered choice so the UI chrome opens in the right
+// language instead of flashing English until the first prompt arrives. The
+// server still overrides it on every prompt (below), and we persist that value
+// back so the memory survives reloads and follows an in-game `config lang`.
+function readSavedLang() {
+  try {
+    return localStorage.getItem('mudjs.lang');
+  } catch (e) {
+    return null; // localStorage unavailable (private mode) -- fall back to EN
+  }
+}
+
+let currentLang = readSavedLang() || 'en';
 
 $(function () {
   $('#rpc-events').on('rpc-prompt', function (e, b) {
-    if (b && b.lang != null) currentLang = b.lang;
+    if (b && b.lang != null) {
+      currentLang = b.lang;
+      try {
+        localStorage.setItem('mudjs.lang', b.lang);
+      } catch (e2) {
+        /* ignore: private mode / storage disabled */
+      }
+    }
   });
 });
 
