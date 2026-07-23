@@ -50,7 +50,10 @@ body {
 .terminal {
   font-family: 'Roboto Mono', monospace;
   font-size: 1.3em;
-  background-color: #121212;
+  /* No background here: the dark canvas lives on the .terminal-wrap window
+     container. A background on this content layer would sit ON TOP of the
+     wrap and hide its inset combat glow (it's the same #121212, so removing
+     it is visually identical in the normal state). */
   color: #d3d7cf;
   white-space: pre-wrap;
   /* Anchor the 80-column guide and let it span the full visible height even
