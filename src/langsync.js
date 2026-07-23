@@ -9,11 +9,10 @@ import { send } from './websock';
 // choice is saved for next time.
 //
 // We answer on *seeing* the menu (i.e. after a full server round-trip), so the
-// nanny has already reached its input wait and reliably reads our reply. This
-// replaces the old race-prone send('1') on ws.onopen (removed): sent on connect,
-// it often arrived before the nanny was ready and was dropped. Guarded to one
-// answer per connection; the guard resets on rpc-version, which fires once per
-// connect.
+// nanny has already reached its input wait and reliably reads our reply. This is
+// the LANGUAGE menu only; the earlier codepage menu is answered separately by the
+// send('1') on ws.onopen (koi8-r). Guarded to one answer per connection; the
+// guard resets on rpc-version, which fires once per connect.
 let answered = false;
 
 function savedLang() {

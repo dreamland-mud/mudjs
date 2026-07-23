@@ -92,10 +92,12 @@ function connect() {
   };
 
   ws.onopen = function () {
-    // (Previously sent '1' here to auto-pick English at the nanny language menu,
-    // but that was race-prone -- it often arrived before the nanny was ready to
-    // read it. The language menu is now auto-answered from the saved choice in
-    // src/langsync.js, after the menu actually appears.)
+    // Answer the server's very first prompt -- the codepage menu -- with '1' =
+    // koi8-r, which is the encoding this client decodes (see telnet.js koi2utf).
+    // REQUIRED: without it the session stays on the wrong codepage and text is
+    // garbled. This is NOT the language menu (that comes next and is handled by
+    // src/langsync.js).
+    send('1');
   };
 
   ws.onclose = function () {
