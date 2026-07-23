@@ -772,3 +772,22 @@ header.MuiPaper-root.MuiAppBar-root {
     display: none !important;
   }
 }
+
+/* --- Combat UI accent -------------------------------------------------------
+ * src/combatui.js toggles body.mud-fighting while the player is fighting.
+ * Paint a red stroke on the command input and a faint red inner glow around the
+ * terminal so it's obvious combat is live; both fade in/out and revert the
+ * instant combat ends. Placed last so it overrides the cyan focus stroke
+ * (higher specificity than form#input:focus-within). The input border only
+ * exists on big screens, so the red stroke shows there; the glow shows on all.
+ */
+.terminal-wrap,
+form#input {
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+body.mud-fighting .terminal-wrap {
+  box-shadow: inset 0 0 38px 2px rgba(204, 0, 0, 0.3);
+}
+body.mud-fighting form#input {
+  border-color: #cc0000;
+}
