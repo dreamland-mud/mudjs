@@ -94,8 +94,15 @@ export default function App() {
       display="flex"
       flexDirection="column"
       sx={{
-        height: '100vh',
-        width: '100vw',
+        // Percent, not 100vh/100vw. On mobile Chromium `100vh` is frozen to the
+        // large viewport (browser chrome retracted), while the #root percentage
+        // chain tracks the currently visible one -- so a 100vh box overflows
+        // #root by the height of the visible URL bar, and #root's overflow:hidden
+        // clips that slice away with no way to scroll to it. The clipped slice is
+        // the bottom of the layout: the command input and the Stats bars.
+        // Percent fits #root exactly, whatever the browser does with its chrome.
+        height: '100%',
+        width: '100%',
         overflow: 'hidden',
       }}
     >
