@@ -2,6 +2,7 @@ import $ from 'jquery';
 import areasJson from './data/areas.json';
 import { send, ws } from './websock.js';
 import { echo } from './input.js';
+import { t } from './i18n.js';
 
 // Create the list of all possible area file names (without ".are" bit).
 const areas = areasJson.map(a => a.file.replace('.are', ''));
@@ -86,7 +87,7 @@ function manipParseAndReplace(span) {
       return (
         '<span class="manip-cmd manip-ed" data-action="read \'' +
         p1 +
-        '\'" data-echo="читать ' +
+        '\'" data-echo="' + t('cmd.read') + ' ' +
         p2 +
         '">' +
         p2 +
@@ -103,7 +104,7 @@ function manipParseAndReplace(span) {
       return (
         '<span class="manip-cmd manip-ed" data-action="look ' +
         p1 +
-        '" data-echo="смотреть ' +
+        '" data-echo="' + t('cmd.look') + ' ' +
         p2 +
         '">' +
         p2 +
@@ -225,7 +226,7 @@ function manipParseAndReplace(span) {
           .addClass('manip-cmd')
           .addClass('manip-link')
           .attr('data-action', 'help ' + id)
-          .attr('data-echo', 'справка ' + id)
+          .attr('data-echo', t('cmd.help') + ' ' + id)
           .append(label)
           .get(0).outerHTML +
         '&nbsp;'.repeat(spaceEnd);
@@ -241,7 +242,7 @@ function manipParseAndReplace(span) {
       var result = $('<span/>')
         .addClass('manip-cmd')
         .attr('data-action', 'glist ' + article.text())
-        .attr('data-echo', 'группаумен ' + article.text())
+        .attr('data-echo', t('cmd.glist') + ' ' + article.text())
         .append(article);
       return result;
     });
@@ -256,7 +257,7 @@ function manipParseAndReplace(span) {
         .addClass('manip-cmd')
         .addClass('manip-speedwalk')
         .attr('data-action', 'run ' + article.text())
-        .attr('data-echo', 'бежать ' + article.text())
+        .attr('data-echo', t('cmd.run') + ' ' + article.text())
         .append(article);
       return result;
     });
