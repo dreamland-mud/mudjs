@@ -129,6 +129,15 @@ const STRINGS = {
     'term.historyLoaded': 'CHAT HISTORY LOADED',
     // input placeholder hint ("%s" = example command)
     'ph.example': 'Type a command, e.g.: %s',
+    // Echo verbs for clickable links. The command SENT is always the canonical
+    // English one; these are only what gets echoed into the player's own
+    // scrollback, so they follow the display language the way a typed command
+    // would. Values mirror <name l="..."> in dreamland_world/commands.
+    'cmd.read': 'read',
+    'cmd.look': 'look',
+    'cmd.help': 'help',
+    'cmd.glist': 'glist',
+    'cmd.run': 'run',
   },
   ru: {
     'aff.title': 'Воздействия на тебе',
@@ -193,6 +202,11 @@ const STRINGS = {
     'ov.unread': 'Непрочитано: %d',
     'term.historyLoaded': 'ИСТОРИЯ ЧАТА ЗАГРУЖЕНА',
     'ph.example': 'Введи команду, например: %s',
+    'cmd.read': 'читать',
+    'cmd.look': 'смотреть',
+    'cmd.help': 'помощь',
+    'cmd.glist': 'группаумений',
+    'cmd.run': 'бежать',
   },
   ua: {
     'aff.title': 'Впливи на тебе',
@@ -257,6 +271,11 @@ const STRINGS = {
     'ov.unread': 'Непрочитано: %d',
     'term.historyLoaded': 'ІСТОРІЯ ЧАТУ ЗАВАНТАЖЕНА',
     'ph.example': 'Введи команду, наприклад: %s',
+    'cmd.read': 'читати',
+    'cmd.look': 'дивитися',
+    'cmd.help': 'допомога',
+    'cmd.glist': 'групавмінь',
+    'cmd.run': 'бігти',
   },
 };
 
