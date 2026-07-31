@@ -1,11 +1,7 @@
 import $ from 'jquery';
-import areasJson from './data/areas.json';
 import { send, ws } from './websock.js';
 import { echo } from './input.js';
 import { t } from './i18n.js';
-
-// Create the list of all possible area file names (without ".are" bit).
-const areas = areasJson.map(a => a.file.replace('.are', ''));
 
 $(document).ready(function () {
   // Control panel buttons.
@@ -62,16 +58,23 @@ function colorParseAndReplace(span) {
 }
 
 function manipParseAndReplace(span) {
-  // Replace placeholders [map=filename.are] with buttons that open a map,
-  // or with an empty string, if area is not found in the areas.json.
+  /* Replace placeholders [map=filename.are] with a link to the zone's page on
+   * the maps site. It used to point at /maps/<file>.html -- the old per-zone
+   * static page, on the pre-redesign layout -- and was gated on a bundled
+   * areas.json that had gone stale at 129 of the game's 158 zones, so the ~29
+   * newest zones silently rendered no link at all. The marker only ever
+   * appears in a zone article, and every zone the game has is on the map page,
+   * so there is nothing left to gate on. */
   var html = span
     .html()
     .replace(/\[map=([-0-9a-z_]{1,15})\.are\]/g, function (match, p1, string) {
-      if (areas.indexOf(p1) === -1) return '';
       return (
-        '<a class="btn btn-sm btn-outline-info btn-orange" href="https://dreamland.rocks/maps/' +
+        '<a class="btn btn-sm btn-outline-info btn-orange" ' +
+        'href="https://dreamland.rocks/maps.html#' +
         p1 +
-        '.html" target=_blank>открыть карту</a>'
+        '" target=_blank>' +
+        t('help.openMap') +
+        '</a>'
       );
     });
 
