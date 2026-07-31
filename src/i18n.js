@@ -110,6 +110,7 @@ const STRINGS = {
     'help.title': 'Help search',
     'help.placeholder': 'Enter a keyword',
     'help.notFound': 'No help found',
+    'help.openMap': 'open the map',
     // vital bars
     'st.health': 'Health',
     'st.enemy': 'Enemy',
@@ -188,6 +189,7 @@ const STRINGS = {
     'help.title': 'Поиск по справке',
     'help.placeholder': 'Введи ключевое слово',
     'help.notFound': 'Справка не найдена',
+    'help.openMap': 'открыть карту',
     'st.health': 'Здоровье',
     'st.enemy': 'Противник',
     'st.mana': 'Мана',
@@ -257,6 +259,7 @@ const STRINGS = {
     'help.title': 'Пошук у довідці',
     'help.placeholder': 'Введи ключове слово',
     'help.notFound': 'Довідку не знайдено',
+    'help.openMap': 'відкрити мапу',
     'st.health': 'Здоровʼя',
     'st.enemy': 'Ворог',
     'st.mana': 'Мана',
