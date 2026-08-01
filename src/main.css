@@ -826,3 +826,17 @@ body.mud-fighting .terminal-wrap {
 body.mud-fighting form#input {
   border-color: #cc0000;
 }
+
+/* Combat actions in the button panel (commandButtons.jsx swaps the set while
+   fighting). Same red as the input stroke, so the whole client reads as one
+   state. Colour is never the only signal: these buttons carry different
+   commands and different labels, which is what a screen reader announces. */
+.btn-ctrl-panel.btn-combat {
+  background-color: #cc0000;
+  color: #fff;
+}
+
+.btn-ctrl-panel.btn-combat:hover {
+  background-color: #a30000;
+  color: #fff;
+}
