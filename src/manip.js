@@ -9,11 +9,8 @@ $(document).ready(function () {
     var cmd = $(e.currentTarget).attr('data-action');
     var conf = $(e.currentTarget).attr('data-confirm');
 
-    if (
-      conf !== undefined &&
-      !window.confirm('Вы действительно хотите ' + conf + '?')
-    )
-      return;
+    // data-confirm carries the whole question, already in the player's language.
+    if (conf !== undefined && !window.confirm(conf)) return;
 
     echo(cmd);
     send(cmd);
@@ -90,7 +87,7 @@ function manipParseAndReplace(span) {
       return (
         '<span class="manip-cmd manip-ed" data-action="read \'' +
         p1 +
-        '\'" data-echo="' + t('cmd.read') + ' ' +
+        '\'" data-echo="' + t('echo.read') + ' ' +
         p2 +
         '">' +
         p2 +
@@ -107,7 +104,7 @@ function manipParseAndReplace(span) {
       return (
         '<span class="manip-cmd manip-ed" data-action="look ' +
         p1 +
-        '" data-echo="' + t('cmd.look') + ' ' +
+        '" data-echo="' + t('echo.look') + ' ' +
         p2 +
         '">' +
         p2 +
@@ -229,7 +226,7 @@ function manipParseAndReplace(span) {
           .addClass('manip-cmd')
           .addClass('manip-link')
           .attr('data-action', 'help ' + id)
-          .attr('data-echo', t('cmd.help') + ' ' + id)
+          .attr('data-echo', t('echo.help') + ' ' + id)
           .append(label)
           .get(0).outerHTML +
         '&nbsp;'.repeat(spaceEnd);
@@ -245,7 +242,7 @@ function manipParseAndReplace(span) {
       var result = $('<span/>')
         .addClass('manip-cmd')
         .attr('data-action', 'glist ' + article.text())
-        .attr('data-echo', t('cmd.glist') + ' ' + article.text())
+        .attr('data-echo', t('echo.glist') + ' ' + article.text())
         .append(article);
       return result;
     });
@@ -260,7 +257,7 @@ function manipParseAndReplace(span) {
         .addClass('manip-cmd')
         .addClass('manip-speedwalk')
         .attr('data-action', 'run ' + article.text())
-        .attr('data-echo', t('cmd.run') + ' ' + article.text())
+        .attr('data-echo', t('echo.run') + ' ' + article.text())
         .append(article);
       return result;
     });

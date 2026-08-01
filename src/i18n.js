@@ -104,8 +104,9 @@ const STRINGS = {
     'cmd.magic': 'Spells',
     'cmd.skills': 'Skills',
     'cmd.quests': 'Quests',
+    'cmd.commands': 'Commands',
     'cmd.quit': 'Quit',
-    'cmd.quitConfirm': 'leave the world',
+    'cmd.quitConfirm': 'Really leave the world?',
     // help search panel
     'help.title': 'Help search',
     'help.placeholder': 'Enter a keyword',
@@ -133,12 +134,15 @@ const STRINGS = {
     // Echo verbs for clickable links. The command SENT is always the canonical
     // English one; these are only what gets echoed into the player's own
     // scrollback, so they follow the display language the way a typed command
-    // would. Values mirror <name l="..."> in dreamland_world/commands.
-    'cmd.read': 'read',
-    'cmd.look': 'look',
-    'cmd.help': 'help',
-    'cmd.glist': 'glist',
-    'cmd.run': 'run',
+    // would. Values mirror <name l="..."> in dreamland_world/commands. Kept in
+    // their own "echo." namespace: as "cmd.look" they silently overwrote the
+    // panel button label of the same key, since a later key wins in an object
+    // literal.
+    'echo.read': 'read',
+    'echo.look': 'look',
+    'echo.help': 'help',
+    'echo.glist': 'glist',
+    'echo.run': 'run',
   },
   ru: {
     'aff.title': 'Воздействия на тебе',
@@ -184,8 +188,9 @@ const STRINGS = {
     'cmd.magic': 'Магия',
     'cmd.skills': 'Умения',
     'cmd.quests': 'Задания',
+    'cmd.commands': 'Команды',
     'cmd.quit': 'Конец',
-    'cmd.quitConfirm': 'покинуть мир',
+    'cmd.quitConfirm': 'Действительно хочешь покинуть мир?',
     'help.title': 'Поиск по справке',
     'help.placeholder': 'Введи ключевое слово',
     'help.notFound': 'Справка не найдена',
@@ -204,11 +209,11 @@ const STRINGS = {
     'ov.unread': 'Непрочитано: %d',
     'term.historyLoaded': 'ИСТОРИЯ ЧАТА ЗАГРУЖЕНА',
     'ph.example': 'Введи команду, например: %s',
-    'cmd.read': 'читать',
-    'cmd.look': 'смотреть',
-    'cmd.help': 'помощь',
-    'cmd.glist': 'группаумений',
-    'cmd.run': 'бежать',
+    'echo.read': 'читать',
+    'echo.look': 'смотреть',
+    'echo.help': 'помощь',
+    'echo.glist': 'группаумений',
+    'echo.run': 'бежать',
   },
   ua: {
     'aff.title': 'Впливи на тебе',
@@ -254,8 +259,9 @@ const STRINGS = {
     'cmd.magic': 'Магія',
     'cmd.skills': 'Уміння',
     'cmd.quests': 'Завдання',
+    'cmd.commands': 'Команди',
     'cmd.quit': 'Вихід',
-    'cmd.quitConfirm': 'покинути світ',
+    'cmd.quitConfirm': 'Справді хочеш покинути світ?',
     'help.title': 'Пошук у довідці',
     'help.placeholder': 'Введи ключове слово',
     'help.notFound': 'Довідку не знайдено',
@@ -274,11 +280,11 @@ const STRINGS = {
     'ov.unread': 'Непрочитано: %d',
     'term.historyLoaded': 'ІСТОРІЯ ЧАТУ ЗАВАНТАЖЕНА',
     'ph.example': 'Введи команду, наприклад: %s',
-    'cmd.read': 'читати',
-    'cmd.look': 'дивитися',
-    'cmd.help': 'допомога',
-    'cmd.glist': 'групавмінь',
-    'cmd.run': 'бігти',
+    'echo.read': 'читати',
+    'echo.look': 'дивитися',
+    'echo.help': 'допомога',
+    'echo.glist': 'групавмінь',
+    'echo.run': 'бігти',
   },
 };
 
