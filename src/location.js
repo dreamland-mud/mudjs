@@ -49,6 +49,14 @@ function createPlaceholder(loc) {
   var roomhints = areahint[loc.vnum] || areahint['*'];
   if (!roomhints) return '';
 
+  // Hints are per language, because the player is meant to be able to type
+  // what we show them: a command only parses in their own display language.
+  // Russian is the fallback, the way it is everywhere else.
+  if (!Array.isArray(roomhints) && typeof roomhints === 'object') {
+    roomhints = roomhints[loc.lang] || roomhints.ru;
+    if (!roomhints) return '';
+  }
+
   if (typeof roomhints === 'string') return roomhints;
 
   if (Array.isArray(roomhints)) {
