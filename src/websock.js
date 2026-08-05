@@ -38,6 +38,19 @@ function rpccmd(cmd, ...args) {
 }
 
 function send(text) {
+  /* Between "this socket is suspect" and "the resume landed" there is a second
+   * or two in which ws.send() reports success into a connection that is
+   * already gone. That window swallowed the player's first command after every
+   * switch back to the tab, silently. Hold the line instead and replay it once
+   * the session is verifiably back. */
+  if (resumeToken() && !socketProven()) {
+    // Bounded: if the reconnect never lands, this is a player typing into a
+    // void, and only the last few lines could still be worth replaying.
+    if (pending.length >= PENDING_MAX) pending.shift();
+    pending.push({ text: text, at: Date.now() });
+    return;
+  }
+
   rpccmd('console_in', text + '\n');
 }
 
@@ -136,13 +149,41 @@ function wsAlive() {
  * closing it ourselves starts the silent resume that much sooner.
  */
 const PONG_WAIT = 2000;
+/* Past this much time away, a phone has almost certainly had its connection
+ * torn down, and waiting out a probe only to conclude that is time the player
+ * spends watching a dead prompt. Replace the socket at once instead -- resume
+ * makes the difference invisible either way. */
+const STALE_AFTER = 10000;
+/* Replaying something typed much longer ago would act on a situation the
+ * player has since left. */
+const PENDING_TTL = 15000;
+const PENDING_MAX = 20;
+
 let probeTimer = null;
+let hiddenAt = 0;
+let pending = [];
+
+/** True when the socket is not merely open but known to be carrying traffic. */
+function socketProven() {
+  return !probeTimer && ws && ws.readyState === WebSocket.OPEN;
+}
 
 function cancelProbe() {
   if (probeTimer) {
     clearTimeout(probeTimer);
     probeTimer = null;
   }
+}
+
+function flushPending() {
+  const lines = pending;
+  const now = Date.now();
+
+  pending = [];
+
+  lines.forEach(function (line) {
+    if (now - line.at <= PENDING_TTL) rpccmd('console_in', line.text + '\n');
+  });
 }
 
 function probeSocket() {
@@ -180,9 +221,20 @@ function probeSocket() {
 /* Either the socket is alive and worth probing, or it is already gone and
  * worth replacing. Shared by the two events that mean "the player is back". */
 function verifyConnection() {
+  const away = hiddenAt ? Date.now() - hiddenAt : 0;
+
+  hiddenAt = 0;
+
   if (!resumeToken()) return;
 
   if (wsAlive()) {
+    // A long absence needs no asking; a short one might still be fine.
+    if (away > STALE_AFTER && ws.readyState === WebSocket.OPEN) {
+      reconnectDelay = 500;
+      ws.close();
+      return;
+    }
+
     probeSocket();
     return;
   }
@@ -211,8 +263,12 @@ function connect() {
 
   ws.onmessage = function (e) {
     // Traffic in this direction is the proof a probe was after; the reply need
-    // not be the pong itself, and on an older server it will not be.
-    cancelProbe();
+    // not be the pong itself, and on an older server it will not be. The
+    // socket was fine all along, so anything held back can go now.
+    if (probeTimer) {
+      cancelProbe();
+      flushPending();
+    }
 
     const b = JSON.parse(utf8Decoder.decode(e.data));
 
@@ -272,12 +328,20 @@ $(document).ready(function () {
       // Straight back into the character: no banner, no login, and the
       // scrollback in this tab is still the one the player left.
       reconnectDelay = 0;
+      flushPending();
     })
     .on('rpc-resume_failed', function () {
       // Spent, expired, or the character has left the world. Ordinary session.
+      // Held lines are dropped rather than replayed: what the server asks for
+      // next is a login, and a queued command would be typed into it.
+      pending = [];
       setResumeToken(null);
       send('1');
     });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') hiddenAt = Date.now();
+  });
 
   /* A suspended tab often learns its socket is dead only once it wakes, so do
    * not wait for onclose to fire -- check on the way back in. */
