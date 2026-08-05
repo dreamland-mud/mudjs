@@ -2,7 +2,6 @@ import $ from 'jquery';
 import PropertiesStorage from './properties';
 import { connect } from './websock';
 import lastLocation from './location';
-import getSessionId from './sessionid.js';
 import historydb from './historydb';
 import { startAutoUpdate } from './autoupdate';
 
@@ -17,7 +16,6 @@ import './cs';
 
 import './main.css';
 
-const sessionId = getSessionId();
 let propertiesStorage = PropertiesStorage;
 
 $(window).bind('beforeunload', function () {
@@ -82,9 +80,14 @@ $(document).ready(function () {
       return;
     }
 
+    /* Open the zone on the maps page of the current site. This used to point at
+     * /maps/<zone>.html?sessionId=... -- the pre-redesign per-zone page, which is
+     * now only served by the legacy Russian site, so an English or Ukrainian
+     * player landed on a Russian page. The redesigned page selects the zone from
+     * the hash (see manip.js, which already links this way) and has no GPS
+     * follower, so sessionId has nothing left to feed. */
     var basefilename = lastLocation().area.replace(/\.are$/, '');
-    var mapfile = '/maps/' + basefilename + '.html?sessionId=' + sessionId;
-    window.open(mapfile);
+    window.open('https://dreamland.rocks/maps.html#' + basefilename);
   });
 
   connect();
