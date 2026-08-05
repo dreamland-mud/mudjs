@@ -123,6 +123,74 @@ function wsAlive() {
   );
 }
 
+/* readyState is not evidence.
+ *
+ * A phone tears the connection down while the tab is suspended, and the tab
+ * comes back with readyState still OPEN over a socket that is already gone --
+ * the browser only finds out when its own TCP timeout expires, a minute or
+ * more later. For that whole minute the client looks connected and every
+ * command the player types goes nowhere.
+ *
+ * So on the way back in, ask the server to say something. Anything arriving
+ * clears the probe; silence means the socket is dead whatever it claims, and
+ * closing it ourselves starts the silent resume that much sooner.
+ */
+const PONG_WAIT = 2000;
+let probeTimer = null;
+
+function cancelProbe() {
+  if (probeTimer) {
+    clearTimeout(probeTimer);
+    probeTimer = null;
+  }
+}
+
+function probeSocket() {
+  if (probeTimer) return;
+
+  // OPEN, not merely wsAlive(): sending on a CONNECTING socket throws, and a
+  // connection still being set up needs no probe -- it resolves on its own.
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+  const probed = ws;
+
+  try {
+    rpccmd('ping');
+  } catch (e) {
+    // It died between the check and the send. That is an answer too.
+    ws.close();
+    return;
+  }
+
+  probeTimer = setTimeout(function () {
+    probeTimer = null;
+
+    // Someone already replaced the socket we were asking about.
+    if (ws !== probed || !wsAlive()) return;
+
+    /* Give the server a moment to notice the close and let go of the
+     * character before we ask for it back: resume is refused while the old
+     * descriptor is still attached, and on a server without the matching fix
+     * that refusal also spends the token. */
+    reconnectDelay = 500;
+    ws.close();
+  }, PONG_WAIT);
+}
+
+/* Either the socket is alive and worth probing, or it is already gone and
+ * worth replacing. Shared by the two events that mean "the player is back". */
+function verifyConnection() {
+  if (!resumeToken()) return;
+
+  if (wsAlive()) {
+    probeSocket();
+    return;
+  }
+
+  reconnectDelay = 0;
+  scheduleReconnect();
+}
+
 function scheduleReconnect() {
   if (reconnectTimer) return;
 
@@ -142,6 +210,10 @@ function connect() {
   ws.binaryType = 'arraybuffer';
 
   ws.onmessage = function (e) {
+    // Traffic in this direction is the proof a probe was after; the reply need
+    // not be the pong itself, and on an older server it will not be.
+    cancelProbe();
+
     const b = JSON.parse(utf8Decoder.decode(e.data));
 
     $('#rpc-events').trigger('rpc-' + b.command, b.args);
@@ -167,6 +239,7 @@ function connect() {
   };
 
   ws.onclose = function () {
+    cancelProbe();
     ws = null;
     store.dispatch(onDisconnected());
 
@@ -210,16 +283,10 @@ $(document).ready(function () {
    * not wait for onclose to fire -- check on the way back in. */
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState !== 'visible') return;
-    if (wsAlive() || !resumeToken()) return;
-    reconnectDelay = 0;
-    scheduleReconnect();
+    verifyConnection();
   });
 
-  window.addEventListener('online', function () {
-    if (wsAlive() || !resumeToken()) return;
-    reconnectDelay = 0;
-    scheduleReconnect();
-  });
+  window.addEventListener('online', verifyConnection);
 });
 
 export { send, rpccmd, connect, ws };
