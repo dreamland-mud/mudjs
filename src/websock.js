@@ -149,11 +149,13 @@ function wsAlive() {
  * closing it ourselves starts the silent resume that much sooner.
  */
 const PONG_WAIT = 2000;
-/* Past this much time away, a phone has almost certainly had its connection
- * torn down, and waiting out a probe only to conclude that is time the player
- * spends watching a dead prompt. Replace the socket at once instead -- resume
- * makes the difference invisible either way. */
+/* Past this much time away a phone has almost certainly had its connection torn
+ * down -- but a desktop tab left in the background has not, and discarding a
+ * working socket there costs a visible reconnect for nothing. Length of absence
+ * is evidence, not proof, so it buys a shorter wait rather than skipping the
+ * question: on a live socket the answer comes back in milliseconds anyway. */
 const STALE_AFTER = 10000;
+const PONG_WAIT_STALE = 750;
 /* Replaying something typed much longer ago would act on a situation the
  * player has since left. */
 const PENDING_TTL = 15000;
@@ -186,7 +188,7 @@ function flushPending() {
   });
 }
 
-function probeSocket() {
+function probeSocket(wait) {
   if (probeTimer) return;
 
   // OPEN, not merely wsAlive(): sending on a CONNECTING socket throws, and a
@@ -215,7 +217,7 @@ function probeSocket() {
      * that refusal also spends the token. */
     reconnectDelay = 500;
     ws.close();
-  }, PONG_WAIT);
+  }, wait || PONG_WAIT);
 }
 
 /* Either the socket is alive and worth probing, or it is already gone and
@@ -228,14 +230,7 @@ function verifyConnection() {
   if (!resumeToken()) return;
 
   if (wsAlive()) {
-    // A long absence needs no asking; a short one might still be fine.
-    if (away > STALE_AFTER && ws.readyState === WebSocket.OPEN) {
-      reconnectDelay = 500;
-      ws.close();
-      return;
-    }
-
-    probeSocket();
+    probeSocket(away > STALE_AFTER ? PONG_WAIT_STALE : PONG_WAIT);
     return;
   }
 
