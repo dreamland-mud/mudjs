@@ -20,14 +20,16 @@ const TimeRow = ({ h, tod, l }) => (
 );
 
 /**
- * Prompt date fields: d - day, m - month, y - year.
+ * Prompt date fields: d - day, m - month, s - season, y - year.
+ * The year is deliberately not shown: it never changes within a session, while
+ * the season does and is worth the space. It still arrives in the prompt.
  */
-const DateRow = ({ d, m, y }) => (
+const DateRow = ({ d, m, s }) => (
   <TableRow>
     <TableCell sx={{ textAlign: 'left' }}>
       <i className="fa">&#xf073;</i>
     </TableCell>
-    <TableCell>{`${d} / ${m} / ${y}`}</TableCell>
+    <TableCell>{`${d} / ${m}`}{s && ` / ${s}`}</TableCell>
   </TableRow>
 );
 
