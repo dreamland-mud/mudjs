@@ -57,6 +57,10 @@ function colorParseAndReplace(span) {
 // Command shapes an <hc cmd='...'> attribute is allowed to send blind, because
 // the server generates them and a player cannot forge one that matters. Keep
 // every entry anchored and as narrow as the thing that emits it.
+//
+// 🛑 An entry here also inherits a VISUAL trust signal: allowlisted links are
+// painted like speedwalks, so whatever you add starts looking like a safe
+// navigation command to the player. Only add commands for which that is true.
 var SAFE_HC_COMMANDS = [
   /^path \d{1,7}$/, // clickable room names in 'where' output
 ];
@@ -212,10 +216,10 @@ function manipParseAndReplace(span) {
         .attr('data-action', action)
         .attr('data-echo', action)
         .append(cmd);
-      // Everything the allowlist admits is a navigation command, and 'path'
-      // already paints its own answers with the speedwalk styling -- yellow with
-      // a lighter hover. Reusing the class rather than cloning its colours keeps
-      // the two in step if either is ever restyled.
+      // Allowlisted links get the speedwalk styling -- yellow with a lighter
+      // hover, the same look 'path' gives its answers. Reusing the class rather
+      // than cloning its colours keeps the two in step if either is restyled.
+      // The rule this leans on lives with SAFE_HC_COMMANDS, not here.
       if (explicitAction) result.addClass('manip-speedwalk');
       return result;
     });
