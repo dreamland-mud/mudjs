@@ -54,6 +54,23 @@ function colorParseAndReplace(span) {
   });
 }
 
+// Command shapes an <hc cmd='...'> attribute is allowed to send blind, because
+// the server generates them and a player cannot forge one that matters. Keep
+// every entry anchored and as narrow as the thing that emits it.
+var SAFE_HC_COMMANDS = [
+  /^path \d{1,7}$/, // clickable room names in 'where' output
+];
+
+function safeExplicitAction(value) {
+  if (!value) return null;
+
+  var safe = SAFE_HC_COMMANDS.some(function (re) {
+    return re.test(value);
+  });
+
+  return safe ? value : null;
+}
+
 function manipParseAndReplace(span) {
   /* Replace placeholders [map=filename.are] with a link to the zone's page on
    * the maps site. It used to point at /maps/<file>.html -- the old per-zone
@@ -174,9 +191,19 @@ function manipParseAndReplace(span) {
   // Replace "<hc>command</hc>" tags surrounding commands to send as is.
   // With a cmd attribute -- "<hc cmd='path 3001'>Market Square</hc>" -- the
   // label and the command it sends are allowed to differ.
+  //
+  // That split is only safe behind an allowlist. Player-typed text reaches other
+  // players with its {h tags intact (the server strips them in exactly one
+  // place, title.cpp, because titles are player-controlled), so an arbitrary cmd
+  // attribute would be a phishing tool: an innocent-looking room name hiding
+  // "give all.coins Vasya", sent from the reader's own character on one click,
+  // with the echo revealing it only afterwards. A rejected cmd falls back to the
+  // label, which is the pre-existing behaviour and merely answers "Huh?".
+  //
+  // Adding a use of the cmd attribute on the server means adding its shape here.
   span.find('hc').each(function (index) {
     var cmd = $(this).contents();
-    var explicitAction = $(this).attr('cmd');
+    var explicitAction = safeExplicitAction($(this).attr('cmd'));
 
     $(this).replaceWith(function () {
       var action = explicitAction || cmd.text();
