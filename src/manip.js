@@ -212,6 +212,11 @@ function manipParseAndReplace(span) {
         .attr('data-action', action)
         .attr('data-echo', action)
         .append(cmd);
+      // Everything the allowlist admits is a navigation command, and 'path'
+      // already paints its own answers with the speedwalk styling -- yellow with
+      // a lighter hover. Reusing the class rather than cloning its colours keeps
+      // the two in step if either is ever restyled.
+      if (explicitAction) result.addClass('manip-speedwalk');
       return result;
     });
   });
