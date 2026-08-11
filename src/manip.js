@@ -172,11 +172,14 @@ function manipParseAndReplace(span) {
   span.html(html);
 
   // Replace "<hc>command</hc>" tags surrounding commands to send as is.
+  // With a cmd attribute -- "<hc cmd='path 3001'>Market Square</hc>" -- the
+  // label and the command it sends are allowed to differ.
   span.find('hc').each(function (index) {
     var cmd = $(this).contents();
+    var explicitAction = $(this).attr('cmd');
 
     $(this).replaceWith(function () {
-      var action = cmd.text();
+      var action = explicitAction || cmd.text();
       var result = $('<span/>')
         .addClass('manip-cmd')
         .attr('data-action', action)
