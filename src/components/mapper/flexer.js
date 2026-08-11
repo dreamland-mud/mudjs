@@ -27,9 +27,25 @@ export function resolveFlexer(text, sex) {
 }
 
 /**
+ * Resolve the name/description pair of one entity. Returns null when nothing changed,
+ * so callers can keep the original object and its identity.
+ */
+function resolveEntity(entity, sex) {
+  if (entity == null) return null;
+  const name = resolveFlexer(entity.name, sex);
+  const description = resolveFlexer(entity.description, sex);
+  if (name === entity.name && description === entity.description) return null;
+  return { ...entity, name, description };
+}
+
+/**
  * Return a copy of an area layout with every room name/description resolved for `sex`.
  * Layouts without any flexer switch (the common case) are returned by identity, so the
  * heavy d3 map and downstream effects don't see a fresh object on every sex/area tick.
+ *
+ * The base fields are the RUSSIAN text. An en/ua player reads room.i18n[loc] instead
+ * (i18n.ts nameFor/descFor), and those overrides carry their own switches -- resolve
+ * them too, or the map shows raw {Sm…{Sf…{Sx to everyone outside RU.
  */
 export function resolveLayoutFlexer(layout, sex) {
   if (layout == null) return layout;
@@ -37,10 +53,22 @@ export function resolveLayoutFlexer(layout, sex) {
   const rooms = {};
   for (const vnum in layout.rooms) {
     const room = layout.rooms[vnum];
-    const name = resolveFlexer(room.name, sex);
-    const description = resolveFlexer(room.description, sex);
-    if (name !== room.name || description !== room.description) {
-      rooms[vnum] = { ...room, name, description };
+    const base = resolveEntity(room, sex);
+
+    let i18n = null;
+    if (room.i18n != null) {
+      const en = resolveEntity(room.i18n.en, sex);
+      const ua = resolveEntity(room.i18n.ua, sex);
+      if (en != null || ua != null) {
+        i18n = { ...room.i18n };
+        if (en != null) i18n.en = en;
+        if (ua != null) i18n.ua = ua;
+      }
+    }
+
+    if (base != null || i18n != null) {
+      rooms[vnum] = { ...(base || room) };
+      if (i18n != null) rooms[vnum].i18n = i18n;
       touched = true;
     } else {
       rooms[vnum] = room;

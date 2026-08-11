@@ -814,6 +814,31 @@ form#input {
 body.mud-fighting .terminal-wrap {
   animation: combat-heartbeat 1.15s infinite;
 }
+/* Berserk / frenzy: the same beat with ~3.5x the reach and ~3.5x the alpha, so the
+   blood covers the view instead of hinting at the edges. combatui.js sets .mud-rage
+   only together with .mud-fighting; the compound selector keeps it winning here. */
+@keyframes combat-heartbeat-rage {
+  0% {
+    box-shadow:
+      inset 0 0 330px 0 rgba(204, 0, 0, 0.45),
+      inset 0 0 660px 0 rgba(204, 0, 0, 0.21);
+    animation-timing-function: linear;
+  }
+  14% {
+    box-shadow:
+      inset 0 0 575px 0 rgba(204, 0, 0, 0.84),
+      inset 0 0 1150px 0 rgba(204, 0, 0, 0.42);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    box-shadow:
+      inset 0 0 330px 0 rgba(204, 0, 0, 0.45),
+      inset 0 0 660px 0 rgba(204, 0, 0, 0.21);
+  }
+}
+body.mud-fighting.mud-rage .terminal-wrap {
+  animation-name: combat-heartbeat-rage;
+}
 /* Respect reduced-motion: hold a steady mid-strength glow instead of pulsing. */
 @media (prefers-reduced-motion: reduce) {
   body.mud-fighting .terminal-wrap {
@@ -821,6 +846,15 @@ body.mud-fighting .terminal-wrap {
     box-shadow:
       inset 0 0 150px 0 rgba(204, 0, 0, 0.2),
       inset 0 0 300px 0 rgba(204, 0, 0, 0.1);
+  }
+  body.mud-fighting.mud-rage .terminal-wrap {
+    /* The rage rule above out-specifies `animation: none`, so kill the name here
+       too. Without this, giving that rule a duration would silently restore the
+       pulse for people who asked for no motion. */
+    animation-name: none;
+    box-shadow:
+      inset 0 0 525px 0 rgba(204, 0, 0, 0.7),
+      inset 0 0 1050px 0 rgba(204, 0, 0, 0.35);
   }
 }
 body.mud-fighting form#input {
