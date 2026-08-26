@@ -229,6 +229,9 @@ td.v-bottom {
   padding-left: 5px;
   padding-right: 5px;
   padding-bottom: 5px;
+  /* content-sized so columns pack side-by-side and wrap to fit the widget
+     width, instead of the shared 100% that forced overflow/one-per-row */
+  width: auto;
 }
 
 #questor-table p {
@@ -505,12 +508,10 @@ td.v-bottom {
 /*
  * Custom definition of flex with all the prefixes defined.
  */
-/* Replacing flex wrap with stretching
-/*
 .flexcontainer-wrap {
     flex-wrap: wrap;
     -webkit-flex-wrap: wrap;
-}*/
+}
 
 .flex-grow-shrink-auto {
   -webkit-box-flex: 1 1 0%;
