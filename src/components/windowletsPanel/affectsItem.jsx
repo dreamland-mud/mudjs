@@ -19,16 +19,20 @@ function hasAffects(block) {
     return Array.isArray(block) && block.length > 0;
 }
 
-// Color one affect by its remaining duration `d` (ticks; -1 = permanent). This only
-// adds two overrides on top of the column's base color (red maladictions / green buffs):
-//   permanent    -> light cyan  ({C, ANSI bright 6)
-//   about to expire (<= 1 tick) -> yellow (bright 3)
-//   otherwise    -> column base color (unchanged: red maladictions, green buffs)
+// Color one affect by its remaining duration `d` (ticks). Negative durations are
+// non-expiring: -1 = permanent, -2 = bound to worn equipment (set bonuses) -- both
+// are stable, so both read as cyan, not as "about to expire".
+//   maladictions (red column) -> always red: a curse ending is not a buff-warning,
+//                                and a permanent curse is still bad news
+//   permanent / equipment-bound (d < 0) -> light cyan  ({C, ANSI bright 6)
+//   buff about to expire (0-1 ticks)     -> yellow (bright 3)
+//   otherwise                            -> column base color (green buffs)
 function affColor(aff, baseColor) {
     const d = aff.d;
-    if (d === -1) return 'fg-ansi-bright-color-6';            // permanent -> cyan
-    if (d != null && d <= 1) return 'fg-ansi-bright-color-3'; // about to expire -> yellow
-    return 'fg-ansi-bright-color-' + baseColor;               // otherwise -> column base
+    if (baseColor === '1') return 'fg-ansi-bright-color-1';               // maladictions -> always red
+    if (d != null && d < 0) return 'fg-ansi-bright-color-6';             // permanent / set-bound -> cyan
+    if (d != null && d >= 0 && d <= 1) return 'fg-ansi-bright-color-3';  // about to expire -> yellow
+    return 'fg-ansi-bright-color-' + baseColor;                          // otherwise -> column base
 }
 
 // Draw one column: the server already localized each affect's label `n`.
