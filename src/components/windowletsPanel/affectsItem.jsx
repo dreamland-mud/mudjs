@@ -38,7 +38,7 @@ function affColor(aff, baseColor) {
 // Draw one column: the server already localized each affect's label `n`.
 function AffectBlock(props) {
     const rows = props.block.map(function (aff, idx) {
-        return <span key={idx} className={affColor(aff, props.color)}>{aff.n}</span>;
+        return <span key={idx} className={'aff-chip ' + affColor(aff, props.color)}>{aff.n}</span>;
     });
 
     if (rows.length === 0) return null;
