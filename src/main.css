@@ -234,6 +234,15 @@ td.v-bottom {
   width: auto;
 }
 
+/* Auto-fallback affect labels (server webAbbrev) arrive lowercase -- the skill's
+   own name -- while curated <webLabel>s are already capitalized. Title-case the
+   chip so both paths read the same, e.g. "aid" -> "Aid". Browser capitalize is
+   Unicode-aware, so Cyrillic first letters case correctly too. Chips are single
+   words; column headers have no .aff-chip class, so they are untouched. */
+#player-affects-table .aff-chip {
+  text-transform: capitalize;
+}
+
 #questor-table p {
   padding: 4px 4px 0px 4px;
 }
