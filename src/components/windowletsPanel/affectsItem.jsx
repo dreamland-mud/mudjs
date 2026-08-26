@@ -7,11 +7,11 @@ import { t } from '../../i18n';
 // Duration only adds two overrides on top: permanent = cyan (6), about to expire = yellow (3).
 // See affColor().
 const COLUMNS = [
+    { key: 'mal', type: 'malad',   color: '1' },   // maladictions/curses first: bad news leads
     { key: 'pro', type: 'protect', color: '2' },
     { key: 'det', type: 'detects', color: '2' },
     { key: 'trv', type: 'travel',  color: '2' },
     { key: 'enh', type: 'enhance', color: '2' },
-    { key: 'mal', type: 'malad',   color: '1' },
     { key: 'cln', type: 'clan',    color: '2' },
 ];
 
