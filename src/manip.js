@@ -9,6 +9,10 @@ $(document).ready(function () {
     var cmd = $(e.currentTarget).attr('data-action');
     var conf = $(e.currentTarget).attr('data-confirm');
 
+    // Buttons with no data-action (e.g. the autobuff button, which runs its own
+    // onClick) must not fall through to sending the literal string "undefined".
+    if (cmd === undefined) return;
+
     // data-confirm carries the whole question, already in the player's language.
     if (conf !== undefined && !window.confirm(conf)) return;
 

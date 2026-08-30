@@ -2,6 +2,7 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import PanelItem from './panelItem'
 import { t } from '../../i18n'
+import { runAutobuff, autobuffHasEntries } from '../sysCommands/autobuff'
 
 // What each button actually sends. The interpreter resolves command names in
 // every language it knows, so a button speaks the player's own: manip.js echoes
@@ -40,6 +41,22 @@ function Btn({ action, label, confirm, combat }) {
       className={'btn btn-ctrl-panel' + (combat ? ' btn-combat' : '')}
       data-action={action}
       data-confirm={confirm}
+    >
+      {label}
+    </button>
+  )
+}
+
+// The autobuff button doesn't send a plain command: it calls runAutobuff(),
+// which fires the server RPC plus the player's manual entries. It carries no
+// data-action, so manip.js's .btn-ctrl-panel click handler no-ops on it.
+function AutobuffBtn({ label }) {
+  return (
+    <button
+      type="button"
+      className="btn btn-ctrl-panel"
+      aria-label={label}
+      onClick={() => runAutobuff()}
     >
       {label}
     </button>
@@ -87,6 +104,12 @@ export default function CommandButtons() {
       .map(key => std(key))
       .concat(std('quit', t('cmd.quitConfirm', l)))
   }
+
+  // Autobuff button: show for casters (webprompt 'sp' > 0, or an older server
+  // that omits the field) and for anyone keeping manual autobuff entries -- a
+  // non-caster with a pet buffer. Prepended so the survivability tool sits first.
+  if (prompt.sp !== 0 || autobuffHasEntries())
+    items = [<AutobuffBtn key="autobuff" label={t('cmd.autobuff', l)} />].concat(items)
 
   // Two columns, filled top-down: the taller one first, so an odd count leaves
   // the gap on the right where the eye expects it.

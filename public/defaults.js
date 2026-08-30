@@ -189,24 +189,12 @@ keydown=function(e) {
             }
             break;
             
-/*
-        case 192: // 192 -- код кнопки ~ (тильда)
-            // Пример автобаффа: проверяем какие аффекты отсутствуют и вешаем их.
-            if (mudprompt.enh === 'none' || mudprompt.enh.a.indexOf("l") == -1)
-                send("c learning");                    
-            if (mudprompt.enh === 'none' || mudprompt.enh.a.indexOf("g") == -1)
-                send("c giant");
-            if (mudprompt.enh === 'none' || mudprompt.enh.a.indexOf("f") == -1)
-                send("c frenzy");
-            if (mudprompt.enh === 'none' || mudprompt.enh.a.indexOf("h") == -1)
-                send("order rat c haste fiorine");  // Тут подставьте ваше имя.
-            if (mudprompt.pro === 'none' || mudprompt.pro.a.indexOf("p") == -1)
-                send("c 'prot shield'");
-            if (mudprompt.pro === 'none' || mudprompt.pro.a.indexOf("s") == -1)
-                send("c sanctuary");
-            // ... и так далее 
+        case 192: // 192 -- код кнопки ~ (тильда): автобафф
+            // Накладывает все доступные усиления (серверная часть считается
+            // сама) плюс твои ручные строки из #autobuff. Хочешь добавить свое
+            // прямо сюда -- дописывай ниже, например: send("улыбнуться");
+            autobuff();
             break;
-*/
 
 /*
         case KP_0:
