@@ -2,6 +2,7 @@ import $ from 'jquery';
 import loader from '@monaco-editor/loader';
 import { send } from './websock.js';
 import notify from './notify.js';
+import { runAutobuff } from './components/sysCommands/autobuff';
 
 const echo = txt => {
   $('.terminal').trigger('output', [txt]);
@@ -12,7 +13,7 @@ let keydown = function (e) {};
 const applySettings = s => {
   const settings = `return function(params) {
     'use strict';
-    let { keydown, notify, send, echo, $, mudprompt } = params;
+    let { keydown, notify, send, echo, $, mudprompt, autobuff } = params;
     (function() { ${s} })();
     return { keydown };
   }`;
@@ -24,6 +25,7 @@ const applySettings = s => {
     echo,
     $,
     mudprompt: window.mudprompt,
+    autobuff: runAutobuff,
   });
 
   keydown = exports.keydown;

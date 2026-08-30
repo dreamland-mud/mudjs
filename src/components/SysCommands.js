@@ -1,10 +1,13 @@
 import $ from 'jquery';
+import { parseStringCmd, clickableLink, echoHtml } from './sysCommandUtils'
+export { parseStringCmd, clickableLink, echoHtml }
 import hotkeyCmd, { hotkeyHelp } from './sysCommands/hotkey'
 import propertiesCmd, { settingsHelp } from './sysCommands/userProperties'
 import helpCmd, { helpHelp } from './sysCommands/help'
 import varCmd, { varHelp } from './sysCommands/var'
 import deleteCmd, { deleteHelp } from './sysCommands/delete'
 import actionCmd, { actionHelp } from './sysCommands/action'
+import autobuffCmd, { autobuffHelp } from './sysCommands/autobuff'
 
 const multiCmdHelp = {
     title: `Выполнить указанную команду несколько раз, подробнее ${clickableLink('#help multiCmd')}`,
@@ -24,10 +27,20 @@ const cmdAliases = {
     'кнопка' : 'hotkey',
     'настройки' : 'settings',
     'переменная' : 'var',
-    'действие' : 'action'
+    'действие' : 'action',
+    'автобафф' : 'autobuff'
 }
 
 const Commands = {
+    autobuff: {
+        payload: function(value) {
+            autobuffCmd(value)
+        },
+        help: {
+            title: autobuffHelp.title,
+            description: autobuffHelp.description
+        }
+    },
     action: {
         payload: function(value) {
             actionCmd(value)
@@ -127,15 +140,6 @@ export function getSystemCmdAliases(cmd) {
 
 export const errCmdDoesNotExist = `Этой команды не существует, набери ${clickableLink('#help')} для получения списка доступных команд. \n`
 
-export function clickableLink(cmd) {
-    return `<span class="builtin-cmd manip-link" data-action="${cmd}" data-echo="${cmd}">${cmd}</span>`
-}
-
-export function parseStringCmd(value) {
-    const stringCmd = value.trim().split(' ')
-    return stringCmd
-}
-
 export function splitCommand(value) {
     const sysCmd = value.split(' ')[0].substr(1);
     const sysCmdArgs = value.split(' ').slice(1).join(' ');
@@ -143,11 +147,6 @@ export function splitCommand(value) {
         sysCmd: sysCmd,
         sysCmdArgs: sysCmdArgs
     }
-}
-
-export function echoHtml(html) {
-    if (!html) return
-    $('.terminal').trigger('output-html', html)
 }
 
 export default  Commands
