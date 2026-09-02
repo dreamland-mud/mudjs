@@ -786,13 +786,20 @@ header.MuiPaper-root.MuiAppBar-root {
   }
 }
 
-/* --- Combat UI accent -------------------------------------------------------
- * src/combatui.js toggles body.mud-fighting while the player is fighting.
- * Paint a red stroke on the command input and a faint red inner glow around the
- * terminal so it's obvious combat is live; both fade in/out and revert the
- * instant combat ends. Placed last so it overrides the cyan focus stroke
- * (higher specificity than form#input:focus-within). The input border only
- * exists on big screens, so the red stroke shows there; the glow shows on all.
+/* --- State UI accent --------------------------------------------------------
+ * src/combatui.js resolves the player's most urgent state to body[data-glow]
+ * (blind > mind > rage > fight > poison > fade > hide) and, separately, toggles
+ * body.mud-fighting for the red input stroke + red command buttons. Here we draw
+ * one coloured inner vignette per state on .terminal-wrap: it fades in/out and
+ * reverts the instant the state clears. Placed last so it overrides the cyan
+ * focus stroke (higher specificity than form#input:focus-within). Colour is never
+ * the only signal -- the affects panel and the game messages carry the real state
+ * for screen readers; this is ambient flavour on top.
+ *   blind  -> white, heavy pulse (any AFF_BLIND: blindness spell, dirt kick...)
+ *   mind   -> purple, slow woozy pulse (charmed / asleep / stunned)
+ *   fight  -> red heartbeat        (rage -> heavier red heartbeat)
+ *   poison -> green, slow sick pulse
+ *   fade   -> heavy grey, steady   (hide -> light grey, steady)
  */
 .terminal-wrap,
 form#input {
@@ -821,12 +828,13 @@ form#input {
       inset 0 0 190px 0 rgba(204, 0, 0, 0.06);
   }
 }
-body.mud-fighting .terminal-wrap {
+body[data-glow="fight"] .terminal-wrap {
   animation: combat-heartbeat 1.15s infinite;
 }
 /* Berserk / frenzy: the same beat with ~3.5x the reach and ~3.5x the alpha, so the
-   blood covers the view instead of hinting at the edges. combatui.js sets .mud-rage
-   only together with .mud-fighting; the compound selector keeps it winning here. */
+   blood covers the view instead of hinting at the edges. Its own data-glow state
+   (combatui.js sets "rage" instead of "fight" while raging), so a full animation
+   here, not just an animation-name override. */
 @keyframes combat-heartbeat-rage {
   0% {
     box-shadow:
@@ -846,25 +854,112 @@ body.mud-fighting .terminal-wrap {
       inset 0 0 660px 0 rgba(204, 0, 0, 0.21);
   }
 }
-body.mud-fighting.mud-rage .terminal-wrap {
-  animation-name: combat-heartbeat-rage;
+body[data-glow="rage"] .terminal-wrap {
+  animation: combat-heartbeat-rage 1.15s infinite;
 }
-/* Respect reduced-motion: hold a steady mid-strength glow instead of pulsing. */
+/* Blind: white and heavy, berserk-strength -- the whole view washes out, the way
+   losing your sight should feel. Same heartbeat rhythm as rage; peak alpha pulled
+   a touch under rage's so light terminal text stays legible against the white. */
+@keyframes glow-blind {
+  0% {
+    box-shadow:
+      inset 0 0 330px 0 rgba(255, 255, 255, 0.40),
+      inset 0 0 660px 0 rgba(255, 255, 255, 0.19);
+    animation-timing-function: linear;
+  }
+  14% {
+    box-shadow:
+      inset 0 0 575px 0 rgba(255, 255, 255, 0.72),
+      inset 0 0 1150px 0 rgba(255, 255, 255, 0.36);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    box-shadow:
+      inset 0 0 330px 0 rgba(255, 255, 255, 0.40),
+      inset 0 0 660px 0 rgba(255, 255, 255, 0.19);
+  }
+}
+body[data-glow="blind"] .terminal-wrap {
+  animation: glow-blind 1.15s infinite;
+}
+/* Mind (charmed / asleep / stunned): a slow purple breathe -- not the fast combat
+   beat but a woozy sway in and out, "you are not yourself". ease-in-out, 0<->50. */
+@keyframes glow-mind {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 120px 0 rgba(150, 70, 205, 0.13),
+      inset 0 0 240px 0 rgba(150, 70, 205, 0.07);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 175px 0 rgba(150, 70, 205, 0.26),
+      inset 0 0 350px 0 rgba(150, 70, 205, 0.13);
+  }
+}
+body[data-glow="mind"] .terminal-wrap {
+  animation: glow-mind 2.6s ease-in-out infinite;
+}
+/* Poison: a slow sickly-green breathe, like nausea rising and falling. */
+@keyframes glow-poison {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 110px 0 rgba(70, 190, 80, 0.12),
+      inset 0 0 220px 0 rgba(70, 190, 80, 0.06);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 160px 0 rgba(70, 190, 80, 0.22),
+      inset 0 0 320px 0 rgba(70, 190, 80, 0.11);
+  }
+}
+body[data-glow="poison"] .terminal-wrap {
+  animation: glow-poison 2.8s ease-in-out infinite;
+}
+/* Concealment: steady grey, no pulse -- you're lurking, the client is calm. Fade
+   is the heavier "double grey"; hide is a light hint at the edges. */
+body[data-glow="fade"] .terminal-wrap {
+  box-shadow:
+    inset 0 0 150px 0 rgba(150, 155, 165, 0.20),
+    inset 0 0 300px 0 rgba(150, 155, 165, 0.10);
+}
+body[data-glow="hide"] .terminal-wrap {
+  box-shadow:
+    inset 0 0 110px 0 rgba(150, 155, 165, 0.10),
+    inset 0 0 220px 0 rgba(150, 155, 165, 0.05);
+}
+/* Respect reduced-motion: hold each pulsing state at a steady mid-strength glow
+   instead of animating. Same specificity as the rules above, placed after them so
+   it wins. hide/fade are already steady, nothing to override there. */
 @media (prefers-reduced-motion: reduce) {
-  body.mud-fighting .terminal-wrap {
+  body[data-glow="fight"] .terminal-wrap {
     animation: none;
     box-shadow:
       inset 0 0 150px 0 rgba(204, 0, 0, 0.2),
       inset 0 0 300px 0 rgba(204, 0, 0, 0.1);
   }
-  body.mud-fighting.mud-rage .terminal-wrap {
-    /* The rage rule above out-specifies `animation: none`, so kill the name here
-       too. Without this, giving that rule a duration would silently restore the
-       pulse for people who asked for no motion. */
-    animation-name: none;
+  body[data-glow="rage"] .terminal-wrap {
+    animation: none;
     box-shadow:
       inset 0 0 525px 0 rgba(204, 0, 0, 0.7),
       inset 0 0 1050px 0 rgba(204, 0, 0, 0.35);
+  }
+  body[data-glow="blind"] .terminal-wrap {
+    animation: none;
+    box-shadow:
+      inset 0 0 520px 0 rgba(255, 255, 255, 0.6),
+      inset 0 0 1040px 0 rgba(255, 255, 255, 0.3);
+  }
+  body[data-glow="mind"] .terminal-wrap {
+    animation: none;
+    box-shadow:
+      inset 0 0 175px 0 rgba(150, 70, 205, 0.24),
+      inset 0 0 350px 0 rgba(150, 70, 205, 0.12);
+  }
+  body[data-glow="poison"] .terminal-wrap {
+    animation: none;
+    box-shadow:
+      inset 0 0 160px 0 rgba(70, 190, 80, 0.2),
+      inset 0 0 320px 0 rgba(70, 190, 80, 0.1);
   }
 }
 body.mud-fighting form#input {
