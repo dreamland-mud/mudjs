@@ -108,7 +108,9 @@ export default function CommandButtons() {
   // Autobuff button: show for casters (webprompt 'sp' > 0, or an older server
   // that omits the field) and for anyone keeping manual autobuff entries -- a
   // non-caster with a pet buffer. Prepended so the survivability tool sits first.
-  if (prompt.sp !== 0 || autobuffHasEntries())
+  // Hidden in combat: buffing is a peace-time action, and the slot belongs to the
+  // combat commands mid-fight.
+  if (!fighting && (prompt.sp !== 0 || autobuffHasEntries()))
     items = [<AutobuffBtn key="autobuff" label={t('cmd.autobuff', l)} />].concat(items)
 
   // Two columns, filled top-down: the taller one first, so an odd count leaves
