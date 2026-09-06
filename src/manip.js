@@ -72,7 +72,7 @@ var SAFE_HC_COMMANDS = [
   // 'vault *<Owner> ...' is is_immortal-gated on the server, so a forged one a
   // mortal clicks is simply refused. Every shape is self-scoped and bank-gated --
   // none can move an item to another player, so the phishing risk is nil.
-  /^vault (\*[a-z0-9]{1,20} )?(get \d{1,5}|filter [a-z]{1,20})$/i,
+  /^vault (\*[a-z0-9]{1,20} )?(get \d{1,5}|filter [a-z_]{1,20})$/i,
 ];
 
 function safeExplicitAction(value) {
