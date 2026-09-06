@@ -67,6 +67,12 @@ function colorParseAndReplace(span) {
 // navigation command to the player. Only add commands for which that is true.
 var SAFE_HC_COMMANDS = [
   /^path \d{1,7}$/, // clickable room names in 'where' output
+  // vault: the [n] row link sends 'vault get <n>', the TYPE (n) footer link
+  // sends 'vault filter <type>'. The immortal owner-override form
+  // 'vault *<Owner> ...' is is_immortal-gated on the server, so a forged one a
+  // mortal clicks is simply refused. Every shape is self-scoped and bank-gated --
+  // none can move an item to another player, so the phishing risk is nil.
+  /^vault (\*[a-z0-9]{1,20} )?(get \d{1,5}|filter [a-z_]{1,20})$/i,
 ];
 
 function safeExplicitAction(value) {
