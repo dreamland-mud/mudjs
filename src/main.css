@@ -663,17 +663,23 @@ td.v-bottom {
 }
 
 /*
- * Commands and hyper links: underlined.
+ * Commands and hyper links: underlined. Action links (a bare command, a vault
+ * row/type, a 'path' room, a speedwalk) carry a white underline so the underline
+ * reads as a uniform "click me" affordance regardless of the text colour --
+ * yellow speedwalk gold, white extra-descr, all underlined the same. Help-article
+ * links opt back out below so their underline stays green with the text.
  */
 .manip-cmd,
 .manip-link {
   text-decoration: underline;
+  text-decoration-color: #fff;
   cursor: pointer;
 }
 
 .manip-link,
 .manip-link span {
   color: lightgreen;
+  text-decoration-color: currentColor;
 }
 .manip-link:hover,
 .manip-link:hover span {
