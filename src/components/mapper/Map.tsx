@@ -67,6 +67,7 @@ const COLOR = {
   lapis:      '#55a3f2', // ANSI bright blue — selection
   copper:     '#c4a000', // ANSI yellow — door_closed
   rust:       '#cc0000', // ANSI red — door_locked
+  noRecall:   '#ed2330', // ANSI bright red — no_recall room label
   moss:       '#4e9a06', // ANSI green — cross_area
   edge:       '#888888', // open / random — dim terminal grey (mudjs body text)
   warp:       '#d384cb', // ANSI bright magenta — warp, never reads as a real corridor
@@ -795,8 +796,13 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
           const boxW = Math.max(TILE_W, blockW + 20);
           const boxH = Math.max(TILE_H, blockH + 16);
 
-          // Label colour: selected → black on purple fill; current → cyan; else sector colour.
-          const labelFill = isSelected ? COLOR.ink : isCurrent ? COLOR.cyan : style.text;
+          // Label colour: selected → black on purple fill; current → cyan; no_recall
+          // rooms → bright red; else sector colour.
+          const isNoRecall = room.flags.includes('no_recall');
+          const labelFill = isSelected ? COLOR.ink
+            : isCurrent ? COLOR.cyan
+            : isNoRecall ? COLOR.noRecall
+            : style.text;
 
           const labelEl = lines.length > 0 ? (
             <text x={cx} y={firstLineY} fontSize={fontSize} textAnchor="middle" fill={labelFill}
@@ -818,7 +824,7 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
                transform={`translate(${cx} ${cy}) scale(${scale}) translate(${-cx} ${-cy})`}
                role="button"
                tabIndex={0}
-               aria-label={`${roomName || t.unnamedRoom}, ${sectorLabel(effectiveSector)}${p.z !== 0 ? t.layerZ(p.z) : ''}${isCurrent ? ', ' + t.currentLocation : ''}`}
+               aria-label={`${roomName || t.unnamedRoom}, ${sectorLabel(effectiveSector)}${isNoRecall ? ', ' + t.noRecall : ''}${p.z !== 0 ? t.layerZ(p.z) : ''}${isCurrent ? ', ' + t.currentLocation : ''}`}
                style={{ cursor: 'pointer' }}
                onClick={() => onSelectRoom(p.vnum)}
                onDoubleClick={() => onSetCurrent(p.vnum)}>
