@@ -79,6 +79,7 @@ export interface Strings {
   mapOf: (name: string) => string;
   unnamedRoom: string;
   currentLocation: string;
+  noRecall: string;                  // ", no recall" aria fragment for no_recall rooms
   layerZ: (z: number) => string;     // ", слой z+1" fragment
   upTo: (name: string) => string;
   downTo: (name: string) => string;
@@ -136,6 +137,7 @@ const ru: Strings = {
   mapOf: (name) => `Карта зоны ${name}`,
   unnamedRoom: 'комната без имени',
   currentLocation: 'текущая позиция',
+  noRecall: 'без реколла',
   layerZ: (z) => `, слой z${zSign(z)}`,
   upTo: (name) => `Вверх в ${name}`,
   downTo: (name) => `Вниз в ${name}`,
@@ -190,6 +192,7 @@ const en: Strings = {
   mapOf: (name) => `Map of ${name}`,
   unnamedRoom: 'unnamed room',
   currentLocation: 'current location',
+  noRecall: 'no recall',
   layerZ: (z) => `, layer z${zSign(z)}`,
   upTo: (name) => `Up to ${name}`,
   downTo: (name) => `Down to ${name}`,
@@ -244,6 +247,7 @@ const ua: Strings = {
   mapOf: (name) => `Мапа зони ${name}`,
   unnamedRoom: 'кімната без назви',
   currentLocation: 'поточна позиція',
+  noRecall: 'без реколу',
   layerZ: (z) => `, шар z${zSign(z)}`,
   upTo: (name) => `Вгору до ${name}`,
   downTo: (name) => `Вниз до ${name}`,
