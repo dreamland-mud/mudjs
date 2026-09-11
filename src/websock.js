@@ -26,15 +26,21 @@ if (globalThis.location.hash === '#build') {
   wsUrl = 'ws://localhost:1237';
 }
 
+/** Send one frame. False when the socket cannot take it: a socket that is
+ *  closing, still connecting or already gone throws on send(), and the throw
+ *  lands in whatever called this -- a click handler, say, which then leaves the
+ *  interface looking frozen. */
 function rpccmd(cmd, ...args) {
-  if (ws) {
-    ws.send(
-      JSON.stringify({
-        command: cmd,
-        args: args,
-      })
-    );
-  }
+  if (!ws || ws.readyState !== WebSocket.OPEN) return false;
+
+  ws.send(
+    JSON.stringify({
+      command: cmd,
+      args: args,
+    })
+  );
+
+  return true;
 }
 
 function send(text) {
@@ -44,14 +50,22 @@ function send(text) {
    * switch back to the tab, silently. Hold the line instead and replay it once
    * the session is verifiably back. */
   if (resumeToken() && !socketProven()) {
-    // Bounded: if the reconnect never lands, this is a player typing into a
-    // void, and only the last few lines could still be worth replaying.
-    if (pending.length >= PENDING_MAX) pending.shift();
-    pending.push({ text: text, at: Date.now() });
+    holdLine(text);
     return;
   }
 
-  rpccmd('console_in', text + '\n');
+  // The socket may also be down without a resume in hand -- mid-reconnect, or
+  // the moment the server restarted. What the player typed waits for the line
+  // to come back rather than disappearing without a word.
+  if (!rpccmd('console_in', text + '\n')) holdLine(text);
+}
+
+/** Keep a typed line for the replay. Bounded: if the reconnect never lands,
+ *  this is a player typing into a void, and only the last few lines could still
+ *  be worth replaying. */
+function holdLine(text) {
+  if (pending.length >= PENDING_MAX) pending.shift();
+  pending.push({ text: text, at: Date.now() });
 }
 
 function process(s) {
