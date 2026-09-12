@@ -14,7 +14,7 @@ import './langsync';
 import './textedit';
 import './cs';
 
-import './main.css';
+import './runeforge.css';
 
 let propertiesStorage = PropertiesStorage;
 

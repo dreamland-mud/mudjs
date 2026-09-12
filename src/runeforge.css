@@ -1,0 +1,788 @@
+/*
+ * Runeforge -- Dreamland mudjs skin, built from scratch (no Bootstrap/Cyborg base).
+ * This file OWNS the whole visual layer for the /newui build. It ships as one
+ * stylesheet: hand-authored tokens + a lean Bootstrap-subset base + the Runeforge
+ * skin + layout up top, then the engine-critical blocks (ANSI palette, manip
+ * links, react-mosaic, and the combat data-glow vignette system) ported verbatim
+ * from the legacy main.css at the bottom under the ENGINE PORT banner.
+ *
+ * MUI CssBaseline supplies the box-sizing + margin reset, so this file does not.
+ * Do not write the two-character comment-close sequence inside any comment: a
+ * stray one silently kills the whole sheet (learned the hard way).
+ */
+
+:root{
+  --rf-bg:#0f0e13;
+  --rf-panel-lo:#17161d;
+  --rf-panel-mid:#221f2b;
+  --rf-panel-hi:#3a3746;
+  --rf-edge:#08070b;
+  --rf-hair:rgba(255,255,255,.055);
+  --rf-hair-hi:rgba(255,255,255,.11);
+  --rf-well:#0c0b10;
+  --rf-text:#d3d7cf;
+  --rf-text-dim:#8b8798;
+  --rf-text-faint:#5d5a68;
+  --rf-brand:#bb86fc;
+  --rf-brand-deep:#8043ca;
+  --rf-cyan:#2cf4eb;
+  --rf-green:#8ee34f;
+  --rf-red:#ed2330;
+  --rf-gold:#fce94f;
+  --rf-radius:6px;
+  /* very faint grain, dark panels only */
+  --rf-noise:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='120'%20height='120'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23n)'/%3E%3C/svg%3E");
+  --rf-corner:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%20fill='none'%20stroke='%238a7fb0'%20stroke-width='1.4'%3E%3Cpath%20d='M3%2022%20L3%209%20Q3%203%209%203%20L22%203'/%3E%3Cpath%20d='M8%2013%20Q8%208%2013%208'%20stroke-width='1'/%3E%3Ccircle%20cx='7'%20cy='7'%20r='1.5'%20fill='%238a7fb0'%20stroke='none'/%3E%3C/svg%3E");
+}
+
+/* ===================== ground / frame ===================== */
+html,body{height:100%;max-height:100%;width:100%;margin:0;padding:0}
+body{
+  width:100%;height:100%;
+  color:var(--rf-text);
+  background:
+    radial-gradient(135% 95% at 50% -12%, #17151f 0%, var(--rf-bg) 55%, #08070b 100%) fixed;
+  font-family:'Roboto Mono',ui-monospace,monospace;
+}
+.main-content{overflow:hidden;position:relative}
+#root,#page{min-height:100%;height:100%;width:100%;overflow:hidden}
+
+/* ===================== lean bootstrap-subset base ===================== */
+/* utilities the JSX relies on (Cyborg used to provide these) */
+.d-flex{display:flex}
+.row{display:flex;flex-wrap:wrap}
+.column{display:flex;flex-direction:column}
+.justify-content-center{justify-content:center}
+.align-items-center{align-items:center}
+.position-absolute{position:absolute}
+.position-relative{position:relative}
+.w-100{width:100%}
+.h-100{height:100%}
+.float-right{float:right}
+.collapse:not(.show){display:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* buttons */
+.btn{
+  display:inline-block;font-family:inherit;font-weight:500;line-height:1.5;text-align:center;
+  vertical-align:middle;user-select:none;cursor:pointer;white-space:nowrap;
+  padding:.4rem .8rem;font-size:1rem;border-radius:5px;
+  border:1px solid var(--rf-edge);
+  color:var(--rf-text);
+  background:linear-gradient(180deg,var(--rf-panel-mid),var(--rf-panel-lo));
+  box-shadow:inset 0 1px 0 var(--rf-hair-hi),0 1px 2px rgba(0,0,0,.5);
+  transition:background .15s,border-color .15s,box-shadow .15s,color .15s;
+}
+.btn:hover{border-color:var(--rf-brand-deep);color:#fff}
+.btn:focus,.btn.focus,.btn:focus-visible{outline:none;box-shadow:inset 0 1px 0 var(--rf-hair-hi),0 0 0 2px color-mix(in srgb,var(--rf-cyan) 45%,transparent)}
+.btn:disabled,.btn.disabled{opacity:.45;cursor:default;box-shadow:none}
+.btn-sm{padding:.22rem .5rem;font-size:.85rem;border-radius:4px}
+.btn-primary{
+  background:linear-gradient(180deg,#c79bff,var(--rf-brand));color:#161018;border-color:var(--rf-brand-deep);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 1px 2px rgba(0,0,0,.5);
+}
+.btn-primary:hover{background:linear-gradient(180deg,var(--rf-brand),var(--rf-brand-deep));color:#fff}
+.btn-secondary{background:linear-gradient(180deg,var(--rf-panel-mid),var(--rf-panel-lo));color:var(--rf-text)}
+.btn-outline-primary{background:transparent;color:var(--rf-brand);border-color:var(--rf-brand-deep);box-shadow:none}
+.btn-outline-primary:hover{background:var(--rf-brand);color:#161018;border-color:var(--rf-brand)}
+
+/* form controls */
+.form-control{
+  display:block;width:100%;font-family:inherit;font-size:1rem;line-height:1.5;
+  padding:.4rem .75rem;color:var(--rf-text);
+  background:var(--rf-well);border:1px solid var(--rf-edge);border-radius:5px;
+  box-shadow:inset 0 1px 5px rgba(0,0,0,.6);
+}
+.form-control:focus{outline:none;border-color:var(--rf-cyan);box-shadow:inset 0 1px 5px rgba(0,0,0,.6),0 0 0 2px rgba(44,244,235,.25)}
+.form-group{margin-bottom:1rem}
+
+/* tables (panel widgets use plain .table plus custom ids) */
+.table{width:100%;border-collapse:collapse;color:var(--rf-text)}
+.table td,.table th{padding:.3rem .4rem;vertical-align:top}
+.table-striped tbody tr:nth-of-type(odd){background:rgba(255,255,255,.028)}
+
+/* nav-tabs (cs/fenia editor) */
+.nav{display:flex;flex-wrap:wrap;padding-left:0;margin:0;list-style:none}
+.nav-tabs{border-bottom:1px solid var(--rf-edge)}
+.nav-tabs .nav-link{
+  display:block;padding:.4rem .8rem;cursor:pointer;color:var(--rf-text-dim);
+  border:1px solid transparent;border-top-left-radius:5px;border-top-right-radius:5px;
+}
+.nav-tabs .nav-link:hover{color:var(--rf-text);border-color:var(--rf-hair)}
+.nav-tabs .nav-link.active{color:var(--rf-brand);background:var(--rf-panel-lo);border-color:var(--rf-edge) var(--rf-edge) transparent}
+
+/* progress / vitals (bar color is inline; give it an inset track + sheen) */
+.progress{
+  display:flex;overflow:hidden;background:#070609;border-radius:7px;
+  box-shadow:inset 0 1px 4px rgba(0,0,0,.85),inset 0 0 0 1px rgba(0,0,0,.6);
+}
+.progress-bar{
+  display:flex;flex-direction:column;justify-content:center;white-space:nowrap;color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -3px 5px rgba(0,0,0,.32),0 0 9px rgba(0,0,0,.35);
+}
+
+/* ===================== modals (structural + forged skin) ===================== */
+body.modal-open{overflow:hidden}
+.modal{position:fixed;inset:0;z-index:1050;display:none;overflow:hidden;outline:0}
+.modal.show{display:block}
+.modal-backdrop{position:fixed;inset:0;z-index:1040;background:#05040a}
+.modal-backdrop.fade{opacity:0}
+.modal-backdrop.show{opacity:.62}
+.fade{transition:opacity .18s linear}
+.modal-dialog{position:relative;width:auto;margin:.5rem;pointer-events:none}
+@media (min-width:576px){
+  .modal-dialog{max-width:520px;margin:1.75rem auto}
+  .modal-lg{max-width:820px}
+}
+.modal-dialog-centered{display:flex;align-items:center;min-height:calc(100% - 1rem)}
+@media (min-width:576px){.modal-dialog-centered{min-height:calc(100% - 3.5rem)}}
+.modal-content{
+  position:relative;display:flex;flex-direction:column;width:100%;pointer-events:auto;overflow:hidden;
+  color:var(--rf-text);
+  background:linear-gradient(178deg,var(--rf-panel-mid),var(--rf-panel-lo) 60%,#111016);
+  border:1px solid var(--rf-edge);border-radius:8px;outline:0;
+  box-shadow:0 24px 64px rgba(0,0,0,.62),inset 0 1px 0 var(--rf-hair-hi);
+}
+.modal-content::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:var(--rf-noise);background-size:120px 120px;opacity:.025;mix-blend-mode:overlay;
+}
+.modal-content > *{position:relative;z-index:1}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;padding:.9rem 1rem;border-bottom:1px solid rgba(187,134,252,.16)}
+.modal-title{margin:0;line-height:1.4;color:#efe9dc;font-weight:600;letter-spacing:.02em;text-shadow:0 0 12px rgba(187,134,252,.32)}
+.modal-body{position:relative;flex:1 1 auto;padding:1rem;color:#ddd}
+.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:.5rem;padding:.7rem 1rem;border-top:1px solid rgba(187,134,252,.16)}
+.close{
+  padding:0;background:transparent;border:0;line-height:1;cursor:pointer;
+  font-size:1.5rem;font-weight:700;color:var(--rf-text-dim);opacity:.75;text-shadow:0 1px 0 #000;
+}
+.close:hover{opacity:1;color:#fff}
+
+/* ===================== terminal ===================== */
+.terminal-wrap{
+  overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  position:absolute;height:100%;width:100%;
+  background-color:#100f14;
+  padding:5px 10px 10px 10px;
+}
+.terminal{
+  font-family:'Roboto Mono',ui-monospace,monospace;font-size:1.3em;
+  color:var(--rf-text);white-space:pre-wrap;position:relative;min-height:100%;
+}
+/* 80-column guide -- the MUD terminal width */
+.terminal::after{content:'';position:absolute;top:0;bottom:0;left:80ch;width:1px;background-color:#2a2830;pointer-events:none}
+
+/* ===================== command input ===================== */
+#input input{width:100%;box-sizing:border-box;font-family:'Roboto Mono',ui-monospace,monospace;font-size:1.3em}
+@media only screen and (min-width:768px){
+  .terminal-wrap{border:1px solid #141319}
+  #overlay{top:3px}
+  form#input{
+    margin:5px;border:1px solid var(--rf-edge);border-radius:var(--rf-radius);background:var(--rf-well);
+    box-shadow:inset 0 1px 5px rgba(0,0,0,.7),inset 0 1px 0 var(--rf-hair);
+  }
+  form#input input{padding:5px 10px 5px 7px;color:#eef1ea;border-color:transparent;background-color:transparent}
+  form#input:focus-within{
+    border-color:var(--rf-cyan);
+    box-shadow:inset 0 1px 5px rgba(0,0,0,.7),0 0 0 1px rgba(44,244,235,.35),0 0 14px rgba(44,244,235,.24);
+  }
+  form#input input:focus{outline:none;box-shadow:none;border-color:transparent}
+}
+
+/* ===================== right panel + widgets ===================== */
+#panel-wrap{overflow-y:auto;background-color:transparent;border:none;margin:0;font-size:12px}
+#panel-wrap .dark-panel-title{font-size:13px}
+#panel-wrap .MuiTableCell-root{font-size:inherit}
+
+#panel-wrap > .table-wrapper:first-child{margin-top:0}
+.table-wrapper{
+  position:relative;margin:6px;overflow:hidden;cursor:pointer;padding-bottom:.15em;padding-left:.2em;
+  border:1px solid var(--rf-edge);border-radius:var(--rf-radius);
+  background:linear-gradient(178deg,var(--rf-panel-mid) 0%,var(--rf-panel-lo) 60%,#131218 100%);
+  box-shadow:inset 0 1px 0 var(--rf-hair-hi),inset 0 -1px 0 rgba(0,0,0,.5),0 3px 8px rgba(0,0,0,.5);
+}
+.table-wrapper::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:var(--rf-noise);background-size:120px 120px;opacity:.028;mix-blend-mode:overlay;
+}
+.table-wrapper::after{
+  content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;z-index:2;pointer-events:none;
+  background:center/contain no-repeat var(--rf-corner);opacity:.5;
+}
+.table-wrapper > *{position:relative;z-index:1}
+.table-wrapper .close{position:absolute;top:5px;right:5px}
+.table-wrapper .close:after{content:'\2212'}
+.table-wrapper .close.collapsed:after{content:'\002B'}
+.table-wrapper table{width:100%;cursor:pointer}
+
+.table-with-icons table{table-layout:fixed}
+.table-with-icons tr td:first-child{width:0%;padding-left:5px}
+.table-with-icons tr td:nth-child(2){padding-left:0}
+td.v-top{vertical-align:top}
+td.v-bottom{vertical-align:bottom}
+
+.dark-panel-title{
+  color:var(--rf-brand);font-weight:600;display:block;padding:5px;padding-bottom:6px;margin-left:16px;
+  letter-spacing:.02em;text-shadow:0 0 10px rgba(187,134,252,.32),0 1px 0 #000;
+  border-bottom:1px solid rgba(187,134,252,.14);
+}
+#player-params-table{padding-left:5px}
+#group-table td,#group-table th,#who-table td,#who-table th{padding-left:5px;padding-right:5px}
+#who-table th,#player-params-1 td:nth-child(odd),#player-params-2 td:nth-child(odd){color:var(--rf-text)}
+#player-location .fa{font-size:150%}
+#player-affects-table .flexcontainer-column{padding-left:5px;padding-right:5px;padding-bottom:5px;width:auto}
+#player-affects-table .aff-chip{text-transform:capitalize}
+#questor-table p{padding:4px 4px 0 4px;color:#c4a000}
+#commands-table{justify-content:space-evenly;margin:0 0 0 5px}
+
+.btn-ctrl-panel{
+  color:#161018;font-size:1.1em;width:100%;margin-top:3px;text-align:left;border-color:transparent;
+  background:linear-gradient(180deg,#c79bff,var(--rf-brand));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 1px 2px rgba(0,0,0,.5);
+}
+.btn-ctrl-panel:hover{color:#fff;text-decoration:none;background:linear-gradient(180deg,var(--rf-brand),var(--rf-brand-deep))}
+.btn-ctrl-panel.btn-combat{background:linear-gradient(180deg,#e0555b,var(--rf-red));color:#fff}
+.btn-ctrl-panel.btn-combat:hover{background:linear-gradient(180deg,var(--rf-red),#a30000);color:#fff}
+
+.btn-ctrl{float:right;font-size:1.5em;color:var(--rf-text-dim);border-color:var(--rf-edge);margin:1px}
+.top-right-buttons .btn-ctrl{margin:0 .2em}
+.btn-ctrl:hover{background:var(--rf-brand);border-color:var(--rf-brand);color:#161018}
+#nav .btn-ctrl{
+  background:linear-gradient(180deg,#c79bff,var(--rf-brand));color:#161018;border-color:transparent;font-size:15px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 1px 2px rgba(0,0,0,.5);
+}
+#nav .btn-ctrl:hover{background:linear-gradient(180deg,var(--rf-brand),var(--rf-brand-deep));color:#fff;border-color:transparent}
+#nav .btn-ctrl:focus{box-shadow:none}
+
+/* help search box */
+#help input{
+  width:stretch;width:-webkit-fill-available;width:-moz-available;
+  background-color:var(--rf-well);color:#fff;border:1px solid var(--rf-brand-deep);
+  margin:.5rem .5rem .5rem .25rem;padding-left:2rem;font-size:1.1em;border-radius:5px;
+}
+#help input:focus{background-color:#000;outline:none;box-shadow:0 0 0 2px rgba(44,244,235,.25);border-color:var(--rf-cyan)}
+.form-control-feedback{position:absolute;z-index:2;display:block;width:2.375rem;height:2.375rem;line-height:2.375rem;text-align:center;pointer-events:none;color:var(--rf-text-dim)}
+
+/* autocomplete plugin */
+.autocomplete-suggestions{border:1px solid var(--rf-edge);background:var(--rf-panel-lo);overflow:auto;cursor:pointer;color:var(--rf-text);border-radius:5px;box-shadow:0 8px 24px rgba(0,0,0,.6)}
+.autocomplete-suggestion{padding:2px 6px;overflow:auto}
+.autocomplete-selected{background:var(--rf-brand);color:#161018}
+.autocomplete-suggestions strong{font-weight:600;color:var(--rf-cyan)}
+.autocomplete-group{padding:2px 6px}
+.autocomplete-group strong{display:block;border-bottom:1px solid #000}
+
+.hints .modal-content{color:#ddd}
+
+/* ===================== map ===================== */
+#map-wrap{overflow-y:scroll;-webkit-overflow-scrolling:touch;background-color:#100f14;padding-top:3em;position:absolute;height:100%;width:100%}
+#map{font-family:'Roboto Mono',ui-monospace,monospace;font-size:1em;background-color:#100f14;color:var(--rf-text);white-space:pre-wrap;padding:1em}
+#map > pre{overflow-y:unset;overflow-x:unset;margin-bottom:0}
+
+/* ===================== code-editor modals (settings/cs/textedit) ===================== */
+.webeditor .modal-dialog{max-width:100%}
+.webeditor .modal-body{padding:0}
+.webeditor .form-group{margin-bottom:0}
+@media only screen and (min-width:992px){.webeditor .modal-dialog{max-width:80%}}
+#cs-modal .modal-dialog,#textedit-modal.webeditor .modal-dialog{max-width:100%;width:100%;height:100%;margin:0}
+#cs-modal .modal-content,#textedit-modal.webeditor .modal-content{width:100%;height:100%;border:0;border-radius:0;display:flex;flex-direction:column;background-color:#272822;overflow:hidden}
+#cs-modal .modal-content::before,#textedit-modal.webeditor .modal-content::before{display:none}
+#cs-modal .modal-body,#textedit-modal.webeditor .modal-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding:0}
+#cs-modal .form-group{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-bottom:0}
+#cs-modal .editor,#textedit-modal .editor{flex:1 1 auto;min-height:0;height:auto}
+#textedit-modal .editor{border-radius:0;overflow:hidden;font-family:'Roboto Mono',monospace !important;background-color:black;color:white}
+.editor{height:70vh;background-color:black;color:white}
+.modal-body .editor{font-size:18px}
+
+/* ===================== flex helpers (legacy, used by widgets) ===================== */
+.flexcontainer-wrap{flex-wrap:wrap;-webkit-flex-wrap:wrap}
+.flex-grow-shrink-auto{-webkit-flex:1 1 0%;-ms-flex:1 1 0%;flex:1 1 0%}
+.flex-nogrow-shrink-panel{-webkit-flex:0 1 270px;-ms-flex:0 1 270px;flex:0 1 270px}
+.flex-nogrow-shrink-control{-webkit-flex:0 1 100px;-ms-flex:0 1 100px;flex:0 1 100px}
+.flexcontainer-row{display:-webkit-flex;display:flex;-webkit-flex-direction:row;flex-direction:row;align-items:flex-start}
+.flexcontainer-column{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;width:100%;margin:0 5px 0 0;padding:0 0 5px 0}
+
+/* ===================== custom scrollbars ===================== */
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:#0b0a0e}
+*::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#2b2934,#1a1922);border:1px solid #08070b;border-radius:6px}
+*::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,var(--rf-brand-deep),#2b2934)}
+
+
+/* ============================================================
+ * ENGINE PORT -- verbatim from legacy main.css (ANSI palette,
+ * manip/link classes, react-mosaic, MUI map overrides, and the
+ * combat data-glow vignette system). Do not edit here; these are
+ * engine-critical and shared with the /mudjs client.
+ * ============================================================ */
+/* dark: */
+.fg-ansi-dark-color-0,
+.fgdd {
+  color: #2e3436;
+} /* background  */
+.fg-ansi-dark-color-1,
+.fgdr {
+  color: #cc0000;
+} /* r */
+.fg-ansi-dark-color-2,
+.fgdg {
+  color: #4e9a06;
+} /* g */
+.fg-ansi-dark-color-3,
+.fgdy {
+  color: #c4a000;
+} /* y */
+.fg-ansi-dark-color-4,
+.fgdb {
+  color: #3465a4;
+} /* b */
+.fg-ansi-dark-color-5,
+.fgdm {
+  color: #75507b;
+} /* m */
+.fg-ansi-dark-color-6,
+.fgdc {
+  color: #06989a;
+} /* c */
+.fg-ansi-dark-color-7,
+.fgdw {
+  color: #d3d7cf;
+} /* w, d */
+/* bright: */
+.fg-ansi-bright-color-0,
+.fgbd {
+  color: #555753;
+} /* D */
+.fg-ansi-bright-color-1,
+.fgbr {
+  color: #ed2330;
+} /* R */
+.fg-ansi-bright-color-2,
+.fgbg {
+  color: #8ee34f;
+} /* G */
+.fg-ansi-bright-color-3,
+.fgby {
+  color: #fdea56;
+} /* Y */
+.fg-ansi-bright-color-4,
+.fgbb {
+  color: #55a3f2;
+} /* B */
+.fg-ansi-bright-color-5,
+.fgbm {
+  color: #d384cb;
+} /* M */
+.fg-ansi-bright-color-6,
+.fgbc {
+  color: #2cf4eb;
+} /* C */
+.fg-ansi-bright-color-7,
+.fgbw {
+  color: #fff;
+} /* W */
+
+.fg-ansi-bold {
+  /*    font-weight: bold; */
+}
+
+/*
+ * Item manip dropdowns
+ */
+.dropdown-toggle::after {
+  display: none;
+}
+.dropdown-norelative {
+  cursor: pointer;
+}
+
+.dropdown-toggle:hover {
+  text-decoration: underline;
+}
+
+.dropdown-norelative .dropdown-toggle {
+  white-space: pre;
+}
+
+/*
+ * Text manip decorations for extra descrs: underlined white links.
+ */
+.manip-ed {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #eeeeec;
+}
+
+/*
+ * Commands and hyper links: underlined. Action links (a bare command, a vault
+ * row/type, a 'path' room, a speedwalk) carry a white underline so the underline
+ * reads as a uniform "click me" affordance regardless of the text colour --
+ * yellow speedwalk gold, white extra-descr, all underlined the same. Help-article
+ * links opt back out below so their underline stays green with the text.
+ */
+.manip-cmd,
+.manip-link {
+  text-decoration: underline;
+  text-decoration-color: #fff;
+  cursor: pointer;
+}
+
+.manip-link,
+.manip-link span {
+  color: lightgreen;
+  text-decoration-color: currentColor;
+}
+.manip-link:hover,
+.manip-link:hover span {
+  color: green;
+}
+
+.manip-speedwalk,
+.manip-speedwalk span {
+  color: #c4a000;
+}
+.manip-speedwalk:hover,
+.manip-speedwalk:hover span {
+  color: #fdea56;
+}
+
+.btn-orange:hover,
+.btn-orange {
+  border-color: #ff9900;
+  letter-spacing: 0.05em;
+}
+
+.btn-orange:hover {
+  background-color: #ff9900;
+}
+
+.btn-orange {
+  color: #ff9900;
+}
+
+/*
+ * User command is echoed back with a small anchor before it.
+ */
+.echo-with-anchor::before {
+  content: '\25b8';
+  padding-right: 0.1em;
+  color: #bb86fc;
+}
+/*
+ * Anchor sticks close to the border of the screen.
+ */
+.echo-with-anchor {
+  margin-left: -5px;
+  color: #bb86fc;
+}
+
+#root .layout-splitter {
+  width: 6px;
+  background-color: transparent;
+}
+
+#root .layout-splitter:hover {
+  background-color: #bb86fc;
+}
+
+
+/* Map higlighted room. */
+.active {
+  color: #2cf4eb;
+  font-weight: 600;
+}
+
+/* Map header */
+header.MuiPaper-root.MuiAppBar-root {
+  background-color: #1e1e1e !important;
+  max-width: 100%;
+}
+.MuiAppBar-colorDefault {
+  color: #bb86fc;
+  background-color: #2e2e2e !important;
+}
+
+.MuiTypography-body1 {
+  font-weight: 600;
+}
+
+.main-splitter .layout-pane {
+  display: flex;
+}
+
+.mosaic-window-body {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: black !important;
+}
+
+.mosaic-window-toolbar {
+  display: none !important; /* Скрыть заголовки, если не нужны */
+}
+
+.mosaic-root {
+  height: 100%;
+}
+
+@media (max-width: 1279px) {
+  #map-wrap {
+    display: none !important;
+  }
+}
+
+@media (max-width: 599px) {
+  #map-wrap,
+  #panel-wrap {
+    display: none !important;
+  }
+}
+
+/* --- State UI accent --------------------------------------------------------
+ * src/combatui.js resolves the player's most urgent state to body[data-glow]
+ * (blind > mind > rage > fight > poison > fade > hide) and, separately, toggles
+ * body.mud-fighting for the red input stroke + red command buttons. Here we draw
+ * one coloured inner vignette per state on .terminal-wrap: it fades in/out and
+ * reverts the instant the state clears. Placed last so it overrides the cyan
+ * focus stroke (higher specificity than form#input:focus-within). Colour is never
+ * the only signal -- the affects panel and the game messages carry the real state
+ * for screen readers; this is ambient flavour on top.
+ *   blind  -> white, heavy pulse (any AFF_BLIND: blindness spell, dirt kick...)
+ *   mind   -> purple, slow woozy pulse (charmed / asleep / stunned)
+ *   fight  -> red heartbeat        (rage -> heavier red heartbeat)
+ *   poison -> green, slow sick pulse
+ *   fade   -> heavy grey, steady   (hide -> light grey, steady)
+ */
+.terminal-wrap,
+form#input {
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+/* Heartbeat: the red vignette pulses while fighting -- a fast snap outward (no
+   ease, ~14% of the cycle so it feels like a quick beat) then a slow eased
+   collapse back (diastole). Per-keyframe animation-timing-function sets the feel
+   of each segment: linear on the grow, ease-out on the collapse. */
+@keyframes combat-heartbeat {
+  0% {
+    box-shadow:
+      inset 0 0 95px 0 rgba(204, 0, 0, 0.13),
+      inset 0 0 190px 0 rgba(204, 0, 0, 0.06);
+    animation-timing-function: linear; /* grow: no ease, snappy */
+  }
+  14% {
+    box-shadow:
+      inset 0 0 165px 0 rgba(204, 0, 0, 0.24),
+      inset 0 0 330px 0 rgba(204, 0, 0, 0.12);
+    animation-timing-function: ease-out; /* collapse: eased, slow */
+  }
+  100% {
+    box-shadow:
+      inset 0 0 95px 0 rgba(204, 0, 0, 0.13),
+      inset 0 0 190px 0 rgba(204, 0, 0, 0.06);
+  }
+}
+body[data-glow="fight"] .terminal-wrap {
+  /* --beat (set by combatui.js from HP) quickens the pulse as you bleed out;
+     falls back to the resting 1.15s before the first prompt sets it. */
+  animation: combat-heartbeat var(--beat, 1.15s) infinite;
+}
+/* Berserk / frenzy: the same beat with ~3.5x the reach and ~3.5x the alpha, so the
+   blood covers the view instead of hinting at the edges. Its own data-glow state
+   (combatui.js sets "rage" instead of "fight" while raging), so a full animation
+   here, not just an animation-name override. */
+@keyframes combat-heartbeat-rage {
+  0% {
+    box-shadow:
+      inset 0 0 330px 0 rgba(204, 0, 0, 0.45),
+      inset 0 0 660px 0 rgba(204, 0, 0, 0.21);
+    animation-timing-function: linear;
+  }
+  14% {
+    box-shadow:
+      inset 0 0 575px 0 rgba(204, 0, 0, 0.84),
+      inset 0 0 1150px 0 rgba(204, 0, 0, 0.42);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    box-shadow:
+      inset 0 0 330px 0 rgba(204, 0, 0, 0.45),
+      inset 0 0 660px 0 rgba(204, 0, 0, 0.21);
+  }
+}
+body[data-glow="rage"] .terminal-wrap {
+  animation: combat-heartbeat-rage var(--beat, 1.15s) infinite;
+}
+/* Near death (<=25% HP): a heavy dark-crimson throb that never fully recedes -- the
+   view sits under a crimson pall, beating at the same HP-driven rate as combat (fast
+   here, since you only see it when HP is low). Owns the vignette over any state. */
+@keyframes glow-neardeath {
+  0% {
+    box-shadow:
+      inset 0 0 300px 0 rgba(110, 0, 15, 0.44),
+      inset 0 0 600px 0 rgba(110, 0, 15, 0.22);
+    animation-timing-function: linear;
+  }
+  14% {
+    box-shadow:
+      inset 0 0 540px 0 rgba(110, 0, 15, 0.74),
+      inset 0 0 1080px 0 rgba(110, 0, 15, 0.40);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    box-shadow:
+      inset 0 0 300px 0 rgba(110, 0, 15, 0.44),
+      inset 0 0 600px 0 rgba(110, 0, 15, 0.22);
+  }
+}
+body[data-glow="neardeath"] .terminal-wrap {
+  animation: glow-neardeath var(--beat, 1.15s) infinite;
+}
+/* Blind: white and heavy, berserk-strength -- the whole view washes out, the way
+   losing your sight should feel. Same heartbeat rhythm as rage; peak alpha pulled
+   a touch under rage's so light terminal text stays legible against the white. */
+@keyframes glow-blind {
+  0% {
+    box-shadow:
+      inset 0 0 330px 0 rgba(255, 255, 255, 0.40),
+      inset 0 0 660px 0 rgba(255, 255, 255, 0.19);
+    animation-timing-function: linear;
+  }
+  14% {
+    box-shadow:
+      inset 0 0 575px 0 rgba(255, 255, 255, 0.72),
+      inset 0 0 1150px 0 rgba(255, 255, 255, 0.36);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    box-shadow:
+      inset 0 0 330px 0 rgba(255, 255, 255, 0.40),
+      inset 0 0 660px 0 rgba(255, 255, 255, 0.19);
+  }
+}
+body[data-glow="blind"] .terminal-wrap {
+  animation: glow-blind 1.15s infinite;
+}
+/* Mind (charmed / asleep / stunned): a slow purple breathe -- not the fast combat
+   beat but a woozy sway in and out, "you are not yourself". ease-in-out, 0<->50. */
+@keyframes glow-mind {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 120px 0 rgba(150, 70, 205, 0.13),
+      inset 0 0 240px 0 rgba(150, 70, 205, 0.07);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 175px 0 rgba(150, 70, 205, 0.26),
+      inset 0 0 350px 0 rgba(150, 70, 205, 0.13);
+  }
+}
+body[data-glow="mind"] .terminal-wrap {
+  animation: glow-mind 2.6s ease-in-out infinite;
+}
+/* Poison: a slow sickly-green breathe, like nausea rising and falling. */
+@keyframes glow-poison {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 110px 0 rgba(70, 190, 80, 0.12),
+      inset 0 0 220px 0 rgba(70, 190, 80, 0.06);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 160px 0 rgba(70, 190, 80, 0.22),
+      inset 0 0 320px 0 rgba(70, 190, 80, 0.11);
+  }
+}
+body[data-glow="poison"] .terminal-wrap {
+  animation: glow-poison 2.8s ease-in-out infinite;
+}
+/* Faerie fire: a slow pink shimmer -- you're outlined in rosy light, easier to hit.
+   Pink, deliberately apart from the mind purple. Same slow breathe as poison. */
+@keyframes glow-faerie {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 115px 0 rgba(235, 110, 185, 0.12),
+      inset 0 0 230px 0 rgba(235, 110, 185, 0.06);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 165px 0 rgba(235, 110, 185, 0.23),
+      inset 0 0 330px 0 rgba(235, 110, 185, 0.115);
+  }
+}
+body[data-glow="faerie"] .terminal-wrap {
+  animation: glow-faerie 2.7s ease-in-out infinite;
+}
+/* Concealment: steady grey, no pulse -- you're lurking, the client is calm. Fade
+   is the heavier "double grey"; hide is a light hint at the edges. */
+body[data-glow="fade"] .terminal-wrap {
+  box-shadow:
+    inset 0 0 150px 0 rgba(150, 155, 165, 0.20),
+    inset 0 0 300px 0 rgba(150, 155, 165, 0.10);
+}
+body[data-glow="hide"] .terminal-wrap {
+  box-shadow:
+    inset 0 0 110px 0 rgba(150, 155, 165, 0.10),
+    inset 0 0 220px 0 rgba(150, 155, 165, 0.05);
+}
+/* Respect reduced-motion: hold each pulsing state at a steady mid-strength glow
+   instead of animating. Same specificity as the rules above, placed after them so
+   it wins. hide/fade are already steady, nothing to override there. */
+@media (prefers-reduced-motion: reduce) {
+  body[data-glow="fight"] .terminal-wrap {
+    animation: none;
+    box-shadow:
+      inset 0 0 150px 0 rgba(204, 0, 0, 0.2),
+      inset 0 0 300px 0 rgba(204, 0, 0, 0.1);
+  }
+  body[data-glow="rage"] .terminal-wrap {
+    animation: none;
+    box-shadow:
+      inset 0 0 525px 0 rgba(204, 0, 0, 0.7),
+      inset 0 0 1050px 0 rgba(204, 0, 0, 0.35);
+  }
+  body[data-glow="neardeath"] .terminal-wrap {
+    animation: none;
+    box-shadow:
+      inset 0 0 500px 0 rgba(110, 0, 15, 0.62),
+      inset 0 0 1000px 0 rgba(110, 0, 15, 0.33);
+  }
+  body[data-glow="blind"] .terminal-wrap {
+    animation: none;
+    box-shadow:
+      inset 0 0 520px 0 rgba(255, 255, 255, 0.6),
+      inset 0 0 1040px 0 rgba(255, 255, 255, 0.3);
+  }
+  body[data-glow="mind"] .terminal-wrap {
+    animation: none;
+    box-shadow:
+      inset 0 0 175px 0 rgba(150, 70, 205, 0.24),
+      inset 0 0 350px 0 rgba(150, 70, 205, 0.12);
+  }
+  body[data-glow="poison"] .terminal-wrap {
+    animation: none;
+    box-shadow:
+      inset 0 0 160px 0 rgba(70, 190, 80, 0.2),
+      inset 0 0 320px 0 rgba(70, 190, 80, 0.1);
+  }
+  body[data-glow="faerie"] .terminal-wrap {
+    animation: none;
+    box-shadow:
+      inset 0 0 165px 0 rgba(235, 110, 185, 0.21),
+      inset 0 0 330px 0 rgba(235, 110, 185, 0.10);
+  }
+}
+body.mud-fighting form#input {
+  border-color: #cc0000;
+}
+
+/* Combat actions in the button panel (commandButtons.jsx swaps the set while
+   fighting). Same red as the input stroke, so the whole client reads as one
+   state. Colour is never the only signal: these buttons carry different
+   commands and different labels, which is what a screen reader announces. */
+.btn-ctrl-panel.btn-combat {
+  background-color: #cc0000;
+  color: #fff;
+}
+
+.btn-ctrl-panel.btn-combat:hover {
+  background-color: #a30000;
+  color: #fff;
+}

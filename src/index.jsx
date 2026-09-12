@@ -9,10 +9,24 @@ import { store } from './store.js';
 
 import './main.js'; // legacy JS
 
-// Создаём тему с тёмным режимом
+// Runeforge dark theme -- feeds the MUI components (Box grounds, map AppBar,
+// panel Table cells, Collapse) so they inherit the skin instead of Material defaults.
 const theme = createTheme({
   palette: {
     mode: 'dark',
+    background: { default: '#0f0e13', paper: '#17161d' },
+    primary: { main: '#bb86fc' },
+    secondary: { main: '#2cf4eb' },
+    success: { main: '#8ee34f' },
+    error: { main: '#ed2330' },
+    text: { primary: '#d3d7cf', secondary: '#8b8798' },
+    divider: 'rgba(255,255,255,0.08)',
+  },
+  shape: { borderRadius: 6 },
+  typography: { fontFamily: "'Roboto Mono', ui-monospace, monospace" },
+  components: {
+    MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
+    MuiTableCell: { styleOverrides: { root: { borderColor: 'rgba(255,255,255,0.06)' } } },
   },
 });
 
