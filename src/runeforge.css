@@ -886,3 +886,40 @@ body.mud-fighting form#input {
 /* params + questor + affects: tighter body text */
 #player-params-1 td,#player-params-2 td{padding:1px 6px;font-size:11px}
 #questor-table p,#player-affects-table{font-size:11px}
+
+
+/* ============================================================
+ * PHASE 2 -- batch 3: command bar + nav cluster + bespoke collapse
+ * ============================================================ */
+
+/* command line: console prompt glyph + flex layout */
+form#input{display:flex;align-items:center}
+form#input::before{
+  content:'\276F';flex:none;color:var(--rf-cyan);font-weight:700;font-size:.95em;
+  padding:0 5px 0 9px;opacity:.85;text-shadow:0 0 8px rgba(44,244,235,.4);
+}
+form#input input{flex:1 1 auto;min-width:0}
+
+/* top-right nav buttons as one metal control cluster */
+#nav{
+  border-collapse:separate;border-spacing:2px;padding:3px;border-radius:8px;
+  background:linear-gradient(180deg,rgba(34,31,43,.9),rgba(21,20,27,.9));
+  border:1px solid #08070b;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 12px rgba(0,0,0,.5);
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+}
+#nav .btn-ctrl{margin:0}
+#nav .btn-ctrl:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 0 10px rgba(187,134,252,.55)}
+
+/* bespoke panel collapse (replaces MUI Collapse) */
+#panel-wrap{flex:1 1 auto}
+.rf-collapse{display:grid;grid-template-rows:1fr;transition:grid-template-rows .22s ease}
+.rf-collapse.is-collapsed{grid-template-rows:0fr}
+.rf-collapse-inner{overflow:hidden;min-height:0}
+@media (prefers-reduced-motion:reduce){.rf-collapse{transition:none}}
+
+/* time/weather widget (plain table, ex-MUI) */
+.rf-tw{border-collapse:collapse}
+.rf-tw td{padding:1px 0;border:0;font-size:12px}
+.rf-tw td.tw-ic{width:1.4em;padding-left:5px;padding-right:8px}
+.rf-tw .wi,.rf-tw .fa{font-size:16px;width:1.4em;display:inline-block;text-align:left;color:#bb86fc}

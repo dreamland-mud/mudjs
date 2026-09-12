@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import Collapse from '@mui/material/Collapse';
 
 // Persist each panel's collapsed/expanded state across sessions in localStorage, so players
 // don't have to re-collapse the same panels on every login. Keyed by an explicit storageKey
@@ -30,11 +29,13 @@ export default function PanelItem(props) {
         });
     };
 
+    // Bespoke collapse (no MUI): animate grid-template-rows 1fr <-> 0fr. Children stay
+    // mounted so live prompt updates keep flowing while collapsed, same as MUI Collapse did.
     return <div className="table-wrapper">
         <span onClick={toggle} className="dark-panel-title">{props.title}</span>
-        <button onClick={toggle} className={`close ${collapsed && 'collapsed'}`} type="button" />
-        <Collapse in={!collapsed}>
-            { props.children }
-        </Collapse>
+        <button onClick={toggle} className={collapsed ? 'close collapsed' : 'close'} type="button" aria-expanded={!collapsed} />
+        <div className={collapsed ? 'rf-collapse is-collapsed' : 'rf-collapse'}>
+            <div className="rf-collapse-inner">{ props.children }</div>
+        </div>
     </div>;
 };

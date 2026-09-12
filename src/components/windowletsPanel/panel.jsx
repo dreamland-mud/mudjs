@@ -1,6 +1,5 @@
 import React from 'react';
 import { useSelector } from 'react-redux'
-import Box from '@mui/material/Box';
 
 import TimeWeatherItem from './timeWeatherItem'
 import CommandButtons from './commandButtons'
@@ -26,49 +25,49 @@ export default function Panel() {
         if (prompt.group === undefined) return false
         if (prompt.group === "none") return false
         if ((prompt.group.npc === undefined) &&
-            (prompt.group.pc === undefined)) return false 
+            (prompt.group.pc === undefined)) return false
         return true
-    }    
+    }
 
     const isPromptAffect = () => {
         if (!prompt) return false
-        if ((!prompt.det || prompt.det === "none") && 
-        (!prompt.trv || prompt.trv === "none") && 
-        (!prompt.enh || prompt.enh === "none") && 
-        (!prompt.pro || prompt.pro === "none") && 
-        (!prompt.mal || prompt.mal === "none") && 
+        if ((!prompt.det || prompt.det === "none") &&
+        (!prompt.trv || prompt.trv === "none") &&
+        (!prompt.enh || prompt.enh === "none") &&
+        (!prompt.pro || prompt.pro === "none") &&
+        (!prompt.mal || prompt.mal === "none") &&
         (!prompt.cln || prompt.cln === "none")) return false
         return true
-    }   
+    }
 
     const isPromptParams = () => {
         if (!prompt) return false
         if (!prompt.p1 && !prompt.p2) return false
         return true
-    }    
+    }
 
     const isPromptQuestor = () => {
         if (!prompt) return false
         if (prompt.q === undefined) return false
         if (prompt.q === "none") return false
         return true
-    }    
+    }
 
     const isPromptAreaQuest = () => {
         if (!prompt) return false
         if (prompt.aq === undefined) return false
         if (prompt.aq === "none") return false
         return true
-    }    
+    }
 
     const isPromptWho = () => {
         if (!prompt) return false
         if (!prompt.who) return false
         return true
-    }    
+    }
 
     return (
-        <Box id="panel-wrap" flex="1" aria-hidden="true">
+        <div id="panel-wrap" aria-hidden="true">
             {isPrompt() && <TimeWeatherItem {...prompt} />}
             {isPromptAreaQuest() && <AreaQuestItem {...prompt} />}
             {isPromptQuestor() && <QuestorItem {...prompt} />}
@@ -78,6 +77,6 @@ export default function Panel() {
             {isPromptWho() && <WhoItem {...prompt} />}
             <Help />
             {isPrompt() && <CommandButtons />}
-        </Box>
+        </div>
     )
 }
