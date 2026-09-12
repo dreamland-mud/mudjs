@@ -5,41 +5,28 @@ import Box from '@mui/material/Box';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
+// Skeuomorphic vial: square glass tube, liquid fill (color-matched glow + top
+// sheen), graduated tick dividers with end caps. Colour comes in as the --c
+// custom property so the fill and its glow match. ARIA on the container.
 const Stat = ({ v, max_v, caption, color }) => {
   const theme = useTheme();
   const big = useMediaQuery(theme.breakpoints.up('sm'));
 
   if (!max_v) return null;
 
-  const style = {
-    width: `${Math.floor((100 * v) / max_v)}%`,
-    backgroundColor: color,
-  };
-
-  const span = big && (
-    <>
-      <Box component="span" className="position-absolute" sx={{ left: '4px' }}>
-        {caption}
-      </Box>
-      <Box component="span" className="d-flex justify-content-center position-absolute w-100">
-        <b>{v}</b>/{max_v}
-      </Box>
-    </>
-  );
+  const pct = Math.max(0, Math.min(100, Math.floor((100 * v) / max_v)));
 
   return (
-    <Box
-      className="progress"
-      sx={{
-        position: 'relative',
-        flex: '1 1 auto',
-        height: { xs: '4px', sm: '1rem' },
-        color: 'white',
-      }}
-    >
-      <Box style={style} className="progress-bar" role="progressbar" aria-valuenow={v} aria-valuemin={0} aria-valuemax={max_v} />
-      {span}
-    </Box>
+    <div className="rf-vial" role="progressbar" aria-valuenow={v} aria-valuemin={0} aria-valuemax={max_v}>
+      <div className="rf-vial-fill" style={{ width: `${pct}%`, '--c': color }} />
+      <div className="rf-vial-ticks" aria-hidden="true" />
+      {big && <span className="rf-vial-cap">{caption}</span>}
+      {big && (
+        <span className="rf-vial-val">
+          <b>{v}</b>/{max_v}
+        </span>
+      )}
+    </div>
   );
 };
 
@@ -49,30 +36,18 @@ const StatPercent = ({ percent, caption, color }) => {
 
   if (!percent || percent <= 0) return null;
 
-  const style = {
-    width: `${percent}%`,
-    backgroundColor: color,
-  };
-
-  const span = big && (
-    <Box component="span" className="justify-content-center d-flex position-absolute w-100">
-      {caption} <b>{percent}</b>%
-    </Box>
-  );
+  const pct = Math.max(0, Math.min(100, percent));
 
   return (
-    <Box
-      className="progress"
-      sx={{
-        position: 'relative',
-        flex: '1 1 auto',
-        height: { xs: '4px', sm: '1rem' },
-        color: 'white',
-      }}
-    >
-      <Box style={style} className="progress-bar" role="progressbar" aria-valuenow={percent} aria-valuemin={1} aria-valuemax={100} />
-      {span}
-    </Box>
+    <div className="rf-vial" role="progressbar" aria-valuenow={percent} aria-valuemin={1} aria-valuemax={100}>
+      <div className="rf-vial-fill" style={{ width: `${pct}%`, '--c': color }} />
+      <div className="rf-vial-ticks" aria-hidden="true" />
+      {big && (
+        <span className="rf-vial-val">
+          {caption} <b>{percent}</b>%
+        </span>
+      )}
+    </div>
   );
 };
 

@@ -301,11 +301,9 @@ td.v-bottom{vertical-align:bottom}
 .flexcontainer-row{display:-webkit-flex;display:flex;-webkit-flex-direction:row;flex-direction:row;align-items:flex-start}
 .flexcontainer-column{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;width:100%;margin:0 5px 0 0;padding:0 0 5px 0}
 
-/* ===================== custom scrollbars ===================== */
-*::-webkit-scrollbar{width:10px;height:10px}
-*::-webkit-scrollbar-track{background:#0b0a0e}
-*::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#2b2934,#1a1922);border:1px solid #08070b;border-radius:6px}
-*::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,var(--rf-brand-deep),#2b2934)}
+/* Scrollbars are handled in the PHASE 2 overrides section (native overlay:
+   no reserved gutter, appear on scroll/hover). Styling ::-webkit-scrollbar here
+   would force classic space-reserving bars, so we deliberately do not. */
 
 
 /* ============================================================
@@ -786,3 +784,64 @@ body.mud-fighting form#input {
   background-color: #a30000;
   color: #fff;
 }
+
+
+/* ============================================================
+ * PHASE 2 -- batch 1 overrides (appended last, win by source order)
+ * ============================================================ */
+
+/* (1) bolder forged metal on widget cards: top-edge sheen + brighter bevel +
+ *     stronger body gradient + bottom curvature shade */
+.table-wrapper{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0) 10px),
+    linear-gradient(178deg,#2c2935 0%, #1d1b24 46%, #131119 100%) !important;
+  border:1px solid #05040a !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.15),
+    inset 0 0 0 1px rgba(255,255,255,.03),
+    inset 0 -10px 16px rgba(0,0,0,.5),
+    0 4px 10px rgba(0,0,0,.55) !important;
+}
+/* (2) move the forged corner to bottom-left, clear of the title + close button */
+.table-wrapper::after{ top:auto; bottom:3px; left:3px; transform:scaleY(-1); opacity:.6 }
+/* (2) title indent now matches the widget body (drop the corner-clearing margin) */
+.dark-panel-title{ margin-left:0; padding:6px 5px 6px 6px }
+
+/* (3) consistent native overlay scrollbars: no reserved gutter, fade in on
+ *     scroll/hover over the left (terminal) and right (panel/map) areas */
+.terminal-wrap,#map-wrap{ overflow-y:auto }
+.terminal-wrap,#panel-wrap,#map-wrap{ scrollbar-width:thin; scrollbar-color:transparent transparent }
+.terminal-wrap:hover,#panel-wrap:hover,#map-wrap:hover,
+.terminal-wrap:focus-within,#panel-wrap:focus-within,#map-wrap:focus-within{ scrollbar-color:rgba(139,127,152,.55) transparent }
+/* (3) kill the graph-map right drawer (unskinned, off-style) */
+.dl-mapper-drawer{ display:none !important }
+
+/* (4) hp/mana/move as skeuomorphic vials (structure in stats.jsx) */
+.rf-vial{
+  position:relative;flex:1 1 auto;height:1rem;overflow:hidden;border-radius:0;color:#fff;margin:0 1px;
+  background:linear-gradient(180deg,#050507,#0c0b10 55%,#040406);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.9),inset 0 -1px 0 rgba(255,255,255,.05),inset 0 0 0 1px rgba(0,0,0,.7);
+}
+.rf-vial-fill{
+  position:absolute;top:0;bottom:0;left:0;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 55%,#fff),var(--c) 42%,color-mix(in srgb,var(--c) 72%,#000));
+  box-shadow:0 0 10px var(--c),inset 0 1px 0 rgba(255,255,255,.4);
+}
+.rf-vial-fill::after{content:"";position:absolute;inset:0 0 55% 0;background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,0))}
+.rf-vial-ticks{position:absolute;inset:0;pointer-events:none;
+  background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.5) 0 1px,transparent 1px 14px);
+  box-shadow:inset 1px 0 0 rgba(0,0,0,.7),inset -1px 0 0 rgba(0,0,0,.7)}
+.rf-vial-cap{position:absolute;left:5px;top:50%;transform:translateY(-50%);z-index:2;font-size:9px;letter-spacing:.03em;color:rgba(255,255,255,.85);text-shadow:0 1px 1px rgba(0,0,0,.85)}
+.rf-vial-val{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:2;text-align:center;font-size:9px;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.9)}
+.rf-vial-val b{font-weight:700}
+@media (max-width:599px){ .rf-vial{height:5px} }
+
+/* (5) map +/- and ascii toggle match the #nav control buttons */
+.dl-mapper-zoom-btn,.toggle-btn{
+  background:linear-gradient(180deg,#c79bff,#bb86fc) !important;color:#161018 !important;
+  border:1px solid transparent !important;border-radius:5px !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 1px 2px rgba(0,0,0,.5) !important;
+}
+.dl-mapper-zoom-btn:hover,.toggle-btn:hover{background:linear-gradient(180deg,#bb86fc,#8043ca) !important;color:#fff !important}
+.toggle-btn.is-on{background:linear-gradient(180deg,#bb86fc,#8043ca) !important;color:#fff !important;box-shadow:inset 0 1px 3px rgba(0,0,0,.6) !important}
