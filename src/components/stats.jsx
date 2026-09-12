@@ -61,7 +61,7 @@ export default function Stats() {
   return (
     <Box
       sx={{
-        display: { xs: 'block', sm: 'flex' },
+        display: 'flex',
         flexDirection: 'row',
       }}
     >
