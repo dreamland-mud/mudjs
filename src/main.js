@@ -14,7 +14,25 @@ import './langsync';
 import './textedit';
 import './cs';
 
-import './runeforge.css';
+// The /newui build ships Parchment as its default skin (aged grimoire: gold and
+// parchment on obsidian). Runeforge -- the earlier dark forged-metal skin -- is
+// archived but kept in the bundle: visit #runeforge to load it, #parchment to
+// return. The choice sticks in localStorage, so the hash is only needed once.
+let _dlSkin = 'parchment';
+try {
+  const h = (window.location.hash || '').toLowerCase();
+  if (h.includes('runeforge')) localStorage.setItem('dlSkin', 'runeforge');
+  else if (h.includes('parchment')) localStorage.setItem('dlSkin', 'parchment');
+  if (localStorage.getItem('dlSkin') === 'runeforge') _dlSkin = 'runeforge';
+} catch (e) {
+  /* private-mode localStorage can throw on read/write; fall back to Parchment */
+}
+if (_dlSkin === 'runeforge') {
+  import('./runeforge.css');
+} else {
+  document.documentElement.setAttribute('data-skin', 'parchment');
+  import('./theme-parchment.css');
+}
 
 let propertiesStorage = PropertiesStorage;
 
