@@ -67,9 +67,6 @@ const Overlay = ({ unread, onScrollToBottom, lang }) => {
             >
               <i className="fa fa-cog"></i>
             </OverlayCell>
-            <OverlayCell id="map-button" ariaLabel={t('ov.map', lang)} ariaHidden="true">
-              <i className="fa fa-map"></i>
-            </OverlayCell>
             <OverlayCell id="font-plus-button" ariaHidden="true">
               <i className="fa fa-plus"></i>
             </OverlayCell>

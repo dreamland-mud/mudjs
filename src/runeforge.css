@@ -1018,3 +1018,49 @@ form#input input{flex:1 1 auto;min-width:0}
 #cs-subject{margin:.5rem}
 /* reconnect: centered forged CTA (mobile keeps full width from batch 4) */
 .rf-reconnect{display:block;margin:8px auto;min-width:180px}
+
+
+/* ============================================================
+ * PHASE 2 -- batch 7: modals become right-hand side-sheets
+ * ============================================================ */
+.modal-dialog{
+  position:fixed;top:0;right:0;bottom:0;margin:0;height:100%;width:100%;max-width:440px;
+  display:flex;align-items:stretch;pointer-events:none;
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);
+}
+.modal.show .modal-dialog{transform:translateX(0)}
+.modal-dialog-centered{align-items:stretch;min-height:100%}
+.modal-lg{max-width:440px}
+.modal-content{height:100%;width:100%;border-radius:0;border:0;border-left:1px solid var(--rf-brand-deep);
+  box-shadow:-16px 0 44px rgba(0,0,0,.6),inset 1px 0 0 rgba(255,255,255,.06)}
+.hints .modal-dialog{max-width:min(440px,92vw)}
+#settings-modal .modal-dialog{max-width:min(760px,96vw)}
+#cs-modal .modal-dialog,#textedit-modal .modal-dialog{max-width:min(1100px,98vw)}
+/* settings sheet: editor fills the full height */
+#settings-modal .modal-content{height:100%}
+#settings-modal .modal-body{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:0}
+#settings-modal .modal-body .editor{flex:1 1 auto;min-height:0;height:auto}
+@media (prefers-reduced-motion:reduce){.modal-dialog{transition:none}}
+@media (max-width:599px){.modal-dialog{max-width:100% !important}}
+
+/* ============================================================
+ * PHASE 2 -- batch 8: map chrome onto Runeforge (override mapper tokens)
+ * ============================================================ */
+.dl-mapper-root{
+  --ink-base:#100f14; --ink-panel:#17161d; --ink-elevated:#221f2b; --ink-deeper:#0b0a0e;
+  --rule-faint:#141319; --rule:#26232e; --rule-strong:#3a3746;
+}
+.dl-mapper-root .dl-mapper{background:radial-gradient(120% 100% at 50% 0%, #17151f 0%, #100f14 60%, #0a0a0d 100%)}
+header.MuiPaper-root.MuiAppBar-root{
+  background:linear-gradient(180deg,#221f2b,#17161d) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 6px rgba(0,0,0,.5) !important;
+  border-bottom:1px solid #08070b !important;
+}
+.dl-mapper-root .search-input,.dl-mapper-root .select{
+  background:var(--rf-well) !important;border:1px solid #08070b !important;border-radius:5px !important;
+  color:var(--rf-text) !important;box-shadow:inset 0 1px 5px rgba(0,0,0,.6) !important;
+}
+.dl-mapper-root .search-input:focus,.dl-mapper-root .select:focus-visible{
+  border-color:var(--rf-cyan) !important;box-shadow:inset 0 1px 5px rgba(0,0,0,.6),0 0 0 2px rgba(44,244,235,.25) !important;
+}
+.dl-mapper-root .search-results{background:var(--rf-panel-lo) !important;border:1px solid #08070b !important;border-radius:6px !important;box-shadow:0 10px 28px rgba(0,0,0,.6) !important}
