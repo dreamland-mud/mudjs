@@ -47,6 +47,12 @@
   --gold-dim:#856632;
   --gold-deep:#55411d;
 
+  /* antique metal -- darker, heavier gold for button + control SURFACES only.
+     Gold TEXT keeps --gold-bright / --gold; this reads aged and matte, not shiny. */
+  --gold-metal-hi:#b8973f;
+  --gold-metal:#7e6127;
+  --gold-metal-lo:#40300f;
+
   /* parchment -- our-text reading surfaces */
   --parchment:#e4d6b2;
   --parchment-2:#d5c398;
@@ -107,16 +113,8 @@ body{
 .main-content{overflow:hidden;position:relative}
 #root,#page{min-height:100%;height:100%;width:100%;overflow:hidden}
 
-/* the whole client wears a gothic gold double-rule, the way the site frames its
-   hero. Fixed, non-blocking, below modals (z1040) and dropdowns (z1200). */
-body::after{
-  content:"";position:fixed;inset:var(--frame-inset);z-index:35;pointer-events:none;
-  border:1px solid rgba(198,162,78,.42);
-  outline:1px solid rgba(198,162,78,.18);outline-offset:3px;
-  box-shadow:inset 0 0 90px rgba(76,42,122,.18);
-  border-radius:3px;
-}
-@media (max-width:599px){ body::after{inset:2px;box-shadow:none} }
+/* No global frame: the terminal well and the command bar carry their own gold
+   borders, so a viewport-wide frame on top of them read as a redundant box-in-box. */
 
 /* ===================== lean bootstrap-subset base ===================== */
 /* utilities the JSX relies on (Cyborg used to provide these) */
@@ -142,9 +140,9 @@ body::after{
   padding:.4rem .9rem;font-size:1rem;border-radius:3px;border:0;
   color:#1c1206;text-shadow:0 1px 0 rgba(255,255,255,.3);
   background:
-    linear-gradient(180deg,rgba(255,255,255,.5) 0%,transparent 42%),
-    radial-gradient(140% 140% at 50% 0%,var(--gold-bright) 0%,var(--gold) 52%,var(--gold-dim) 100%);
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.75),inset 0 -3px 5px rgba(85,65,29,.6),
+    linear-gradient(180deg,rgba(255,255,255,.3) 0%,transparent 44%),
+    radial-gradient(140% 140% at 50% 0%,var(--gold-metal-hi) 0%,var(--gold-metal) 52%,var(--gold-metal-lo) 100%);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.45),inset 0 -3px 5px rgba(40,30,12,.7),
     0 4px 12px rgba(0,0,0,.55),0 0 0 1px var(--gold-deep);
   transition:background .16s,box-shadow .16s,color .16s,transform .16s,filter .16s;
 }
@@ -278,17 +276,19 @@ body.modal-open{overflow:hidden}
 @media only screen and (min-width:768px){
   .terminal-wrap{
     border:1px solid var(--gold-deep);border-radius:var(--radius);
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.5),inset 0 2px 18px rgba(0,0,0,.55),0 0 0 1px rgba(198,162,78,.12);
+    box-shadow:inset 0 1px 8px rgba(0,0,0,.5);
   }
   #overlay{top:3px}
+  /* command bar matches the terminal well's width: no side margin, so the two
+     gold-framed boxes stack flush and equal-width */
   form#input{
-    margin:5px;border:1px solid var(--gold-deep);border-radius:var(--radius);background:var(--rf-well);
+    margin:5px 0;border:1px solid var(--gold-deep);border-radius:var(--radius);background:var(--rf-well);
     box-shadow:inset 0 1px 5px rgba(0,0,0,.7),inset 0 1px 0 var(--rf-hair);
   }
   form#input input{padding:5px 10px 5px 7px;color:#f2ead6;border-color:transparent;background-color:transparent}
   form#input:focus-within{
-    border-color:var(--gold);
-    box-shadow:inset 0 1px 5px rgba(0,0,0,.7),0 0 0 2px rgba(198,162,78,.22);
+    border-color:var(--arcane);
+    box-shadow:inset 0 1px 5px rgba(0,0,0,.7),0 0 0 2px rgba(187,134,252,.3);
   }
   form#input input:focus{outline:none;box-shadow:none;border-color:transparent}
 }
@@ -349,7 +349,7 @@ td.v-bottom{vertical-align:bottom}
   color:#1c1206;font-family:var(--display);font-size:1.1em;width:100%;margin-top:3px;text-align:left;border:0;
   background:
     linear-gradient(180deg,rgba(255,255,255,.5) 0%,transparent 42%),
-    radial-gradient(140% 140% at 50% 0%,var(--gold-bright),var(--gold) 55%,var(--gold-dim));
+    radial-gradient(140% 140% at 50% 0%,var(--gold-metal-hi),var(--gold-metal) 55%,var(--gold-metal-lo));
   box-shadow:inset 0 1px 1px rgba(255,255,255,.7),0 3px 8px rgba(0,0,0,.5),0 0 0 1px var(--gold-deep);
 }
 .btn-ctrl-panel:hover{color:#f3ecff;text-decoration:none;background:radial-gradient(140% 140% at 50% 0%,#6c3aa8,var(--arcane-deep) 60%,#24123f)}
@@ -361,7 +361,7 @@ td.v-bottom{vertical-align:bottom}
 .btn-ctrl:hover{background:var(--gold);border-color:var(--gold);color:#1c1206}
 #nav .btn-ctrl{
   color:#1c1206;border:0;font-size:15px;
-  background:radial-gradient(140% 140% at 50% 0%,var(--gold-bright),var(--gold) 55%,var(--gold-dim));
+  background:radial-gradient(140% 140% at 50% 0%,var(--gold-metal-hi),var(--gold-metal) 55%,var(--gold-metal-lo));
   box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 1px 2px rgba(0,0,0,.5),0 0 0 1px var(--gold-deep);
 }
 #nav .btn-ctrl:hover{background:radial-gradient(140% 140% at 50% 0%,#6c3aa8,var(--arcane-deep) 60%,#24123f);color:#fff}
@@ -947,7 +947,7 @@ body.mud-fighting form#input {
 
 /* map +/- and ascii toggle match the #nav control buttons (gold gem) */
 .dl-mapper-zoom-btn,.toggle-btn{
-  background:radial-gradient(140% 140% at 50% 0%,var(--gold-bright),var(--gold) 55%,var(--gold-dim)) !important;color:#1c1206 !important;
+  background:radial-gradient(140% 140% at 50% 0%,var(--gold-metal-hi),var(--gold-metal) 55%,var(--gold-metal-lo)) !important;color:#1c1206 !important;
   border:0 !important;border-radius:5px !important;
   box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 1px 2px rgba(0,0,0,.5),0 0 0 1px var(--gold-deep) !important;
 }
@@ -1006,7 +1006,7 @@ form#input input{flex:1 1 auto;min-width:0}
 
 /* bespoke panel collapse (replaces MUI Collapse) */
 #panel-wrap{flex:1 1 auto;font-size:13px}
-#panel-wrap .dark-panel-title{font-size:14px}
+#panel-wrap .dark-panel-title{font-size:12px}
 .rf-collapse{display:grid;grid-template-rows:1fr;transition:grid-template-rows .22s ease}
 .rf-collapse.is-collapsed{grid-template-rows:0fr}
 .rf-collapse-inner{overflow:hidden;min-height:0}
@@ -1063,8 +1063,6 @@ form#input input{flex:1 1 auto;min-width:0}
   .rf-keypad-toggle.is-on{background:radial-gradient(140% 140% at 50% 0%,#6c3aa8,#24123f);color:#fff}
   .rf-reconnect{width:100%}
   :root{--rf-nav-size:var(--rf-ctrl-h)}
-  /* the gold app frame crowds the phone; the top/bottom bars already frame it */
-  body::after{display:none}
 }
 
 /* keypad slide-out */
@@ -1131,7 +1129,7 @@ header.MuiPaper-root.MuiAppBar-root{
 }
 .dl-mapper-root .search-results{background:var(--stone-900) !important;border:1px solid var(--gold-deep) !important;border-radius:6px !important;box-shadow:0 10px 28px rgba(0,0,0,.6) !important}
 
-/* --- one field, one focus glow: gold instead of Runeforge's arcane orbit --- */
+/* --- one field, one focus glow: the arcane purple orbit, as Runeforge had --- */
 form#input input:focus,.form-control:focus,#help input:focus,
 .dl-mapper-root .search-input:focus,.dl-mapper-root .select:focus,
 .dl-mapper-root .select:focus-visible{outline:none}
@@ -1140,17 +1138,17 @@ form#input input:focus,.form-control:focus,#help input:focus,
   animation:pc-focus-orbit 2.6s linear infinite;
 }
 @keyframes pc-focus-orbit{
-  0%    {filter:drop-shadow(0 -5px 7px rgba(198,162,78,.7)) drop-shadow(0 5px 6px rgba(133,102,50,.4));}
-  25%   {filter:drop-shadow(6px 0 8px rgba(198,162,78,.7)) drop-shadow(-6px 0 6px rgba(133,102,50,.4));}
-  50%   {filter:drop-shadow(0 5px 7px rgba(198,162,78,.7)) drop-shadow(0 -5px 6px rgba(133,102,50,.4));}
-  75%   {filter:drop-shadow(-6px 0 8px rgba(198,162,78,.7)) drop-shadow(6px 0 6px rgba(133,102,50,.4));}
-  100%  {filter:drop-shadow(0 -5px 7px rgba(198,162,78,.7)) drop-shadow(0 5px 6px rgba(133,102,50,.4));}
+  0%    {filter:drop-shadow(0 -5px 7px rgba(187,134,252,.75)) drop-shadow(0 5px 6px rgba(128,67,202,.42));}
+  25%   {filter:drop-shadow(6px 0 8px rgba(187,134,252,.75)) drop-shadow(-6px 0 6px rgba(128,67,202,.42));}
+  50%   {filter:drop-shadow(0 5px 7px rgba(187,134,252,.75)) drop-shadow(0 -5px 6px rgba(128,67,202,.42));}
+  75%   {filter:drop-shadow(-6px 0 8px rgba(187,134,252,.75)) drop-shadow(6px 0 6px rgba(128,67,202,.42));}
+  100%  {filter:drop-shadow(0 -5px 7px rgba(187,134,252,.75)) drop-shadow(0 5px 6px rgba(128,67,202,.42));}
 }
 @media (prefers-reduced-motion:reduce){
   .form-control:focus,#help input:focus,form#input:focus-within,
   .dl-mapper-root .search-input:focus,.dl-mapper-root .select:focus-visible{
-    animation:none;filter:drop-shadow(0 0 7px rgba(198,162,78,.6));
+    animation:none;filter:drop-shadow(0 0 7px rgba(187,134,252,.6));
   }
 }
-/* fighting owns the input border (red); drop the gold orbit while it holds */
+/* fighting owns the input border (red); drop the purple orbit while it holds */
 body.mud-fighting form#input:focus-within{border-color:#cc0000;animation:none;filter:none}
