@@ -923,3 +923,57 @@ form#input input{flex:1 1 auto;min-width:0}
 .rf-tw td{padding:1px 0;border:0;font-size:12px}
 .rf-tw td.tw-ic{width:1.4em;padding-left:5px;padding-right:8px}
 .rf-tw .wi,.rf-tw .fa{font-size:16px;width:1.4em;display:inline-block;text-align:left;color:#bb86fc}
+
+
+/* ============================================================
+ * PHASE 2 -- batch 4: mobile (<600px) swipe pager + command bar
+ * ============================================================ */
+@media (max-width:599px){
+  /* horizontal scroll-snap pager: full-width pages, native swipe, no scrollbar */
+  .rf-pager{
+    flex:1 1 auto;min-height:0;display:flex;
+    overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+    scrollbar-width:none;
+  }
+  .rf-pager::-webkit-scrollbar{display:none}
+  .rf-page{flex:0 0 100%;width:100%;height:100%;scroll-snap-align:start;position:relative;
+    display:flex;flex-direction:column;overflow:hidden}
+  .rf-page-scroll{overflow-y:auto}
+  /* unhide the widgets panel + map inside the pager (main.css hides them <600) */
+  .rf-page #panel-wrap{display:block !important;flex:1 1 auto;overflow-y:auto}
+  .rf-page #map-wrap{display:block !important}
+  .rf-page .dl-mapper-root{flex:1 1 auto;height:100%}
+
+  /* page dots */
+  .rf-dots{display:flex;justify-content:center;gap:8px;padding:6px 0 4px;flex:none}
+  .rf-dot{width:7px;height:7px;padding:0;border-radius:50%;border:1px solid #08070b;
+    background:#2b2934;box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
+  .rf-dot.is-active{background:linear-gradient(180deg,#c79bff,#bb86fc);box-shadow:0 0 7px rgba(187,134,252,.6)}
+
+  /* movement keypad (toggle-pad above the bar) */
+  .rf-keypad{flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:6px;
+    background:linear-gradient(180deg,#17161d,#111016);border-top:1px solid #08070b}
+  .rf-mk-btn{height:46px;font-size:16px;font-weight:600;border-radius:7px;border:1px solid #08070b;
+    color:var(--rf-text);display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,#2a2733,#191821);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 1px 2px rgba(0,0,0,.5)}
+  .rf-mk-btn:active{background:linear-gradient(180deg,#191821,#2a2733)}
+
+  /* persistent command bar */
+  .rf-cmdbar{flex:none;display:flex;align-items:stretch;gap:5px;
+    padding:5px 6px calc(5px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,#1b1a22,#131119);border-top:1px solid #08070b;
+    box-shadow:0 -3px 10px rgba(0,0,0,.5)}
+  .rf-cmdbar form#input{flex:1 1 auto;margin:0;border:1px solid #08070b;border-radius:6px;
+    background:var(--rf-well);box-shadow:inset 0 1px 5px rgba(0,0,0,.7)}
+  .rf-cmdbar form#input input{padding:9px 6px;color:#eef1ea;background:transparent;border:0;font-size:16px}
+  .rf-cmdactions{display:flex;gap:5px;flex:none}
+  .rf-cmdbtn{flex:none;width:40px;display:flex;align-items:center;justify-content:center;
+    border-radius:6px;border:1px solid #08070b;color:var(--rf-text);font-size:15px;cursor:pointer;
+    background:linear-gradient(180deg,#2a2733,#191821);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 1px 2px rgba(0,0,0,.5)}
+  .rf-cmdbtn:active{background:linear-gradient(180deg,#191821,#2a2733)}
+  .rf-send{background:linear-gradient(180deg,#c79bff,#bb86fc);color:#161018;border-color:transparent}
+  .rf-keypad-toggle.is-on{background:linear-gradient(180deg,#bb86fc,#8043ca);color:#fff}
+  .rf-reconnect{width:100%}
+}

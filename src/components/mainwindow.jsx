@@ -1,17 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
-import { useTheme } from '@mui/material/styles';
 import CmdInput from './cmdinput';
 import Terminal from './terminal';
 
-import { send } from '../websock';
 import { t, fmt } from '../i18n';
 
 const OverlayCell = ({ ariaLabel, ariaHidden, children, ...props }) => {
-  const theme = useTheme();
-
   const ariaProps = {};
   if (ariaLabel) ariaProps['aria-label'] = ariaLabel;
   if (ariaHidden) ariaProps['aria-hidden'] = ariaHidden;
@@ -35,100 +30,6 @@ const OverlayCell = ({ ariaLabel, ariaHidden, children, ...props }) => {
         {children}
       </button>
     </td>
-  );
-};
-
-const longPressDelay = 800;
-
-const KeypadCell = ({ cmd, longCmd, children, ...props }) => {
-  let btnTimer = null;
-  let wasLongPress = false;
-
-  const touchstart = e => {
-    wasLongPress = false;
-    btnTimer = setTimeout(() => {
-      wasLongPress = true;
-      btnTimer = null;
-      send(longCmd);
-    }, longPressDelay);
-  };
-
-  const touchend = () => {
-    if (btnTimer) clearTimeout(btnTimer);
-  };
-
-  const click = e => {
-    if (wasLongPress) return;
-    e.preventDefault();
-    send(cmd);
-  };
-
-  const handlers = {
-    ...(longCmd && {
-      onTouchStart: touchstart,
-      onTouchEnd: touchend,
-      onMouseDown: touchstart,
-      onMouseUp: touchend,
-      onMouseLeave: touchend,
-    }),
-    ...(cmd && { onClick: click }),
-  };
-
-  return (
-    <OverlayCell {...handlers} {...props}>
-      {children}
-    </OverlayCell>
-  );
-};
-
-const Keypad = () => {
-  const theme = useTheme();
-  const big = useMediaQuery(theme.breakpoints.up('sm'));
-
-  if (big) return null;
-
-  return (
-    <>
-      <tr aria-hidden="true">
-        <td></td>
-        <td></td>
-        <KeypadCell cmd="scan">
-          <i className="fa fa-fw fa-refresh"></i>
-        </KeypadCell>
-        <KeypadCell cmd="n" longCmd="отпер север|откр север">
-          <span>N</span>
-        </KeypadCell>
-        <KeypadCell cmd="u" longCmd="отпер вверх|откр вверх">
-          <span>U</span>
-        </KeypadCell>
-      </tr>
-      <tr aria-hidden="true">
-        <td></td>
-        <td></td>
-        <KeypadCell cmd="w" longCmd="отпер запад|откр запад">
-          <span>W</span>
-        </KeypadCell>
-        <KeypadCell cmd="l">
-          <i className="fa fa-fw fa-eye"></i>
-        </KeypadCell>
-        <KeypadCell cmd="e" longCmd="отпер восток|откр восток">
-          <span>E</span>
-        </KeypadCell>
-      </tr>
-      <tr aria-hidden="true">
-        <td></td>
-        <td></td>
-        <KeypadCell cmd="where">
-          <i className="fa fa-fw fa-map-marker"></i>
-        </KeypadCell>
-        <KeypadCell cmd="s" longCmd="отпер юг|откр юг">
-          <span>S</span>
-        </KeypadCell>
-        <KeypadCell cmd="d" longCmd="отпер вниз|откр вниз">
-          <span>D</span>
-        </KeypadCell>
-      </tr>
-    </>
   );
 };
 
@@ -176,7 +77,7 @@ const Overlay = ({ unread, onScrollToBottom, lang }) => {
               <i className="fa fa-minus"></i>
             </OverlayCell>
           </tr>
-          <Keypad />
+          {/* Movement keypad moved to the mobile command-bar toggle (MobileKeypad in app.jsx). */}
         </tbody>
       </table>
 
@@ -199,7 +100,7 @@ const Overlay = ({ unread, onScrollToBottom, lang }) => {
   );
 };
 
-export default function MainWindow() {
+export default function MainWindow({ showInput = true }) {
   const terminal = useRef();
   const [unread, setUnread] = useState(0);
   const lang = useSelector(state => state.prompt && state.prompt.lang);
@@ -218,7 +119,7 @@ export default function MainWindow() {
           bumpUnread={() => setUnread(unread + 1)}
         />
       </Box>
-      <CmdInput />
+      {showInput && <CmdInput />}
     </Box>
   );
 }

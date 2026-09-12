@@ -202,23 +202,18 @@ const CmdInput = () => {
 
   if (!connection.connected) {
     return (
-      <button onClick={connect} type="button" className="btn btn-primary">
+      <button onClick={connect} type="button" className="btn btn-primary rf-reconnect">
         {t('in.reconnect', lang)}
       </button>
     );
   }
 
+  // On mobile the input lives in the persistent command bar (app.jsx MobileApp),
+  // with inline history + send buttons; the send button submits form#input via the
+  // `form` attribute even though it sits outside the <form>. On desktop it's just
+  // the input (Enter submits), placed below the terminal by MainWindow.
   return (
-    <div
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        maxWidth: '1920px',
-        margin: '0 auto',
-        width: '100%',
-      }}
-    >
+    <>
       <form onSubmit={submit} id="input">
         <input
           ref={textInput}
@@ -231,65 +226,19 @@ const CmdInput = () => {
         />
       </form>
       {!big && (
-        <table
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-          }}
-        >
-          <tbody>
-            <tr>
-              <td>
-                <button
-                  onClick={historyRepeat}
-                  aria-label={t('in.repeat', lang)}
-                  cmd="repeat"
-                  className="btn btn-sm btn-ctrl btn-outline-primary"
-                  style={{
-                    height: '1.7em',
-                    width: '1.7em',
-                    pointerEvents: 'all',
-                  }}
-                >
-                  <i className="fa fa-repeat"></i>
-                </button>
-              </td>
-              <td>
-                <button
-                  onClick={historyDown}
-                  aria-label={t('in.next', lang)}
-                  cmd="history-down"
-                  className="btn btn-sm btn-ctrl btn-outline-primary"
-                  style={{
-                    height: '1.7em',
-                    width: '1.7em',
-                    pointerEvents: 'all',
-                  }}
-                >
-                  <i className="fa fa-arrow-down"></i>
-                </button>
-              </td>
-              <td>
-                <button
-                  onClick={historyUp}
-                  aria-label={t('in.prev', lang)}
-                  cmd="history-up"
-                  className="btn btn-sm btn-ctrl btn-outline-primary"
-                  style={{
-                    height: '1.7em',
-                    width: '1.7em',
-                    pointerEvents: 'all',
-                  }}
-                >
-                  <i className="fa fa-arrow-up"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className="rf-cmdactions">
+          <button type="button" onClick={historyUp} aria-label={t('in.prev', lang)} className="rf-cmdbtn">
+            <i className="fa fa-arrow-up"></i>
+          </button>
+          <button type="button" onClick={historyRepeat} aria-label={t('in.repeat', lang)} className="rf-cmdbtn">
+            <i className="fa fa-repeat"></i>
+          </button>
+          <button type="submit" form="input" aria-label="Send" className="rf-cmdbtn rf-send">
+            <i className="fa fa-paper-plane"></i>
+          </button>
+        </div>
       )}
-    </div>
+    </>
   );
 };
 
