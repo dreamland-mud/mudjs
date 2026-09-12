@@ -187,7 +187,11 @@ const MobileApp = () => {
         ))}
       </div>
 
-      {keypadOpen && <MobileKeypad />}
+      <div className={keypadOpen ? 'rf-keypad-wrap is-open' : 'rf-keypad-wrap'} aria-hidden={!keypadOpen}>
+        <div className="rf-keypad-inner">
+          <MobileKeypad />
+        </div>
+      </div>
 
       <Stats />
 

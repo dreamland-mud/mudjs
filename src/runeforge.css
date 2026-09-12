@@ -829,13 +829,13 @@ body.mud-fighting form#input {
   box-shadow:0 0 10px var(--c),inset 0 1px 0 rgba(255,255,255,.4);
 }
 .rf-vial-fill::after{content:"";position:absolute;inset:0 0 55% 0;background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,0))}
+/* end caps only -- the repeated graduation ticks were removed per feedback */
 .rf-vial-ticks{position:absolute;inset:0;pointer-events:none;
-  background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.5) 0 1px,transparent 1px 14px);
-  box-shadow:inset 1px 0 0 rgba(0,0,0,.7),inset -1px 0 0 rgba(0,0,0,.7)}
+  box-shadow:inset 1px 0 0 rgba(0,0,0,.6),inset -1px 0 0 rgba(0,0,0,.6)}
 .rf-vial-cap{position:absolute;left:5px;top:50%;transform:translateY(-50%);z-index:2;font-size:9px;letter-spacing:.03em;color:rgba(255,255,255,.85);text-shadow:0 1px 1px rgba(0,0,0,.85)}
 .rf-vial-val{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:2;text-align:center;font-size:9px;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.9)}
 .rf-vial-val b{font-weight:700}
-@media (max-width:599px){ .rf-vial{height:5px} }
+@media (max-width:599px){ .rf-vial{height:10px} }  /* 2x thicker on mobile */
 
 /* (5) map +/- and ascii toggle match the #nav control buttons */
 .dl-mapper-zoom-btn,.toggle-btn{
@@ -977,3 +977,24 @@ form#input input{flex:1 1 auto;min-width:0}
   .rf-keypad-toggle.is-on{background:linear-gradient(180deg,#bb86fc,#8043ca);color:#fff}
   .rf-reconnect{width:100%}
 }
+
+
+/* ============================================================
+ * PHASE 2 -- batch 5: widget sizing + keypad slide-out
+ * ============================================================ */
+
+/* widgets: a bit larger type + inner padding */
+#panel-wrap{font-size:13px}
+#panel-wrap .dark-panel-title{font-size:14px}
+.table-wrapper{padding:1px 5px 7px}
+#group-table td,#group-table th,#who-table td,#who-table th{padding:3px 6px}
+#player-params-1 td,#player-params-2 td{padding:2px 7px;font-size:12px}
+#questor-table p,#player-affects-table{font-size:12px}
+.rf-tw td{font-size:13px}
+.aff-chip{font-size:12px}
+
+/* keypad slide-out (grid-rows 0fr<->1fr, same technique as the panel collapse) */
+.rf-keypad-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .22s ease}
+.rf-keypad-wrap.is-open{grid-template-rows:1fr}
+.rf-keypad-inner{overflow:hidden;min-height:0}
+@media (prefers-reduced-motion:reduce){.rf-keypad-wrap{transition:none}}
