@@ -52,7 +52,9 @@ const CmdInput = () => {
       if (e.which === 9) return;
 
       const input = $('#input input');
-      if ($('body.modal-open').length !== 0) return;
+      // A window over the game -- an editor modal, or the settings sheet --
+      // keeps what is typed in it.
+      if ($('body.modal-open, body.settings-open').length !== 0) return;
 
       if (!sendHotKeyCmd(e)) {
         if (e.ctrlKey || e.altKey) return;
