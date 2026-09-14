@@ -67,8 +67,8 @@ export default function Stats() {
     >
       <Stat caption={t('st.health', lang)} color="#cc0000" v={hit} max_v={max_hit} />
       <StatPercent caption={t('st.enemy', lang)} color="#ff0000" percent={fight} />
-      <Stat caption={t('st.mana', lang)} color="#3465a4" v={mana} max_v={max_mana} />
-      <Stat caption={t('st.moves', lang)} color="#4e9a06" v={move} max_v={max_move} />
+      <Stat caption={t('st.mana', lang)} color="#bb86fc" v={mana} max_v={max_mana} />
+      <Stat caption={t('st.moves', lang)} color="#a9760f" v={move} max_v={max_move} />
     </Box>
   );
 }

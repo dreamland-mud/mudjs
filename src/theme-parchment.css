@@ -359,11 +359,30 @@ td.v-bottom{vertical-align:bottom}
 .btn-ctrl{float:right;font-size:1.5em;color:var(--gold-dim);border:1px solid var(--gold-deep);margin:1px;background:rgba(19,16,25,.6)}
 .top-right-buttons .btn-ctrl{margin:0 .2em}
 .btn-ctrl:hover{background:var(--gold);border-color:var(--gold);color:#1c1206}
+/* Resting surface, matched to Figma node 1023:1018 (parchment button). The node
+   is 18px; every value below is its real property SCALED x1.667 to the nav
+   control's 30px box, so the design's proportions hold at this size (radius,
+   bevel depth, stroke, icon and drop all grow together). Reproduced 1:1 at
+   18px it is pixel-exact against Figma. Layers: 2-stop --gold -> --gold-dim
+   radial at 50% 0%, gold-deep@50% inside hairline, two inner shadows, monotone
+   noise, drop shadow; icon carries its own gold-bright emboss. Fill + icon are
+   the node's bound tokens (--gold, --gold-dim, --ink). Hover/focus below keep
+   the arcane treatment untouched. */
 #nav .btn-ctrl{
-  color:#1c1206;border:0;font-size:15px;
-  background:radial-gradient(140% 140% at 50% 0%,var(--gold-metal-hi),var(--gold-metal) 55%,var(--gold-metal-lo));
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 1px 2px rgba(0,0,0,.5),0 0 0 1px var(--gold-deep);
+  position:relative;
+  color:var(--ink);font-size:20px;border-radius:7px;margin:0;
+  border:.8px solid color-mix(in srgb,var(--gold-deep) 50%,transparent);
+  background:radial-gradient(100% 100% at 50% 0%,var(--gold) 0%,var(--gold-dim) 100%);
+  box-shadow:
+    inset 0 3px 2px rgba(255,255,255,.45),
+    inset 0 -3px 5px rgba(40,30,12,.35),
+    0 7px 20px rgba(36,28,15,.32);
 }
+#nav .btn-ctrl::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:var(--noise);mix-blend-mode:overlay;opacity:.06;
+}
+#nav .btn-ctrl i{text-shadow:0 2px 2px color-mix(in srgb,var(--gold-bright) 55%,transparent)}
 #nav .btn-ctrl:hover{background:radial-gradient(140% 140% at 50% 0%,#6c3aa8,var(--arcane-deep) 60%,#24123f);color:#fff}
 #nav .btn-ctrl:focus{box-shadow:none}
 

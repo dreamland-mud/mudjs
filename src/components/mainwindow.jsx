@@ -19,8 +19,8 @@ const OverlayCell = ({ ariaLabel, ariaHidden, children, ...props }) => {
         className="btn btn-sm btn-ctrl btn-outline-primary"
         style={{
           pointerEvents: 'all',
-          width: '30px',
-          height: '30px',
+          width: 'var(--rf-nav-size, 30px)',
+          height: 'var(--rf-nav-size, 30px)',
           padding: 0,
           display: 'inline-flex',
           alignItems: 'center',

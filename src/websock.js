@@ -112,6 +112,16 @@ const RECONNECT_MAX = 15000;
 let reconnectTimer = null;
 let reconnectDelay = 0;
 
+/* resume_failed is two answers sharing one name: "the token is finished, log in"
+ * and "your own previous socket has not gone linkdead yet -- ask again in a
+ * moment" (the server keeps the token for that case, see resume.cpp #906). We
+ * cannot tell them apart from here, so retry a bounded handful of times with a
+ * short backoff before falling back to a real login. Without this a phone that
+ * reconnects faster than the server notices its dead socket -- i.e. almost every
+ * time -- gets thrown to the login screen on every single drop. */
+const RESUME_RETRY_MAX = 5;
+let resumeRetries = 0;
+
 function resumeToken() {
   try {
     return sessionStorage.getItem(RESUME_KEY);
@@ -322,13 +332,26 @@ $(document).ready(function () {
     .on('rpc-resume_ok', function () {
       // Straight back into the character: no banner, no login, and the
       // scrollback in this tab is still the one the player left.
+      resumeRetries = 0;
       reconnectDelay = 0;
       flushPending();
     })
     .on('rpc-resume_failed', function () {
-      // Spent, expired, or the character has left the world. Ordinary session.
-      // Held lines are dropped rather than replayed: what the server asks for
-      // next is a login, and a queued command would be typed into it.
+      /* Might just be "not yet". While we still hold the token and have retries
+       * left, close and reconnect with a short backoff -- the reconnect resends
+       * the same token, and once the server has let go of our old socket it
+       * takes. onclose keeps the token and schedules the reconnect for us. */
+      if (resumeToken() && resumeRetries < RESUME_RETRY_MAX) {
+        resumeRetries++;
+        reconnectDelay = Math.min(800 * resumeRetries, 3000);
+        if (ws) ws.close();
+        return;
+      }
+
+      // Out of retries: this failure is the final kind. Ordinary login. Held
+      // lines are dropped rather than replayed -- what the server asks for next
+      // is a login, and a queued command would be typed into it.
+      resumeRetries = 0;
       pending = [];
       setResumeToken(null);
       send('1');
