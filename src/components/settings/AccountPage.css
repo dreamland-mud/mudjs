@@ -8,6 +8,33 @@
 
 .acct-loading { color: var(--cfg-dim); font-size: 13px; padding: 8px 0; }
 
+.acct-title {
+  font-size: 17px;
+  color: var(--cfg-bright);
+  letter-spacing: 0.03em;
+}
+
+/* ---- login methods -------------------------------------------------------- */
+.acct-methods { display: flex; flex-direction: column; gap: 7px; }
+.acct-method {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 1px solid var(--cfg-line-soft);
+  border-radius: 6px;
+}
+.acct-method-ico { width: 18px; text-align: center; color: var(--cfg-accent); }
+.acct-method-type {
+  width: 74px; flex: 0 0 74px;
+  font-size: 12px; text-transform: capitalize; color: var(--cfg-dim);
+}
+.acct-method-val {
+  flex: 1 1 auto; min-width: 0;
+  font-size: 13px; color: var(--cfg-text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
 .acct-block { display: flex; flex-direction: column; gap: 9px; }
 .acct-h {
   font-size: 13px;

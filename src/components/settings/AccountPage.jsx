@@ -7,19 +7,26 @@ import './AccountPage.css';
 // The account page inside the settings window. The client has no account data of
 // its own, so it asks the server: rpccmd('account_chars') -> the server replies
 // with an 'account_chars' rpc carrying
-//   { current: "<name of the character in the world now>",
-//     account: <true if this character is on an account, else false/null>,
-//     chars:   [ { name, title, online }, ... ] }
-// Clicking a character sends the real `account switch <name>` (the same command
-// that works at the keyboard) and closes the window; the server swaps the
-// session. Until the rpc ships, chars stays empty and the manual field below --
-// which works today -- is the way through.
+//   { current, account, title,
+//     identities: [ { type, display }, ... ],
+//     chars:      [ { name }, ... ] }
+// account is false (and the arrays empty) for a character not on an account, or
+// before the rpc ships (pre-reboot) -- in which case the manual switch field
+// below, which works today, is the way through. Clicking a character sends the
+// real `account switch <name>` (the same command that works at the keyboard) and
+// closes the window; the server swaps the session.
 
 const NAME_RE = /^[A-Za-z]{1,20}$/;
 const LOAD_TIMEOUT_MS = 2000;
 
+const METHOD_ICON = {
+  email: 'fa-envelope',
+  discord: 'fa-comments',
+  telegram: 'fa-telegram',
+};
+
 export default function AccountPage({ lang, visible }) {
-  const [data, setData] = useState(null);       // { current, account, chars }
+  const [data, setData] = useState(null);       // { current, account, title, identities, chars }
   const [loading, setLoading] = useState(false);
   const [manual, setManual] = useState('');
   const timer = useRef(null);
@@ -72,12 +79,34 @@ export default function AccountPage({ lang, visible }) {
   };
 
   const chars = (data && data.chars) || [];
+  const identities = (data && data.identities) || [];
   const current = data && data.current;
   const isCurrent = c => current && c.name.toLowerCase() === String(current).toLowerCase();
 
   return (
     <div className="acct">
       {loading && !data ? <div className="acct-loading">{t('acct.loading', lang)}</div> : null}
+
+      {data && data.account && data.title ? (
+        <div className="acct-title">{data.title}</div>
+      ) : null}
+
+      {identities.length ? (
+        <div className="acct-block">
+          <div className="acct-h">{t('acct.methods', lang)}</div>
+          <div className="acct-methods">
+            {identities.map((m, i) => (
+              <div key={m.type + i} className="acct-method">
+                <span className="acct-method-ico">
+                  <i className={'fa ' + (METHOD_ICON[m.type] || 'fa-key')} aria-hidden="true" />
+                </span>
+                <span className="acct-method-type">{m.type}</span>
+                <span className="acct-method-val">{m.display}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {chars.length ? (
         <div className="acct-block">
@@ -91,12 +120,9 @@ export default function AccountPage({ lang, visible }) {
                 <span className="acct-sigil" aria-hidden="true">{c.name[0]}</span>
                 <span className="acct-card-main">
                   <span className="acct-card-name">{c.name}</span>
-                  {c.title ? <span className="acct-card-title">{c.title}</span> : null}
                 </span>
                 {isCurrent(c) ? (
                   <span className="acct-badge acct-badge-here">{t('acct.current', lang)}</span>
-                ) : c.online ? (
-                  <span className="acct-badge">{t('acct.online', lang)}</span>
                 ) : (
                   <button
                     type="button"
