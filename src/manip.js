@@ -73,6 +73,11 @@ var SAFE_HC_COMMANDS = [
   // mortal clicks is simply refused. Every shape is self-scoped and bank-gated --
   // none can move an item to another player, so the phishing risk is nil.
   /^vault (\*[a-z0-9]{1,20} )?(get \d{1,5}|filter [a-z_]{1,20})$/i,
+  // account: the char-list rows in `account` status send 'account switch <Name>'
+  // to enter another character on the same account without a password. Server-
+  // scoped -- account_switch refuses any char not on the clicker's own account,
+  // so a forged one a player clicks is simply refused. Login names are alpha-only.
+  /^account switch [A-Za-z]{1,20}$/,
 ];
 
 function safeExplicitAction(value) {

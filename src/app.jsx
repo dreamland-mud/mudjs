@@ -11,6 +11,7 @@ import Panel from './components/windowletsPanel/panel';
 import Stats from './components/stats';
 import Map from './components/map';
 import CmdInput from './components/cmdinput';
+import AccountLogin from './components/accountLogin';
 import PropertiesStorage from './properties';
 import { send } from './websock';
 
@@ -273,6 +274,7 @@ export default function App() {
       ) : (
         <MobileApp />
       )}
+      <AccountLogin />
     </Box>
   );
 }
