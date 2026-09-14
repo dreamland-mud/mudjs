@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import $ from 'jquery';
 import { useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
 import CmdInput from './cmdinput';
@@ -60,8 +61,7 @@ const Overlay = ({ unread, onScrollToBottom, lang }) => {
             </OverlayCell>
             <OverlayCell
               id="settings-button"
-              data-toggle="modal"
-              data-target="#settings-modal"
+              onClick={() => $(document).trigger('settings:open')}
               ariaLabel={t('ov.settings', lang)}
               ariaHidden="false"
             >
