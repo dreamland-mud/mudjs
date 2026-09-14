@@ -1,0 +1,104 @@
+/*
+ * The account page inside the settings window. Built on the --cfg-* tokens, so
+ * it inherits whatever palette the dialog is skinned with (Parchment re-points
+ * them in settings-parchment.css).
+ */
+
+.acct { display: flex; flex-direction: column; gap: 18px; padding: 4px 2px; }
+
+.acct-loading { color: var(--cfg-dim); font-size: 13px; padding: 8px 0; }
+
+.acct-block { display: flex; flex-direction: column; gap: 9px; }
+.acct-h {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--cfg-bright);
+}
+.acct-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cfg-dimmer);
+}
+
+/* ---- roster cards --------------------------------------------------------- */
+.acct-roster { display: flex; flex-direction: column; gap: 8px; }
+.acct-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 11px;
+  border: 1px solid var(--cfg-line);
+  border-radius: 6px;
+  background: var(--cfg-sunk);
+}
+.acct-card-current { border-color: var(--cfg-accent); }
+.acct-sigil {
+  width: 30px; height: 30px; flex: 0 0 30px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--cfg-chrome);
+  border: 1px solid var(--cfg-line);
+  color: var(--cfg-key);
+  font-weight: 700; font-size: 14px;
+}
+.acct-card-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.acct-card-name { font-size: 14px; color: var(--cfg-bright); }
+.acct-card-title {
+  font-size: 11px; color: var(--cfg-dim);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.acct-badge {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em;
+  color: var(--cfg-dim);
+  border: 1px solid var(--cfg-line);
+  border-radius: 4px; padding: 3px 7px; white-space: nowrap;
+}
+.acct-badge-here { color: var(--cfg-accent); border-color: var(--cfg-accent); }
+
+/* ---- no-account note ------------------------------------------------------ */
+.acct-none {
+  padding: 10px 12px;
+  border: 1px solid var(--cfg-line);
+  border-left: 2px solid var(--cfg-accent);
+  border-radius: 6px;
+  background: var(--cfg-sunk);
+  font-size: 13px; color: var(--cfg-text);
+}
+.acct-hint { margin-top: 5px; font-size: 12px; color: var(--cfg-dim); }
+
+/* ---- manual switch + actions ---------------------------------------------- */
+.acct-manual-row { display: flex; gap: 8px; }
+.acct-input {
+  flex: 1 1 auto; min-width: 0;
+  padding: 8px 10px;
+  background: var(--cfg-sunk);
+  border: 1px solid var(--cfg-line);
+  border-radius: 5px;
+  color: var(--cfg-text);
+  font-size: 14px; outline: none;
+  transition: border-color 0.15s;
+}
+.acct-input:focus { border-color: var(--cfg-accent); }
+
+.acct-mini {
+  flex: 0 0 auto;
+  padding: 6px 13px;
+  border-radius: 5px;
+  border: 1px solid var(--cfg-line);
+  background: var(--cfg-chrome);
+  color: var(--cfg-text);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.acct-mini:hover:not(:disabled) { border-color: var(--cfg-accent); color: var(--cfg-bright); }
+.acct-mini:disabled { opacity: 0.5; cursor: default; }
+
+.acct-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+.acct-link {
+  background: none; border: none; padding: 0;
+  color: var(--cfg-accent);
+  font-size: 12px; cursor: pointer; text-align: left;
+}
+.acct-link:hover { color: var(--cfg-bright); }

@@ -1,0 +1,36 @@
+/*
+ * Parchment re-skin for the settings side-sheet.
+ *
+ * settings.css (copied from main.css) carries all the layout and Georgiy's
+ * cyborg palette on the --cfg-* tokens. This file only re-points those tokens
+ * to the Parchment palette, so the window reads as part of /newui rather than
+ * the old Cyborg client. Imported AFTER settings.css; same .cfg-dialog selector,
+ * so the later definition wins. Palette matches account-login.css / the
+ * Parchment skin (theme-parchment.css :root), with hex fallbacks.
+ */
+
+.cfg-dialog {
+  --cfg-bg: #14121c;        /* main surface -- obsidian, like the login panel */
+  --cfg-chrome: #100e18;    /* header / footer chrome, a shade darker */
+  --cfg-sunk: #0b0a10;      /* inset fields, sunk wells */
+  --cfg-line: var(--gold-deep, #6f5a26);        /* structural borders -- deep gold */
+  --cfg-line-soft: rgba(198, 162, 78, 0.20);    /* faint dividers */
+  --cfg-text: var(--text, #e8e2d2);             /* plain text */
+  --cfg-bright: var(--gold-bright, #e6cd86);    /* headings -- bright gold */
+  --cfg-dim: var(--text-dim, #b7ad95);
+  --cfg-dimmer: var(--text-faint, #8a8168);
+  --cfg-accent: var(--gold, #c6a24e);           /* primary accent / active page */
+  --cfg-key: var(--arcane, #bb86fc);            /* option names -- arcane purple */
+  --cfg-yes: #8fbf5a;                           /* on-state -- calmer leaf green */
+}
+
+/* Left edge of the sheet: a gilded seam instead of the flat cyborg rule. */
+.cfg-dialog {
+  border-left: 2px solid var(--gold-deep, #6f5a26);
+  box-shadow: -16px 0 44px rgba(0, 0, 0, 0.6);
+}
+
+/* Focus rings pick up the arcane glow, same as the login inputs. */
+.cfg-dialog :focus-visible {
+  outline-color: var(--arcane, #bb86fc);
+}

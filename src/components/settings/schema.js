@@ -10,9 +10,28 @@ import { SUPPORT } from './useConfig.js';
 // dialog never has a special case for a missing server.
 
 export const SCRIPT_PAGE = 'script';
+export const ACCOUNT_PAGE = 'account';
 export const MISSING_PAGE = 'server-unavailable';
 export const OFFLINE_PAGE = 'server-offline';
 export const ASKING_PAGE = 'server-asking';
+
+// The account page is the client's own, like the script: it is not one of the
+// server's config options, it draws itself, and its data comes from a dedicated
+// rpc (account_chars) rather than the config schema.
+function accountSection(lang) {
+  return {
+    key: 'account',
+    label: t('cfg.section.account', lang),
+    pages: [
+      {
+        key: ACCOUNT_PAGE,
+        kind: 'account',
+        label: t('cfg.page.account', lang),
+        options: [],
+      },
+    ],
+  };
+}
 
 function scriptSection(lang) {
   return {
@@ -80,6 +99,7 @@ export function buildTree(schema, support, lang) {
     sections.push(standInSection(state, lang));
   }
 
+  sections.push(accountSection(lang));
   sections.push(scriptSection(lang));
   return sections;
 }

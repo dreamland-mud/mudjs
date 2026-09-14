@@ -1,0 +1,1044 @@
+/*
+ * Settings-window styles for the /newui (Parchment) build.
+ *
+ * Copied verbatim from src/main.css (Georgiy Garnov, PR #165) because the newui
+ * build does not load main.css (it dropped the Bootstrap/Cyborg skin for its
+ * own). This file carries the layout + structure of the settings side-sheet
+ * (slide-in, page tree, drill-down, edge-resize) and Georgiy's default palette.
+ * settings-parchment.css re-points the --cfg-* tokens to the Parchment palette
+ * on top of this; keep this copy in sync with main.css if Georgiy changes it.
+ */
+
+.cfg-dialog {
+  display: flex;
+  flex-direction: column;
+  /* The sheet sets the size; the window fills it, so walking the tree never
+     makes anything jump. */
+  min-width: 0;
+  min-height: 0;
+  background: var(--cfg-bg);
+  color: var(--cfg-text);
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+/* The dialog's own scrollbars are dark: a bright one would be the only light
+   thing on the screen. Named boxes only -- styling every descendant also
+   catches the editor, which draws its own scrollbar, and WebKit drops the
+   arrows off any scrollbar it sees a rule for. */
+.cfg-pane,
+.cfg-tree-list,
+.cfg-body-mobile,
+.cfg-help-example-text {
+  scrollbar-width: thin;
+  scrollbar-color: #2c333d var(--cfg-sunk);
+}
+
+.cfg-pane::-webkit-scrollbar,
+.cfg-tree-list::-webkit-scrollbar,
+.cfg-body-mobile::-webkit-scrollbar,
+.cfg-help-example-text::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.cfg-pane::-webkit-scrollbar-track,
+.cfg-tree-list::-webkit-scrollbar-track,
+.cfg-body-mobile::-webkit-scrollbar-track,
+.cfg-help-example-text::-webkit-scrollbar-track,
+.cfg-pane::-webkit-scrollbar-corner,
+.cfg-tree-list::-webkit-scrollbar-corner,
+.cfg-body-mobile::-webkit-scrollbar-corner,
+.cfg-help-example-text::-webkit-scrollbar-corner {
+  background: var(--cfg-sunk);
+}
+
+.cfg-pane::-webkit-scrollbar-thumb,
+.cfg-tree-list::-webkit-scrollbar-thumb,
+.cfg-body-mobile::-webkit-scrollbar-thumb,
+.cfg-help-example-text::-webkit-scrollbar-thumb {
+  background: #2c333d;
+  border-radius: 10px;
+  border: 2px solid var(--cfg-sunk);
+}
+
+.cfg-pane::-webkit-scrollbar-thumb:hover,
+.cfg-tree-list::-webkit-scrollbar-thumb:hover,
+.cfg-body-mobile::-webkit-scrollbar-thumb:hover,
+.cfg-help-example-text::-webkit-scrollbar-thumb:hover {
+  background: #3b434f;
+}
+
+/* --- header --- */
+.cfg-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--cfg-line);
+  background: var(--cfg-chrome);
+  flex: none;
+}
+
+.cfg-back {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #1b2028;
+  border: 1px solid #282e38;
+  color: #c6cdd6;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  flex: none;
+}
+
+.cfg-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.cfg-head-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cfg-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--cfg-dim);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  flex: none;
+}
+
+.cfg-close:hover {
+  background: #1f242c;
+  color: var(--cfg-text);
+}
+
+/* --- body: tree and page --- */
+.cfg-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.cfg-tree {
+  width: 248px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--cfg-line);
+  background: var(--cfg-chrome);
+}
+
+.cfg-search-box {
+  padding: 12px 12px 8px;
+}
+
+/* The box and the cross that empties it: the cross sits inside the field, on
+   the right, and shows up only when there is something to clear. */
+.cfg-search-wrap {
+  position: relative;
+}
+
+.cfg-search {
+  width: 100%;
+  padding: 8px 28px 8px 10px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--cfg-bright);
+  background: var(--cfg-sunk);
+  border: 1px solid #262c35;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.cfg-search:focus {
+  border-color: var(--cfg-accent);
+  outline: none;
+}
+
+.cfg-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--cfg-bright);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cfg-search-clear:hover {
+  color: var(--cfg-text);
+  background: #1f242c;
+}
+
+.cfg-tree-list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 4px 8px 14px;
+}
+
+.cfg-branch {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-bottom: 6px;
+}
+
+.cfg-branch-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: #c6cdd6;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cfg-branch-head:hover {
+  background: #1a1f26;
+}
+
+.cfg-caret {
+  width: 12px;
+  font-size: 10px;
+  color: #6b7381;
+  flex: none;
+  text-align: center;
+}
+
+.cfg-branch-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cfg-branch-count {
+  font-size: 11px;
+  color: var(--cfg-dimmer);
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  flex: none;
+}
+
+.cfg-branch-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-left: 11px;
+  margin-left: 8px;
+  border-left: 1px solid #232932;
+}
+
+.cfg-leaf {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: #a4acb8;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cfg-leaf:hover {
+  background: #1a1f26;
+  color: var(--cfg-text);
+}
+
+.cfg-leaf-on {
+  background: #232b36;
+  color: #eef2f7;
+  font-weight: 500;
+}
+
+.cfg-leaf-bar {
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.cfg-leaf-on .cfg-leaf-bar {
+  background: var(--cfg-accent);
+}
+
+.cfg-leaf-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cfg-leaf-count {
+  font-size: 11px;
+  color: var(--cfg-dimmer);
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+}
+
+.cfg-pane {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--cfg-bg);
+}
+
+/* The page the script lives on fills whatever height the dialog has, so the
+   editor is as large as it was when it had a window to itself. Every box from
+   the pane down to the editor has to say so, or the chain breaks at the first
+   one that sizes itself by its contents. */
+.cfg-pane > [hidden] {
+  display: none;
+}
+
+.cfg-pane-script {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Said out loud rather than left to the reset: a display of our own would
+   otherwise outrank the browser's rule for [hidden] and show the script page
+   next to the settings one. */
+.cfg-pane-script[hidden] {
+  display: none;
+}
+
+/* --- one page --- */
+.cfg-page {
+  display: flex;
+  flex-direction: column;
+  padding: 22px 26px 28px;
+  box-sizing: border-box;
+}
+
+.cfg-page-head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 16px;
+}
+
+.cfg-page-title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--cfg-bright);
+}
+
+.cfg-page-subtitle {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cfg-dim);
+  max-width: 64ch;
+}
+
+.cfg-note {
+  font-size: 12px;
+  color: var(--cfg-dim);
+}
+
+/* --- one setting --- */
+.cfg-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  /* Top, not centre: the control stands opposite the option's name and stays
+     there when the help opens underneath. */
+  align-items: flex-start;
+  gap: 10px 18px;
+  padding: 15px 0;
+  border-top: 1px solid var(--cfg-line-soft);
+}
+
+/* The text keeps its width and the control moves under it, rather than the
+   description being squeezed into a column of single words. */
+.cfg-row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1 1 220px;
+  min-width: 200px;
+}
+
+.cfg-row-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cfg-row-key {
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--cfg-key);
+}
+
+.cfg-mark {
+  background: rgba(85, 163, 242, 0.3);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.cfg-row-desc {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--cfg-dim);
+}
+
+.cfg-row-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  /* Thumb-sized however small the control inside is. */
+  min-height: 44px;
+}
+
+/* --- the question mark and what it opens --- */
+.cfg-help-badge {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid #3b434f;
+  background: none;
+  color: var(--cfg-dim);
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  flex: none;
+}
+
+.cfg-help-badge:hover {
+  color: var(--cfg-text);
+  border-color: var(--cfg-dim);
+}
+
+.cfg-help-body {
+  flex: 1 0 100%;
+  margin-top: 4px;
+  padding: 10px 12px;
+  background: #0d1015;
+  border: 1px solid var(--cfg-line);
+  border-radius: 10px;
+}
+
+.cfg-help-text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #b8c0cb;
+}
+
+.cfg-help-example {
+  margin-top: 10px;
+}
+
+.cfg-help-example-label {
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--cfg-dimmer);
+  margin-bottom: 3px;
+}
+
+.cfg-help-example-text {
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-size: 12.5px;
+  line-height: 1.55;
+  background: #08090c;
+  border: 1px solid #1b2028;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #cfd6e0;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+/* --- controls --- */
+.cfg-switch {
+  width: 51px;
+  height: 31px;
+  padding: 2px;
+  border: none;
+  border-radius: 999px;
+  background: #2a2f38;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: flex-start;
+  cursor: pointer;
+  flex: none;
+}
+
+.cfg-switch-on {
+  background: var(--cfg-accent);
+  justify-content: flex-end;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.cfg-switch-knob {
+  width: 27px;
+  height: 27px;
+  border-radius: 999px;
+  background: #c9ced6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.cfg-switch-on .cfg-switch-knob {
+  background: #ffffff;
+}
+
+.cfg-segments {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  background: var(--cfg-sunk);
+  border: 1px solid var(--cfg-line);
+  border-radius: 9px;
+}
+
+.cfg-segment {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--cfg-dim);
+  font: inherit;
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cfg-segment:hover {
+  color: var(--cfg-text);
+}
+
+.cfg-segment-on {
+  background: #2f3946;
+  color: #eef2f7;
+  font-weight: 500;
+}
+
+.cfg-number-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cfg-number {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cfg-number input[type='range'] {
+  flex: 1 1 110px;
+  min-width: 90px;
+  max-width: 150px;
+  accent-color: var(--cfg-accent);
+  background: transparent;
+}
+
+.cfg-number input[type='number'] {
+  width: 66px;
+  padding: 7px 8px;
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--cfg-bright);
+  background: var(--cfg-sunk);
+  border: 1px solid #2a303a;
+  border-radius: 8px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.cfg-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cfg-text input {
+  flex: 1 1 140px;
+  min-width: 120px;
+  max-width: 180px;
+  padding: 8px 10px;
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-size: 12.5px;
+  color: var(--cfg-bright);
+  background: var(--cfg-sunk);
+  border: 1px solid #2a303a;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.cfg-text input:focus,
+.cfg-number input[type='number']:focus {
+  border-color: var(--cfg-accent);
+  outline: none;
+}
+
+.cfg-button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #1d222a;
+  border: 1px solid #2a303a;
+  color: #c6cdd6;
+  font: inherit;
+  font-size: 12.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cfg-button:hover {
+  background: #252b34;
+}
+
+.cfg-button-on {
+  background: #2f3946;
+  color: #eef2f7;
+}
+
+.cfg-button-main {
+  background: var(--cfg-accent);
+  border-color: var(--cfg-accent);
+  color: #fff;
+  font-weight: 500;
+}
+
+.cfg-button-main:hover {
+  background: #5599ff;
+}
+
+.cfg-account {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- the script page --- */
+.cfg-page-script {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding-bottom: 16px;
+}
+
+/* On the script page the heading is all the chrome there is: the editor takes
+   the rest of the window, as it did when it had a window to itself. */
+.cfg-page-script .cfg-page-head {
+  padding-bottom: 10px;
+}
+
+.cfg-script {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.cfg-script-editor {
+  flex: 1 1 auto;
+  min-height: 0;
+  border: 1px solid var(--cfg-line);
+  background: #0d1015;
+  /* No rounding and nothing clipped here: the editor draws its own scrollbar
+     right against the edge, and a rounded box with overflow:hidden shaves the
+     ends off it. */
+}
+
+/* --- footer --- */
+.cfg-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 16px;
+  border-top: 1px solid var(--cfg-line);
+  background: var(--cfg-chrome);
+  flex: none;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.cfg-foot-note {
+  font-size: 11.5px;
+  color: #7b838f;
+}
+
+.cfg-foot-buttons {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
+.cfg-foot-echo {
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.cfg-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--cfg-yes);
+  flex: none;
+}
+
+.cfg-echo {
+  font-size: 11.5px;
+  color: var(--cfg-dim);
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- narrow screen: the tree becomes a drill-down list --- */
+/* The same chain as on a screen: a column the halves below can fill, so the
+   editor reaches the footer instead of stopping halfway down. */
+.cfg-body-mobile {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.cfg-list {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px 24px;
+}
+
+.cfg-list .cfg-search-wrap {
+  margin-bottom: 6px;
+}
+
+.cfg-list .cfg-search {
+  padding: 10px 32px 10px 12px;
+  font-size: 13px;
+  border-radius: 10px;
+}
+
+.cfg-list .cfg-search-clear {
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+.cfg-list-branch {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 0 6px;
+}
+
+.cfg-list-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px 8px;
+}
+
+.cfg-list-head .cfg-branch-name {
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--cfg-dim);
+}
+
+.cfg-list-card {
+  display: flex;
+  flex-direction: column;
+  background: #181c23;
+  border: 1px solid var(--cfg-line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cfg-list-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 13px 14px;
+  border: none;
+  border-top: 1px solid #21262e;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cfg-list-item:first-child {
+  border-top: none;
+}
+
+.cfg-list-item:hover {
+  background: #1d222a;
+}
+
+.cfg-list-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cfg-list-item-title {
+  font-size: 14px;
+  color: var(--cfg-bright);
+}
+
+.cfg-list-item-meta {
+  font-size: 11.5px;
+  color: #7b838f;
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cfg-list-item-arrow {
+  color: var(--cfg-dimmer);
+  font-size: 17px;
+}
+
+/* A narrow sheet, not a narrow window: the sheet is the only thing here that
+   changes size, and on a wide screen it can still be the narrow one. The class
+   is set from its measured width (SettingsDialog), so there is a single rule
+   and the markup and the styling cannot disagree about it. */
+.cfg-narrow .cfg-page {
+  padding: 16px 16px 24px;
+}
+
+.cfg-narrow .cfg-row-control {
+  justify-content: flex-start;
+}
+
+.cfg-narrow .cfg-script-editor {
+  min-height: 40vh;
+}
+
+/* The header already carries the page's name on a narrow sheet; printing it
+   again right underneath costs a line of a screen that has few to spare. */
+.cfg-narrow .cfg-page-title {
+  display: none;
+}
+
+/* The Discord secret word: a field that selects itself and a button that puts
+   it on the clipboard -- it has to travel to another program by hand. */
+.cfg-secret {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cfg-secret input {
+  flex: 1 1 140px;
+  min-width: 120px;
+  max-width: 180px;
+  padding: 7px 8px;
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-size: 12.5px;
+  color: var(--cfg-bright);
+  background: var(--cfg-sunk);
+  border: 1px solid #2a303a;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* The two halves of the narrow layout: the list of pages and the page itself.
+   Both stay in the document -- see SettingsDialog -- and the hidden one is
+   spelled out here rather than left to the browser's own rule, which our own
+   display would outrank. */
+.cfg-mobile-page,
+.cfg-mobile-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+}
+
+.cfg-mobile-page[hidden],
+.cfg-mobile-list[hidden] {
+  display: none;
+}
+
+/* The sheet the settings live in: fixed to the right edge of the window, the
+   full height of it, sliding in and out on a transform alone. Nothing behind it
+   changes size, so the game log is never re-laid-out while it opens.
+
+   Open and closed differ by one class; the transform and the opacity are here,
+   not built into a style attribute at render time -- that way the browser has
+   something to transition from on the very first open. */
+.cfg-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  background: rgba(4, 5, 8, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+
+.cfg-scrim-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cfg-sheet {
+  /* The palette is the terminal's own. 'config' paints option names in bright
+     cyan and its headings in white, so the dialog does the same -- the player
+     who typed the command yesterday recognises the colours today. The rest are
+     the client's ANSI values (main.css above): {W, {C, {w, {D, {B, {G. */
+  --cfg-bg: #14171d;
+  --cfg-chrome: #11141a;
+  --cfg-sunk: #0f1217;
+  --cfg-line: #242a33;
+  --cfg-line-soft: #1e232b;
+  --cfg-text: #d3d7cf; /* {w -- plain game text */
+  --cfg-bright: #fff; /* {W -- headings, as in the command */
+  --cfg-dim: #8b939f;
+  --cfg-dimmer: #5f6775;
+  --cfg-accent: #55a3f2; /* {B */
+  --cfg-key: #2cf4eb; /* {C -- option names, as in the command */
+  --cfg-yes: #8ee34f; /* {G */
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1041;
+  height: 100dvh;
+  /* The player's own width, capped at the window: a width saved on a wide
+     screen must not leave the sheet hanging off a narrow one, and it comes back
+     in full when the window grows again. */
+  width: min(var(--cfg-sheet-width, 620px), 100vw);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  background: var(--cfg-bg);
+  border-left: 1px solid var(--cfg-line);
+  box-shadow: -24px 0 60px rgba(0, 0, 0, 0.55);
+  transform: translateX(100%);
+  transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1);
+  pointer-events: none;
+  outline: none;
+  /* Up and down is the page's business, left and right is ours: without this a
+     swipe across the sheet is taken by the browser as 'go back'. */
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+.cfg-sheet-open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Nothing behind the sheet scrolls while it is open; inside it the tree and the
+   page go on scrolling on their own. */
+body.settings-open {
+  overflow: hidden;
+}
+
+/* The handle on the left edge. It looks like what it is -- a splitter: the
+   sheet's own edge is the seam, and a grabber sits in the middle of it, the way
+   a resizable pane is drawn everywhere else. The hit area is wider than the
+   grabber, and the whole thing is out of the grid's way (absolute, so the
+   single cell inside is untouched). */
+.cfg-grip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 14px;
+  margin-left: -7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ew-resize;
+  background: transparent;
+  border: none;
+  padding: 0;
+  z-index: 1;
+  touch-action: none;
+}
+
+.cfg-grip::after {
+  content: '';
+  width: 5px;
+  height: 42px;
+  border-radius: 3px;
+  background: #454d59;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+  transition: background 120ms ease, height 120ms ease;
+}
+
+.cfg-grip:hover::after,
+.cfg-grip:focus-visible::after,
+body.cfg-resizing .cfg-grip::after {
+  background: var(--cfg-accent);
+  height: 64px;
+}
+
+.cfg-grip:focus-visible {
+  outline: none;
+}
+
+/* While dragging: no text gets selected under the pointer, and the cursor keeps
+   its shape wherever it wanders. */
+body.cfg-resizing {
+  user-select: none;
+  cursor: ew-resize;
+}

@@ -4,6 +4,7 @@ import { t, getLang } from '../../i18n.js';
 import useConfig from './useConfig.js';
 import SettingsPage from './SettingsPage.jsx';
 import ScriptPage from './ScriptPage.jsx';
+import AccountPage from './AccountPage.jsx';
 import { saveScript } from '../../settings.js';
 import {
   buildTree,
@@ -12,7 +13,10 @@ import {
   firstPage,
   spell,
   SCRIPT_PAGE,
+  ACCOUNT_PAGE,
 } from './schema.js';
+import './settings.css';
+import './settings-parchment.css';
 
 // The settings window: a sheet that slides in from the right edge, with a tree
 // of pages on one side, the page itself on the other, and a footer that belongs
@@ -71,15 +75,18 @@ export default function SettingsDialog() {
   // The gear over the terminal is the only way in; everything else here closes.
   useEffect(() => {
     const onOpen = () => setOpen(true);
+    const onClose = () => setOpen(false);
     const onPrompt = (e, b) => {
       if (b && b.lang) setLang(b.lang);
     };
 
     $(document).on('settings:open', onOpen);
+    $(document).on('settings:close', onClose);
     $('#rpc-events').on('rpc-prompt', onPrompt);
 
     return () => {
       $(document).off('settings:open', onOpen);
+      $(document).off('settings:close', onClose);
       $('#rpc-events').off('rpc-prompt', onPrompt);
     };
   }, []);
@@ -295,6 +302,7 @@ export default function SettingsDialog() {
   const page = findPage(shown, pageKey) || (needle ? firstPage(shown) : findPage(tree, pageKey));
   const current = page || (narrow ? null : firstPage(shown));
   const isScript = !!current && current.key === SCRIPT_PAGE;
+  const isAccount = !!current && current.key === ACCOUNT_PAGE;
   // Searching does not walk into a page of its own accord: on a narrow sheet
   // the box lives in the list, and jumping to a page at the first letter typed
   // takes it off the screen with the text still in it.
@@ -386,7 +394,7 @@ export default function SettingsDialog() {
     <>
       {shown.length ? (
         <SettingsPage
-          page={isScript ? null : current}
+          page={isScript || isAccount ? null : current}
           values={values}
           lang={lang}
           query={needle}
@@ -397,6 +405,12 @@ export default function SettingsDialog() {
           <div className="cfg-note">{t('cfg.nothing', lang)}</div>
         </div>
       )}
+
+      {isAccount ? (
+        <SettingsPage page={findPage(tree, ACCOUNT_PAGE)} values={values} lang={lang}>
+          <AccountPage lang={lang} visible={isAccount && open} />
+        </SettingsPage>
+      ) : null}
 
       {scriptSeen ? (
         <div hidden={!isScript || !shown.length} className="cfg-pane-script">
@@ -561,7 +575,7 @@ export default function SettingsDialog() {
                 </button>
               </div>
             </div>
-          ) : (
+          ) : isAccount ? null : (
             <div className="cfg-foot cfg-foot-echo">
               <span className="cfg-dot" />
               <span className="cfg-echo">{echo || t('cfg.echo.idle', lang)}</span>
