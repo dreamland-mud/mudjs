@@ -1,57 +1,41 @@
 import React from 'react'
 import PanelItem from "./panelItem";
 import { t } from '../../i18n';
+import './affects.css';
 
-// prompt params fields p1: ps - array of permanent stats, cs - array of current stats.
-// prompt params fields p2: h - hitroll, d - damroll, a - armor class, s - saves vs spell.
-const BaseStats = (stats) => {
-    const l = stats.lang;
-    return (
-        <table id="player-params-1">
-            <tbody>
-                <tr>
-                    <td><b>{t('par.str', l)}</b>:</td><td>{stats.ps[0]}(<b>{stats.cs[0]}</b>)</td>
-                    <td><b>{t('par.int', l)}</b>:</td><td>{stats.ps[1]}(<b>{stats.cs[1]}</b>)</td>
-                </tr>
-                <tr>
-                    <td><b>{t('par.wis', l)}</b>:</td><td>{stats.ps[2]}(<b>{stats.cs[2]}</b>)</td>
-                    <td><b>{t('par.dex', l)}</b>:</td><td>{stats.ps[3]}(<b>{stats.cs[3]}</b>)</td>
-                </tr>
-                <tr>
-                    <td><b>{t('par.con', l)}</b>:</td><td>{stats.ps[4]}(<b>{stats.cs[4]}</b>)</td>
-                    <td><b>{t('par.cha', l)}</b>:</td><td>{stats.ps[5]}(<b>{stats.cs[5]}</b>)</td>
-                </tr>
-            </tbody>
-        </table>
-    )
-}
-
-const SecondaryStats = (stats) => {
-    const l = stats.lang;
-    return (
-        <table id="player-params-2">
-            <tbody>
-                <tr>
-                    <td><b>{t('par.hit', l)}</b>:</td><td>{stats.h}</td>
-                    <td><b>{t('par.dam', l)}</b>:</td><td>{stats.d}</td>
-                </tr>
-                <tr>
-                    <td><b>{t('par.ac', l)}</b>:</td><td>{stats.a}</td>
-                    <td><b>{t('par.save', l)}</b>:</td><td>{stats.s}</td>
-                </tr>
-            </tbody>
-        </table>
-    )
-}
+// prompt.p1: ps - permanent stats [str, int, wis, dex, con, cha], cs - current stats
+// (same order). prompt.p2: h - hitroll, d - damroll, a - armor class, s - saves vs spell.
+// Rendered as flat chips (same family as the affects widget) in the Online widget's font
+// style, replacing the old two-table stat grid.
+const BASE = ['str', 'int', 'wis', 'dex', 'con', 'cha'];
 
 export default function PlayerParamsItem(prompt) {
+    const l = prompt.lang;
+    const p1 = prompt.p1;
+    const p2 = prompt.p2;
+    const chips = [];
+
+    if (p1 && p1 !== "none") {
+        BASE.forEach(function (key, i) {
+            chips.push(
+                <span className="stat-chip" key={key}>
+                    <b>{t('par.' + key, l)}</b>
+                    <span className="stat-val">{p1.ps[i]}<span className="stat-cur">({p1.cs[i]})</span></span>
+                </span>
+            );
+        });
+    }
+    if (p2 && p2 !== "none") {
+        chips.push(<span className="stat-chip" key="hit"><b>{t('par.hit', l)}</b><span className="stat-val">{p2.h}</span></span>);
+        chips.push(<span className="stat-chip" key="dam"><b>{t('par.dam', l)}</b><span className="stat-val">{p2.d}</span></span>);
+        chips.push(<span className="stat-chip" key="ac"><b>{t('par.ac', l)}</b><span className="stat-val">{p2.a}</span></span>);
+        chips.push(<span className="stat-chip" key="save"><b>{t('par.save', l)}</b><span className="stat-val">{p2.s}</span></span>);
+    }
 
     return (
         <PanelItem storageKey="params" title={t('par.title', prompt.lang)} collapsed={true}>
-            <div id="player-params-table" data-hint="hint-params">
-                {(prompt.p1 && prompt.p1 !== "none") && <BaseStats {...prompt.p1} lang={prompt.lang} />}
-                <br/>
-                {(prompt.p2 && prompt.p2 !== "none") && <SecondaryStats {...prompt.p2} lang={prompt.lang} />}
+            <div id="player-params-table" className="stats-chips" data-hint="hint-params">
+                {chips}
             </div>
         </PanelItem>
     )

@@ -293,7 +293,7 @@ export default function Map() {
         color="default"
       >
         <Toolbar variant="dense" className="dl-mapper-topbar">
-          <Typography id="areaName" className="dl-mapper-areaname" sx={{ color: '#BB86FC' }}>
+          <Typography id="areaName" className="dl-mapper-areaname" sx={{ color: 'var(--gold-bright)' }}>
             {areaName}
           </Typography>
 

@@ -24,13 +24,6 @@ export default function WhoItem(prompt) {
         <PanelItem storageKey="who" title={t('who.title', prompt.lang)}>
             <div id="who-table" data-hint="hint-who">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>{t('who.name', prompt.lang)}</th>
-                            <th>{t('who.race', prompt.lang)}</th>
-                            <th>{t('who.clan', prompt.lang)}</th>
-                        </tr>
-                    </thead>
                     <tbody>
                         {prompt.who.p.map((person,i) => {
                             return (

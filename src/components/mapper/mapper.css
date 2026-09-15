@@ -56,7 +56,7 @@
   align-items: center;
   gap: 4px;
   min-height: 48px;
-  padding: 4px 4px 4px 8px;
+  padding: 4px 4px 4px 16px;
 }
 .dl-mapper-root .dl-mapper-areaname {
   flex: 1 1 auto;

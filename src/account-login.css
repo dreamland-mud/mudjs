@@ -1,24 +1,29 @@
 /*
  * Account / master-login panel for the /newui (Parchment) build.
  *
- * The panel is the front door: two obsidian slabs meet at a gold seam across the
- * middle of the screen with the login controls floating over it. On a successful
- * login the controls fade and the slabs slide apart -- top up, bottom down, a
- * vertical curtain -- revealing the game widgets and map behind. All colour comes
- * from the Parchment skin tokens (theme-parchment.css :root), so it stays in-theme
- * on either skin.
+ * The login is a big panel laid over the widgets + map (the mosaic's non-terminal
+ * region): its left edge meets the terminal split (set inline as `left` from App's
+ * layout maths), so the terminal stays live on the left -- a new player creates a hero
+ * straight in it while an existing player logs in on the panel. Two obsidian slabs meet
+ * at a gold seam and fill the panel; the controls float over them. On a successful login
+ * the slabs slide apart -- top up, bottom down -- revealing the widgets + map behind.
+ * On mobile (<600px) the panel fills the screen, login-first. Colour comes from the
+ * Parchment skin tokens (theme-parchment.css :root).
  */
 
 .acc-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;                 /* overridden inline with the terminal split (clamped) */
   z-index: 2000;
   overflow: hidden;
   font-family: var(--ui, 'Alegreya Sans', sans-serif);
   color: var(--text, #e8e2d2);
 }
 
-/* ---- the two slabs -------------------------------------------------------- */
+/* ---- the two slabs: the obsidian curtain filling the panel region ---------- */
 .acc-slab {
   position: absolute;
   left: 0;
@@ -29,12 +34,10 @@
       rgba(187, 134, 252, 0.10), rgba(187, 134, 252, 0) 60%),
     linear-gradient(var(--slab-dir, to bottom),
       #0d0c14 0%, #08070d 55%, #050409 100%);
-  /* faint forged grain */
   box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.6);
   transition: transform 0.72s cubic-bezier(0.76, 0, 0.24, 1) 0.16s;
   will-change: transform;
 }
-
 .acc-slab::after {
   /* the seam edge: a bright gold rule with an arcane bloom */
   content: '';
@@ -47,33 +50,23 @@
     var(--gold, #c6a24e) 82%, transparent);
   box-shadow: 0 0 22px 3px var(--arcane-glow, rgba(187, 134, 252, 0.55));
 }
-
-.acc-slab-top {
-  top: 0;
-  --slab-dir: to bottom;
-  --slab-focus: 100%;
-}
+.acc-slab-top { top: 0; --slab-dir: to bottom; --slab-focus: 100%; }
 .acc-slab-top::after { bottom: 0; }
-
-.acc-slab-bottom {
-  bottom: 0;
-  --slab-dir: to top;
-  --slab-focus: 0%;
-}
+.acc-slab-bottom { bottom: 0; --slab-dir: to top; --slab-focus: 0%; }
 .acc-slab-bottom::after { top: 0; }
 
-/* the reveal */
+/* the curtain reveal */
 .acc-overlay.is-opening .acc-slab-top { transform: translateY(-100%); }
 .acc-overlay.is-opening .acc-slab-bottom { transform: translateY(100%); }
 
-/* ---- controls floating over the seam ------------------------------------- */
+/* ---- controls floating over the seam ---- */
 .acc-controls {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 3;
-  width: min(760px, 92vw);
+  width: min(440px, 90%);
   padding: 30px 34px 26px;
   background:
     linear-gradient(180deg, rgba(20, 18, 28, 0.96), rgba(10, 9, 14, 0.98));
@@ -91,26 +84,22 @@
   pointer-events: none;
 }
 
-.acc-title {
-  margin: 0;
-  text-align: center;
-  font-family: var(--display, 'Playfair Display', serif);
-  font-size: 40px;
-  letter-spacing: 0.12em;
-  color: var(--gold-bright, #e6cd86);
-  text-shadow: 0 0 26px var(--arcane-glow, rgba(187, 134, 252, 0.5));
+/* The wordmark: the site's Dreamland logo, recoloured to brand purple by masking
+   (alpha of the PNG shapes a solid arcane fill, so the black source art is
+   irrelevant). */
+.acc-logo {
+  margin: 0 auto;
+  width: min(340px, 74%);
+  height: 58px;
+  background-color: var(--arcane, #bb86fc);
+  -webkit-mask: url('./dreamland-logo.png') center / contain no-repeat;
+  mask: url('./dreamland-logo.png') center / contain no-repeat;
+  filter: drop-shadow(0 0 26px var(--arcane-glow, rgba(187, 134, 252, 0.5)));
 }
-.acc-sub {
-  margin: 2px 0 22px;
-  text-align: center;
-  font-size: 14px;
-  color: var(--text-dim, #b7ad95);
-  letter-spacing: 0.03em;
-}
-
 .acc-cols {
   display: flex;
-  gap: 26px;
+  flex-direction: column;
+  gap: 22px;
 }
 .acc-col {
   flex: 1 1 0;
@@ -119,8 +108,8 @@
   flex-direction: column;
 }
 .acc-col + .acc-col {
-  padding-left: 26px;
-  border-left: 1px solid rgba(198, 162, 78, 0.22);
+  padding-top: 20px;
+  border-top: 1px solid rgba(198, 162, 78, 0.22);
 }
 .acc-col-head {
   font-family: var(--display, serif);
@@ -156,50 +145,18 @@
   box-shadow: 0 0 0 3px var(--arcane-glow, rgba(187, 134, 252, 0.35));
 }
 
-/* gold primary button + ghost buttons */
-.acc-btn {
-  display: block;
-  width: 100%;
-  padding: 10px 14px;
-  margin-top: 4px;
-  border-radius: 5px;
-  border: 1px solid var(--gold, #c6a24e);
-  background: linear-gradient(180deg,
-    var(--gold-bright, #e6cd86), var(--gold, #c6a24e));
-  color: #1a140a;
-  font-family: var(--ui, sans-serif);
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 0.03em;
-  cursor: pointer;
-  transition: filter 0.15s, box-shadow 0.15s, transform 0.05s;
-}
-.acc-btn:hover { filter: brightness(1.08); box-shadow: 0 0 18px var(--arcane-glow, rgba(187, 134, 252, 0.4)); }
-.acc-btn:active { transform: translateY(1px); }
+/* Buttons reuse the app's .btn set (theme-parchment.css) so the login matches
+   everywhere else; these rules only add the panel's layout -- full width, stacked,
+   and a left-aligned icon row for the login-method buttons. */
+.acc-col .btn { width: 100%; }
+.acc-cta { margin-top: 4px; }
+/* the three login methods sit in one equal-width row */
+.acc-methods { display: flex; gap: 10px; }
+.acc-methods .btn { width: auto; }
+.acc-method { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 8px; }
+.acc-method .acc-ico { flex: none; }
+.acc-brand { width: 16px; height: 16px; vertical-align: middle; }
 
-.acc-btn-ghost {
-  background: rgba(0, 0, 0, 0.3);
-  color: var(--text, #e8e2d2);
-  border: 1px solid var(--gold-deep, #6f5a26);
-  font-weight: 600;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.acc-btn-ghost:hover {
-  border-color: var(--gold, #c6a24e);
-  filter: none;
-  box-shadow: 0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.3));
-}
-.acc-btn-ghost .acc-ico { width: 20px; text-align: center; color: var(--gold, #c6a24e); }
-
-.acc-hint {
-  font-size: 12px;
-  color: var(--text-dim, #b7ad95);
-  margin-bottom: 14px;
-}
 .acc-error {
   min-height: 16px;
   font-size: 12px;
@@ -237,14 +194,11 @@
 .acc-card-name { font-family: var(--display, serif); font-size: 16px; color: var(--gold-bright, #e6cd86); }
 .acc-card-title { font-size: 11px; color: var(--text-dim, #b7ad95); }
 
-/* ---- footer bits ---------------------------------------------------------- */
-.acc-foot {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-}
+/* primary create-character CTA, sits under the language row (mobile) */
+.acc-create { width: 100%; margin-bottom: 22px; }
+.acc-create-hint { display: none; }   /* desktop-only; shown in the min-width block below */
+
+/* the small link-button (path B "back") */
 .acc-newhero {
   background: none; border: none; padding: 0;
   color: var(--text-dim, #b7ad95);
@@ -253,7 +207,7 @@
 }
 .acc-newhero:hover { color: var(--gold-bright, #e6cd86); }
 
-.acc-langs { display: flex; gap: 6px; }
+.acc-langs { display: flex; justify-content: center; gap: 6px; margin: 16px 0 20px; }
 .acc-lang {
   background: none;
   border: 1px solid transparent;
@@ -263,29 +217,42 @@
 .acc-lang:hover { color: var(--text, #e8e2d2); }
 .acc-lang.is-on { color: var(--gold-bright, #e6cd86); border-color: var(--gold-deep, #6f5a26); }
 
-.acc-proto {
-  position: absolute;
-  bottom: 14px; left: 0; right: 0;
-  text-align: center;
-  font-size: 11px; letter-spacing: 0.08em;
-  color: var(--text-faint, #8a8168);
-  z-index: 3;
-  transition: opacity 0.22s ease-out;
-}
-.acc-overlay.is-opening .acc-proto { opacity: 0; }
-
 .acc-busy {
   text-align: center; color: var(--text-dim, #b7ad95);
   font-size: 14px; padding: 22px 0;
 }
 
 @media (max-width: 640px) {
-  .acc-cols { flex-direction: column; gap: 18px; }
-  .acc-col + .acc-col { padding-left: 0; border-left: none; padding-top: 18px; border-top: 1px solid rgba(198, 162, 78, 0.22); }
-  .acc-title { font-size: 32px; }
+  .acc-cols { gap: 18px; }
+  .acc-col + .acc-col { padding-top: 18px; }
+}
+
+/* Desktop: don't wall off the terminal. The login covers only the centre + right,
+   leaving the terminal live on the left so a new player can create a hero straight in
+   it while existing players log in on the panel. Mobile keeps the full login-first
+   overlay (no room to split). */
+@media (min-width: 600px) {
+  .acc-create-btn { display: none; }
+  .acc-create-hint {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 22px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--text-dim, #b7ad95);
+  }
+  .acc-create-hint::before { content: '\2190'; font-size: 16px; color: var(--gold, #c6a24e); }
+  .acc-create-hint:hover { color: var(--gold-bright, #e6cd86); }
 }
 
 /* Accessibility: respect reduced-motion -- no curtain, just clear the panel. */
 @media (prefers-reduced-motion: reduce) {
-  .acc-slab, .acc-controls, .acc-proto { transition: none !important; }
+  .acc-slab, .acc-controls { transition: none !important; }
 }

@@ -1,36 +1,226 @@
 /*
  * Parchment re-skin for the settings side-sheet.
  *
- * settings.css (copied from main.css) carries all the layout and Georgiy's
- * cyborg palette on the --cfg-* tokens. This file only re-points those tokens
- * to the Parchment palette, so the window reads as part of /newui rather than
- * the old Cyborg client. Imported AFTER settings.css; same .cfg-dialog selector,
- * so the later definition wins. Palette matches account-login.css / the
- * Parchment skin (theme-parchment.css :root), with hex fallbacks.
+ * settings.css carries the LAYOUT (copied from Georgiy's cyborg client) on the
+ * --cfg-* tokens. This file makes the sheet read as a first-class /newui surface
+ * rather than a recoloured Cyborg window: it (1) re-points the --cfg-* tokens to
+ * the Parchment palette, (2) swaps the monospace body for the app fonts, and
+ * (3) restyles every interactive part -- buttons, inputs, the tree, switches,
+ * segments, the footer -- into the same visual language as account-login.css
+ * (gold-deep borders, arcane focus glow, gold gradient primaries, obsidian
+ * fields). Loaded AFTER settings.css, so same-selector rules win by source order;
+ * where settings.css uses a higher-specificity or literal-hex rule it is matched
+ * here. All colour flows from theme-parchment.css :root, with hex fallbacks.
  */
 
+/* --- 1. token re-point ----------------------------------------------------- */
 .cfg-dialog {
   --cfg-bg: #14121c;        /* main surface -- obsidian, like the login panel */
   --cfg-chrome: #100e18;    /* header / footer chrome, a shade darker */
   --cfg-sunk: #0b0a10;      /* inset fields, sunk wells */
   --cfg-line: var(--gold-deep, #6f5a26);        /* structural borders -- deep gold */
-  --cfg-line-soft: rgba(198, 162, 78, 0.20);    /* faint dividers */
+  --cfg-line-soft: rgba(198, 162, 78, 0.18);    /* faint dividers */
   --cfg-text: var(--text, #e8e2d2);             /* plain text */
   --cfg-bright: var(--gold-bright, #e6cd86);    /* headings -- bright gold */
   --cfg-dim: var(--text-dim, #b7ad95);
   --cfg-dimmer: var(--text-faint, #8a8168);
   --cfg-accent: var(--gold, #c6a24e);           /* primary accent / active page */
-  --cfg-key: var(--arcane, #bb86fc);            /* option names -- arcane purple */
+  --cfg-key: var(--arcane, #bb86fc);            /* option command tokens -- arcane */
   --cfg-yes: #8fbf5a;                           /* on-state -- calmer leaf green */
 }
 
-/* Left edge of the sheet: a gilded seam instead of the flat cyborg rule. */
+/* --- 2. fonts: the app's, not the Cyborg mono ------------------------------ */
+/* .cfg-dialog set 'Roboto Mono' for everything; only genuine code stays mono. */
 .cfg-dialog {
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
   border-left: 2px solid var(--gold-deep, #6f5a26);
   box-shadow: -16px 0 44px rgba(0, 0, 0, 0.6);
 }
+.cfg-head-title,
+.cfg-page-title,
+.cfg-branch-name,
+.cfg-list-item-title {
+  font-family: var(--display, 'Playfair Display', serif);
+  letter-spacing: 0.01em;
+}
+/* Counts, keys and the echo were pinned to 'Roboto Mono' one by one -- bring
+   them back to the UI face (the tabular look is not worth a foreign font). */
+.cfg-branch-count,
+.cfg-leaf-count,
+.cfg-row-key,
+.cfg-echo {
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+}
+/* Real code keeps a monospace: the help example block and the script editor. */
+.cfg-help-example-text {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
 
-/* Focus rings pick up the arcane glow, same as the login inputs. */
+/* --- 3. focus: arcane glow everywhere, like the login inputs --------------- */
 .cfg-dialog :focus-visible {
-  outline-color: var(--arcane, #bb86fc);
+  outline: none;
+  border-color: var(--arcane, #bb86fc);
+  box-shadow: 0 0 0 3px var(--arcane-glow, rgba(187, 134, 252, 0.35));
+}
+
+/* --- 4. inputs (search + number) -> account-login .acc-input --------------- */
+.cfg-search,
+.cfg-number input,
+.cfg-account input[type='text'],
+.cfg-account input[type='email'] {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--gold-deep, #6f5a26);
+  border-radius: 5px;
+  color: var(--text, #e8e2d2);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.cfg-search:focus,
+.cfg-number input:focus {
+  border-color: var(--arcane, #bb86fc);
+  box-shadow: 0 0 0 3px var(--arcane-glow, rgba(187, 134, 252, 0.35));
+}
+.cfg-search-clear { color: var(--gold, #c6a24e); }
+.cfg-search-clear:hover { color: var(--gold-bright, #e6cd86); }
+
+/* --- 5. the tree: gold-deep cards, arcane hover, gold active --------------- */
+.cfg-branch-head:hover,
+.cfg-leaf:hover {
+  color: var(--gold-bright, #e6cd86);
+  box-shadow: inset 0 0 0 1px var(--gold-deep, #6f5a26),
+    0 0 14px rgba(187, 134, 252, 0.14);
+}
+.cfg-leaf { border-radius: 6px; }
+.cfg-leaf-on {
+  color: var(--gold-bright, #e6cd86);
+  background: rgba(198, 162, 78, 0.10);
+}
+.cfg-leaf-bar { background: var(--gold-deep, #6f5a26); }
+.cfg-leaf-on .cfg-leaf-bar { background: var(--gold, #c6a24e); }
+.cfg-caret { color: var(--gold, #c6a24e); }
+.cfg-branch-count,
+.cfg-leaf-count { color: var(--text-faint, #8a8168); }
+
+/* --- 6. buttons: main = gold gradient, rest = dark gold-deep ghost --------- */
+.cfg-button {
+  border-radius: 5px;
+  border: 1px solid var(--gold-deep, #6f5a26);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text, #e8e2d2);
+  font-family: var(--ui, sans-serif);
+  font-weight: 600;
+  transition: filter 0.15s, box-shadow 0.15s, border-color 0.15s, transform 0.05s;
+}
+.cfg-button:hover {
+  border-color: var(--gold, #c6a24e);
+  box-shadow: 0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.3));
+}
+.cfg-button:active { transform: translateY(1px); }
+.cfg-button-main {
+  border-color: var(--gold, #c6a24e);
+  background: linear-gradient(180deg, var(--gold-bright, #e6cd86), var(--gold, #c6a24e));
+  color: #1a140a;
+  font-weight: 700;
+}
+.cfg-button-main:hover { filter: brightness(1.08); }
+.cfg-button-on {
+  border-color: var(--gold, #c6a24e);
+  color: var(--gold-bright, #e6cd86);
+}
+
+/* --- 7. switch + segments: gold "on", not cyborg grey/blue ----------------- */
+.cfg-switch {
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0 0 1px var(--gold-deep, #6f5a26);
+}
+.cfg-switch-on {
+  background: linear-gradient(180deg, var(--gold-bright, #e6cd86), var(--gold, #c6a24e));
+  box-shadow: inset 0 0 0 1px var(--gold, #c6a24e),
+    0 0 12px var(--arcane-glow, rgba(187, 134, 252, 0.3));
+}
+.cfg-switch-knob { background: var(--parchment, #e4d6b2); }
+.cfg-switch-on .cfg-switch-knob { background: #fff8e6; }
+
+.cfg-segments {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--gold-deep, #6f5a26);
+  border-radius: 7px;
+}
+.cfg-segment { color: var(--text-dim, #b7ad95); border-radius: 4px; }
+.cfg-segment:hover { color: var(--gold-bright, #e6cd86); }
+.cfg-segment-on {
+  background: rgba(198, 162, 78, 0.16);
+  color: var(--gold-bright, #e6cd86);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px var(--gold-deep, #6f5a26);
+}
+
+/* --- 8. rows, marks, help -------------------------------------------------- */
+.cfg-row-key { color: var(--arcane, #bb86fc); }
+/* Search-hit highlight: a gold wash, not the cyborg blue. */
+.cfg-mark { background: rgba(198, 162, 78, 0.30); }
+
+.cfg-help-badge { border-color: var(--gold-deep, #6f5a26); color: var(--text-dim, #b7ad95); }
+.cfg-help-badge:hover { border-color: var(--gold, #c6a24e); color: var(--gold-bright, #e6cd86); }
+.cfg-help-body {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--gold-deep, #6f5a26);
+  border-radius: 6px;
+}
+.cfg-help-text { color: var(--text-dim, #b7ad95); }
+.cfg-help-example-text {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--gold-deep, #6f5a26);
+  border-radius: 5px;
+  color: var(--parchment, #e4d6b2);
+}
+
+/* --- 9. footer: persistent Download log (left) + page content (right) ------ */
+.cfg-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.cfg-foot-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+/* the moved-in download control: a compact gold-deep ghost with the icon,
+   the same treatment as account-login's .acc-btn-ghost */
+.cfg-log-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px;
+  border-radius: 5px;
+  border: 1px solid var(--gold-deep, #6f5a26);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text, #e8e2d2);
+  font-family: var(--ui, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.05s;
+}
+.cfg-log-download:hover {
+  border-color: var(--gold, #c6a24e);
+  box-shadow: 0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.3));
+}
+.cfg-log-download:active { transform: translateY(1px); }
+.cfg-log-download .fa { color: var(--gold, #c6a24e); }
+.cfg-dot { background: var(--gold, #c6a24e); }
+
+/* --- 10. resize grip: gold, purple on hover (matches the mosaic seam grip) --- */
+.cfg-grip::after {
+  background: var(--gold, #c6a24e);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+.cfg-grip:hover::after,
+.cfg-grip:focus-visible::after,
+body.cfg-resizing .cfg-grip::after {
+  background: var(--arcane, #bb86fc);
+  box-shadow: 0 0 12px var(--arcane-glow, rgba(187, 134, 252, 0.5));
 }

@@ -1,0 +1,68 @@
+/*
+ * Affects widget -- flat chip layout (Figma node 1025-1635).
+ *
+ * The affects panel used to split into six named columns; it is now ONE wrapping
+ * block of pill chips. Each chip is a flat dark pill with a thin bronze edge; the
+ * TEXT keeps the game's ANSI colour convention (red maladiction / green buff /
+ * cyan permanent / yellow about-to-expire -- see affColor() in affectsItem.jsx),
+ * which is exactly the palette the Figma was drawn from.
+ *
+ * Scoped #player-affects-table.affects-flat so these win over the skin's older
+ * .aff-chip gem rule (theme-parchment.css) by specificity, without editing the
+ * skin file. Colour flows from the Parchment tokens with hex fallbacks.
+ */
+
+#player-affects-table.affects-flat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px;
+  /* Clear the panel's title divider: flattening dropped the columns' own top
+     padding, so the first chip row would sit on the .dark-panel-title border. */
+  padding-top: 5px;
+}
+
+#player-affects-table.affects-flat .aff-chip {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;                 /* the container gap owns spacing now */
+  padding: 0 6px;
+  border-radius: 200px;      /* full pill */
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  background: var(--ink-panel, #131019);
+  border: 0.5px solid var(--gold-metal-lo, #40300f);
+  box-shadow: 0 1px 2px rgba(8, 7, 12, 0.25);
+  text-shadow: none;         /* the older gem chip glowed; this one is flat */
+}
+
+/*
+ * Your Stats widget -- the same flat chips, in the Online widget's font style (11px,
+ * inherited panel family). Replaces the old two-table stat grid. Each chip is a stat:
+ * a bold label + its value; base stats add the current value in parentheses, dimmed.
+ */
+#player-params-table.stats-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 6px;
+  padding-top: 5px;
+}
+#player-params-table.stats-chips .stat-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: 200px;
+  font-size: 11px;                 /* matches the Online widget */
+  line-height: 1.5;
+  white-space: nowrap;
+  color: var(--text, #e8e2d2);
+  background: var(--ink-panel, #131019);
+  border: 0.5px solid var(--gold-metal-lo, #40300f);
+  box-shadow: 0 1px 2px rgba(8, 7, 12, 0.25);
+}
+#player-params-table.stats-chips .stat-chip b { font-weight: 600; }
+#player-params-table.stats-chips .stat-cur { color: var(--text-dim, #b7ad95); margin-left: 1px; }

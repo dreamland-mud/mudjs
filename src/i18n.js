@@ -147,6 +147,7 @@ const STRINGS = {
     // settings window
     'cfg.title': 'Settings',
     'cfg.close': 'Close',
+    'cfg.log.download': 'Download log',
     'cfg.back': 'Back',
     'cfg.search': 'Search settings',
     'cfg.help': 'What this does',
@@ -261,6 +262,7 @@ const STRINGS = {
     // settings window
     'cfg.title': 'Настройки',
     'cfg.close': 'Закрыть',
+    'cfg.log.download': 'Скачать лог',
     'cfg.back': 'Назад',
     'cfg.search': 'Поиск настроек',
     'cfg.help': 'Что это делает',
@@ -375,6 +377,7 @@ const STRINGS = {
     // settings window
     'cfg.title': 'Налаштування',
     'cfg.close': 'Закрити',
+    'cfg.log.download': 'Завантажити лог',
     'cfg.back': 'Назад',
     'cfg.search': 'Пошук налаштувань',
     'cfg.help': 'Що це робить',

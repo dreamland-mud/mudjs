@@ -41,7 +41,11 @@ $(window).bind('beforeunload', function () {
 });
 
 $(document).ready(function () {
-  $('#logs-button').click(function (e) {
+  // Delegated, not a direct bind: the download control now lives in the settings
+  // side-sheet (SettingsDialog footer), a React node that mounts after this
+  // document.ready runs -- a direct $('#logs-button').click() would bind to
+  // nothing. Delegation from document survives every React (re)mount.
+  $(document).on('click', '#logs-button', function (e) {
     var logs = [];
 
     e.preventDefault();

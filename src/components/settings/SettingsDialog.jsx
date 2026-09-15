@@ -517,28 +517,34 @@ export default function SettingsDialog() {
                         <span className="cfg-branch-count">{section.pages.length}</span>
                       </div>
                       <div className="cfg-list-card">
-                        {section.pages.map(one => (
-                          <button
-                            type="button"
-                            key={one.key}
-                            className="cfg-list-item"
-                            onClick={() => choose(one.key)}
-                          >
-                            <span className="cfg-list-item-text">
-                              <span className="cfg-list-item-title">{one.label}</span>
-                              <span className="cfg-list-item-meta">
-                                {/* Names, not keys: a key is always the English
-                                    one, and a Ukrainian list of English words
-                                    reads as a page nobody translated. */}
-                                {one.options
-                                  .slice(0, 3)
-                                  .map(o => o.label)
-                                  .join(' · ') || 'javascript'}
+                        {section.pages.map(one => {
+                          // Names, not keys: a key is always the English one, and a
+                          // Ukrainian list of English words reads as a page nobody
+                          // translated. A page with no options (the client's own
+                          // Account and Script pages) gets no meta line at all --
+                          // its title already says what it is. (Was a literal
+                          // "javascript" fallback that leaked onto those pages.)
+                          const meta = one.options
+                            .slice(0, 3)
+                            .map(o => o.label)
+                            .join(' · ');
+                          return (
+                            <button
+                              type="button"
+                              key={one.key}
+                              className="cfg-list-item"
+                              onClick={() => choose(one.key)}
+                            >
+                              <span className="cfg-list-item-text">
+                                <span className="cfg-list-item-title">{one.label}</span>
+                                {meta ? (
+                                  <span className="cfg-list-item-meta">{meta}</span>
+                                ) : null}
                               </span>
-                            </span>
-                            <span className="cfg-list-item-arrow">›</span>
-                          </button>
-                        ))}
+                              <span className="cfg-list-item-arrow">›</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
@@ -555,32 +561,49 @@ export default function SettingsDialog() {
             </div>
           )}
 
-          {isScript ? (
-            <div className="cfg-foot">
-              <div className="cfg-foot-note">{t('cfg.save.note', lang)}</div>
-              <div className="cfg-foot-buttons">
-                <button
-                  type="button"
-                  className="cfg-button"
-                  onClick={() => setOpen(false)}
-                >
-                  {t('cfg.close', lang)}
-                </button>
-                <button
-                  type="button"
-                  className="cfg-button cfg-button-main"
-                  onClick={saveScript}
-                >
-                  {t('cfg.save', lang)}
-                </button>
+          {/* The footer is now always present: a persistent "Download log" action
+              on the left (moved out of the terminal overlay -- keeps id logs-button
+              for main.js's delegated handler), and the page's own footer content on
+              the right (script Close/Save, or the live echo; the account page has
+              none, so only the download shows). */}
+          <div className="cfg-foot">
+            <button
+              type="button"
+              id="logs-button"
+              className="cfg-log-download"
+              aria-label={t('cfg.log.download', lang)}
+            >
+              <i className="fa fa-download" aria-hidden="true" />
+              <span>{t('cfg.log.download', lang)}</span>
+            </button>
+
+            {isScript ? (
+              <div className="cfg-foot-right">
+                <span className="cfg-foot-note">{t('cfg.save.note', lang)}</span>
+                <div className="cfg-foot-buttons">
+                  <button
+                    type="button"
+                    className="cfg-button"
+                    onClick={() => setOpen(false)}
+                  >
+                    {t('cfg.close', lang)}
+                  </button>
+                  <button
+                    type="button"
+                    className="cfg-button cfg-button-main"
+                    onClick={saveScript}
+                  >
+                    {t('cfg.save', lang)}
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : isAccount ? null : (
-            <div className="cfg-foot cfg-foot-echo">
-              <span className="cfg-dot" />
-              <span className="cfg-echo">{echo || t('cfg.echo.idle', lang)}</span>
-            </div>
-          )}
+            ) : isAccount ? null : (
+              <div className="cfg-foot-right cfg-foot-echo">
+                <span className="cfg-dot" />
+                <span className="cfg-echo">{echo || t('cfg.echo.idle', lang)}</span>
+              </div>
+            )}
+          </div>
         </div>
       </aside>
     </>

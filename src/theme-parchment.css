@@ -291,6 +291,18 @@ body.modal-open{overflow:hidden}
     box-shadow:inset 0 1px 5px rgba(0,0,0,.7),0 0 0 2px rgba(187,134,252,.3);
   }
   form#input input:focus{outline:none;box-shadow:none;border-color:transparent}
+  /* the gear/+/- overlay tucks into the terminal frame's top-right corner: the gold
+     frame runs along the top + down the right, then steps inward (this pocket's left
+     + bottom borders) around the cluster -- an inset notch, not a floating overlay. */
+  #nav{
+    top:0 !important;right:0 !important;margin:0 !important; /* flush into the frame corner */
+    border:1px solid var(--gold-deep);
+    border-top-right-radius:var(--radius);
+    border-bottom-left-radius:var(--radius);
+    background:var(--stone-850);
+    box-shadow:inset 0 1px 0 rgba(230,205,134,.08);
+    padding:2px 3px 3px;
+  }
 }
 
 /* ===================== right panel + widgets ===================== */
@@ -302,19 +314,34 @@ body.modal-open{overflow:hidden}
 /* carved-stone panel, the site .panel look: stone gradient + noise + a top arcane
    accent rule + a gold-dim edge. Dark on purpose -- who / group rows carry ANSI
    colour, which needs the dark ground. */
+/* Refined to Figma node 1027:2092 (the windowlet card): --stone-850 ground with
+   an arcane radial wash, a 1px inside gradient stroke (gold-dim top -> darker
+   gold bottom), parchment noise, and the node's four effects folded into
+   box-shadow (the OVERLAY/MULTIPLY inner shadows are approximated as normal).
+   The top ornament (::after) is the exact SVG exported from the node. */
 .table-wrapper{
   position:relative;margin:6px;overflow:hidden;cursor:pointer;padding:1px 5px 7px;padding-left:.2em;
-  border:1px solid var(--gold-deep);border-radius:var(--radius);
+  border-radius:6px;
   background:
+    radial-gradient(72% 16px at 50% 0%,rgba(187,134,252,.40) 0%,transparent 100%),
     var(--noise),
-    linear-gradient(180deg,rgba(187,134,252,.05),transparent 30%),
-    linear-gradient(180deg,var(--stone-800),var(--stone-950));
-  background-blend-mode:overlay,normal,normal;
-  box-shadow:inset 0 1px 0 rgba(230,205,134,.08),inset 0 0 30px rgba(0,0,0,.3),0 12px 26px rgba(0,0,0,.45);
+    radial-gradient(80% 66% at 48% -4%,rgba(187,134,252,.24) 0%,rgba(8,7,12,0) 68%),
+    var(--stone-850);
+  background-blend-mode:screen,overlay,normal,normal;
+  box-shadow:inset 0 -4px 12px rgba(8,7,12,.55),0 4px 12px rgba(36,28,15,.32);
 }
-.table-wrapper::before{
-  content:"";position:absolute;left:0;right:0;top:0;height:2px;z-index:1;pointer-events:none;
-  background:linear-gradient(90deg,transparent,var(--arcane),transparent);opacity:.6;
+/* collapsed: the header is the whole card, so drop the divider + its glow */
+.table-wrapper:has(.close.collapsed) .dark-panel-title{border-bottom:0;box-shadow:none}
+.table-wrapper::before{ /* gradient stroke, radius-aware, gold-dim -> darker gold downward */
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;z-index:3;pointer-events:none;
+  background:linear-gradient(to bottom,#856632,#40300f);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
+.table-wrapper::after{ /* exact ornament vectors from the node, overlay + faint */
+  content:"";position:absolute;left:0;right:0;top:0;height:14px;z-index:0;pointer-events:none;
+  background:url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjc5IiBoZWlnaHQ9IjE0IiB2aWV3Qm94PSIwIDAgMjc5IDE0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZyBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6b3ZlcmxheSIgb3BhY2l0eT0iMC4yIj4KPHBhdGggZD0iTS0zIDUuNUwtNC4xNDY0NSA2LjY0NjQ1Qy00LjM0MTcxIDYuODQxNzEgLTQuNjU4MjkgNi44NDE3MSAtNC44NTM1NSA2LjY0NjQ1TC05LjY0NjQ1IDEuODUzNTVDLTkuOTYxNDMgMS41Mzg1NyAtOS43MzgzNCAxIC05LjI5Mjg5IDFINi4yOTI4OUM2LjczODM1IDEgNi45NjE0MyAxLjUzODU3IDYuNjQ2NDUgMS44NTM1NUwtNC4xNDY0NSAxMi42NDY0Qy00LjM0MTcxIDEyLjg0MTcgLTQuNjU4MjkgMTIuODQxNyAtNC44NTM1NSAxMi42NDY0TC0xNS42NDY0IDEuODUzNTVDLTE1Ljk2MTQgMS41Mzg1NyAtMTYuNSAxLjc2MTY1IC0xNi41IDIuMjA3MTFWMTIuNUMtMTYuNSAxMi43NzYxIC0xNi4yNzYxIDEzIC0xNiAxM0gtMTAuNzA3MUMtMTAuMjYxNyAxMyAtMTAuMDM4NiAxMi40NjE0IC0xMC4zNTM2IDEyLjE0NjRMLTExLjUgMTEiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMiA4LjVMMTMuMTQ2NCA3LjM1MzU1QzEzLjM0MTcgNy4xNTgyOSAxMy42NTgzIDcuMTU4MjkgMTMuODUzNiA3LjM1MzU1TDE4LjY0NjQgMTIuMTQ2NEMxOC45NjE0IDEyLjQ2MTQgMTguNzM4MyAxMyAxOC4yOTI5IDEzSDEzLjVINy41SDIuNzA3MTFDMi4yNjE2NSAxMyAyLjAzODU3IDEyLjQ2MTQgMi4zNTM1NSAxMi4xNDY0TDEzLjE0NjQgMS4zNTM1NUMxMy4zNDE3IDEuMTU4MjkgMTMuNjU4MyAxLjE1ODI5IDEzLjg1MzYgMS4zNTM1NUwyNS4xNDY0IDEyLjY0NjRDMjUuMzQxNyAxMi44NDE3IDI1LjY1ODMgMTIuODQxNyAyNS44NTM2IDEyLjY0NjRMMzYuNjQ2NCAxLjg1MzU1QzM2Ljk2MTQgMS41Mzg1NyAzNi43MzgzIDEgMzYuMjkyOSAxSDIwLjcwNzFDMjAuMjYxNyAxIDIwLjAzODYgMS41Mzg1NyAyMC4zNTM2IDEuODUzNTVMMjUuMTQ2NCA2LjY0NjQ1QzI1LjM0MTcgNi44NDE3MSAyNS42NTgzIDYuODQxNzEgMjUuODUzNiA2LjY0NjQ1TDI3IDUuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTQyIDguNUw0My4xNDY0IDcuMzUzNTVDNDMuMzQxNyA3LjE1ODI5IDQzLjY1ODMgNy4xNTgyOSA0My44NTM2IDcuMzUzNTVMNDguNjQ2NCAxMi4xNDY0QzQ4Ljk2MTQgMTIuNDYxNCA0OC43MzgzIDEzIDQ4LjI5MjkgMTNINDMuNUgzNy41SDMyLjcwNzFDMzIuMjYxNyAxMyAzMi4wMzg2IDEyLjQ2MTQgMzIuMzUzNiAxMi4xNDY0TDQzLjE0NjQgMS4zNTM1NUM0My4zNDE3IDEuMTU4MjkgNDMuNjU4MyAxLjE1ODI5IDQzLjg1MzYgMS4zNTM1NUw1NS4xNDY0IDEyLjY0NjRDNTUuMzQxNyAxMi44NDE3IDU1LjY1ODMgMTIuODQxNyA1NS44NTM2IDEyLjY0NjRMNjYuNjQ2NCAxLjg1MzU1QzY2Ljk2MTQgMS41Mzg1NyA2Ni43MzgzIDEgNjYuMjkyOSAxSDUwLjcwNzFDNTAuMjYxNyAxIDUwLjAzODYgMS41Mzg1NyA1MC4zNTM2IDEuODUzNTVMNTUuMTQ2NCA2LjY0NjQ1QzU1LjM0MTcgNi44NDE3MSA1NS42NTgzIDYuODQxNzEgNTUuODUzNiA2LjY0NjQ1TDU3IDUuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTcyIDguNUw3My4xNDY0IDcuMzUzNTVDNzMuMzQxNyA3LjE1ODI5IDczLjY1ODMgNy4xNTgyOSA3My44NTM2IDcuMzUzNTVMNzguNjQ2NCAxMi4xNDY0Qzc4Ljk2MTQgMTIuNDYxNCA3OC43MzgzIDEzIDc4LjI5MjkgMTNINzMuNUg2Ny41SDYyLjcwNzFDNjIuMjYxNyAxMyA2Mi4wMzg2IDEyLjQ2MTQgNjIuMzUzNiAxMi4xNDY0TDczLjE0NjQgMS4zNTM1NUM3My4zNDE3IDEuMTU4MjkgNzMuNjU4MyAxLjE1ODI5IDczLjg1MzYgMS4zNTM1NUw4NS4xNDY0IDEyLjY0NjRDODUuMzQxNyAxMi44NDE3IDg1LjY1ODMgMTIuODQxNyA4NS44NTM2IDEyLjY0NjRMOTYuNjQ2NCAxLjg1MzU1Qzk2Ljk2MTQgMS41Mzg1NyA5Ni43MzgzIDEgOTYuMjkyOSAxSDgwLjcwNzFDODAuMjYxNyAxIDgwLjAzODYgMS41Mzg1NyA4MC4zNTM2IDEuODUzNTVMODUuMTQ2NCA2LjY0NjQ1Qzg1LjM0MTcgNi44NDE3MSA4NS42NTgzIDYuODQxNzEgODUuODUzNiA2LjY0NjQ1TDg3IDUuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTEwMiA4LjVMMTAzLjE0NiA3LjM1MzU1QzEwMy4zNDIgNy4xNTgyOSAxMDMuNjU4IDcuMTU4MjkgMTAzLjg1NCA3LjM1MzU1TDEwOC42NDYgMTIuMTQ2NEMxMDguOTYxIDEyLjQ2MTQgMTA4LjczOCAxMyAxMDguMjkzIDEzSDEwMy41SDk3LjVIOTIuNzA3MUM5Mi4yNjE3IDEzIDkyLjAzODYgMTIuNDYxNCA5Mi4zNTM2IDEyLjE0NjRMMTAzLjE0NiAxLjM1MzU1QzEwMy4zNDIgMS4xNTgyOSAxMDMuNjU4IDEuMTU4MjkgMTAzLjg1NCAxLjM1MzU1TDExNS4xNDYgMTIuNjQ2NEMxMTUuMzQyIDEyLjg0MTcgMTE1LjY1OCAxMi44NDE3IDExNS44NTQgMTIuNjQ2NEwxMjYuNjQ2IDEuODUzNTVDMTI2Ljk2MSAxLjUzODU3IDEyNi43MzggMSAxMjYuMjkzIDFIMTEwLjcwN0MxMTAuMjYyIDEgMTEwLjAzOSAxLjUzODU3IDExMC4zNTQgMS44NTM1NUwxMTUuMTQ2IDYuNjQ2NDVDMTE1LjM0MiA2Ljg0MTcxIDExNS42NTggNi44NDE3MSAxMTUuODU0IDYuNjQ2NDVMMTE3IDUuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTEzMiA4LjVMMTMzLjE0NiA3LjM1MzU1QzEzMy4zNDIgNy4xNTgyOSAxMzMuNjU4IDcuMTU4MjkgMTMzLjg1NCA3LjM1MzU1TDEzOC42NDYgMTIuMTQ2NEMxMzguOTYxIDEyLjQ2MTQgMTM4LjczOCAxMyAxMzguMjkzIDEzSDEzMy41SDEyNy41SDEyMi43MDdDMTIyLjI2MiAxMyAxMjIuMDM5IDEyLjQ2MTQgMTIyLjM1NCAxMi4xNDY0TDEzMy4xNDYgMS4zNTM1NUMxMzMuMzQyIDEuMTU4MjkgMTMzLjY1OCAxLjE1ODI5IDEzMy44NTQgMS4zNTM1NUwxNDUuMTQ2IDEyLjY0NjRDMTQ1LjM0MiAxMi44NDE3IDE0NS42NTggMTIuODQxNyAxNDUuODU0IDEyLjY0NjRMMTU2LjY0NiAxLjg1MzU1QzE1Ni45NjEgMS41Mzg1NyAxNTYuNzM4IDEgMTU2LjI5MyAxSDE0MC43MDdDMTQwLjI2MiAxIDE0MC4wMzkgMS41Mzg1NyAxNDAuMzU0IDEuODUzNTVMMTQ1LjE0NiA2LjY0NjQ1QzE0NS4zNDIgNi44NDE3MSAxNDUuNjU4IDYuODQxNzEgMTQ1Ljg1NCA2LjY0NjQ1TDE0NyA1LjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNjIgOC41TDE2My4xNDYgNy4zNTM1NUMxNjMuMzQyIDcuMTU4MjkgMTYzLjY1OCA3LjE1ODI5IDE2My44NTQgNy4zNTM1NUwxNjguNjQ2IDEyLjE0NjRDMTY4Ljk2MSAxMi40NjE0IDE2OC43MzggMTMgMTY4LjI5MyAxM0gxNjMuNUgxNTcuNUgxNTIuNzA3QzE1Mi4yNjIgMTMgMTUyLjAzOSAxMi40NjE0IDE1Mi4zNTQgMTIuMTQ2NEwxNjMuMTQ2IDEuMzUzNTVDMTYzLjM0MiAxLjE1ODI5IDE2My42NTggMS4xNTgyOSAxNjMuODU0IDEuMzUzNTVMMTc1LjE0NiAxMi42NDY0QzE3NS4zNDIgMTIuODQxNyAxNzUuNjU4IDEyLjg0MTcgMTc1Ljg1NCAxMi42NDY0TDE4Ni42NDYgMS44NTM1NUMxODYuOTYxIDEuNTM4NTcgMTg2LjczOCAxIDE4Ni4yOTMgMUgxNzAuNzA3QzE3MC4yNjIgMSAxNzAuMDM5IDEuNTM4NTcgMTcwLjM1NCAxLjg1MzU1TDE3NS4xNDYgNi42NDY0NUMxNzUuMzQyIDYuODQxNzEgMTc1LjY1OCA2Ljg0MTcxIDE3NS44NTQgNi42NDY0NUwxNzcgNS41IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTkyIDguNUwxOTMuMTQ2IDcuMzUzNTVDMTkzLjM0MiA3LjE1ODI5IDE5My42NTggNy4xNTgyOSAxOTMuODU0IDcuMzUzNTVMMTk4LjY0NiAxMi4xNDY0QzE5OC45NjEgMTIuNDYxNCAxOTguNzM4IDEzIDE5OC4yOTMgMTNIMTkzLjVIMTg3LjVIMTgyLjcwN0MxODIuMjYyIDEzIDE4Mi4wMzkgMTIuNDYxNCAxODIuMzU0IDEyLjE0NjRMMTkzLjE0NiAxLjM1MzU1QzE5My4zNDIgMS4xNTgyOSAxOTMuNjU4IDEuMTU4MjkgMTkzLjg1NCAxLjM1MzU1TDIwNS4xNDYgMTIuNjQ2NEMyMDUuMzQyIDEyLjg0MTcgMjA1LjY1OCAxMi44NDE3IDIwNS44NTQgMTIuNjQ2NEwyMTYuNjQ2IDEuODUzNTVDMjE2Ljk2MSAxLjUzODU3IDIxNi43MzggMSAyMTYuMjkzIDFIMjAwLjcwN0MyMDAuMjYyIDEgMjAwLjAzOSAxLjUzODU3IDIwMC4zNTQgMS44NTM1NUwyMDUuMTQ2IDYuNjQ2NDVDMjA1LjM0MiA2Ljg0MTcxIDIwNS42NTggNi44NDE3MSAyMDUuODU0IDYuNjQ2NDVMMjA3IDUuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTIyMiA4LjVMMjIzLjE0NiA3LjM1MzU1QzIyMy4zNDIgNy4xNTgyOSAyMjMuNjU4IDcuMTU4MjkgMjIzLjg1NCA3LjM1MzU1TDIyOC42NDYgMTIuMTQ2NEMyMjguOTYxIDEyLjQ2MTQgMjI4LjczOCAxMyAyMjguMjkzIDEzSDIyMy41SDIxNy41SDIxMi43MDdDMjEyLjI2MiAxMyAyMTIuMDM5IDEyLjQ2MTQgMjEyLjM1NCAxMi4xNDY0TDIyMy4xNDYgMS4zNTM1NUMyMjMuMzQyIDEuMTU4MjkgMjIzLjY1OCAxLjE1ODI5IDIyMy44NTQgMS4zNTM1NUwyMzUuMTQ2IDEyLjY0NjRDMjM1LjM0MiAxMi44NDE3IDIzNS42NTggMTIuODQxNyAyMzUuODU0IDEyLjY0NjRMMjQ2LjY0NiAxLjg1MzU1QzI0Ni45NjEgMS41Mzg1NyAyNDYuNzM4IDEgMjQ2LjI5MyAxSDIzMC43MDdDMjMwLjI2MiAxIDIzMC4wMzkgMS41Mzg1NyAyMzAuMzU0IDEuODUzNTVMMjM1LjE0NiA2LjY0NjQ1QzIzNS4zNDIgNi44NDE3MSAyMzUuNjU4IDYuODQxNzEgMjM1Ljg1NCA2LjY0NjQ1TDIzNyA1LjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0yNTIgOC41TDI1My4xNDYgNy4zNTM1NUMyNTMuMzQyIDcuMTU4MjkgMjUzLjY1OCA3LjE1ODI5IDI1My44NTQgNy4zNTM1NUwyNTguNjQ2IDEyLjE0NjRDMjU4Ljk2MSAxMi40NjE0IDI1OC43MzggMTMgMjU4LjI5MyAxM0gyNTMuNUgyNDcuNUgyNDIuNzA3QzI0Mi4yNjIgMTMgMjQyLjAzOSAxMi40NjE0IDI0Mi4zNTQgMTIuMTQ2NEwyNTMuMTQ2IDEuMzUzNTVDMjUzLjM0MiAxLjE1ODI5IDI1My42NTggMS4xNTgyOSAyNTMuODU0IDEuMzUzNTVMMjY1LjE0NiAxMi42NDY0QzI2NS4zNDIgMTIuODQxNyAyNjUuNjU4IDEyLjg0MTcgMjY1Ljg1NCAxMi42NDY0TDI3Ni42NDYgMS44NTM1NUMyNzYuOTYxIDEuNTM4NTcgMjc2LjczOCAxIDI3Ni4yOTMgMUgyNjAuNzA3QzI2MC4yNjIgMSAyNjAuMDM5IDEuNTM4NTcgMjYwLjM1NCAxLjg1MzU1TDI2NS4xNDYgNi42NDY0NUMyNjUuMzQyIDYuODQxNzEgMjY1LjY1OCA2Ljg0MTcxIDI2NS44NTQgNi42NDY0NUwyNjcgNS41IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMjgyIDguNUwyODMuMTQ2IDcuMzUzNTVDMjgzLjM0MiA3LjE1ODI5IDI4My42NTggNy4xNTgyOSAyODMuODU0IDcuMzUzNTVMMjg4LjY0NiAxMi4xNDY0QzI4OC45NjEgMTIuNDYxNCAyODguNzM4IDEzIDI4OC4yOTMgMTNIMjcyLjcwN0MyNzIuMjYyIDEzIDI3Mi4wMzkgMTIuNDYxNCAyNzIuMzU0IDEyLjE0NjRMMjgzLjE0NiAxLjM1MzU1QzI4My4zNDIgMS4xNTgyOSAyODMuNjU4IDEuMTU4MjkgMjgzLjg1NCAxLjM1MzU1TDI5NC42NDYgMTIuMTQ2NEMyOTQuOTYxIDEyLjQ2MTQgMjk1LjUgMTIuMjM4MyAyOTUuNSAxMS43OTI5VjEuNUMyOTUuNSAxLjIyMzg2IDI5NS4yNzYgMSAyOTUgMUgyODkuNzA3QzI4OS4yNjIgMSAyODkuMDM5IDEuNTM4NTcgMjg5LjM1NCAxLjg1MzU1TDI5MC41IDMiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==") repeat-x left top;
+  mix-blend-mode:overlay;opacity:.28;
 }
 .table-wrapper > *{position:relative;z-index:1}
 .table-wrapper .close{position:absolute;top:5px;right:5px}
@@ -333,7 +360,7 @@ td.v-bottom{vertical-align:bottom}
   color:var(--gold-bright);font-family:var(--display);font-weight:700;display:block;
   padding:6px 5px 6px 6px;margin-left:0;letter-spacing:.01em;
   text-shadow:0 1px 0 #2a1c00,0 0 14px rgba(198,162,78,.22);
-  border-bottom:1px solid rgba(133,102,50,.4);
+  border-bottom:1px solid var(--stone-900);box-shadow:0 1px 0 rgba(187,134,252,.25);
 }
 #player-params-table{padding-left:5px}
 #group-table td,#group-table th,#who-table td,#who-table th{padding-left:5px;padding-right:5px}
@@ -359,30 +386,11 @@ td.v-bottom{vertical-align:bottom}
 .btn-ctrl{float:right;font-size:1.5em;color:var(--gold-dim);border:1px solid var(--gold-deep);margin:1px;background:rgba(19,16,25,.6)}
 .top-right-buttons .btn-ctrl{margin:0 .2em}
 .btn-ctrl:hover{background:var(--gold);border-color:var(--gold);color:#1c1206}
-/* Resting surface, matched to Figma node 1023:1018 (parchment button). The node
-   is 18px; every value below is its real property SCALED x1.667 to the nav
-   control's 30px box, so the design's proportions hold at this size (radius,
-   bevel depth, stroke, icon and drop all grow together). Reproduced 1:1 at
-   18px it is pixel-exact against Figma. Layers: 2-stop --gold -> --gold-dim
-   radial at 50% 0%, gold-deep@50% inside hairline, two inner shadows, monotone
-   noise, drop shadow; icon carries its own gold-bright emboss. Fill + icon are
-   the node's bound tokens (--gold, --gold-dim, --ink). Hover/focus below keep
-   the arcane treatment untouched. */
 #nav .btn-ctrl{
-  position:relative;
-  color:var(--ink);font-size:20px;border-radius:7px;margin:0;
-  border:.8px solid color-mix(in srgb,var(--gold-deep) 50%,transparent);
-  background:radial-gradient(100% 100% at 50% 0%,var(--gold) 0%,var(--gold-dim) 100%);
-  box-shadow:
-    inset 0 3px 2px rgba(255,255,255,.45),
-    inset 0 -3px 5px rgba(40,30,12,.35),
-    0 7px 20px rgba(36,28,15,.32);
+  color:#1c1206;border:0;font-size:15px;
+  background:radial-gradient(140% 140% at 50% 0%,var(--gold-metal-hi),var(--gold-metal) 55%,var(--gold-metal-lo));
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.6),0 1px 2px rgba(0,0,0,.5),0 0 0 1px var(--gold-deep);
 }
-#nav .btn-ctrl::after{
-  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  background:var(--noise);mix-blend-mode:overlay;opacity:.06;
-}
-#nav .btn-ctrl i{text-shadow:0 2px 2px color-mix(in srgb,var(--gold-bright) 55%,transparent)}
 #nav .btn-ctrl:hover{background:radial-gradient(140% 140% at 50% 0%,#6c3aa8,var(--arcane-deep) 60%,#24123f);color:#fff}
 #nav .btn-ctrl:focus{box-shadow:none}
 
@@ -694,11 +702,17 @@ header.MuiPaper-root.MuiAppBar-root {
   display: flex;
 }
 
+/* react-mosaic wrapper chrome is made invisible: the panels (terminal well,
+   widgets, map) carry their own surfaces and float on the obsidian ground.
+   Dropping the library black body fill + the container shadow removes the boxes
+   that showed around the central widgets column. */
+.mosaic{ background:transparent }
+.mosaic-window,.mosaic-preview{ box-shadow:none;background:transparent }
 .mosaic-window-body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: black !important;
+  background: transparent !important;
 }
 
 .mosaic-window-toolbar {
@@ -940,29 +954,70 @@ body.mud-fighting form#input {
 
 /* scrollbars: native overlay, thin, gold-tinted thumb on scroll/hover */
 .terminal-wrap,#map-wrap{ overflow-y:auto }
-.terminal-wrap,#panel-wrap,#map-wrap{ scrollbar-width:thin; scrollbar-color:transparent transparent }
-.terminal-wrap:hover,#panel-wrap:hover,#map-wrap:hover,
-.terminal-wrap:focus-within,#panel-wrap:focus-within,#map-wrap:focus-within{ scrollbar-color:rgba(198,162,78,.5) transparent }
+.terminal-wrap,#map-wrap{ scrollbar-width:thin; scrollbar-color:transparent transparent }
+.terminal-wrap:hover,#map-wrap:hover,
+.terminal-wrap:focus-within,#map-wrap:focus-within{ scrollbar-color:rgba(198,162,78,.5) transparent }
+/* middle widgets column scrolls but never shows a scrollbar */
+#panel-wrap{ scrollbar-width:none }
+#panel-wrap::-webkit-scrollbar{ width:0;height:0 }
 .dl-mapper-drawer{ display:none !important }
 
-/* hp / mana / move as gold-rimmed vials (structure in stats.jsx) */
-.rf-vial{
-  position:relative;flex:1 1 auto;height:1rem;overflow:hidden;border-radius:0;color:#fff;margin:0 1px;
-  background:linear-gradient(180deg,#050507,#0c0b10 55%,#040406);
-  box-shadow:inset 0 1px 3px rgba(0,0,0,.9),inset 0 -1px 0 rgba(230,205,134,.08),inset 0 0 0 1px rgba(85,65,29,.55);
+/* hp / mana / move as gem-tipped pill bars (structure in stats.jsx). One
+   component, three configs: each modifier sets --fill-edge / --fill-mid / --rim /
+   --glow / --gem, and the fill gradient, rim, inner+outer glow and gem all recolor
+   off them. Ported from Figma nodes 1026:2005 (empty track), 1026:1658 (filled),
+   1026:1933 (gem). Bottom status strip is full app width, so bars flex to fill. */
+.pbars{display:flex;align-items:center;gap:4px;padding:6px 8px;background:transparent}
+.pbar{
+  position:relative;flex:1 1 0;min-width:0;height:14px;border-radius:200px;color:#fff;
+  --fill-edge:#7c1f30;--fill-mid:#c0384f;--rim:#ed2330;--glow:rgba(255,0,0,.40);--gem:#c0384f;
+  /* vertical dark-light-dark = a glass tube: dark top rim, lit centre line, darker
+     bottom rim (bottom stroke darker than top per Kit). */
+  background:linear-gradient(180deg,rgba(13,11,18,.92),#241d30 50%,rgba(5,4,8,.98));
+  box-shadow:
+    inset 0 0 0 1px rgba(212,215,207,.22),
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -1px 0 rgba(0,0,0,.6),
+    inset 0 -2px 3px rgba(8,7,12,.45),
+    0 2px 6px rgba(8,7,12,.40);
 }
-.rf-vial-fill{
-  position:absolute;top:0;bottom:0;left:0;
-  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 55%,#fff),var(--c) 42%,color-mix(in srgb,var(--c) 72%,#000));
-  box-shadow:0 0 10px var(--c),inset 0 1px 0 rgba(255,255,255,.4);
+.pbar-fill{
+  position:absolute;top:0;bottom:0;left:0;border-radius:200px;
+  background:linear-gradient(180deg,var(--fill-edge),var(--fill-mid) 48%,color-mix(in srgb,var(--fill-edge) 62%,#000));
+  /* no stroke on the fill: it blends into the track pill, only the gradient tube +
+     top highlight + inner/outer glow read. */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.30),
+    inset 0 3px 5px var(--glow),
+    0 0 7px var(--glow);
 }
-.rf-vial-fill::after{content:"";position:absolute;inset:0 0 55% 0;background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,0))}
-.rf-vial-ticks{position:absolute;inset:0;pointer-events:none;
-  box-shadow:inset 1px 0 0 rgba(0,0,0,.6),inset -1px 0 0 rgba(0,0,0,.6)}
-.rf-vial-cap{position:absolute;left:5px;top:50%;transform:translateY(-50%);z-index:2;font-size:9px;letter-spacing:.03em;color:rgba(255,255,255,.85);text-shadow:0 1px 1px rgba(0,0,0,.85)}
-.rf-vial-val{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:2;text-align:center;font-size:9px;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.9)}
-.rf-vial-val b{font-weight:700}
-@media (max-width:599px){ .rf-vial{height:10px} }
+.pbar.mana{--fill-edge:#3d2a63;--fill-mid:#bb86fc;--rim:#c9a3ff;--glow:rgba(187,134,252,.45);--gem:#bb86fc}
+.pbar.move{--fill-edge:#5c4413;--fill-mid:#c6a24e;--rim:#e6cd86;--glow:rgba(230,205,134,.42);--gem:#c6a24e}
+.pbar.enemy{--fill-edge:#7c1f30;--fill-mid:#c0384f;--rim:#ed2330;--glow:rgba(255,0,0,.40)}
+.pbar-val{position:absolute;left:24px;top:50%;transform:translateY(-50%);z-index:3;font-family:var(--mono);font-size:10px;line-height:1;letter-spacing:.02em;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.9);pointer-events:none;white-space:nowrap}
+.pbar.enemy .pbar-val{left:10px}
+.pbar-val b{font-weight:700}
+/* gem: faceted jewel SVG (Figma 1026:1934) inlined by stats.jsx; its base facets
+   are currentColor, so color drives the jewel while the gold socket ring stays put.
+   The drop-shadows are the coloured glow + the dark cast-shadow from the Figma node. */
+.pbar-gem{
+  position:absolute;left:-1px;top:50%;transform:translateY(-50%);z-index:4;
+  width:18px;height:18px;line-height:0;color:var(--gem);
+  animation:pbar-gem-pulse 2.4s ease-in-out infinite;
+}
+.pbar-gem svg{display:block;width:100%;height:100%}
+@keyframes pbar-gem-pulse{
+  0%,100%{filter:drop-shadow(0 0 2px var(--gem)) drop-shadow(2px 0 3px rgba(0,0,0,.35))}
+  50%{filter:drop-shadow(0 0 6px var(--gem)) drop-shadow(2px 0 3px rgba(0,0,0,.35))}
+}
+@media (prefers-reduced-motion:reduce){
+  .pbar-gem{animation:none;filter:drop-shadow(0 0 3px var(--gem)) drop-shadow(2px 0 3px rgba(0,0,0,.35))}
+}
+@media (max-width:599px){
+  .pbar{height:11px}
+  .pbar-gem{width:15px;height:15px}
+  .pbar-val{display:none}
+}
 
 /* map +/- and ascii toggle match the #nav control buttons (gold gem) */
 .dl-mapper-zoom-btn,.toggle-btn{
@@ -1073,21 +1128,17 @@ form#input input{flex:1 1 auto;min-width:0}
     background:var(--rf-well);box-shadow:inset 0 1px 5px rgba(0,0,0,.7)}
   .rf-cmdbar form#input input{height:100%;padding:0 8px;color:#f2ead6;background:transparent;border:0;font-size:16px}
   .rf-cmdactions{display:flex;gap:5px;flex:none}
+  /* all command-bar buttons (history, repeat, send, keypad toggle) wear the same
+     antique-gold gem as the .btn / nav / panel buttons (3-stop metal + top facet +
+     gold-deep ring); pressed + keypad-open go arcane purple. */
   .rf-cmdbtn{flex:none;width:var(--rf-ctrl-h);height:var(--rf-ctrl-h);display:flex;align-items:center;justify-content:center;
-    border-radius:6px;border:1px solid var(--gold-deep);color:var(--text);font-size:15px;cursor:pointer;
-    background:linear-gradient(180deg,#241d30,#15121d);
-    box-shadow:inset 0 1px 0 rgba(230,205,134,.08),0 1px 2px rgba(0,0,0,.5)}
-  .rf-cmdbtn:active{background:linear-gradient(180deg,#15121d,#241d30)}
-  /* send is the command bar's primary action: wear the same antique-gold gem as
-     the .btn / nav / panel buttons (3-stop metal + top facet + gold-deep ring) */
-  .rf-send{
-    color:#1c1206;border:0;
+    border-radius:6px;border:0;color:#1c1206;font-size:15px;cursor:pointer;
     background:
       linear-gradient(180deg,rgba(255,255,255,.3) 0%,transparent 44%),
       radial-gradient(140% 140% at 50% 0%,var(--gold-metal-hi) 0%,var(--gold-metal) 52%,var(--gold-metal-lo) 100%);
-    box-shadow:inset 0 1px 1px rgba(255,255,255,.45),inset 0 -3px 5px rgba(40,30,12,.7),0 1px 2px rgba(0,0,0,.5),0 0 0 1px var(--gold-deep);
-  }
-  .rf-keypad-toggle.is-on{background:radial-gradient(140% 140% at 50% 0%,#6c3aa8,#24123f);color:#fff}
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.45),inset 0 -3px 5px rgba(40,30,12,.7),0 1px 2px rgba(0,0,0,.5),0 0 0 1px var(--gold-deep)}
+  .rf-cmdbtn:active{color:#fff;background:radial-gradient(140% 140% at 50% 0%,#6c3aa8,var(--arcane-deep) 60%,#24123f)}
+  .rf-keypad-toggle.is-on{color:#fff;background:radial-gradient(140% 140% at 50% 0%,#6c3aa8,var(--arcane-deep) 60%,#24123f);box-shadow:inset 0 1px 1px rgba(255,255,255,.2),0 0 0 1px #2a1650,0 0 16px var(--arcane-glow)}
   .rf-reconnect{width:100%}
   :root{--rf-nav-size:var(--rf-ctrl-h)}
 }
@@ -1140,12 +1191,33 @@ form#input input{flex:1 1 auto;min-width:0}
 .dl-mapper-root{
   --ink-base:#0c0b11; --ink-panel:#131019; --ink-elevated:#201a2b; --ink-deeper:#0a0a0d;
   --rule-faint:#141319; --rule:#2b2338; --rule-strong:#3a3049;
+  /* wear the parchment card fully -- gilt rounded frame plus the widget-card header
+     treatment on the toolbar (stone+arcane fill, Playfair gilt title). */
+  border-radius:6px;overflow:hidden;
+  box-shadow:inset 0 -4px 12px rgba(8,7,12,.55),0 4px 12px rgba(36,28,15,.32);
+}
+.dl-mapper-root::before{ /* radius-aware gradient stroke, gold-dim -> darker gold down */
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;z-index:700;pointer-events:none;
+  background:linear-gradient(to bottom,#856632,#40300f);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
 }
 .dl-mapper-root .dl-mapper{background:radial-gradient(120% 100% at 50% 0%, #17151f 0%, #0c0b11 60%, #08070c 100%)}
-header.MuiPaper-root.MuiAppBar-root{
-  background:linear-gradient(180deg,#201a2b,#131019) !important;
-  box-shadow:inset 0 1px 0 rgba(230,205,134,.08),0 2px 6px rgba(0,0,0,.5) !important;
-  border-bottom:1px solid var(--gold-deep) !important;
+header.MuiPaper-root.MuiAppBar-root{ /* the widget-card top fill: stone-850 + arcane wash + noise */
+  background:
+    radial-gradient(72% 16px at 50% 0%,rgba(187,134,252,.40) 0%,transparent 100%),
+    var(--noise),
+    radial-gradient(80% 66% at 48% -4%,rgba(187,134,252,.24) 0%,rgba(8,7,12,0) 68%),
+    var(--stone-850) !important;
+  background-blend-mode:screen,overlay,normal,normal !important;
+  border-bottom:1px solid var(--stone-900) !important;
+  box-shadow:0 1px 0 rgba(187,134,252,.25) !important; /* the .dark-panel-title arcane divider */
+}
+/* the area name reads as a widget-card title: Playfair, gilt, carved */
+.dl-mapper-root .dl-mapper-areaname{
+  font-family:var(--display) !important;font-weight:700 !important;font-size:15px !important;
+  color:var(--gold-bright) !important;letter-spacing:.01em;
+  text-shadow:0 1px 0 #2a1c00,0 0 14px rgba(198,162,78,.22);
 }
 .dl-mapper-root .search-input,.dl-mapper-root .select{
   background:var(--rf-well) !important;border:1px solid var(--gold-deep) !important;border-radius:5px !important;

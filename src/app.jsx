@@ -4,6 +4,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 
 import 'react-mosaic-component/react-mosaic-component.css';
+import './mosaic-grip.css';   // visible gold/purple resize grip over the seams
 import 'bootstrap';
 
 import MainWindow from './components/mainwindow';

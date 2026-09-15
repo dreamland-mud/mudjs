@@ -1,0 +1,48 @@
+/*
+ * Visible resize grip on the mosaic seams (terminal | map, and any other split),
+ * replacing react-mosaic's invisible drag zone. A thin gold seam line with a
+ * centred grabber pill -- gold at rest, arcane purple on hover -- matching the
+ * settings side-sheet grip (.cfg-grip). Imported from app.jsx AFTER the
+ * react-mosaic stylesheet so these win by source order; the Parchment skin does
+ * not style .mosaic-split, so nothing overrides them. Tokens from
+ * theme-parchment.css :root, with hex fallbacks.
+ */
+
+/* Kill the default black flash on the hit zone; the line + pill carry the look. */
+.mosaic-split,
+.mosaic-split:hover {
+  background: transparent;
+}
+
+/* the seam line itself -- a hairline in deep gold */
+.mosaic-split .mosaic-split-line {
+  background: var(--gold-deep, #55411d);
+  transition: background 140ms ease;
+}
+
+/* a centred grabber pill on the seam (same idea as the side-sheet .cfg-grip) */
+.mosaic-split::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 3px;
+  background: var(--gold, #c6a24e);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+  transition: background 140ms ease, box-shadow 140ms ease, width 140ms ease, height 140ms ease;
+  pointer-events: none;      /* the .mosaic-split hit zone owns the drag */
+}
+.mosaic-split.-row::after    { width: 4px; height: 44px; }   /* vertical seam -> vertical pill */
+.mosaic-split.-column::after { width: 44px; height: 4px; }   /* horizontal seam -> horizontal pill */
+
+/* hover -> arcane purple + glow, pill grows a little, like .cfg-grip */
+.mosaic-split:hover .mosaic-split-line {
+  background: var(--arcane, #bb86fc);
+}
+.mosaic-split:hover::after {
+  background: var(--arcane, #bb86fc);
+  box-shadow: 0 0 12px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+.mosaic-split.-row:hover::after    { height: 64px; }
+.mosaic-split.-column:hover::after { width: 64px; }

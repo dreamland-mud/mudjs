@@ -56,9 +56,8 @@ const Overlay = ({ unread, onScrollToBottom, lang }) => {
       >
         <tbody>
           <tr>
-            <OverlayCell id="logs-button" ariaLabel={t('ov.logs', lang)} ariaHidden="true">
-              <i className="fa fa-download"></i>
-            </OverlayCell>
+            {/* Download log moved into the settings side-sheet footer (id kept,
+                so main.js's delegated #logs-button handler still fires). */}
             <OverlayCell
               id="settings-button"
               onClick={() => $(document).trigger('settings:open')}

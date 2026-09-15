@@ -1,11 +1,17 @@
 import React from 'react'
 import PanelItem from './panelItem'
 import { t } from '../../i18n';
+import './affects.css';
 
-// Six fixed columns; membership is driven by the server, not hardcoded here.
-// Base column color: 2 = green (buffs), 1 = red (maladictions) -- kept for the active state.
-// Duration only adds two overrides on top: permanent = cyan (6), about to expire = yellow (3).
-// See affColor().
+// Affect families in display order; membership is driven by the server, not
+// hardcoded here. Base colour: 2 = green (buffs), 1 = red (maladictions) -- kept
+// for the active state. Duration only adds two overrides on top: permanent = cyan
+// (6), about to expire = yellow (3). See affColor().
+//
+// The six columns and their name headers are gone (Figma node 1025-1635): every
+// affect now flows into ONE wrapping block of pill chips. This list still drives
+// the ORDER (maladictions first -- bad news leads) and the colour SOURCE of each
+// chip, it just no longer draws a separate column per family.
 const COLUMNS = [
     { key: 'mal', type: 'malad',   color: '1' },   // maladictions/curses first: bad news leads
     { key: 'pro', type: 'protect', color: '2' },
@@ -35,40 +41,45 @@ function affColor(aff, baseColor) {
     return 'fg-ansi-bright-color-' + baseColor;                          // otherwise -> column base
 }
 
-// Draw one column: the server already localized each affect's label `n`.
-function AffectBlock(props) {
-    const rows = props.block.map(function (aff, idx) {
-        return <span key={idx} className={'aff-chip ' + affColor(aff, props.color)}>{aff.n}</span>;
-    });
-
-    if (rows.length === 0) return null;
-
-    return (
-        <div id={'pa-' + props.type} className="flexcontainer-column" data-hint={'hint-' + props.type}>
-            <span style={{ color: '#d3d7cf' }}>{props.blockName}</span>
-            { rows }
-        </div>
-    );
+// Sort key: soonest-to-expire first, non-expiring last. A permanent or
+// equipment-bound affect (d < 0), or one with no duration, never runs out, so it
+// sorts to the very end (cyan/blue last); a short timer sorts to the front
+// (yellow first). Maladictions are pulled ahead of everything separately (red
+// always first), so within each group this is a plain "time left" order.
+function timeRank(aff) {
+    const d = aff.d;
+    if (d == null || d < 0) return Number.POSITIVE_INFINITY;
+    return d;
 }
 
 export default function AffectsItem(prompt) {
     const l = prompt.lang;
 
+    // Flatten every populated family into one list, then sort by urgency:
+    // maladictions (red) always first, then by time left -- soonest to expire
+    // first (yellow), non-expiring last (cyan/blue). The server already localized
+    // each affect's label `n`; the chip's text colour carries its state via
+    // affColor(), the same convention the old columns used.
+    const items = [];
+    COLUMNS.forEach(function (c) {
+        if (!hasAffects(prompt[c.key])) return;
+        prompt[c.key].forEach(function (aff, idx) {
+            items.push({ aff: aff, color: c.color, key: c.key + '-' + idx });
+        });
+    });
+    items.sort(function (a, b) {
+        const am = a.color === '1', bm = b.color === '1';
+        if (am !== bm) return am ? -1 : 1;                 // red maladictions always first
+        return timeRank(a.aff) - timeRank(b.aff);          // then soonest-expiring first
+    });
+    const chips = items.map(function (it) {
+        return <span key={it.key} className={'aff-chip ' + affColor(it.aff, it.color)}>{it.aff.n}</span>;
+    });
+
     return (
         <PanelItem storageKey="affects" title={t('aff.title', l)}>
-            <div id="player-affects-table" className="flexcontainer-row flexcontainer-wrap " data-hint="hint-affects">
-                { COLUMNS.map(function (c) {
-                    if (!hasAffects(prompt[c.key])) return null;
-                    return (
-                        <AffectBlock
-                            key={c.key}
-                            block={prompt[c.key]}
-                            blockName={t('aff.' + c.key, l)}
-                            color={c.color}
-                            type={c.type}
-                        />
-                    );
-                }) }
+            <div id="player-affects-table" className="affects-flat" data-hint="hint-affects">
+                { chips }
             </div>
         </PanelItem>
     );
