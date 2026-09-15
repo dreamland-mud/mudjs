@@ -332,7 +332,7 @@ export default function AccountLogin() {
                       onChange={e => setEmail(e.target.value)}
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary acc-cta">{at('send_code', lang)}</button>
+                  <button type="submit" className="btn acc-cta">{at('send_code', lang)}</button>
                   <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
                     onClick={() => { setBerror(''); setBstep('idle'); }}>{at('back', lang)}</button>
                 </form>
@@ -354,7 +354,7 @@ export default function AccountLogin() {
                       onChange={e => setCode(e.target.value)}
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary acc-cta">{at('verify', lang)}</button>
+                  <button type="submit" className="btn acc-cta">{at('verify', lang)}</button>
                   <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
                     onClick={() => { setBerror(''); setBstep('email'); }}>{at('back', lang)}</button>
                 </form>

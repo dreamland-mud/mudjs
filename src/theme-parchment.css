@@ -960,7 +960,8 @@ body.mud-fighting form#input {
 /* middle widgets column scrolls but never shows a scrollbar */
 #panel-wrap{ scrollbar-width:none }
 #panel-wrap::-webkit-scrollbar{ width:0;height:0 }
-.dl-mapper-drawer{ display:none !important }
+/* the map detail drawer (room info + run-here) is shown and parchment-skinned in the
+   map-chrome section below -- it used to be hard-hidden here before it had a skin. */
 
 /* hp / mana / move as gem-tipped pill bars (structure in stats.jsx). One
    component, three configs: each modifier sets --fill-edge / --fill-mid / --rim /
@@ -1191,6 +1192,8 @@ form#input input{flex:1 1 auto;min-width:0}
 .dl-mapper-root{
   --ink-base:#0c0b11; --ink-panel:#131019; --ink-elevated:#201a2b; --ink-deeper:#0a0a0d;
   --rule-faint:#141319; --rule:#2b2338; --rule-strong:#3a3049;
+  /* the mapper's purple accent is the terminal's; on parchment the map chrome is gold */
+  --amber:var(--gold); --amber-dim:var(--gold-dim);
   /* wear the parchment card fully -- gilt rounded frame plus the widget-card header
      treatment on the toolbar (stone+arcane fill, Playfair gilt title). */
   border-radius:6px;overflow:hidden;
@@ -1227,6 +1230,27 @@ header.MuiPaper-root.MuiAppBar-root{ /* the widget-card top fill: stone-850 + ar
   border-color:var(--gold) !important;box-shadow:inset 0 1px 5px rgba(0,0,0,.6) !important;
 }
 .dl-mapper-root .search-results{background:var(--stone-900) !important;border:1px solid var(--gold-deep) !important;border-radius:6px !important;box-shadow:0 10px 28px rgba(0,0,0,.6) !important}
+
+/* --- map detail drawer (room info + run-here subpanel) --- */
+.dl-mapper-root .dl-mapper-drawer{border-top:1px solid var(--gold-deep) !important}
+/* the run-here CTA wears the aged-gold gem, same recipe as .btn / the #nav gear
+   controls -- not the flat mapper accent it inherited from the dark skin */
+.dl-mapper-root .btn--primary{
+  color:#1c1206 !important;text-shadow:0 1px 0 rgba(255,255,255,.3);border:0 !important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.3) 0%,transparent 44%),
+    radial-gradient(140% 140% at 50% 0%,var(--gold-metal-hi) 0%,var(--gold-metal) 52%,var(--gold-metal-lo) 100%) !important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.45),inset 0 -3px 5px rgba(40,30,12,.7),
+    0 4px 12px rgba(0,0,0,.55),0 0 0 1px var(--gold-deep) !important;
+}
+.dl-mapper-root .btn--primary:hover{
+  color:#fff !important;transform:translateY(-1px);
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.16) 0%,transparent 44%),
+    radial-gradient(140% 140% at 50% 0%,#6c3aa8 0%,var(--arcane-deep) 56%,#24123f 100%) !important;
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.28),0 10px 22px rgba(0,0,0,.6),
+    0 0 0 1px #2a1650,0 0 26px var(--arcane-glow) !important;
+}
 
 /* --- one field, one focus glow: the arcane purple orbit, as Runeforge had --- */
 form#input input:focus,.form-control:focus,#help input:focus,
