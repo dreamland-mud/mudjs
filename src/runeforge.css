@@ -866,7 +866,7 @@ body.mud-fighting form#input {
 .terminal-wrap:hover,#panel-wrap:hover,#map-wrap:hover,
 .terminal-wrap:focus-within,#panel-wrap:focus-within,#map-wrap:focus-within{ scrollbar-color:rgba(139,127,152,.55) transparent }
 /* (3) kill the graph-map right drawer (unskinned, off-style) */
-.dl-mapper-drawer{ display:none !important }
+/* room detail drawer (run-here subpanel) shows; its native dark tokens fit this skin */
 
 /* (4) hp/mana/move as gem-tipped pill bars (structure in stats.jsx). Shared with
    the Parchment skin -- see theme-parchment.css for the annotated source. The gem
