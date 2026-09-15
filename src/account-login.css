@@ -150,6 +150,20 @@
    and a left-aligned icon row for the login-method buttons. */
 .acc-col .btn { width: 100%; }
 .acc-cta { margin-top: 4px; }
+/* Primary panel action (Enter / Send code / Verify) is gold, not the theme's
+   arcane-purple .btn-primary. .btn.acc-cta out-specifies .btn-primary. */
+.btn.acc-cta {
+  background: linear-gradient(180deg, var(--gold-bright, #e6cd86), var(--gold, #c6a24e));
+  border: 1px solid var(--gold-deep, #6f5a26);
+  color: #2a2412;
+  font-weight: 600;
+}
+.btn.acc-cta:hover,
+.btn.acc-cta:focus {
+  background: linear-gradient(180deg, #f0d79a, var(--gold-bright, #e6cd86));
+  border-color: var(--gold, #c6a24e);
+  color: #221d0e;
+}
 /* the three login methods sit in one equal-width row */
 .acc-methods { display: flex; gap: 10px; }
 .acc-methods .btn { width: auto; }

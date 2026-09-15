@@ -61,7 +61,8 @@ const CmdInput = () => {
         if (
           input.is(':focus') ||
           $('#help input').is(':focus') ||
-          $('.dl-mapper-root .search-input').is(':focus')
+          $('.dl-mapper-root .search-input').is(':focus') ||
+          $('.acc-overlay :focus').length !== 0
         )
           return;
 

@@ -128,11 +128,11 @@ let reconnectDelay = 0;
 
 /* resume_failed is two answers sharing one name: "the token is finished, log in"
  * and "your own previous socket has not gone linkdead yet -- ask again in a
- * moment" (the server keeps the token for that case, see resume.cpp #906). We
- * cannot tell them apart from here, so retry a bounded handful of times with a
- * short backoff before falling back to a real login. Without this a phone that
- * reconnects faster than the server notices its dead socket -- i.e. almost every
- * time -- gets thrown to the login screen on every single drop. */
+ * moment" (the server keeps the token for that case, see resume.cpp). The server
+ * now labels which one (the reason arg, 'final' vs 'retry'); only the retry kind
+ * spends this budget, with a short backoff, so a phone that reconnects faster
+ * than the server notices its dead socket is not thrown to login on every drop.
+ * A server that predates the label sends neither, and we retry as before. */
 const RESUME_RETRY_MAX = 5;
 let resumeRetries = 0;
 
@@ -350,21 +350,23 @@ $(document).ready(function () {
       reconnectDelay = 0;
       flushPending();
     })
-    .on('rpc-resume_failed', function () {
-      /* Might just be "not yet". While we still hold the token and have retries
-       * left, close and reconnect with a short backoff -- the reconnect resends
-       * the same token, and once the server has let go of our old socket it
-       * takes. onclose keeps the token and schedules the reconnect for us. */
-      if (resumeToken() && resumeRetries < RESUME_RETRY_MAX) {
+    .on('rpc-resume_failed', function (e, reason) {
+      /* Two failures share this name. 'final' -- the token is dead (a deliberate
+       * quit, an expiry, or the body already left the world): no retry can bring
+       * it back, so drop to the login now. 'retry' (or, from a server that
+       * predates the reason, nothing) -- our own old socket may just not be
+       * linkdead yet, so ask again a bounded few times before giving up. The
+       * reconnect resends the same token; onclose keeps it and reschedules. */
+      if (reason !== 'final' && resumeToken() && resumeRetries < RESUME_RETRY_MAX) {
         resumeRetries++;
         reconnectDelay = Math.min(800 * resumeRetries, 3000);
         if (ws) ws.close();
         return;
       }
 
-      // Out of retries: this failure is the final kind. Ordinary login. Held
-      // lines are dropped rather than replayed -- what the server asks for next
-      // is a login, and a queued command would be typed into it.
+      // Final, or out of retries: ordinary login. Held lines are dropped rather
+      // than replayed -- what the server asks for next is a login, and a queued
+      // command would be typed into it.
       resumeRetries = 0;
       pending = [];
       setResumeToken(null);
