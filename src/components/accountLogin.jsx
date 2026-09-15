@@ -251,13 +251,14 @@ export default function AccountLogin() {
           <div className="acc-busy">{busy}</div>
         ) : (
           <>
-            {/* Mobile: real primary button (terminal is hidden under the full overlay).
-                Desktop: a hint pointing left at the live terminal, where creation happens.
-                Both dismiss the panel to the terminal via openCurtain. CSS swaps them. */}
+            {/* New-player explainer, shown on every width: creation happens by typing a
+                name straight into the terminal. On desktop that terminal is live on the
+                left already; on mobile it sits under the full overlay, so a mobile-only
+                button reveals it (openCurtain). */}
+            <p className="acc-newhero-hint">
+              <strong>{at('new_hero_lead', lang)}</strong> {at('new_hero_body', lang)}
+            </p>
             <button type="button" className="btn btn-primary acc-create acc-create-btn" onClick={openCurtain}>
-              {at('create_char', lang)}
-            </button>
-            <button type="button" className="acc-create-hint" onClick={openCurtain}>
               {at('create_char', lang)}
             </button>
             <div className="acc-cols">

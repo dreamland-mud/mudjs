@@ -7,7 +7,9 @@ import { getLang } from './i18n';
 
 const STRINGS = {
   en: {
-    create_char: 'Create new character',
+    new_hero_lead: 'New to Dreamland?',
+    new_hero_body: 'Type the name of your future game character in the terminal window to get started. Yep, this is a typing game, get used to it.',
+    create_char: 'Create character',
     pathA: 'Log in with your character',
     name: 'Character name',
     password: 'Character password',
@@ -38,7 +40,9 @@ const STRINGS = {
     back: 'Back',
   },
   ru: {
-    create_char: 'Создать нового персонажа',
+    new_hero_lead: 'Впервые в Dreamland?',
+    new_hero_body: 'Напечатай имя своего будущего персонажа в окне терминала, и вперёд. Да, это игра про печатание. Привыкай.',
+    create_char: 'Создать персонажа',
     pathA: 'Войти своим персонажем',
     name: 'Имя персонажа',
     password: 'Пароль персонажа',
@@ -69,7 +73,9 @@ const STRINGS = {
     back: 'Назад',
   },
   ua: {
-    create_char: 'Створити нового персонажа',
+    new_hero_lead: 'Вперше у Dreamland?',
+    new_hero_body: 'Надрукуй імʼя свого майбутнього персонажа у вікні термінала, і погнали. Так, це гра про друкування. Звикай.',
+    create_char: 'Створити персонажа',
     pathA: 'Увійти своїм персонажем',
     name: 'Імʼя персонажа',
     password: 'Пароль персонажа',

@@ -194,9 +194,18 @@
 .acc-card-name { font-family: var(--display, serif); font-size: 16px; color: var(--gold-bright, #e6cd86); }
 .acc-card-title { font-size: 11px; color: var(--text-dim, #b7ad95); }
 
-/* primary create-character CTA, sits under the language row (mobile) */
+/* New-player explainer, shown on every width, under the language row. */
+.acc-newhero-hint {
+  margin: 0 0 22px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-dim, #b7ad95);
+}
+.acc-newhero-hint strong { color: var(--gold-bright, #e6cd86); font-weight: 700; }
+
+/* create-character button: mobile-only (desktop has the live terminal on the left) */
 .acc-create { width: 100%; margin-bottom: 22px; }
-.acc-create-hint { display: none; }   /* desktop-only; shown in the min-width block below */
 
 /* the small link-button (path B "back") */
 .acc-newhero {
@@ -233,23 +242,6 @@
    overlay (no room to split). */
 @media (min-width: 600px) {
   .acc-create-btn { display: none; }
-  .acc-create-hint {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    margin-bottom: 22px;
-    padding: 0;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    color: var(--text-dim, #b7ad95);
-  }
-  .acc-create-hint::before { content: '\2190'; font-size: 16px; color: var(--gold, #c6a24e); }
-  .acc-create-hint:hover { color: var(--gold-bright, #e6cd86); }
 }
 
 /* Accessibility: respect reduced-motion -- no curtain, just clear the panel. */
