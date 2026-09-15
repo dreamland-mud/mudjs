@@ -15,12 +15,27 @@ import '../account-login.css';
 const REVEAL_MS = 950;      // slab curtain + settle before we unmount
 const LOGIN_TIMEOUT_MS = 4500;
 
-// Mock roster for the master-login path -- the entry-token backend is not built
-// yet, so path B (account login) is still a visual prototype.
-const MOCK_ROSTER = [
-  { name: 'Taiphoen', title: 'Scarred Mantis of the Broken Oath' },
-  { name: 'Dementia', title: 'Wandering Ember of Moehewa' },
-];
+// Path B (account login) talks to the dreamland_web account broker, same origin.
+// The broker holds the web token; the browser only ever sees the one-use entry
+// token, which it hands straight to the game over the WebSocket.
+const ACCOUNT_API = '/account-api';
+
+async function postJson(path, body) {
+  let resp;
+  try {
+    resp = await fetch(ACCOUNT_API + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(body || {}),
+    });
+  } catch (e) {
+    return { status: 0, json: null };   // broker unreachable (e.g. dev, or down)
+  }
+  let json = null;
+  try { json = await resp.json(); } catch (e) { /* empty / non-JSON body */ }
+  return { status: resp.status, json };
+}
 
 // Real brand marks (simple-icons glyphs) so the account buttons carry the actual
 // Discord / Telegram logos -- FA 4.7 (the app's icon set) has Telegram but no
@@ -44,9 +59,12 @@ export default function AccountLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');        // centered status line, '' = show the form
-  const [bstep, setBstep] = useState('idle');  // path B: idle | email | roster
+  const [bstep, setBstep] = useState('idle');  // path B: idle | email | code | roster
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
+  const [roster, setRoster] = useState([]);    // real character names from the broker
+  const [acctTitle, setAcctTitle] = useState('');
+  const [berror, setBerror] = useState('');    // path B error line
 
   // The panel is laid over the widgets + map (the mosaic's non-terminal region), so its
   // left edge meets the terminal split -- same maths as App.getResponsiveLayout. Clamped
@@ -130,21 +148,75 @@ export default function AccountLogin() {
     }, LOGIN_TIMEOUT_MS);
   };
 
-  // ---- path B: master login (mock until entry-token backend lands) ---------
-  const authViaEmail = e => {
+  // ---- path B: master login via the account broker -------------------------
+  // Step 1: mail a code to the address. No session is created yet.
+  const sendEmailCode = async e => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setBerror('');
+    setBusy(at('sending', lang));
+    const { status, json } = await postJson('/emailcode', { email: email.trim() });
+    setBusy('');
+    if (status === 200 && json && json.sent) {
+      setCode('');
+      setBstep('code');
+    } else if (status === 429) {
+      setBerror(at('rate', lang));
+    } else {
+      setBerror(at('berror', lang));
+    }
+  };
+
+  // Step 2: verify the code. A known address opens the roster; an unlinked one is
+  // proven but has no account (linking happens in-game, where a character owns it).
+  const verifyEmailCode = async e => {
     e.preventDefault();
     if (!code.trim()) return;
+    setBerror('');
     setBusy(at('authenticating', lang));
-    later(() => { setBusy(''); setBstep('roster'); }, 750);
+    const { status, json } = await postJson('/emailverify', {
+      email: email.trim(), code: code.trim(),
+    });
+    setBusy('');
+    if (status === 200 && json && json.account) {
+      setRoster(Array.isArray(json.chars) ? json.chars : []);
+      setAcctTitle(json.title || '');
+      setBstep('roster');
+    } else if (status === 200 && json && json.account === null) {
+      setBerror(at('nolink', lang));
+    } else {
+      setBerror(at('badcode', lang));
+    }
   };
-  const authViaBot = () => {
-    setBusy(at('authenticating', lang));
-    later(() => { setBusy(''); setBstep('roster'); }, 750);
-  };
-  const enterAs = char => {
-    rpccmd('account_enter', 'proto-' + char); // backend ignores this today
+
+  // Discord / Telegram widgets are not wired yet (5.2b / 5.2c). Say so honestly
+  // rather than fake a roster.
+  const authViaBot = () => setBerror(at('soon', lang));
+
+  // Click a character: mint a one-use entry token and hand it to the game over the
+  // WS. The engine cold-loads and sends a prompt, which flips redux `prompt` and
+  // fires the reveal effect -- the same signal path A relies on.
+  const enterAs = async char => {
+    setBerror('');
     setBusy(at('entering', lang));
-    later(openCurtain, 450);
+    const { status, json } = await postJson('/enter', { char });
+    if (status === 200 && json && json.token) {
+      rpccmd('account_enter', json.token);
+      later(() => {
+        if (phaseRef.current === 'login') { setBusy(''); setBerror(at('enterfail', lang)); }
+      }, LOGIN_TIMEOUT_MS);
+    } else if (status === 401) {
+      // Session expired between the roster and the click -- send back to the start.
+      setBusy('');
+      setBerror(at('expired', lang));
+      setBstep('idle');
+    } else if (status === 400) {
+      setBusy('');
+      setBerror(at('notowned', lang));
+    } else {
+      setBusy('');
+      setBerror(at('berror', lang));   // 0 / 502: broker or MUD unreachable
+    }
   };
 
   if (phase === 'hidden') return null;
@@ -223,13 +295,14 @@ export default function AccountLogin() {
             </div>
             )}
 
-            {/* path B -- master login (prototype) */}
+            {/* path B -- master login via the account broker (email real; bots soon) */}
             <div className="acc-col">
               <div className="acc-col-head">{at('pathB', lang)}</div>
 
               {bstep === 'idle' && (
                 <div className="acc-methods">
-                  <button className="btn btn-secondary acc-method" onClick={() => setBstep('email')}>
+                  <button className="btn btn-secondary acc-method"
+                    onClick={() => { setBerror(''); setBstep('email'); }}>
                     <span className="acc-ico"><i className="fa fa-envelope" /></span>
                     {at('via_email', lang)}
                   </button>
@@ -245,23 +318,36 @@ export default function AccountLogin() {
               )}
 
               {bstep === 'email' && (
-                <form onSubmit={authViaEmail}>
+                <form onSubmit={sendEmailCode}>
                   <div className="acc-field">
                     <label htmlFor="acc-email">{at('via_email', lang)}</label>
                     <input
                       id="acc-email"
                       className="acc-input"
                       type="email"
+                      autoComplete="email"
                       placeholder={at('email_ph', lang)}
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                     />
                   </div>
+                  <button type="submit" className="btn btn-primary acc-cta">{at('send_code', lang)}</button>
+                  <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
+                    onClick={() => { setBerror(''); setBstep('idle'); }}>{at('back', lang)}</button>
+                </form>
+              )}
+
+              {bstep === 'code' && (
+                <form onSubmit={verifyEmailCode}>
+                  <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 8 }}>{at('sent_hint', lang)}</div>
                   <div className="acc-field">
+                    <label htmlFor="acc-code">{at('code_ph', lang)}</label>
                     <input
+                      id="acc-code"
                       className="acc-input"
                       type="text"
                       inputMode="numeric"
+                      autoComplete="one-time-code"
                       placeholder={at('code_ph', lang)}
                       value={code}
                       onChange={e => setCode(e.target.value)}
@@ -269,26 +355,30 @@ export default function AccountLogin() {
                   </div>
                   <button type="submit" className="btn btn-primary acc-cta">{at('verify', lang)}</button>
                   <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
-                    onClick={() => setBstep('idle')}>{at('back', lang)}</button>
+                    onClick={() => { setBerror(''); setBstep('email'); }}>{at('back', lang)}</button>
                 </form>
               )}
 
               {bstep === 'roster' && (
                 <>
                   <div className="acc-col-head" style={{ fontSize: 14 }}>{at('roster', lang)}</div>
+                  {acctTitle && (
+                    <div className="acc-card-title" style={{ marginBottom: 8 }}>{acctTitle}</div>
+                  )}
                   <div className="acc-roster">
-                    {MOCK_ROSTER.map(c => (
-                      <button key={c.name} className="acc-card" onClick={() => enterAs(c.name)}>
-                        <span className="acc-card-sigil">{c.name[0]}</span>
+                    {roster.map(nm => (
+                      <button key={nm} className="acc-card" onClick={() => enterAs(nm)}>
+                        <span className="acc-card-sigil">{nm[0]}</span>
                         <span>
-                          <span className="acc-card-name">{c.name}</span><br />
-                          <span className="acc-card-title">{c.title}</span>
+                          <span className="acc-card-name">{nm}</span>
                         </span>
                       </button>
                     ))}
                   </div>
                 </>
               )}
+
+              <div className="acc-error" role="alert">{berror}</div>
             </div>
             </div>
           </>
