@@ -76,6 +76,10 @@ export default function AccountLogin() {
   const [roster, setRoster] = useState([]);    // real character names from the broker
   const [acctTitle, setAcctTitle] = useState('');
   const [berror, setBerror] = useState('');    // path B error line
+  // True while the mount/return /session probe is in flight. Starts on when the panel
+  // is the front door, so a returning player with a live cookie session never sees the
+  // name/password form flash before the roster loads -- they just land on their chars.
+  const [checking, setChecking] = useState(!prompt);
 
   // The panel is laid over the widgets + map (the mosaic's non-terminal region), so its
   // left edge meets the terminal split -- same maths as App.getResponsiveLayout. Clamped
@@ -122,15 +126,19 @@ export default function AccountLogin() {
       setPhase('login');           // quit / disconnect brings the door back
       setBusy('');
       setBstep('idle');
+      setChecking(true);           // re-probe: a live cookie session lands back on the roster
     }
   }, [prompt]);
 
+  // Focus the name field once the idle form is actually on screen -- after the session
+  // check clears, not while "Checking…" covers it. On the roster there is no name input,
+  // so the guard no-ops.
   useEffect(() => {
-    if (phase === 'login') {
+    if (phase === 'login' && !checking) {
       const id = setTimeout(() => nameRef.current && nameRef.current.focus(), 40);
       return () => clearTimeout(id);
     }
-  }, [phase]);
+  }, [phase, checking]);
 
   useEffect(() => () => clearTimers(), []);
 
@@ -139,8 +147,8 @@ export default function AccountLogin() {
   // double-invoked renders can't corrupt the comparison. Busy is a passing
   // status over the same step, so it never moves the mark.
   useEffect(() => {
-    if (!busy) prevDepthRef.current = STEP_DEPTH[bstep] != null ? STEP_DEPTH[bstep] : 0;
-  }, [bstep, busy]);
+    if (!busy && !checking) prevDepthRef.current = STEP_DEPTH[bstep] != null ? STEP_DEPTH[bstep] : 0;
+  }, [bstep, busy, checking]);
 
   // The engine answers account_enter with account_enter_ok / account_enter_failed over
   // the WS (descriptor.cpp). Success needs no handler here -- the cold-load sends a
@@ -182,10 +190,9 @@ export default function AccountLogin() {
     return () => { try { delete window.__dlTelegramAuth; } catch (e) { window.__dlTelegramAuth = undefined; } };
   }, [bstep]);
 
-  // On load: surface any ?acct_error the Discord callback bounced back with, and pick
-  // up an existing broker session. The Discord OAuth round-trip lands here with only a
-  // cookie set, so /session is what turns that into a roster; it also keeps a refresh
-  // after any path-B login on the roster instead of the idle form. Runs once.
+  // Once, on mount: surface any ?acct_error the Discord full-page callback bounced back
+  // with, and scrub it from the URL. The session probe below is what turns a live cookie
+  // into the roster; this only handles the redirect's error flag.
   useEffect(() => {
     if (prompt)
       return;   // already in-world; the panel is hidden
@@ -201,21 +208,38 @@ export default function AccountLogin() {
         window.history.replaceState({}, '', u.pathname + u.search + u.hash);
       }
     } catch (e) { /* older browser: leave the URL as is */ }
+  }, []);   // once, on mount
 
-    let alive = true;
+  // Whenever the panel is the front door -- on mount, and on every return from the
+  // world (quit/disconnect) -- probe the broker session. A live cookie sends the player
+  // straight to the roster, so they never re-authenticate or even see the login form.
+  // No cookie (or broker down) clears `checking` and the idle door shows path A + the
+  // account methods. `checking` starts on so the form never flashes before this lands.
+  useEffect(() => {
+    if (phase !== 'login' || prompt) {
+      setChecking(false);
+      return;
+    }
+    const run = { cancelled: false };
+    setChecking(true);
+    // Backstop: if the broker accepts the socket but never answers (not a fast 502),
+    // don't strand the player on "Checking…" -- drop to the idle door. A late reply
+    // can still open the roster over it.
+    const backstop = setTimeout(() => { if (!run.cancelled) setChecking(false); }, LOGIN_TIMEOUT_MS);
     (async () => {
       try {
         const resp = await fetch(ACCOUNT_API + '/session', { credentials: 'same-origin' });
         const json = await resp.json();
-        if (alive && json && json.account) {
+        if (!run.cancelled && json && json.account) {
           setRoster(Array.isArray(json.chars) ? json.chars : []);
           setAcctTitle(json.title || '');
           setBstep('roster');
         }
       } catch (e) { /* broker down/offline: stay on the form */ }
+      finally { if (!run.cancelled) { clearTimeout(backstop); setChecking(false); } }
     })();
-    return () => { alive = false; };
-  }, []);   // once, on mount
+    return () => { run.cancelled = true; clearTimeout(backstop); };
+  }, [phase]);
 
   // Hear back from the Discord popup. On success it posts { dl:'discord', ok:true }
   // and we re-read the session; on failure it posts the same acct_error reason the
@@ -408,15 +432,37 @@ export default function AccountLogin() {
     }
   };
 
+  // Drop the broker session: clear the cookie server-side, then wipe the roster and
+  // fall back to the idle door. The busy line masks the roster while the POST is in
+  // flight so a character can't be clicked mid-logout. Only leave the roster once the
+  // cookie is actually gone (200) -- if the broker is down the cookie survives, so
+  // dropping to idle would be a lie the next visit's probe exposes by reopening it.
+  const logout = async () => {
+    setBerror('');
+    setBusy(at('loggingout', lang));
+    const { status } = await postJson('/logout', {});
+    setBusy('');
+    if (status !== 200) {
+      setBerror(at('berror', lang));   // broker down: cookie untouched, stay on the roster
+      return;
+    }
+    setRoster([]);
+    setAcctTitle('');
+    setBstep('idle');
+  };
+
   if (phase === 'hidden') return null;
 
   // The changing part of the panel (busy line / method chooser / a subflow /
   // the roster) is remounted on every step so its enter-animation replays. Busy
   // gets its own key so the status line fades in over whatever step it interrupts.
-  const stageKey = busy ? 'busy' : bstep;
+  // The centered status line covers either a transient action (busy) or the mount/return
+  // session check (checking). Either one hides the step behind it and shares the 'busy' key.
+  const statusLine = busy || (checking ? at('loading', lang) : '');
+  const stageKey = statusLine ? 'busy' : bstep;
   const curDepth = STEP_DEPTH[bstep] != null ? STEP_DEPTH[bstep] : 0;
   let stageDir = 'fade';
-  if (!busy) {
+  if (!statusLine) {
     if (curDepth > prevDepthRef.current) stageDir = 'fwd';
     else if (curDepth < prevDepthRef.current) stageDir = 'back';
   }
@@ -448,8 +494,8 @@ export default function AccountLogin() {
         </div>
 
         <div className="acc-stage" key={stageKey} data-dir={stageDir}>
-        {busy ? (
-          <div className="acc-busy">{busy}</div>
+        {statusLine ? (
+          <div className="acc-busy">{statusLine}</div>
         ) : (
           <>
             {/* New-player explainer + create button, and the whole two-path chooser,
@@ -613,7 +659,7 @@ export default function AccountLogin() {
                     })}
                   </div>
                   <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
-                    onClick={() => { setBerror(''); setBstep('idle'); }}>{at('back', lang)}</button>
+                    onClick={logout}>{at('logout', lang)}</button>
                 </>
               )}
 
