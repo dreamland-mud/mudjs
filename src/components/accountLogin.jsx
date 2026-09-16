@@ -167,6 +167,41 @@ export default function AccountLogin() {
     return () => { try { delete window.__dlTelegramAuth; } catch (e) { window.__dlTelegramAuth = undefined; } };
   }, [bstep]);
 
+  // On load: surface any ?acct_error the Discord callback bounced back with, and pick
+  // up an existing broker session. The Discord OAuth round-trip lands here with only a
+  // cookie set, so /session is what turns that into a roster; it also keeps a refresh
+  // after any path-B login on the roster instead of the idle form. Runs once.
+  useEffect(() => {
+    if (prompt)
+      return;   // already in-world; the panel is hidden
+    try {
+      const u = new URL(window.location.href);
+      const err = u.searchParams.get('acct_error');
+      if (err) {
+        setBstep('idle');
+        if (err === 'discord_nolink') setBerror(at('d_nolink', lang));
+        else if (err === 'discord_off') setBerror(at('soon', lang));
+        else setBerror(at('berror', lang));
+        u.searchParams.delete('acct_error');
+        window.history.replaceState({}, '', u.pathname + u.search + u.hash);
+      }
+    } catch (e) { /* older browser: leave the URL as is */ }
+
+    let alive = true;
+    (async () => {
+      try {
+        const resp = await fetch(ACCOUNT_API + '/session', { credentials: 'same-origin' });
+        const json = await resp.json();
+        if (alive && json && json.account) {
+          setRoster(Array.isArray(json.chars) ? json.chars : []);
+          setAcctTitle(json.title || '');
+          setBstep('roster');
+        }
+      } catch (e) { /* broker down/offline: stay on the form */ }
+    })();
+    return () => { alive = false; };
+  }, []);   // once, on mount
+
   const openCurtain = () => {
     clearTimers();
     setBusy('');
@@ -259,9 +294,6 @@ export default function AccountLogin() {
     }
   };
   tgAuthRef.current = verifyTelegram;
-
-  // Discord is not wired yet (5.2c). Say so honestly rather than fake a roster.
-  const authViaBot = () => setBerror(at('soon', lang));
 
   // Click a character: mint a one-use entry token and hand it to the game over the
   // WS. The engine cold-loads and sends a prompt, which flips redux `prompt` and
@@ -385,7 +417,8 @@ export default function AccountLogin() {
                     <span className="acc-ico"><i className="fa fa-envelope" /></span>
                     {at('via_email', lang)}
                   </button>
-                  <button className="btn btn-secondary acc-method" onClick={authViaBot}>
+                  <button className="btn btn-secondary acc-method"
+                    onClick={() => { window.location.href = ACCOUNT_API + '/discord/start'; }}>
                     <span className="acc-ico"><DiscordIcon /></span>
                     {at('via_discord', lang)}
                   </button>

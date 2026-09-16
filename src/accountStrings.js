@@ -41,6 +41,7 @@ const STRINGS = {
     tg_head: 'Log in with Telegram',
     tg_hint: 'Tap the Telegram button and confirm in the app. Your Telegram must already be linked to a character in the game.',
     tg_nolink: "This Telegram account isn't linked to any character yet. Link it in the game with the account command.",
+    d_nolink: "This Discord account isn't linked to any character yet. Link it in the game with the account command.",
   },
   ru: {
     new_hero_lead: 'Впервые в Dreamland?',
@@ -77,6 +78,7 @@ const STRINGS = {
     tg_head: 'Войти через Telegram',
     tg_hint: 'Нажми кнопку Telegram и подтверди в приложении. Твой Telegram должен быть уже привязан к персонажу в игре.',
     tg_nolink: 'Этот Telegram ещё не привязан к персонажу. Привяжи его в игре командой аккаунт.',
+    d_nolink: 'Этот Discord ещё не привязан к персонажу. Привяжи его в игре командой аккаунт.',
   },
   ua: {
     new_hero_lead: 'Вперше у Dreamland?',
@@ -113,6 +115,7 @@ const STRINGS = {
     tg_head: 'Увійти через Telegram',
     tg_hint: 'Натисни кнопку Telegram і підтверди в застосунку. Твій Telegram має бути вже привʼязаний до персонажа у грі.',
     tg_nolink: 'Цей Telegram ще не привʼязаний до персонажа. Привʼяжи його у грі командою акаунт.',
+    d_nolink: 'Цей Discord ще не привʼязаний до персонажа. Привʼяжи його у грі командою акаунт.',
   },
 };
 
