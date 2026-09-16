@@ -19,6 +19,10 @@ import './AccountPage.css';
 const NAME_RE = /^[A-Za-z]{1,20}$/;
 const LOAD_TIMEOUT_MS = 2000;
 
+// Same broker as the login panel: the account web session lives in a cookie
+// here, separate from the in-game character session on the socket.
+const ACCOUNT_API = '/account-api';
+
 const METHOD_ICON = {
   email: 'fa-envelope',
   discord: 'fa-comments',
@@ -75,6 +79,23 @@ export default function AccountPage({ lang, visible }) {
 
   const listChars = () => {
     send('account');
+    close();
+  };
+
+  // Full logout: drop the browser account session (the broker cookie), then
+  // quit the character to the world's front door. The fetch is best-effort --
+  // if the broker is down the cookie may survive, but quitting still returns
+  // the player to the login panel. Clear the cookie before the socket closes.
+  const logout = async () => {
+    try {
+      await fetch(ACCOUNT_API + '/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      });
+    } catch (e) { /* broker unreachable: quit still returns to the login door */ }
+    send('quit');
     close();
   };
 
@@ -169,6 +190,9 @@ export default function AccountPage({ lang, visible }) {
         </button>
         <button type="button" className="acct-link" onClick={fetchChars}>
           {t('acct.refresh', lang)}
+        </button>
+        <button type="button" className="acct-link acct-logout" onClick={logout}>
+          <i className="fa fa-sign-out" aria-hidden="true" /> {t('acct.logout', lang)}
         </button>
       </div>
     </div>

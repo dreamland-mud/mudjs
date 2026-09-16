@@ -315,6 +315,25 @@
   font-family: 'Roboto Mono', ui-monospace, monospace;
 }
 
+/* The account tab is pinned flat at the foot of the tree rather than folded
+   into an accordion branch: it reuses .cfg-leaf, gains an icon, and sits below
+   a divider so it reads as a standalone side tab. cfg-tree is a flex column and
+   cfg-tree-list takes the slack, so the foot stays pinned at the bottom. */
+.cfg-tree-foot {
+  flex: none;
+  padding: 8px;
+  border-top: 1px solid var(--cfg-line);
+}
+.cfg-tab {
+  font-weight: 500;
+}
+.cfg-tab-ico {
+  flex: none;
+  width: 16px;
+  text-align: center;
+  opacity: 0.85;
+}
+
 .cfg-pane {
   flex: 1;
   min-width: 0;

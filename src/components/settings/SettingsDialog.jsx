@@ -345,7 +345,12 @@ export default function SettingsDialog() {
     </div>
   );
 
-  const treeNodes = shown.map(section => {
+  // The account section is not an accordion branch like the rest: it is lifted
+  // out here and pinned as a single flat tab at the foot of the tree (below).
+  const accountSection = shown.find(one => one.key === ACCOUNT_PAGE);
+  const accountLeaf = accountSection ? accountSection.pages[0] : null;
+
+  const treeNodes = shown.filter(section => section.key !== ACCOUNT_PAGE).map(section => {
     const isOpen = collapsed[section.key] !== true;
     return (
       <div className="cfg-branch" key={section.key}>
@@ -556,6 +561,23 @@ export default function SettingsDialog() {
               <div className="cfg-tree">
                 <div className="cfg-search-box">{search}</div>
                 <div className="cfg-tree-list">{treeNodes}</div>
+                {accountLeaf ? (
+                  <div className="cfg-tree-foot">
+                    <button
+                      type="button"
+                      className={
+                        current && accountLeaf.key === current.key
+                          ? 'cfg-leaf cfg-tab cfg-leaf-on'
+                          : 'cfg-leaf cfg-tab'
+                      }
+                      onClick={() => choose(accountLeaf.key)}
+                    >
+                      <span className="cfg-leaf-bar" />
+                      <i className="fa fa-user-circle-o cfg-tab-ico" aria-hidden="true" />
+                      <span className="cfg-leaf-title">{accountLeaf.label}</span>
+                    </button>
+                  </div>
+                ) : null}
               </div>
               <div className="cfg-pane">{body}</div>
             </div>

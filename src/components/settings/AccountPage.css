@@ -129,3 +129,15 @@
   font-size: 12px; cursor: pointer; text-align: left;
 }
 .acct-link:hover { color: var(--cfg-bright); }
+
+/* Logout is the weightier action in the row -- pushed to the right edge and
+   given a border so it reads as a button, not another text link. */
+.acct-logout {
+  margin-left: auto;
+  padding: 5px 12px;
+  border: 1px solid var(--cfg-line);
+  border-radius: 6px;
+}
+.acct-logout:hover {
+  border-color: var(--cfg-accent);
+}

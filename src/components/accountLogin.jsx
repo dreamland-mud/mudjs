@@ -62,6 +62,25 @@ const TelegramIcon = () => (
   </svg>
 );
 
+// The simplified Celtic crest woven into the bottom-center of the login frame's
+// gold rail (styled by .acc-crest). Purely decorative -- aria-hidden, recoloured
+// to gold through currentColor. Traced from the Figma reference (DL_desktop 1071:2698).
+const CelticCrest = () => (
+  <span className="acc-crest" aria-hidden="true">
+    <svg viewBox="0 0 12 10">
+      <defs>
+        <linearGradient id="acccrest" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#c6a24e" />
+          <stop offset="0.55" stopColor="#8a6a2b" />
+          <stop offset="1" stopColor="#402f10" />
+        </linearGradient>
+      </defs>
+      <path fillRule="evenodd" clipRule="evenodd" fill="url(#acccrest)" d="M0.546586 4.87597C0.234789 4.64956 0.0597663 4.34243 0.0597463 4.02226L-4.55717e-05 0.000120176L0.767487 -7.68331e-06L0.827102 4.02226C0.827122 4.19465 0.92155 4.35992 1.08942 4.48182L1.53952 4.80888C1.75831 4.96774 2.05523 5.05706 2.36464 5.05707L2.56054 5.0572C2.56032 5.03997 2.55966 5.02275 2.55966 5.00551L2.55948 4.73013C2.55948 4.69765 2.54274 4.66958 2.51938 4.65151L1.58174 3.92735C1.42566 3.8068 1.33869 3.64748 1.33867 3.48203L1.27906 -7.72803e-06L2.04641 -7.79511e-06L2.1062 1.69113L2.63332 1.3084C2.84916 1.15169 3.1419 1.06359 3.44713 1.06355L7.67218 1.06355C7.97741 1.06359 8.27016 1.15169 8.486 1.3084L9.01311 1.69113L8.95367 -8.39897e-06L9.72103 -8.46605e-06L9.78064 3.48203C9.78063 3.64748 9.69366 3.8068 9.53758 3.92735L8.59993 4.65151C8.57658 4.66958 8.55984 4.69765 8.55984 4.73013L8.55966 5.00551C8.55966 5.0227 8.55881 5.03989 8.5586 5.05707L8.7545 5.05694C9.06394 5.05694 9.36099 4.96776 9.5798 4.80888L10.0299 4.48182C10.1977 4.35992 10.2922 4.19463 10.2922 4.02226L10.2326 -8.51077e-06L11 -8.57786e-06L11.0596 4.02226C11.0595 4.34242 10.8845 4.64957 10.5727 4.87596L10.1223 5.20277C9.75959 5.46612 9.2676 5.6142 8.75468 5.61423L7.16379 5.61423C6.95865 6.42425 6.52931 7.1966 5.89882 7.88329L5.87886 7.90471L5.55984 8.25229L5.22209 7.88495C4.59066 7.19789 4.16039 6.42494 3.95517 5.61423L2.36464 5.61423C1.85169 5.61422 1.35957 5.46626 0.99686 5.2029L0.546586 4.87597ZM7.53546 3.01388C7.77598 3.01388 8.00158 3.08777 8.16397 3.2132L8.78665 3.69404L8.97831 3.54565C9.00061 3.52842 9.01311 3.50554 9.01311 3.4819L9.01311 2.47916L7.94334 1.70242C7.87142 1.65021 7.77388 1.62075 7.67218 1.62072L5.94334 1.62084L5.94334 3.01401L7.53546 3.01388ZM2.95535 3.2132C3.11774 3.08777 3.34333 3.01388 3.58386 3.01388L5.17598 3.01401L5.17598 1.62084L3.44713 1.62072C3.34544 1.62075 3.2479 1.65021 3.17598 1.70242L2.1062 2.47916L2.1062 3.4819C2.1062 3.50554 2.11871 3.52843 2.141 3.54565L2.33302 3.69404L2.95535 3.2132ZM5.55966 7.2189C6.01983 6.62496 6.32558 5.97327 6.45879 5.29627L6.50596 5.05707L7.79107 5.0572C7.79133 5.03997 7.7923 5.02275 7.7923 5.00551L7.7923 4.73C7.79234 4.56046 7.87924 4.39449 8.04085 4.26968L8.25989 4.10063L7.60488 3.59477C7.58224 3.5773 7.5566 3.57104 7.53546 3.57104L3.58386 3.57104C3.56272 3.57104 3.53707 3.5773 3.51444 3.59477L2.85961 4.10076L3.07847 4.26968C3.24007 4.39449 3.32698 4.56046 3.32701 4.73L3.32701 5.00551C3.32701 5.02275 3.32799 5.03997 3.32825 5.0572L4.61336 5.05707L4.66052 5.29627C4.79363 5.97331 5.09942 6.62497 5.55966 7.2189Z" />
+      <path fill="url(#acccrest)" d="M3.81951 8.03989C3.25421 7.42863 2.86966 6.73476 2.68525 6.00684L3.4671 6.00684C3.64175 6.62419 3.97698 7.21073 4.4565 7.72925L5.55966 8.92245L6.66282 7.72925C7.14233 7.21073 7.47756 6.62419 7.65222 6.00684L8.43406 6.00684C8.24966 6.73476 7.86511 7.42863 7.29981 8.03989L5.55966 9.9216L3.81951 8.03989Z" />
+    </svg>
+  </span>
+);
+
 export default function AccountLogin() {
   const prompt = useSelector(s => s.prompt);
   const [phase, setPhase] = useState(prompt ? 'hidden' : 'login'); // login | revealing | hidden
@@ -478,6 +497,7 @@ export default function AccountLogin() {
       <div className="acc-slab acc-slab-bottom" aria-hidden="true" />
 
       <div className="acc-controls">
+        <div className="acc-seam" aria-hidden="true" />
         <h1 className="acc-logo" role="img" aria-label="Dreamland" />
 
         <div className="acc-langs" role="group" aria-label={at('lang', lang)}>
@@ -519,28 +539,30 @@ export default function AccountLogin() {
             <div className="acc-col">
               <div className="acc-col-head">{at('pathA', lang)}</div>
               <form onSubmit={submitChar}>
-                <div className="acc-field">
-                  <label htmlFor="acc-name">{at('name', lang)}</label>
-                  <input
-                    id="acc-name"
-                    ref={nameRef}
-                    className="acc-input"
-                    type="text"
-                    autoComplete="username"
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                  />
-                </div>
-                <div className="acc-field">
-                  <label htmlFor="acc-pass">{at('password', lang)}</label>
-                  <input
-                    id="acc-pass"
-                    className="acc-input"
-                    type="password"
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                  />
+                <div className="acc-field-row">
+                  <div className="acc-field">
+                    <label htmlFor="acc-name">{at('name', lang)}</label>
+                    <input
+                      id="acc-name"
+                      ref={nameRef}
+                      className="acc-input"
+                      type="text"
+                      autoComplete="username"
+                      value={name}
+                      onChange={e => setName(e.target.value)}
+                    />
+                  </div>
+                  <div className="acc-field">
+                    <label htmlFor="acc-pass">{at('password', lang)}</label>
+                    <input
+                      id="acc-pass"
+                      className="acc-input"
+                      type="password"
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                    />
+                  </div>
                 </div>
                 <button type="submit" className="btn acc-cta">{at('enter', lang)}</button>
                 <div className="acc-error" role="alert">{error}</div>
@@ -669,6 +691,7 @@ export default function AccountLogin() {
           </>
         )}
         </div>
+        <CelticCrest />
       </div>
     </div>
   );
