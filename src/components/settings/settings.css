@@ -926,7 +926,10 @@
 .cfg-scrim {
   position: fixed;
   inset: 0;
-  z-index: 1040;
+  /* Above the account-login overlay (.acc-overlay, z 2000): the gear is reachable
+     before login, and the sheet has to open OVER that panel, not slide in behind
+     it where it can't be touched. */
+  z-index: 2100;
   background: rgba(4, 5, 8, 0.55);
   opacity: 0;
   pointer-events: none;
@@ -959,7 +962,7 @@
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 1041;
+  z-index: 2101;
   height: 100dvh;
   /* The player's own width, capped at the window: a width saved on a wide
      screen must not leave the sheet hanging off a narrow one, and it comes back

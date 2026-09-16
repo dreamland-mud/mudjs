@@ -16,6 +16,11 @@ import '../account-login.css';
 const REVEAL_MS = 950;      // slab curtain + settle before we unmount
 const LOGIN_TIMEOUT_MS = 4500;
 
+// How deep each path-B step sits, so a step change can slide the new panel in from
+// the right when going deeper (idle -> email -> code) and from the left on the way
+// back. Steps at the same depth (telegram/roster) just cross-fade.
+const STEP_DEPTH = { idle: 0, email: 1, telegram: 1, roster: 1, code: 2 };
+
 // Path B (account login) talks to the dreamland_web account broker, same origin.
 // The broker holds the web token; the browser only ever sees the one-use entry
 // token, which it hands straight to the game over the WebSocket.
@@ -92,6 +97,8 @@ export default function AccountLogin() {
   phaseRef.current = phase;
   const enterPending = useRef(false);   // path B: a char click is awaiting the engine's reply
   const tgAuthRef = useRef(null);       // latest telegram-auth handler for the widget's global callback
+  const prevDepthRef = useRef(0);       // depth of the last shown step, for slide direction
+  const discordRef = useRef(false);     // a Discord OAuth popup is in flight
 
   const later = (fn, ms) => {
     const id = setTimeout(fn, ms);
@@ -126,6 +133,14 @@ export default function AccountLogin() {
   }, [phase]);
 
   useEffect(() => () => clearTimers(), []);
+
+  // Remember the depth of the step now on screen so the NEXT change knows which
+  // way to slide. Kept in an effect (not computed during render) so React's
+  // double-invoked renders can't corrupt the comparison. Busy is a passing
+  // status over the same step, so it never moves the mark.
+  useEffect(() => {
+    if (!busy) prevDepthRef.current = STEP_DEPTH[bstep] != null ? STEP_DEPTH[bstep] : 0;
+  }, [bstep, busy]);
 
   // The engine answers account_enter with account_enter_ok / account_enter_failed over
   // the WS (descriptor.cpp). Success needs no handler here -- the cold-load sends a
@@ -201,6 +216,36 @@ export default function AccountLogin() {
     })();
     return () => { alive = false; };
   }, []);   // once, on mount
+
+  // Hear back from the Discord popup. On success it posts { dl:'discord', ok:true }
+  // and we re-read the session; on failure it posts the same acct_error reason the
+  // full-page path would have put in the URL. A window refocus is the fallback for
+  // a popup that finished but whose message never arrived (closed by hand, blocked
+  // opener). Origin-checked: only our own broker page may drive this.
+  useEffect(() => {
+    const onMsg = e => {
+      if (e.origin !== window.location.origin) return;
+      const d = e.data;
+      if (!d || d.dl !== 'discord') return;
+      discordRef.current = false;
+      if (d.ok) {
+        refreshSession();
+      } else if (d.error === 'discord_nolink') {
+        setBstep('idle'); setBerror(at('d_nolink', lang));
+      } else if (d.error === 'discord_off') {
+        setBstep('idle'); setBerror(at('soon', lang));
+      } else {
+        setBstep('idle'); setBerror(at('berror', lang));
+      }
+    };
+    const onFocus = () => { if (discordRef.current) refreshSession(); };
+    window.addEventListener('message', onMsg);
+    window.addEventListener('focus', onFocus);
+    return () => {
+      window.removeEventListener('message', onMsg);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [lang]);
 
   const openCurtain = () => {
     clearTimers();
@@ -295,6 +340,40 @@ export default function AccountLogin() {
   };
   tgAuthRef.current = verifyTelegram;
 
+  // Re-read the broker session and open the roster if it now holds an account.
+  // Used after a Discord popup completes (its postMessage, or a window refocus as
+  // a fallback), the same shape as the mount-time /session probe.
+  const refreshSession = async () => {
+    try {
+      const resp = await fetch(ACCOUNT_API + '/session', { credentials: 'same-origin' });
+      const json = await resp.json();
+      if (json && json.account) {
+        discordRef.current = false;
+        setRoster(Array.isArray(json.chars) ? json.chars : []);
+        setAcctTitle(json.title || '');
+        setBerror('');
+        setBstep('roster');
+      }
+    } catch (e) { /* broker offline: stay on the form */ }
+  };
+
+  // Discord login opens in a popup so the client is never navigated away. The
+  // broker's callback (given ?popup=1) posts a message back and closes the popup
+  // instead of redirecting the whole page. If the browser blocks the popup, fall
+  // back to the same-tab round-trip -- exactly the old behaviour, so a hard block
+  // never leaves Discord unreachable.
+  const startDiscord = () => {
+    setBerror('');
+    const w = window.open(ACCOUNT_API + '/discord/start?popup=1', 'dl_discord',
+      'width=520,height=760,noopener=no');
+    if (!w) {
+      window.location.href = ACCOUNT_API + '/discord/start';
+      return;
+    }
+    discordRef.current = true;
+    try { w.focus(); } catch (e) { /* some browsers refuse focus() */ }
+  };
+
   // Click a character: mint a one-use entry token and hand it to the game over the
   // WS. The engine cold-loads and sends a prompt, which flips redux `prompt` and
   // fires the reveal effect -- the same signal path A relies on.
@@ -331,6 +410,17 @@ export default function AccountLogin() {
 
   if (phase === 'hidden') return null;
 
+  // The changing part of the panel (busy line / method chooser / a subflow /
+  // the roster) is remounted on every step so its enter-animation replays. Busy
+  // gets its own key so the status line fades in over whatever step it interrupts.
+  const stageKey = busy ? 'busy' : bstep;
+  const curDepth = STEP_DEPTH[bstep] != null ? STEP_DEPTH[bstep] : 0;
+  let stageDir = 'fade';
+  if (!busy) {
+    if (curDepth > prevDepthRef.current) stageDir = 'fwd';
+    else if (curDepth < prevDepthRef.current) stageDir = 'back';
+  }
+
   return (
     <div
       className={'acc-overlay' + (phase === 'revealing' ? ' is-opening' : '')}
@@ -357,6 +447,7 @@ export default function AccountLogin() {
           ))}
         </div>
 
+        <div className="acc-stage" key={stageKey} data-dir={stageDir}>
         {busy ? (
           <div className="acc-busy">{busy}</div>
         ) : (
@@ -425,7 +516,7 @@ export default function AccountLogin() {
                     {at('via_email', lang)}
                   </button>
                   <button className="btn btn-secondary acc-method"
-                    onClick={() => { window.location.href = ACCOUNT_API + '/discord/start'; }}>
+                    onClick={startDiscord}>
                     <span className="acc-ico"><DiscordIcon /></span>
                     {at('via_discord', lang)}
                   </button>
@@ -515,6 +606,7 @@ export default function AccountLogin() {
             </div>
           </>
         )}
+        </div>
       </div>
     </div>
   );

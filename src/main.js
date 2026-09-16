@@ -27,12 +27,29 @@ try {
 } catch (e) {
   /* private-mode localStorage can throw on read/write; fall back to Parchment */
 }
+let _skinReady;
 if (_dlSkin === 'runeforge') {
-  import('./runeforge.css');
+  _skinReady = import('./runeforge.css');
 } else {
   document.documentElement.setAttribute('data-skin', 'parchment');
-  import('./theme-parchment.css');
+  _skinReady = import('./theme-parchment.css');
 }
+
+// Drop the boot overlay (index.html #dl-boot) once the skin's CSS has applied.
+// Before that, the static #hint-* modals flash as unstyled help text on white --
+// see the critical <style> in index.html. One rAF lets the app paint under the
+// fade; the timeout is a safety net so a hung import can never trap the player
+// behind the spinner.
+function _dismissBoot() {
+  const boot = document.getElementById('dl-boot');
+  if (!boot || boot.classList.contains('gone')) return;
+  requestAnimationFrame(() => {
+    boot.classList.add('gone');
+    setTimeout(() => { if (boot.parentNode) boot.parentNode.removeChild(boot); }, 400);
+  });
+}
+_skinReady.then(_dismissBoot, _dismissBoot);
+setTimeout(_dismissBoot, 8000);
 
 let propertiesStorage = PropertiesStorage;
 

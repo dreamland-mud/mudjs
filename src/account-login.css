@@ -96,6 +96,29 @@
   mask: url('./dreamland-logo.png') center / contain no-repeat;
   filter: drop-shadow(0 0 26px var(--arcane-glow, rgba(187, 134, 252, 0.5)));
 }
+/* The step region (methods / a subflow / roster / the busy line). It is remounted
+   on each step, so this enter-animation replays every time. Direction comes from
+   data-dir: forward slides in from the right, back from the left, same-depth just
+   fades. Enter-only -- the outgoing step is dropped at once, which reads as the
+   new panel coming in over it. */
+.acc-stage {
+  animation: acc-stage-fade 0.26s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.acc-stage[data-dir='fwd'] { animation-name: acc-stage-fwd; }
+.acc-stage[data-dir='back'] { animation-name: acc-stage-back; }
+@keyframes acc-stage-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes acc-stage-fwd {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes acc-stage-back {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 .acc-cols {
   display: flex;
   flex-direction: column;
@@ -210,8 +233,12 @@
 /* create-character button: mobile-only (desktop has the live terminal on the left) */
 .acc-create { width: 100%; margin-bottom: 22px; }
 
-/* the small link-button (path B "back") */
+/* the small link-button (path B "back"). It sits in a flex column, so left to
+   itself it stretches full width and its dotted underline turns into a rule
+   across the whole panel -- a false divider under the roster. Shrink it to its
+   text so the underline reads as a link, not a divider. */
 .acc-newhero {
+  align-self: center;
   background: none; border: none; padding: 0;
   color: var(--text-dim, #b7ad95);
   font-size: 12px; cursor: pointer; text-decoration: none;
@@ -250,6 +277,7 @@
 /* Accessibility: respect reduced-motion -- no curtain, just clear the panel. */
 @media (prefers-reduced-motion: reduce) {
   .acc-slab, .acc-controls { transition: none !important; }
+  .acc-stage { animation: none !important; }
 }
 
 /* Telegram Login Widget (path B). Telegram renders its own iframe button inside the
