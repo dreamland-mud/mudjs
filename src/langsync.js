@@ -2,11 +2,12 @@ import $ from 'jquery';
 import { send } from './websock';
 
 // The nanny shows a fixed English "Choose your language" menu as the very first
-// thing on every connect, before login. If the player already picked a language
-// (remembered in localStorage by i18n.js), auto-answer it with the language word
-// -- the server's matchLang accepts en/ua/ru -- so they aren't asked again. New
-// players (no saved language) still see the menu and choose manually, and that
-// choice is saved for next time.
+// thing on every connect, before login. We always auto-answer it (matchLang
+// accepts en/ua/ru): with the player's saved language if they have one, otherwise
+// with 'en' -- so a first-time /newui connection opens the terminal in English,
+// matching the login toggle's EN default instead of the server's own default.
+// The flag switch (pickLang -> reconnect) saves the new choice and re-answers this
+// menu with it on the next connect.
 //
 // We answer on *seeing* the menu (i.e. after a full server round-trip), so the
 // nanny has already reached its input wait and reliably reads our reply. This is
@@ -32,10 +33,7 @@ $(function () {
     .on('rpc-console_out', function (e, b) {
       if (answered || typeof b !== 'string') return;
       if (b.indexOf('Choose your language') === -1) return;
-      const lang = savedLang();
-      if (lang) {
-        answered = true;
-        send(lang);
-      }
+      answered = true;
+      send(savedLang() || 'en');
     });
 });

@@ -139,7 +139,7 @@ export function at(key, lang) {
 }
 
 export const LANGS = [
-  { code: 'ua', label: 'Українська' },
   { code: 'en', label: 'English' },
+  { code: 'ua', label: 'Українська' },
   { code: 'ru', label: 'Русский' },
 ];
