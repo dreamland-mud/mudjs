@@ -110,27 +110,20 @@
   pointer-events: none;
 }
 
-/* the simplified Celtic crest woven into the bottom-center of the rail. Purely
-   decorative -- aria-hidden in the markup, recoloured to gold via currentColor. */
-.acc-crest {
+/* Inner frame: a fine engraved border a step inside the gold rail. A 9-slice
+   border-image of the Figma "Lines" ornament (DL_desktop 1078:2709) -- chamfered
+   corners with small diamonds, drawn in white at 10% so it reads as a subtle
+   inset rule. The middle is transparent, so the panel body shows through. It
+   sits below the form (z-index:-1) and never catches clicks. */
+.acc-inner-frame {
   position: absolute;
-  left: 50%;
-  /* Sits over the bottom bevel and on top of it (z above the border-image
-     rail), overlapping the frame's bottom edge and hanging a little below.
-     top:100% is the padding-box bottom -- the inner edge of the bottom bevel --
-     and the pull-up lifts most of the crest onto the frame. */
-  top: 100%;
-  bottom: auto;
-  transform: translate(-50%, -35%);
-  z-index: 4;
-  width: 30px;
-  height: 25px;
-  /* Dark-gold beveled metal matching the frame's bottom (gradient lives in the
-     SVG); a soft dark shadow reads it as a piece resting on the frame. */
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.75));
+  inset: 5px;
+  z-index: -1;
   pointer-events: none;
+  border: 22px solid transparent;
+  border-image: url("data:image/svg+xml,%3Csvg%20width%3D%22185%22%20height%3D%22229%22%20viewBox%3D%220%200%20185%20229%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M180.3%20218.3L180.3%20221.3L182.3%20223.3L179.3%20226.3L176.3%20223.3L178.3%20221.3L178.3%20218.3L174.3%20214.3L178.3%20210.3L178.3%2018.3L174.3%2014.3L178.3%2010.3L178.3%207.3L176.3%205.3L179.3%202.3L182.3%205.3L180.3%207.3L180.3%2010.3L184.3%2014.3L180.3%2018.3L180.3%20210.3L184.3%20214.3L180.3%20218.3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M174.3%205.3L169.3%2010.3L165.3%206.3L19.2998%206.3L15.2998%2010.3L10.2998%205.3L15.2998%200.300003L19.2998%204.3L165.3%204.3L169.3%200.300004L174.3%205.3ZM13.1279%205.3L15.2998%207.47188L17.4717%205.3L15.2998%203.12813L13.1279%205.3ZM167.128%205.3L169.3%207.47188L171.472%205.3L169.3%203.12813L167.128%205.3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M6.29979%20218.3L6.29979%20221.3L8.29979%20223.3L5.29979%20226.3L2.29979%20223.3L4.29979%20221.3L4.29979%20218.3L0.299795%20214.3L4.29979%20210.3L4.2998%2018.3L0.299804%2014.3L4.2998%2010.3L4.2998%207.3L2.2998%205.3L5.2998%202.3L8.2998%205.3L6.2998%207.3L6.2998%2010.3L10.2998%2014.3L6.2998%2018.3L6.29979%20210.3L10.2998%20214.3L6.29979%20218.3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M174.3%20223.3L169.3%20228.3L165.3%20224.3L19.2998%20224.3L15.2998%20228.3L10.2998%20223.3L15.2998%20218.3L19.2998%20222.3L165.3%20222.3L169.3%20218.3L174.3%20223.3ZM13.1279%20223.3L15.2998%20225.472L17.4717%20223.3L15.2998%20221.128L13.1279%20223.3ZM167.128%20223.3L169.3%20225.472L171.472%20223.3L169.3%20221.128L167.128%20223.3Z%22%20fill%3D%22%23fff%22%2F%3E%3Cpath%20d%3D%22M77.2998%20223.3L92.2998%20208.3L107.3%20223.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M156.3%20219.3H28.2998%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M156.3%2010.3H28.2998%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M10.2998%2027.3L10.2998%20201.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M174.3%2027.3L174.3%20201.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M5.2998%20196.3L32.2998%20223.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M5.2998%2032.3L32.2998%205.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M179.3%20196.3L152.3%20223.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M179.3%2032.3L152.3%205.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M5.2998%20202.3L26.2998%20223.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M5.2998%2026.3L26.2998%205.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M179.3%20202.3L158.3%20223.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M179.3%2026.3L158.3%205.3%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%2F%3E%3C%2Fsvg%3E") 33 stretch;
+  opacity: 0.1;
 }
-.acc-crest svg { width: 100%; height: 100%; display: block; }
 .acc-overlay.is-opening .acc-controls {
   opacity: 0;
   transform: translate(-50%, -58%) scale(0.98);
