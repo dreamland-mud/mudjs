@@ -65,7 +65,7 @@ export default function AccountLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');        // centered status line, '' = show the form
-  const [bstep, setBstep] = useState('idle');  // path B: idle | email | code | roster
+  const [bstep, setBstep] = useState('idle');  // path B: idle | email | code | telegram | roster
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [roster, setRoster] = useState([]);    // real character names from the broker
@@ -361,19 +361,24 @@ export default function AccountLogin() {
           <div className="acc-busy">{busy}</div>
         ) : (
           <>
-            {/* New-player explainer, shown on every width: creation happens by typing a
-                name straight into the terminal. On desktop that terminal is live on the
-                left already; on mobile it sits under the full overlay, so a mobile-only
-                button reveals it (openCurtain). */}
-            <p className="acc-newhero-hint">
-              <strong>{at('new_hero_lead', lang)}</strong> {at('new_hero_body', lang)}
-            </p>
-            <button type="button" className="btn btn-primary acc-create acc-create-btn" onClick={openCurtain}>
-              {at('create_char', lang)}
-            </button>
+            {/* New-player explainer + create button, and the whole two-path chooser,
+                only on the idle front door. Once you step into an account subflow
+                (email/code/telegram) or the roster, everything but that one flow is
+                hidden and a Back link returns here -- one thing on screen at a time. */}
+            {bstep === 'idle' && (
+              <>
+                <p className="acc-newhero-hint">
+                  <strong>{at('new_hero_lead', lang)}</strong> {at('new_hero_body', lang)}
+                </p>
+                <button type="button" className="btn btn-primary acc-create acc-create-btn" onClick={openCurtain}>
+                  {at('create_char', lang)}
+                </button>
+              </>
+            )}
             <div className="acc-cols">
-            {/* path A -- character login; hidden once the account roster shows */}
-            {bstep !== 'roster' && (
+            {/* path A -- character login; only on the idle front door, hidden inside
+                any account subflow (email/code/telegram) and the roster */}
+            {bstep === 'idle' && (
             <div className="acc-col">
               <div className="acc-col-head">{at('pathA', lang)}</div>
               <form onSubmit={submitChar}>
@@ -408,7 +413,9 @@ export default function AccountLogin() {
 
             {/* path B -- master login via the account broker (email real; bots soon) */}
             <div className="acc-col">
-              <div className="acc-col-head">{at('pathB', lang)}</div>
+              {/* the "Log in with your account" head labels the three method buttons;
+                  inside a subflow each step carries its own head, so drop this one */}
+              {bstep === 'idle' && <div className="acc-col-head">{at('pathB', lang)}</div>}
 
               {bstep === 'idle' && (
                 <div className="acc-methods">
@@ -498,6 +505,8 @@ export default function AccountLogin() {
                       </button>
                     ))}
                   </div>
+                  <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
+                    onClick={() => { setBerror(''); setBstep('idle'); }}>{at('back', lang)}</button>
                 </>
               )}
 
