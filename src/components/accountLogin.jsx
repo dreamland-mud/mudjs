@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import $ from 'jquery';
 import { useSelector } from 'react-redux';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { send, rpccmd } from '../websock';
@@ -84,6 +85,7 @@ export default function AccountLogin() {
   const timers = useRef([]);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
+  const enterPending = useRef(false);   // path B: a char click is awaiting the engine's reply
 
   const later = (fn, ms) => {
     const id = setTimeout(fn, ms);
@@ -99,6 +101,7 @@ export default function AccountLogin() {
   useEffect(() => {
     if (prompt && phaseRef.current === 'login') {
       clearTimers();
+      enterPending.current = false;
       setBusy('');
       setPhase('revealing');
       later(() => setPhase('hidden'), REVEAL_MS);
@@ -117,6 +120,23 @@ export default function AccountLogin() {
   }, [phase]);
 
   useEffect(() => () => clearTimers(), []);
+
+  // The engine answers account_enter with account_enter_ok / account_enter_failed over
+  // the WS (descriptor.cpp). Success needs no handler here -- the cold-load sends a
+  // prompt and the reveal effect above rides it. On failure (a same-account conflict,
+  // an expired token, a cold-load refusal) react at once instead of waiting out the
+  // backstop timeout in enterAs.
+  useEffect(() => {
+    const onEnterFailed = () => {
+      if (!enterPending.current) return;
+      enterPending.current = false;
+      clearTimers();
+      setBusy('');
+      setBerror(at('enterfail', lang));
+    };
+    $('#rpc-events').on('rpc-account_enter_failed', onEnterFailed);
+    return () => $('#rpc-events').off('rpc-account_enter_failed', onEnterFailed);
+  }, [lang]);
 
   const openCurtain = () => {
     clearTimers();
@@ -198,12 +218,20 @@ export default function AccountLogin() {
   // fires the reveal effect -- the same signal path A relies on.
   const enterAs = async char => {
     setBerror('');
+    enterPending.current = false;
     setBusy(at('entering', lang));
     const { status, json } = await postJson('/enter', { char });
     if (status === 200 && json && json.token) {
+      enterPending.current = true;
       rpccmd('account_enter', json.token);
+      // account_enter_failed (handled above) clears this the instant the engine
+      // refuses; the timeout is only a backstop for a silent no-reply.
       later(() => {
-        if (phaseRef.current === 'login') { setBusy(''); setBerror(at('enterfail', lang)); }
+        if (enterPending.current && phaseRef.current === 'login') {
+          enterPending.current = false;
+          setBusy('');
+          setBerror(at('enterfail', lang));
+        }
       }, LOGIN_TIMEOUT_MS);
     } else if (status === 401) {
       // Session expired between the roster and the click -- send back to the start.
