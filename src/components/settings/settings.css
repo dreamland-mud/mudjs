@@ -195,6 +195,35 @@
   background: #1f242c;
 }
 
+/* Language switch pinned at the top of the nav. Flips the in-game display language
+   (config lang) and re-looks the room -- matches the login flag row so the two
+   switchers read the same. Active flag takes the theme accent (gold on parchment). */
+.cfg-langs {
+  display: flex;
+  gap: 6px;
+  padding: 12px 12px 0;
+}
+.cfg-lang {
+  flex: 1;
+  padding: 5px 0;
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--cfg-text);
+  background: var(--cfg-sunk);
+  border: 1px solid var(--cfg-line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.cfg-lang:hover {
+  color: var(--cfg-bright);
+  border-color: var(--cfg-accent);
+}
+.cfg-lang.is-on {
+  color: var(--cfg-accent);
+  border-color: var(--cfg-accent);
+}
+
 .cfg-tree-list {
   flex: 1;
   min-height: 0;

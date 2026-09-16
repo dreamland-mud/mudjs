@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import $ from 'jquery';
 import { t, getLang } from '../../i18n.js';
+import { send } from '../../websock.js';
+import { LANGS } from '../../accountStrings.js';
 import useConfig from './useConfig.js';
 import SettingsPage from './SettingsPage.jsx';
 import ScriptPage from './ScriptPage.jsx';
@@ -345,6 +347,30 @@ export default function SettingsDialog() {
     </div>
   );
 
+  // Language switch: the game's, not just the chrome's. Flip the server-side
+  // display language, then re-look so the room comes back in it at once; the next
+  // prompt carries the new b.lang and re-skins the UI (and this row's active flag).
+  const pickLang = code => {
+    if (code === lang) return;
+    send('config lang ' + code);
+    setTimeout(() => send('look'), 120);
+  };
+
+  const langRow = (
+    <div className="cfg-langs" role="group" aria-label={t('cfg.lang', lang)}>
+      {LANGS.map(l => (
+        <button
+          key={l.code}
+          type="button"
+          className={'cfg-lang' + (lang === l.code ? ' is-on' : '')}
+          onClick={() => pickLang(l.code)}
+        >
+          {l.code.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
+
   // The account section is not an accordion branch like the rest: it is lifted
   // out here and pinned as a single flat tab at the foot of the tree (below).
   const accountSection = shown.find(one => one.key === ACCOUNT_PAGE);
@@ -514,6 +540,7 @@ export default function SettingsDialog() {
 
               <div hidden={onPage} className="cfg-mobile-list">
                 <div className="cfg-list">
+                  {langRow}
                   {search}
                   {shown.map(section => (
                     <div className="cfg-list-branch" key={section.key}>
@@ -559,6 +586,7 @@ export default function SettingsDialog() {
           ) : (
             <div className="cfg-body">
               <div className="cfg-tree">
+                {langRow}
                 <div className="cfg-search-box">{search}</div>
                 <div className="cfg-tree-list">{treeNodes}</div>
                 {accountLeaf ? (

@@ -125,6 +125,10 @@ const RESUME_KEY = 'mudjs.resume';
 const RECONNECT_MAX = 15000;
 let reconnectTimer = null;
 let reconnectDelay = 0;
+// A deliberate, silent socket cycle (the login language switch): tear down and
+// re-open without the DISCONNECTED banner so onclose reconnects instead of giving
+// up. See reconnect().
+let deliberateReconnect = false;
 
 /* resume_failed is two answers sharing one name: "the token is finished, log in"
  * and "your own previous socket has not gone linkdead yet -- ask again in a
@@ -275,6 +279,25 @@ function scheduleReconnect() {
   }, delay);
 }
 
+/* Deliberately cycle the socket. Used by the login language switch: a fresh
+ * connection replays the nanny from its greeting, and langsync re-answers the
+ * "Choose your language" menu from localStorage -- so the whole pre-login screen
+ * comes back in the newly picked language. Only meaningful at the nanny (no
+ * resume token in hand); an in-world session keeps its socket. */
+function reconnect() {
+  if (ws) {
+    deliberateReconnect = true;
+    try {
+      ws.close();
+    } catch (e) {
+      /* already closing -- onclose still fires and consumes the flag */
+    }
+  } else {
+    reconnectDelay = 0;
+    scheduleReconnect();
+  }
+}
+
 function connect() {
   ws = new WebSocket(wsUrl, ['binary']);
 
@@ -317,6 +340,15 @@ function connect() {
     cancelProbe();
     ws = null;
     store.dispatch(onDisconnected());
+
+    /* A deliberate cycle (language switch at the nanny): no banner, reconnect
+     * straight away with the fresh language already saved. */
+    if (deliberateReconnect) {
+      deliberateReconnect = false;
+      reconnectDelay = 0;
+      scheduleReconnect();
+      return;
+    }
 
     /* Only say DISCONNECTED when there is nothing left to try. A token means a
      * silent retry instead, which is the whole point for a backgrounded phone:
@@ -387,4 +419,4 @@ $(document).ready(function () {
   window.addEventListener('online', verifyConnection);
 });
 
-export { send, rpccmd, connect, ws };
+export { send, rpccmd, connect, reconnect, ws };

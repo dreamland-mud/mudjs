@@ -146,6 +146,7 @@ const STRINGS = {
     'echo.run': 'run',
     // settings window
     'cfg.title': 'Settings',
+    'cfg.lang': 'Language',
     'cfg.close': 'Close',
     'cfg.log.download': 'Download log',
     'cfg.back': 'Back',
@@ -262,6 +263,7 @@ const STRINGS = {
     'echo.run': 'бежать',
     // settings window
     'cfg.title': 'Настройки',
+    'cfg.lang': 'Язык',
     'cfg.close': 'Закрыть',
     'cfg.log.download': 'Скачать лог',
     'cfg.back': 'Назад',
@@ -378,6 +380,7 @@ const STRINGS = {
     'echo.run': 'бігти',
     // settings window
     'cfg.title': 'Налаштування',
+    'cfg.lang': 'Мова',
     'cfg.close': 'Закрити',
     'cfg.log.download': 'Завантажити лог',
     'cfg.back': 'Назад',

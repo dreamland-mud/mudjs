@@ -316,7 +316,7 @@ export default function Map() {
             title="ASCII"
             onClick={() => setModePersisted(mode === 'ascii' ? 'graph' : 'ascii')}
           >
-            #
+            <i className="fa fa-hashtag" aria-hidden="true"></i>
           </button>
           <button
             type="button"
@@ -324,7 +324,7 @@ export default function Map() {
             aria-label="zoom in"
             onClick={handleZoomIn}
           >
-            +
+            <i className="fa fa-plus" aria-hidden="true"></i>
           </button>
           <button
             type="button"
@@ -332,7 +332,7 @@ export default function Map() {
             aria-label="zoom out"
             onClick={handleZoomOut}
           >
-            −
+            <i className="fa fa-minus" aria-hidden="true"></i>
           </button>
         </Toolbar>
       </AppBar>

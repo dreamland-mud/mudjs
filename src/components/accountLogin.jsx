@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import $ from 'jquery';
 import { useSelector } from 'react-redux';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { send, rpccmd } from '../websock';
+import { send, rpccmd, reconnect } from '../websock';
 import { at, LANGS } from '../accountStrings';
 import { getLang, setLang } from '../i18n';
 import PropertiesStorage from '../properties';
@@ -281,9 +281,15 @@ export default function AccountLogin() {
   };
 
   const pickLang = l => {
+    if (l === lang) return;
     setLang(l);
     try { localStorage.setItem('mudjs.lang', l); } catch (e) { /* private mode */ }
     setLangState(l);
+    // Show that the language is the game's, not just the chrome's: cycle the socket
+    // so the nanny replays from its greeting in the new language (langsync answers
+    // the "Choose your language" menu from the value we just saved). Only pre-login
+    // -- once a prompt is in hand the player is in the world and keeps their session.
+    if (!prompt) reconnect();
   };
 
   // ---- path A: real character login (drives the server nanny) --------------
