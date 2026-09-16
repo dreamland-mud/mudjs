@@ -21,6 +21,11 @@ const LOGIN_TIMEOUT_MS = 4500;
 // token, which it hands straight to the game over the WebSocket.
 const ACCOUNT_API = '/account-api';
 
+// Public bot username for the Telegram Login Widget. The widget renders only once the
+// bot's domain is set to dreamland.rocks in BotFather (/setdomain); until then it shows
+// "Bot domain invalid". Not a secret -- the engine ships the same value as TELEGRAM_BOT.
+const TELEGRAM_BOT = 'dreamland_mud_bot';
+
 async function postJson(path, body) {
   let resp;
   try {
@@ -86,6 +91,7 @@ export default function AccountLogin() {
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const enterPending = useRef(false);   // path B: a char click is awaiting the engine's reply
+  const tgAuthRef = useRef(null);       // latest telegram-auth handler for the widget's global callback
 
   const later = (fn, ms) => {
     const id = setTimeout(fn, ms);
@@ -137,6 +143,29 @@ export default function AccountLogin() {
     $('#rpc-events').on('rpc-account_enter_failed', onEnterFailed);
     return () => $('#rpc-events').off('rpc-account_enter_failed', onEnterFailed);
   }, [lang]);
+
+  // Mount the Telegram Login Widget when its step opens. The widget is Telegram's own
+  // iframe button; on success it calls the global set here with the signed user payload,
+  // which we route to the current verifyTelegram closure. Torn down on leaving the step
+  // so a stale global can't fire into an unmounted panel.
+  useEffect(() => {
+    if (bstep !== 'telegram')
+      return;
+    window.__dlTelegramAuth = user => { if (tgAuthRef.current) tgAuthRef.current(user); };
+    const holder = document.getElementById('acc-tg-widget');
+    if (holder) {
+      holder.innerHTML = '';
+      const s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://telegram.org/js/telegram-widget.js?22';
+      s.setAttribute('data-telegram-login', TELEGRAM_BOT);
+      s.setAttribute('data-size', 'large');
+      s.setAttribute('data-radius', '8');
+      s.setAttribute('data-onauth', '__dlTelegramAuth(user)');
+      holder.appendChild(s);
+    }
+    return () => { try { delete window.__dlTelegramAuth; } catch (e) { window.__dlTelegramAuth = undefined; } };
+  }, [bstep]);
 
   const openCurtain = () => {
     clearTimers();
@@ -209,8 +238,29 @@ export default function AccountLogin() {
     }
   };
 
-  // Discord / Telegram widgets are not wired yet (5.2b / 5.2c). Say so honestly
-  // rather than fake a roster.
+  // Path B (telegram): the Login Widget proved a Telegram id; hand the signed payload
+  // to the broker, which verifies it server-side and opens the roster if that id owns
+  // an account. Same roster/enter path as email from here on.
+  const verifyTelegram = async user => {
+    setBerror('');
+    setBusy(at('authenticating', lang));
+    const { status, json } = await postJson('/telegramverify', { tg: user });
+    setBusy('');
+    if (status === 200 && json && json.account) {
+      setRoster(Array.isArray(json.chars) ? json.chars : []);
+      setAcctTitle(json.title || '');
+      setBstep('roster');
+    } else if (status === 200 && json && json.account === null) {
+      setBerror(at('tg_nolink', lang));
+    } else if (status === 501) {
+      setBerror(at('soon', lang));   // broker has no telegram token yet -> stays dark
+    } else {
+      setBerror(at('berror', lang));
+    }
+  };
+  tgAuthRef.current = verifyTelegram;
+
+  // Discord is not wired yet (5.2c). Say so honestly rather than fake a roster.
   const authViaBot = () => setBerror(at('soon', lang));
 
   // Click a character: mint a one-use entry token and hand it to the game over the
@@ -339,7 +389,8 @@ export default function AccountLogin() {
                     <span className="acc-ico"><DiscordIcon /></span>
                     {at('via_discord', lang)}
                   </button>
-                  <button className="btn btn-secondary acc-method" onClick={authViaBot}>
+                  <button className="btn btn-secondary acc-method"
+                    onClick={() => { setBerror(''); setBstep('telegram'); }}>
                     <span className="acc-ico"><TelegramIcon /></span>
                     {at('via_telegram', lang)}
                   </button>
@@ -386,6 +437,16 @@ export default function AccountLogin() {
                   <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
                     onClick={() => { setBerror(''); setBstep('email'); }}>{at('back', lang)}</button>
                 </form>
+              )}
+
+              {bstep === 'telegram' && (
+                <div className="acc-tg">
+                  <div className="acc-col-head" style={{ fontSize: 14 }}>{at('tg_head', lang)}</div>
+                  <div style={{ fontSize: 13, opacity: 0.8, margin: '4px 0 10px' }}>{at('tg_hint', lang)}</div>
+                  <div id="acc-tg-widget" className="acc-tg-widget" aria-label={at('tg_head', lang)} />
+                  <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
+                    onClick={() => { setBerror(''); setBstep('idle'); }}>{at('back', lang)}</button>
+                </div>
               )}
 
               {bstep === 'roster' && (

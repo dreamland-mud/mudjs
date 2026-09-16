@@ -251,3 +251,8 @@
 @media (prefers-reduced-motion: reduce) {
   .acc-slab, .acc-controls { transition: none !important; }
 }
+
+/* Telegram Login Widget (path B). Telegram renders its own iframe button inside the
+   holder; we only centre it and give the step room. Skinning stays Telegram's. */
+.acc-tg { display: flex; flex-direction: column; }
+.acc-tg-widget { display: flex; justify-content: center; align-items: center; min-height: 48px; margin: 6px 0; }
