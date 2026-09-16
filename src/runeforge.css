@@ -891,10 +891,14 @@ body.mud-fighting form#input {
     inset 0 1px 0 rgba(255,255,255,.30),
     inset 0 3px 5px var(--glow),
     0 0 7px var(--glow);
+  /* Ease-in start, slight overshoot at the end, so a hp/mana/move change glides
+     and springs into place instead of snapping. */
+  transition: width 360ms cubic-bezier(.45,0,.4,1.35);
 }
+@media (prefers-reduced-motion: reduce){ .pbar-fill{ transition: none; } }
 .pbar.mana{--fill-edge:#3d2a63;--fill-mid:#bb86fc;--rim:#c9a3ff;--glow:rgba(187,134,252,.45);--gem:#bb86fc}
 .pbar.move{--fill-edge:#5c4413;--fill-mid:#c6a24e;--rim:#e6cd86;--glow:rgba(230,205,134,.42);--gem:#c6a24e}
-.pbar.enemy{--fill-edge:#7c1f30;--fill-mid:#c0384f;--rim:#ed2330;--glow:rgba(255,0,0,.40)}
+.pbar.enemy{--fill-edge:#4d0f18;--fill-mid:#8b1a26;--rim:#b31f2e;--glow:rgba(150,0,0,.40)}
 .pbar-val{position:absolute;left:24px;top:50%;transform:translateY(-50%);z-index:3;font-family:var(--mono,ui-monospace,monospace);font-size:10px;line-height:1;letter-spacing:.02em;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.9);pointer-events:none;white-space:nowrap}
 .pbar.enemy .pbar-val{left:10px}
 .pbar-val b{font-weight:700}
