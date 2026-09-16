@@ -360,3 +360,36 @@
    holder; we only centre it and give the step room. Skinning stays Telegram's. */
 .acc-tg { display: flex; flex-direction: column; }
 .acc-tg-widget { display: flex; justify-content: center; align-items: center; min-height: 48px; margin: 6px 0; }
+
+/* ---- character creation form (nanny V2 web front) ------------------------- */
+.acc-create-form { display: block; }
+
+.acc-namestatus {
+  min-height: 14px;
+  font-size: 12px;
+  margin-top: 5px;
+  color: var(--text-faint, #8a8168);
+}
+.acc-namestatus.is-ok { color: #8fce8f; }
+.acc-namestatus.is-taken,
+.acc-namestatus.is-reserved,
+.acc-namestatus.is-online,
+.acc-namestatus.is-bad { color: #e39b9b; }
+
+.acc-fieldhint {
+  font-size: 11px;
+  margin-top: 4px;
+  color: var(--text-faint, #8a8168);
+}
+
+.acc-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 4px 0 10px;
+  font-size: 13px;
+  color: var(--text, #e8e2d2);
+  cursor: pointer;
+}
+.acc-check input { margin-top: 2px; flex: 0 0 auto; accent-color: var(--arcane, #bb86fc); }
+.acc-check span { line-height: 1.35; }

@@ -15,11 +15,35 @@ import '../account-login.css';
 
 const REVEAL_MS = 950;      // slab curtain + settle before we unmount
 const LOGIN_TIMEOUT_MS = 4500;
+const DRIVE_TIMEOUT_MS = 4000;   // no nanny_step after submit -> server is not in v2 mode
 
 // How deep each path-B step sits, so a step change can slide the new panel in from
 // the right when going deeper (idle -> email -> code) and from the left on the way
-// back. Steps at the same depth (telegram/roster) just cross-fade.
-const STEP_DEPTH = { idle: 0, email: 1, telegram: 1, roster: 1, code: 2 };
+// back. Steps at the same depth (telegram/roster) just cross-fade. `create` is the
+// web character-creation form, one level in from the idle door like a subflow.
+const STEP_DEPTH = { idle: 0, email: 1, telegram: 1, roster: 1, code: 2, create: 1 };
+
+// Web character creation (nanny V2 web front). Off by default; it flips on together
+// with the server's .tmp.nanny.v2 at go-live. Testable ahead of that with ?nannyv2=1
+// or the localStorage key mudjs.nannyv2, so the dark form can be exercised end to end
+// while it ships dark. Off -> the Create button drops to the raw terminal as before.
+const NANNY_V2 = (() => {
+  try {
+    if (/[?&]nannyv2=1(&|$)/.test(window.location.search)) return true;
+    return window.localStorage.getItem('mudjs.nannyv2') === '1';
+  } catch (e) { return false; }
+})();
+
+// A basic login name: letters only (either alphabet -- never mixed, the server
+// enforces that), no spaces or digits. A lenient client pre-flight; the engine's
+// name step is the authority and re-asks over the drive if this misses an edge.
+const NAME_RE = /^[A-Za-zА-Яа-яЁёІіЇїЄєҐґ]{2,15}$/;
+
+// The plain-front steps the server signals (nanny_step), in order, and the answer
+// the form sends for each. name/password come from form state at submit; the two
+// confirms and the screenreader toggle are fixed yes/no tokens the engine accepts
+// in every language (patternYes/patternNo). `handoff` reveals the terminal.
+const CREATE_STEPS = ['name', 'name_confirm', 'password', 'password_confirm', 'screenreader'];
 
 // Path B (account login) talks to the dreamland_web account broker, same origin.
 // The broker holds the web token; the browser only ever sees the one-use entry
@@ -82,6 +106,11 @@ export default function AccountLogin() {
   // is the front door, so a returning player with a live cookie session never sees the
   // name/password form flash before the roster loads -- they just land on their chars.
   const [checking, setChecking] = useState(!prompt);
+  // Web character-creation form (bstep === 'create').
+  const [password2, setPassword2] = useState('');      // repeat password
+  const [screenreader, setScreenreader] = useState(false);
+  const [nameStatus, setNameStatus] = useState('');    // '' | checking | ok | taken | reserved | online | bad
+  const [crError, setCrError] = useState('');          // create-form error line
 
   // The panel is laid over the widgets + map (the mosaic's non-terminal region), so its
   // left edge meets the terminal split -- same maths as App.getResponsiveLayout. Clamped
@@ -105,6 +134,16 @@ export default function AccountLogin() {
   const tgAuthRef = useRef(null);       // latest telegram-auth handler for the widget's global callback
   const prevDepthRef = useRef(0);       // depth of the last shown step, for slide direction
   const discordRef = useRef(false);     // a Discord OAuth popup is in flight
+  // Character-creation drive: the form collects and validates the mechanical front,
+  // then feeds the plain nanny one answer per nanny_step signal (reliable where a
+  // timed type-ahead burst would desync -- the password step takes its value twice).
+  const nannyStepRef = useRef(null);    // latest plain-front step the server signalled
+  const driving = useRef(false);        // a creation drive is in flight
+  const driveAnswers = useRef(null);    // {name, password, sr} captured at submit
+  const stepsSent = useRef({});         // steps already answered this drive (re-ask guard)
+  const checkTimer = useRef(null);      // debounce timer for check_name
+  const latestName = useRef('');        // echo-guard: drop a check_name reply for an old value
+  const driveTimer = useRef(null);      // watchdog: no nanny_step -> server not in v2 mode
 
   const later = (fn, ms) => {
     const id = setTimeout(fn, ms);
@@ -142,7 +181,11 @@ export default function AccountLogin() {
     }
   }, [phase, checking]);
 
-  useEffect(() => () => clearTimers(), []);
+  useEffect(() => () => {
+    clearTimers();
+    if (checkTimer.current) clearTimeout(checkTimer.current);
+    if (driveTimer.current) clearTimeout(driveTimer.current);
+  }, []);
 
   // Remember the depth of the step now on screen so the NEXT change knows which
   // way to slide. Kept in an effect (not computed during render) so React's
@@ -167,6 +210,66 @@ export default function AccountLogin() {
     };
     $('#rpc-events').on('rpc-account_enter_failed', onEnterFailed);
     return () => $('#rpc-events').off('rpc-account_enter_failed', onEnterFailed);
+  }, [lang]);
+
+  // Web character creation: the server's plain nanny signals which mechanical step
+  // it is waiting on (nanny_step) and answers name availability (check_name_result).
+  // Both are character-less WS commands live in the nanny window. We track the current
+  // step always, and while a create is in flight we feed the collected answer for the
+  // step the nanny just reached -- one per signal, so nothing desyncs.
+  useEffect(() => {
+    const onStep = (e, step) => {
+      nannyStepRef.current = step;
+      if (!driving.current) return;
+      if (driveTimer.current) { clearTimeout(driveTimer.current); driveTimer.current = null; }
+      const a = driveAnswers.current;
+      if (!a) return;
+
+      if (step === 'handoff') {
+        // Mechanical front done: reveal the terminal for Archivarius (same motion as
+        // a login reveal, inlined so this effect needs no forward reference).
+        driving.current = false;
+        clearTimers();
+        setBusy('');
+        setPhase('revealing');
+        later(() => setPhase('hidden'), REVEAL_MS);
+        return;
+      }
+
+      if (step === 'name' && stepsSent.current.name) {
+        // The nanny re-asked the name after we sent it: taken in the race between the
+        // inline check and the drive. Stop and send the player back to the field.
+        driving.current = false;
+        setBusy('');
+        setNameStatus('taken');
+        setCrError(at('cr_taken_race', lang));
+        return;
+      }
+
+      stepsSent.current[step] = true;
+      if (step === 'name') send(a.name);
+      else if (step === 'name_confirm') send('yes');
+      else if (step === 'password') send(a.password);
+      else if (step === 'password_confirm') send(a.password);
+      else if (step === 'screenreader') send(a.sr);
+    };
+
+    const onCheck = (e, data) => {
+      // Echo-guard: a reply for a value the field has since moved past is stale.
+      if (!data || data.name !== latestName.current) return;
+      if (data.ok) { setNameStatus('ok'); return; }
+      // Map the engine's reasons onto the form's status set. 'exists' (a saved
+      // character owns it) and anything unforeseen read as plain "taken".
+      const r = data.reason;
+      setNameStatus(r === 'reserved' ? 'reserved' : r === 'online' ? 'online' : 'taken');
+    };
+
+    $('#rpc-events').on('rpc-nanny_step', onStep);
+    $('#rpc-events').on('rpc-check_name_result', onCheck);
+    return () => {
+      $('#rpc-events').off('rpc-nanny_step', onStep);
+      $('#rpc-events').off('rpc-check_name_result', onCheck);
+    };
   }, [lang]);
 
   // Mount the Telegram Login Widget when its step opens. The widget is Telegram's own
@@ -307,6 +410,61 @@ export default function AccountLogin() {
         setError(at('fail', lang));
       }
     }, LOGIN_TIMEOUT_MS);
+  };
+
+  // ---- character creation (nanny V2 web front) -----------------------------
+  // Open the form, or -- when the flag is off / the server is still on the old nanny
+  // -- drop straight to the raw terminal exactly as before.
+  const startCreate = () => {
+    if (!NANNY_V2) { openCurtain(); return; }
+    setError(''); setCrError('');
+    setName(''); setPassword(''); setPassword2(''); setScreenreader(false);
+    setNameStatus(''); latestName.current = '';
+    setBstep('create');
+  };
+
+  // Name availability, debounced. Bad format is caught locally (no round-trip); a
+  // well-formed name is asked of the engine (check_name), and rpc-check_name_result
+  // sets the inline status. latestName guards a reply for a value already typed past.
+  const onCreateName = v => {
+    setName(v);
+    latestName.current = v;
+    setCrError('');
+    if (checkTimer.current) { clearTimeout(checkTimer.current); checkTimer.current = null; }
+    if (v === '') { setNameStatus(''); return; }
+    if (!NAME_RE.test(v)) { setNameStatus('bad'); return; }
+    setNameStatus('checking');
+    checkTimer.current = setTimeout(() => rpccmd('check_name', v), 350);
+  };
+
+  const submitCreate = e => {
+    e.preventDefault();
+    setCrError('');
+    if (nameStatus !== 'ok') { setCrError(at('cr_fix_name', lang)); return; }
+    if (password.length < 5) { setCrError(at('cr_pw_short', lang)); return; }
+    if (password !== password2) { setCrError(at('cr_pw_mismatch', lang)); return; }
+
+    driveAnswers.current = { name: name.trim(), password, sr: screenreader ? 'yes' : 'no' };
+    stepsSent.current = {};
+    driving.current = true;
+    setBusy(at('cr_creating', lang));
+
+    // The nanny is parked at the name step (it signalled `name` while the form was
+    // filled). Send the name to advance it; each following step rides its own signal.
+    if (nannyStepRef.current === 'name') {
+      stepsSent.current.name = true;
+      send(driveAnswers.current.name);
+    }
+
+    // No nanny_step at all within the window means the server is still on the old
+    // nanny (flag mismatch): back out cleanly instead of hanging on the drive.
+    if (driveTimer.current) clearTimeout(driveTimer.current);
+    driveTimer.current = setTimeout(() => {
+      if (!driving.current) return;
+      driving.current = false;
+      setBusy('');
+      setCrError(at('cr_unavailable', lang));
+    }, DRIVE_TIMEOUT_MS);
   };
 
   // ---- path B: master login via the account broker -------------------------
@@ -506,6 +664,65 @@ export default function AccountLogin() {
         <div className="acc-stage" key={stageKey} data-dir={stageDir}>
         {statusLine ? (
           <div className="acc-busy">{statusLine}</div>
+        ) : bstep === 'create' ? (
+          <form className="acc-create-form" onSubmit={submitCreate}>
+            <div className="acc-col-head">{at('cr_title', lang)}</div>
+
+            <div className="acc-field">
+              <label htmlFor="cr-name">{at('name', lang)}</label>
+              <input
+                id="cr-name"
+                ref={nameRef}
+                className="acc-input"
+                type="text"
+                autoComplete="off"
+                spellCheck="false"
+                value={name}
+                onChange={e => onCreateName(e.target.value)}
+              />
+              {nameStatus && (
+                <div className={'acc-namestatus is-' + nameStatus} role="status">
+                  {at('nm_' + nameStatus, lang)}
+                </div>
+              )}
+            </div>
+
+            <div className="acc-field">
+              <label htmlFor="cr-pass">{at('password', lang)}</label>
+              <input
+                id="cr-pass"
+                className="acc-input"
+                type="password"
+                autoComplete="new-password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+              <div className="acc-fieldhint">{at('cr_pw_hint', lang)}</div>
+            </div>
+
+            <div className="acc-field">
+              <label htmlFor="cr-pass2">{at('cr_pass2', lang)}</label>
+              <input
+                id="cr-pass2"
+                className="acc-input"
+                type="password"
+                autoComplete="new-password"
+                value={password2}
+                onChange={e => setPassword2(e.target.value)}
+              />
+            </div>
+
+            <label className="acc-check">
+              <input type="checkbox" checked={screenreader}
+                onChange={e => setScreenreader(e.target.checked)} />
+              <span>{at('cr_sr', lang)}</span>
+            </label>
+
+            <button type="submit" className="btn acc-cta">{at('cr_create', lang)}</button>
+            <div className="acc-error" role="alert">{crError}</div>
+            <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
+              onClick={() => { setBstep('idle'); setCrError(''); }}>{at('back', lang)}</button>
+          </form>
         ) : (
           <>
             {/* New-player explainer + create button, and the whole two-path chooser,
@@ -517,7 +734,7 @@ export default function AccountLogin() {
                 <p className="acc-newhero-hint">
                   <strong>{at('new_hero_lead', lang)}</strong> {at('new_hero_body', lang)}
                 </p>
-                <button type="button" className="btn btn-primary acc-create acc-create-btn" onClick={openCurtain}>
+                <button type="button" className="btn btn-primary acc-create acc-create-btn" onClick={startCreate}>
                   {at('create_char', lang)}
                 </button>
               </>
