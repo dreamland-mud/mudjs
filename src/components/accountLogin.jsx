@@ -587,14 +587,30 @@ export default function AccountLogin() {
                     <div className="acc-card-title" style={{ marginBottom: 8 }}>{acctTitle}</div>
                   )}
                   <div className="acc-roster">
-                    {roster.map(nm => (
-                      <button key={nm} className="acc-card" onClick={() => enterAs(nm)}>
-                        <span className="acc-card-sigil">{nm[0]}</span>
-                        <span>
-                          <span className="acc-card-name">{nm}</span>
-                        </span>
-                      </button>
-                    ))}
+                    {roster.map(ch => {
+                      // The broker sends {name, level, class:{en,ru,ua}} since the
+                      // engine roster carries it; older engines send a bare name.
+                      const nm = typeof ch === 'string' ? ch : ch.name;
+                      const obj = ch && typeof ch === 'object' ? ch : null;
+                      const lvl = obj && obj.level != null ? obj.level : null;
+                      const cls = obj && obj.class
+                        ? (obj.class[lang] || obj.class.en || '') : '';
+                      const label = nm + (cls ? ', ' + cls : '') + (lvl != null ? ' ' + lvl : '');
+                      return (
+                        <button key={nm} className="acc-card" onClick={() => enterAs(nm)} aria-label={label}>
+                          <span className="acc-card-sigil">{nm[0]}</span>
+                          <span className="acc-card-id">
+                            <span className="acc-card-name">{nm}</span>
+                          </span>
+                          {(lvl != null || cls) && (
+                            <span className="acc-card-meta" aria-hidden="true">
+                              {lvl != null && <span className="acc-card-lvl">{lvl}</span>}
+                              {cls && <span className="acc-card-cls">{cls}</span>}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                   <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
                     onClick={() => { setBerror(''); setBstep('idle'); }}>{at('back', lang)}</button>

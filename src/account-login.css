@@ -217,8 +217,32 @@
   background: radial-gradient(circle at 40% 35%, var(--arcane, #bb86fc), var(--arcane-deep, #3a2a63));
   color: #100c18; font-family: var(--display, serif); font-weight: 700; font-size: 16px;
 }
+.acc-card-id { display: flex; flex-direction: column; min-width: 0; }
 .acc-card-name { font-family: var(--display, serif); font-size: 16px; color: var(--gold-bright, #e6cd86); }
 .acc-card-title { font-size: 11px; color: var(--text-dim, #b7ad95); }
+
+/* level + class, pushed to the right edge of the hero row */
+.acc-card-meta {
+  margin-left: auto;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  text-align: right;
+  padding-left: 10px;
+}
+.acc-card-lvl {
+  font-family: var(--display, serif);
+  font-size: 15px;
+  line-height: 1;
+  color: var(--gold, #c6a24e);
+}
+.acc-card-cls {
+  font-size: 11px;
+  color: var(--text-dim, #b7ad95);
+  text-transform: capitalize;
+}
 
 /* New-player explainer, shown on every width, under the language row. */
 .acc-newhero-hint {
