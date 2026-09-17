@@ -168,7 +168,7 @@
 .acc-cols {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 12px;
 }
 .acc-col {
   flex: 1 1 0;
@@ -231,7 +231,7 @@
 /* the three login methods sit in one equal-width row */
 .acc-methods { display: flex; gap: 10px; }
 .acc-methods .btn { width: auto; }
-.acc-method { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 8px; }
+.acc-method { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 8px; font-family: var(--ui, 'Alegreya Sans', sans-serif); }
 .acc-method .acc-ico { flex: none; }
 .acc-brand { width: 16px; height: 16px; vertical-align: middle; }
 
@@ -245,13 +245,18 @@
 /* ---- roster cards --------------------------------------------------------- */
 .acc-roster { display: flex; flex-direction: column; gap: 10px; }
 .acc-card {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 13px;
+  /* No left padding: the class diamond overhangs the open left edge of the card
+     (its centre sits on the stroke line), so the row border runs top/right/bottom
+     only and the badge reads as pinned to it, not boxed inside it. */
+  padding: 11px 13px 11px 0;
   background: rgba(0, 0, 0, 0.32);
   border: 1px solid var(--gold-deep, #6f5a26);
-  border-radius: 6px;
+  border-left: 0;
+  border-radius: 0 6px 6px 0;
   cursor: pointer;
   text-align: left;
   color: inherit;
@@ -271,7 +276,10 @@
 }
 /* Class-badge variant: the diamond stands on its own, no chip behind it. */
 .acc-card-sigil-icon {
-  width: 42px; height: 42px; flex: 0 0 42px;
+  width: 50px; height: 50px; flex: 0 0 50px;
+  /* Pull left by half its width so the diamond centre lands on the open
+     (border-left-less) left edge of the card -- half the badge hangs past it. */
+  margin-left: -25px;
   border-radius: 0;
   background: none;
 }
@@ -284,6 +292,15 @@
 .acc-card-id { display: flex; flex-direction: column; min-width: 0; }
 .acc-card-name { font-family: var(--display, serif); font-size: 16px; color: var(--gold-bright, #e6cd86); }
 .acc-card-title { font-size: 11px; color: var(--text-dim, #b7ad95); }
+
+/* The line above the roster ("Available characters on your <account> account"),
+   in place of the old "Choose your hero" heading -- a quiet label for the list. */
+.acc-roster-lead {
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-dim, #b7ad95);
+}
 
 /* level + class, pushed to the right edge of the hero row */
 .acc-card-meta {
@@ -350,8 +367,8 @@
 }
 
 @media (max-width: 640px) {
-  .acc-cols { gap: 18px; }
-  .acc-col + .acc-col { padding-top: 18px; }
+  .acc-cols { gap: 12px; }
+  .acc-col + .acc-col { padding-top: 0; }
 }
 
 /* Desktop: don't wall off the terminal. The login covers only the centre + right,

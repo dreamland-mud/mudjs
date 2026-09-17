@@ -7,14 +7,20 @@ import OptionRow from './OptionRow.jsx';
 export default function SettingsPage({ page, values, lang, query, onChange, children }) {
   if (!page) return null;
 
+  // Account and script pages bring their own content and want the full height,
+  // so they get no page heading ("My account" / "Custom script" both drop).
+  const bareHead = page.kind === 'account' || page.kind === 'script';
+
   return (
     <div className={page.kind === 'script' ? 'cfg-page cfg-page-script' : 'cfg-page'}>
-      <div className="cfg-page-head">
-        <div className="cfg-page-title">{page.label}</div>
-        {page.subtitle ? (
-          <div className="cfg-page-subtitle">{page.subtitle}</div>
-        ) : null}
-      </div>
+      {bareHead ? null : (
+        <div className="cfg-page-head">
+          <div className="cfg-page-title">{page.label}</div>
+          {page.subtitle ? (
+            <div className="cfg-page-subtitle">{page.subtitle}</div>
+          ) : null}
+        </div>
+      )}
 
       {children}
 

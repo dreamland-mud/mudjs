@@ -123,7 +123,7 @@ function buildEditor(value) {
       value: value,
       language: 'javascript',
       theme: 'vs-dark',
-      fontSize: 16,
+      fontSize: 13,
       wordWrap: 'on',
       lineNumbers: 'off',
       scrollBeyondLastLine: false,
