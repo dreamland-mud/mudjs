@@ -348,6 +348,14 @@
    into an accordion branch: it reuses .cfg-leaf, gains an icon, and sits below
    a divider so it reads as a standalone side tab. cfg-tree is a flex column and
    cfg-tree-list takes the slack, so the foot stays pinned at the bottom. */
+/* The account tab, pinned above the accordion. Same padding as the foot it used
+   to sit in; the rule that separates it from the settings below is under it now,
+   not over it. */
+.cfg-tree-head {
+  flex: none;
+  padding: 8px 8px 0;
+}
+
 .cfg-tree-foot {
   flex: none;
   padding: 8px;

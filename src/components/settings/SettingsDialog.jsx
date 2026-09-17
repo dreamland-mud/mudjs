@@ -301,8 +301,15 @@ export default function SettingsDialog() {
   const shown = useMemo(() => filterTree(tree, needle), [tree, needle]);
 
   // The page in hand: the one chosen, as long as the search still has it.
-  const page = findPage(shown, pageKey) || (needle ? firstPage(shown) : findPage(tree, pageKey));
-  const current = page || (narrow ? null : firstPage(shown));
+  // Where the window lands when nothing is chosen. The account now stands first
+  // in the tree, but landing on it would hide the settings behind a click: this
+  // is the settings window, and it opens on settings. The client's own sections
+  // -- the account and the script -- are stepped over for that one purpose.
+  const landing = firstPage(shown.filter(one => one.key !== 'account' && one.key !== 'ext'))
+    || firstPage(shown);
+
+  const page = findPage(shown, pageKey) || (needle ? landing : findPage(tree, pageKey));
+  const current = page || (narrow ? null : landing);
   const isScript = !!current && current.key === SCRIPT_PAGE;
   const isAccount = !!current && current.key === ACCOUNT_PAGE;
   // Searching does not walk into a page of its own accord: on a narrow sheet
@@ -372,9 +379,30 @@ export default function SettingsDialog() {
   );
 
   // The account section is not an accordion branch like the rest: it is lifted
-  // out here and pinned as a single flat tab at the foot of the tree (below).
+  // out here and pinned as a single flat tab at the head of the tree, directly
+  // under the search box. It is about who is playing rather than about how the
+  // game behaves, and it is the one page a player comes here for without having
+  // to look for it -- so it stands where the eye lands, above the settings.
   const accountSection = shown.find(one => one.key === ACCOUNT_PAGE);
   const accountLeaf = accountSection ? accountSection.pages[0] : null;
+
+  const accountTab = accountLeaf ? (
+    <div className="cfg-tree-head">
+      <button
+        type="button"
+        className={
+          current && accountLeaf.key === current.key
+            ? 'cfg-leaf cfg-tab cfg-leaf-on'
+            : 'cfg-leaf cfg-tab'
+        }
+        onClick={() => choose(accountLeaf.key)}
+      >
+        <span className="cfg-leaf-bar" />
+        <i className="fa fa-user-circle-o cfg-tab-ico" aria-hidden="true" />
+        <span className="cfg-leaf-title">{accountLeaf.label}</span>
+      </button>
+    </div>
+  ) : null;
 
   const treeNodes = shown.filter(section => section.key !== ACCOUNT_PAGE).map(section => {
     const isOpen = collapsed[section.key] !== true;
@@ -590,24 +618,8 @@ export default function SettingsDialog() {
               <div className="cfg-tree">
                 {langRow}
                 <div className="cfg-search-box">{search}</div>
+                {accountTab}
                 <div className="cfg-tree-list">{treeNodes}</div>
-                {accountLeaf ? (
-                  <div className="cfg-tree-foot">
-                    <button
-                      type="button"
-                      className={
-                        current && accountLeaf.key === current.key
-                          ? 'cfg-leaf cfg-tab cfg-leaf-on'
-                          : 'cfg-leaf cfg-tab'
-                      }
-                      onClick={() => choose(accountLeaf.key)}
-                    >
-                      <span className="cfg-leaf-bar" />
-                      <i className="fa fa-user-circle-o cfg-tab-ico" aria-hidden="true" />
-                      <span className="cfg-leaf-title">{accountLeaf.label}</span>
-                    </button>
-                  </div>
-                ) : null}
               </div>
               <div className="cfg-pane">{body}</div>
             </div>

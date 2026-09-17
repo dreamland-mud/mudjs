@@ -99,7 +99,11 @@ export function buildTree(schema, support, lang) {
     sections.push(standInSection(state, lang));
   }
 
-  sections.push(accountSection(lang));
+  // The account comes first, above the game's own settings: it is about who is
+  // playing rather than about how the game behaves, and it is the page a player
+  // opens this window for without having to look for it. The script stays last,
+  // where a tool belongs.
+  sections.unshift(accountSection(lang));
   sections.push(scriptSection(lang));
   return sections;
 }
