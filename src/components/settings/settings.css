@@ -488,6 +488,20 @@
   min-height: 44px;
 }
 
+/* A change is in flight. The control stays exactly where it was -- the server
+   has not agreed to anything yet -- and takes no second click until it answers
+   or the wait runs out. */
+.cfg-row-control.is-pending {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Why the server would not have it, in place of what the option usually says
+   about itself. */
+.cfg-row-refused {
+  color: var(--cfg-warn, #c4674a);
+}
+
 /* --- the question mark and what it opens --- */
 .cfg-help-badge {
   width: 18px;
@@ -1012,6 +1026,7 @@
   --cfg-accent: #55a3f2; /* {B */
   --cfg-key: #2cf4eb; /* {C -- option names, as in the command */
   --cfg-yes: #8ee34f; /* {G */
+  --cfg-warn: #e0725a; /* {R -- a refusal, as the game paints one */
 
   position: fixed;
   top: 0;

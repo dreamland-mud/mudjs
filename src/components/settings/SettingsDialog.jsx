@@ -72,7 +72,7 @@ export default function SettingsDialog() {
   const pushedBy = useRef(0);
 
   const sheet = useRef(null);
-  const { schema, values, support, set, echo } = useConfig(open, lang);
+  const { schema, values, support, set, echo, pending, refused } = useConfig(open, lang);
 
   // The gear over the terminal is the only way in; everything else here closes.
   useEffect(() => {
@@ -430,6 +430,8 @@ export default function SettingsDialog() {
           lang={lang}
           query={needle}
           onChange={change}
+          pending={pending}
+          refused={refused}
         />
       ) : (
         <div className="cfg-page">

@@ -27,6 +27,7 @@
   --cfg-accent: var(--gold, #c6a24e);           /* primary accent / active page */
   --cfg-key: var(--arcane, #bb86fc);            /* option command tokens -- arcane */
   --cfg-yes: #8fbf5a;                           /* on-state -- calmer leaf green */
+  --cfg-warn: #c4674a;                          /* a refusal -- burnt sienna */
 }
 
 /* --- 2. fonts: the app's, not the Cyborg mono ------------------------------ */
