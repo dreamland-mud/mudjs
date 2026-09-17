@@ -56,6 +56,19 @@ const Overlay = ({ unread, onScrollToBottom, lang }) => {
       >
         <tbody>
           <tr>
+            {/* Unread jump-to-bottom lives in the nav panel, left of the gear, wearing
+                the same control-button skin. Shows the count (no icon); the full
+                "N unread" text stays on aria-label for screen readers. */}
+            {unread > 0 && (
+              <OverlayCell
+                id="unread-button"
+                onClick={onScrollToBottom}
+                ariaLabel={fmt('ov.unread', unread, lang)}
+                ariaHidden="false"
+              >
+                <span className="rf-unread-count">{unread > 99 ? '99+' : unread}</span>
+              </OverlayCell>
+            )}
             {/* Download log moved into the settings side-sheet footer (id kept,
                 so main.js's delegated #logs-button handler still fires). */}
             <OverlayCell
@@ -76,22 +89,6 @@ const Overlay = ({ unread, onScrollToBottom, lang }) => {
           {/* Movement keypad moved to the mobile command-bar toggle (MobileKeypad in app.jsx). */}
         </tbody>
       </table>
-
-      {unread > 0 && (
-        <button
-          onClick={onScrollToBottom}
-          className="btn btn-sm btn-ctrl btn-outline-primary"
-          style={{
-            position: 'absolute',
-            pointerEvents: 'all',
-            right: '1em',
-            bottom: 0,
-            margin: '0.5em',
-          }}
-        >
-          <span>{fmt('ov.unread', unread, lang)}</span>
-        </button>
-      )}
     </Box>
   );
 };

@@ -11,7 +11,7 @@ import { t } from '../../i18n';
  */
 const TimeRow = ({ h, tod, l }) => (
   <tr>
-    <td className="tw-ic"><i className={`wi wi-fw wi-time-${h}`}></i></td>
+    <td className="tw-ic"><i className="fa fa-clock-o"></i></td>
     <td>{`${h} ${tod}`}{l && `, ${l}`}</td>
   </tr>
 );
@@ -23,17 +23,30 @@ const TimeRow = ({ h, tod, l }) => (
  */
 const DateRow = ({ d, m, s }) => (
   <tr>
-    <td className="tw-ic"><i className="fa">&#xf073;</i></td>
+    <td className="tw-ic"><i className="fa fa-calendar"></i></td>
     <td>{`${d} / ${m}`}{s && ` / ${s}`}</td>
   </tr>
 );
+
+// Server weather codes (web/impl.cpp jsonWeather) -> Font Awesome 4.7 glyphs.
+// FA4 has no cloud+sun/moon composites, so the day/night pairs share one base glyph.
+const WEATHER_FA = {
+  'day-sunny': 'fa-sun-o',
+  'night-clear': 'fa-moon-o',
+  'day-cloudy': 'fa-cloud',
+  'night-alt-cloudy': 'fa-cloud',
+  'day-showers': 'fa-umbrella',
+  'night-alt-showers': 'fa-umbrella',
+  'day-lightning': 'fa-bolt',
+  'night-alt-lightning': 'fa-bolt',
+};
 
 /**
  * Prompt weather (w) fields: i - icon to use, m - weather message.
  */
 const WeatherRow = ({ i, m }) => (
   <tr>
-    <td className="tw-ic"><i className={`wi wi-fw wi-${i}`}></i></td>
+    <td className="tw-ic"><i className={`fa ${WEATHER_FA[i] || 'fa-cloud'}`}></i></td>
     <td>{m}</td>
   </tr>
 );
