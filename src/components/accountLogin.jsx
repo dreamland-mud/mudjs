@@ -155,6 +155,29 @@ export default function AccountLogin() {
     timers.current = [];
   };
 
+  // Arm (or re-arm) the creation-drive watchdog. Re-armed on every step so a stall
+  // anywhere in the drive backs out, not just before the first signal. A name we
+  // kicked that then drew no signal was taken mid-fill (the nanny took it down its
+  // existing-character path, which emits nothing) -- reconnect for a fresh nanny so
+  // the next name is not typed at a stale password prompt. No kick at all means the
+  // server is still on the old nanny (client flag on, server .tmp.nanny.v2 off).
+  const armWatchdog = l => {
+    if (driveTimer.current) clearTimeout(driveTimer.current);
+    driveTimer.current = setTimeout(() => {
+      if (!driving.current) return;
+      driving.current = false;
+      driveAnswers.current = null;
+      setBusy('');
+      if (stepsSent.current.name) {
+        setNameStatus('taken');
+        setCrError(at('cr_taken_race', l));
+        reconnect();
+      } else {
+        setCrError(at('cr_unavailable', l));
+      }
+    }, DRIVE_TIMEOUT_MS);
+  };
+
   // Drive the reveal off the login-state signal: prompt null -> in world.
   useEffect(() => {
     if (prompt && phaseRef.current === 'login') {
@@ -221,14 +244,16 @@ export default function AccountLogin() {
     const onStep = (e, step) => {
       nannyStepRef.current = step;
       if (!driving.current) return;
-      if (driveTimer.current) { clearTimeout(driveTimer.current); driveTimer.current = null; }
       const a = driveAnswers.current;
       if (!a) return;
 
       if (step === 'handoff') {
         // Mechanical front done: reveal the terminal for Archivarius (same motion as
-        // a login reveal, inlined so this effect needs no forward reference).
+        // a login reveal, inlined so this effect needs no forward reference). The
+        // password is now in the game -- drop the client copy.
         driving.current = false;
+        driveAnswers.current = null;
+        if (driveTimer.current) { clearTimeout(driveTimer.current); driveTimer.current = null; }
         clearTimers();
         setBusy('');
         setPhase('revealing');
@@ -240,6 +265,8 @@ export default function AccountLogin() {
         // The nanny re-asked the name after we sent it: taken in the race between the
         // inline check and the drive. Stop and send the player back to the field.
         driving.current = false;
+        driveAnswers.current = null;
+        if (driveTimer.current) { clearTimeout(driveTimer.current); driveTimer.current = null; }
         setBusy('');
         setNameStatus('taken');
         setCrError(at('cr_taken_race', lang));
@@ -252,6 +279,7 @@ export default function AccountLogin() {
       else if (step === 'password') send(a.password);
       else if (step === 'password_confirm') send(a.password);
       else if (step === 'screenreader') send(a.sr);
+      armWatchdog(lang);   // progress made -- re-arm for the next step
     };
 
     const onCheck = (e, data) => {
@@ -456,15 +484,10 @@ export default function AccountLogin() {
       send(driveAnswers.current.name);
     }
 
-    // No nanny_step at all within the window means the server is still on the old
-    // nanny (flag mismatch): back out cleanly instead of hanging on the drive.
-    if (driveTimer.current) clearTimeout(driveTimer.current);
-    driveTimer.current = setTimeout(() => {
-      if (!driving.current) return;
-      driving.current = false;
-      setBusy('');
-      setCrError(at('cr_unavailable', lang));
-    }, DRIVE_TIMEOUT_MS);
+    // Watchdog: if no nanny_step follows (server not in v2), or the name turns out
+    // taken and the drive stalls, back out cleanly instead of hanging (armWatchdog
+    // distinguishes the two and re-arms on each step).
+    armWatchdog(lang);
   };
 
   // ---- path B: master login via the account broker -------------------------
