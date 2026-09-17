@@ -50,7 +50,7 @@ export default defineConfig({
   define: {
     __BUILD_ID__: JSON.stringify(BUILD_ID),
   },
-  base: '/newui/', // Runeforge staging build; the production /mudjs build stays on master
+  base: '/play/', // production web client; nginx serves /var/www/mudjs/build at /play (was /mudjs)
   build: {
     // nginx serves /var/www/mudjs/build; vite defaults to dist/, so pin it to build/
     outDir: 'build',
