@@ -172,6 +172,10 @@ export default function AccountLogin() {
       if (stepsSent.current.name) {
         setNameStatus('taken');
         setCrError(at('cr_taken_race', l));
+        // NEW-3: drop the dead nanny's last step before reconnecting, so a
+        // sub-second resubmit onto the fresh nanny can't read a stale step and
+        // false-"taken" once.
+        nannyStepRef.current = null;
         reconnect();
       } else {
         setCrError(at('cr_unavailable', l));
