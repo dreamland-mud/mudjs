@@ -269,6 +269,18 @@
   background: radial-gradient(circle at 40% 35%, var(--arcane, #bb86fc), var(--arcane-deep, #3a2a63));
   color: #100c18; font-family: var(--display, serif); font-weight: 700; font-size: 16px;
 }
+/* Class-badge variant: the diamond stands on its own, no chip behind it. */
+.acc-card-sigil-icon {
+  width: 42px; height: 42px; flex: 0 0 42px;
+  border-radius: 0;
+  background: none;
+}
+.acc-card-sigil-icon img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+}
 .acc-card-id { display: flex; flex-direction: column; min-width: 0; }
 .acc-card-name { font-family: var(--display, serif); font-size: 16px; color: var(--gold-bright, #e6cd86); }
 .acc-card-title { font-size: 11px; color: var(--text-dim, #b7ad95); }

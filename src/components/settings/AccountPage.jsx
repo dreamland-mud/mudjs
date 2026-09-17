@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import $ from 'jquery';
 import { send, rpccmd } from '../../websock.js';
 import { t } from '../../i18n.js';
+import { classIconFor } from '../../classIcons.js';
 import './AccountPage.css';
 
 // The account page inside the settings window. The client has no account data of
@@ -133,12 +134,20 @@ export default function AccountPage({ lang, visible }) {
         <div className="acct-block">
           <div className="acct-h">{t('acct.heroes', lang)}</div>
           <div className="acct-roster">
-            {chars.map(c => (
+            {chars.map(c => {
+              // Same badge as the login roster, off class.en; class-less rows
+              // (an older engine that sends bare names) keep the letter sigil.
+              const icon = c.class ? classIconFor(c.class.en) : null;
+              return (
               <div
                 key={c.name}
                 className={'acct-card' + (isCurrent(c) ? ' acct-card-current' : '')}
               >
-                <span className="acct-sigil" aria-hidden="true">{c.name[0]}</span>
+                {icon
+                  ? <span className="acct-sigil acct-sigil-icon" aria-hidden="true">
+                      <img src={icon} alt="" aria-hidden="true" />
+                    </span>
+                  : <span className="acct-sigil" aria-hidden="true">{c.name[0]}</span>}
                 <span className="acct-card-main">
                   <span className="acct-card-name">{c.name}</span>
                 </span>
@@ -154,7 +163,8 @@ export default function AccountPage({ lang, visible }) {
                   </button>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       ) : null}

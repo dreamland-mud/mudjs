@@ -5,6 +5,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { send, rpccmd, reconnect } from '../websock';
 import { at, LANGS } from '../accountStrings';
 import { getLang, setLang } from '../i18n';
+import { classIconFor } from '../classIcons';
 import PropertiesStorage from '../properties';
 import '../account-login.css';
 
@@ -893,10 +894,17 @@ export default function AccountLogin() {
                       const lvl = obj && obj.level != null ? obj.level : null;
                       const cls = obj && obj.class
                         ? (obj.class[lang] || obj.class.en || '') : '';
+                      // The badge is picked off class.en (the engine key), not the
+                      // localized label; unmapped or class-less rows keep the letter.
+                      const icon = obj && obj.class ? classIconFor(obj.class.en) : null;
                       const label = nm + (cls ? ', ' + cls : '') + (lvl != null ? ' ' + lvl : '');
                       return (
                         <button key={nm} className="acc-card" onClick={() => enterAs(nm)} aria-label={label}>
-                          <span className="acc-card-sigil">{nm[0]}</span>
+                          {icon
+                            ? <span className="acc-card-sigil acc-card-sigil-icon">
+                                <img src={icon} alt="" aria-hidden="true" />
+                              </span>
+                            : <span className="acc-card-sigil">{nm[0]}</span>}
                           <span className="acc-card-id">
                             <span className="acc-card-name">{nm}</span>
                           </span>
