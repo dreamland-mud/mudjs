@@ -717,7 +717,9 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
-  padding-bottom: 16px;
+  /* The editor is the whole tab: no page padding and no heading (SettingsPage
+     drops it for this page), so Monaco reaches every edge. */
+  padding: 0;
 }
 
 /* On the script page the heading is all the chrome there is: the editor takes
@@ -907,6 +909,10 @@
    and the markup and the styling cannot disagree about it. */
 .cfg-narrow .cfg-page {
   padding: 16px 16px 24px;
+}
+
+.cfg-narrow .cfg-page.cfg-page-script {
+  padding: 0;
 }
 
 .cfg-narrow .cfg-row-control {

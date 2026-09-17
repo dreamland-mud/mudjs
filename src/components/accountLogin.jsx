@@ -885,9 +885,10 @@ export default function AccountLogin() {
 
               {bstep === 'roster' && (
                 <>
-                  <div className="acc-col-head" style={{ fontSize: 14 }}>{at('roster', lang)}</div>
                   {acctTitle && (
-                    <div className="acc-card-title" style={{ marginBottom: 8 }}>{acctTitle}</div>
+                    <div className="acc-roster-lead">
+                      {at('roster_lead', lang).replace('{title}', acctTitle)}
+                    </div>
                   )}
                   <div className="acc-roster">
                     {roster.map(ch => {

@@ -33,7 +33,6 @@ const METHOD_ICON = {
 export default function AccountPage({ lang, visible }) {
   const [data, setData] = useState(null);       // { current, account, title, identities, chars }
   const [loading, setLoading] = useState(false);
-  const [manual, setManual] = useState('');
   const timer = useRef(null);
 
   // The server's answer arrives as an rpc event, whenever it comes.
@@ -71,11 +70,6 @@ export default function AccountPage({ lang, visible }) {
     if (!NAME_RE.test(clean)) return;
     send('account switch ' + clean);
     close();
-  };
-
-  const submitManual = e => {
-    e.preventDefault();
-    switchTo(manual);
   };
 
   const listChars = () => {
@@ -175,24 +169,6 @@ export default function AccountPage({ lang, visible }) {
           <div className="acct-hint">{t('acct.link_hint', lang)}</div>
         </div>
       ) : null}
-
-      <form className="acct-block acct-manual" onSubmit={submitManual}>
-        <label htmlFor="acct-manual-in" className="acct-label">{t('acct.manual', lang)}</label>
-        <div className="acct-manual-row">
-          <input
-            id="acct-manual-in"
-            className="acct-input"
-            type="text"
-            autoComplete="off"
-            placeholder={t('acct.manual_ph', lang)}
-            value={manual}
-            onChange={e => setManual(e.target.value)}
-          />
-          <button type="submit" className="acct-mini" disabled={!NAME_RE.test(manual.trim())}>
-            {t('acct.switch', lang)}
-          </button>
-        </div>
-      </form>
 
       <div className="acct-actions">
         <button type="button" className="acct-link" onClick={listChars}>

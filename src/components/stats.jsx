@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { usePrompt } from '../react-hooks';
 import { t } from '../i18n';
 // Faceted gem exported from Figma (node 1026:1934). Its base facets are painted
@@ -57,9 +58,16 @@ const EnemyBar = ({ caption, percent }) => {
 };
 
 export default function Stats() {
+  // usePrompt() merges each prompt onto the last and never clears, so quitting to
+  // the login door leaves the last character's vitals on screen. The redux prompt
+  // is the live "in the world" signal -- null at the door and after a disconnect,
+  // the same one the login panel reveals on -- so gate the whole row on it.
+  const live = useSelector(s => s.prompt);
   const prompt = usePrompt();
   const { hit, max_hit, mana, max_mana, move, max_move, fight } = prompt;
   const lang = prompt.lang;
+
+  if (!live) return null;
 
   return (
     <div className="pbars">
