@@ -1,20 +1,22 @@
-// Class badge icons for the login roster and the settings account page.
+// Class badge emblems for the login roster and the settings account page.
 // Keyed by the engine's profession key -- that is class.en on the roster JSON,
 // which is Profession::getName() (the profession's XML filename stem). Vite
 // bundles + content-hashes each import; the value is the emitted asset URL.
-import warrior from './classicons/warrior.png';
-import ranger from './classicons/ranger.png';
-import samurai from './classicons/samurai.png';
-import thief from './classicons/thief.png';
-import ninja from './classicons/ninja.png';
-import paladin from './classicons/paladin.png';
-import antipaladin from './classicons/anti-paladin.png';
-import vampire from './classicons/vampire.png';
-import cleric from './classicons/cleric.png';
-import witch from './classicons/witch.png';
-import warlock from './classicons/warlock.png';
-import druid from './classicons/druid.png';
-import necromancer from './classicons/necromancer.png';
+// The ornate gold-diamond emblems live in ./classemblems (exported from the
+// DL_desktop Figma "Classes" set); the old flat ./classicons badges are retired.
+import warrior from './classemblems/warrior.png';
+import ranger from './classemblems/ranger.png';
+import samurai from './classemblems/samurai.png';
+import thief from './classemblems/thief.png';
+import ninja from './classemblems/ninja.png';
+import paladin from './classemblems/paladin.png';
+import antipaladin from './classemblems/anti-paladin.png';
+import vampire from './classemblems/vampire.png';
+import cleric from './classemblems/cleric.png';
+import witch from './classemblems/witch.png';
+import warlock from './classemblems/warlock.png';
+import druid from './classemblems/druid.png';
+import necromancer from './classemblems/necromancer.png';
 
 const ICONS = {
   warrior,
