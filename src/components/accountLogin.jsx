@@ -912,13 +912,9 @@ export default function AccountLogin() {
                             : <span className="acc-card-sigil">{nm[0]}</span>}
                           <span className="acc-card-id">
                             <span className="acc-card-name">{nm}</span>
+                            {cls && <span className="acc-card-cls" aria-hidden="true">{cls}</span>}
                           </span>
-                          {(lvl != null || cls) && (
-                            <span className="acc-card-meta" aria-hidden="true">
-                              {lvl != null && <span className="acc-card-lvl">{lvl}</span>}
-                              {cls && <span className="acc-card-cls">{cls}</span>}
-                            </span>
-                          )}
+                          {lvl != null && <span className="acc-card-lvl" aria-hidden="true">{lvl}</span>}
                         </button>
                       );
                     })}

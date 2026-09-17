@@ -242,31 +242,37 @@
   margin-top: 6px;
 }
 
-/* ---- roster cards --------------------------------------------------------- */
-.acc-roster { display: flex; flex-direction: column; gap: 10px; }
+/* ---- roster cards (ornate: gold-filigree frame + class-diamond emblem) ------
+   Each row is a carved gold frame (card-frame.svg, the DL_desktop "Lines"
+   ornament: notched top/bottom rules + a pointed gem cap on the right, stretched
+   to the row) over a dark obsidian body. The class emblem is a gold diamond that
+   overhangs the open left edge; name + class stack on the left; the level stands
+   large and alone on the right. */
+.acc-roster { display: flex; flex-direction: column; gap: 14px; }
 .acc-card {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  /* No left padding: the class diamond overhangs the open left edge of the card
-     (its centre sits on the stroke line), so the row border runs top/right/bottom
-     only and the badge reads as pinned to it, not boxed inside it. */
-  padding: 11px 13px 11px 0;
-  background: rgba(0, 0, 0, 0.32);
-  border: 1px solid var(--gold-deep, #6f5a26);
-  border-left: 0;
-  border-radius: 0 6px 6px 0;
+  gap: 14px;
+  /* Big left pad so name/class clear the overhanging emblem; the frame art itself
+     fills the whole row via the background below. */
+  padding: 12px 20px 12px 44px;
+  min-height: 72px;
+  background:
+    url('./classemblems/card-frame.svg') center / 100% 100% no-repeat,
+    linear-gradient(180deg, rgba(18, 15, 24, 0.62), rgba(6, 5, 10, 0.74));
+  border: 0;
   cursor: pointer;
   text-align: left;
   color: inherit;
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.06s;
+  overflow: visible;
+  transition: box-shadow 0.15s, transform 0.06s;
 }
 .acc-card:hover {
-  border-color: var(--gold, #c6a24e);
-  box-shadow: 0 0 18px var(--arcane-glow, rgba(187, 134, 252, 0.35));
+  box-shadow: 0 0 20px var(--arcane-glow, rgba(187, 134, 252, 0.32));
 }
 .acc-card:active { transform: translateY(1px); }
+/* fallback letter sigil (a class-less row from an older engine) */
 .acc-card-sigil {
   width: 34px; height: 34px; flex: 0 0 34px;
   border-radius: 50%;
@@ -274,24 +280,44 @@
   background: radial-gradient(circle at 40% 35%, var(--arcane, #bb86fc), var(--arcane-deep, #3a2a63));
   color: #100c18; font-family: var(--display, serif); font-weight: 700; font-size: 16px;
 }
-/* Class-badge variant: the diamond stands on its own, no chip behind it. */
+/* Class-diamond emblem: the gold badge stands on its own and overhangs the open
+   left edge of the frame -- pulled left by most of its width so its point clears
+   the card and it reads as pinned to the frame, not boxed inside it. */
 .acc-card-sigil-icon {
-  width: 50px; height: 50px; flex: 0 0 50px;
-  /* Pull left by half its width so the diamond centre lands on the open
-     (border-left-less) left edge of the card -- half the badge hangs past it. */
-  margin-left: -25px;
+  width: 72px; height: 76px; flex: 0 0 72px;
+  margin-left: -48px;
   border-radius: 0;
   background: none;
+  position: relative;
+  z-index: 2;
 }
 .acc-card-sigil-icon img {
   width: 100%; height: 100%;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
-.acc-card-id { display: flex; flex-direction: column; min-width: 0; }
-.acc-card-name { font-family: var(--display, serif); font-size: 16px; color: var(--gold-bright, #e6cd86); }
+/* name + class, stacked on the left */
+.acc-card-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.acc-card-name { font-family: var(--display, serif); font-size: 18px; line-height: 1.1; color: var(--gold-bright, #e6cd86); }
+.acc-card-cls {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim, #b7ad95);
+}
 .acc-card-title { font-size: 11px; color: var(--text-dim, #b7ad95); }
+
+/* level, large and alone on the right edge */
+.acc-card-lvl {
+  margin-left: auto;
+  flex: none;
+  padding-left: 12px;
+  font-family: var(--display, serif);
+  font-size: 30px;
+  line-height: 1;
+  color: var(--gold, #c6a24e);
+}
 
 /* The line above the roster ("Available characters on your <account> account"),
    in place of the old "Choose your hero" heading -- a quiet label for the list. */
@@ -300,29 +326,6 @@
   font-size: 13px;
   line-height: 1.4;
   color: var(--text-dim, #b7ad95);
-}
-
-/* level + class, pushed to the right edge of the hero row */
-.acc-card-meta {
-  margin-left: auto;
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
-  text-align: right;
-  padding-left: 10px;
-}
-.acc-card-lvl {
-  font-family: var(--display, serif);
-  font-size: 15px;
-  line-height: 1;
-  color: var(--gold, #c6a24e);
-}
-.acc-card-cls {
-  font-size: 11px;
-  color: var(--text-dim, #b7ad95);
-  text-transform: capitalize;
 }
 
 /* New-player explainer, shown on every width, under the language row. */
