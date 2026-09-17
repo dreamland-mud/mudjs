@@ -118,9 +118,9 @@
     },
     "school.are": {
         "*": {
-            "en": "Type a command, or use the arrows to pick a previous one",
-            "ru": "Введи команду или стрелками выбери предыдущую",
-            "ua": "Введи команду або стрілками вибери попередню"
+            "en": "Type a command",
+            "ru": "Введи команду",
+            "ua": "Введи команду"
         }
     }
 }

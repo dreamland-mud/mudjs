@@ -131,7 +131,7 @@ const STRINGS = {
     // terminal
     'term.historyLoaded': 'CHAT HISTORY LOADED',
     // input placeholder hint ("%s" = example command)
-    'ph.example': 'Type a command, e.g.: %s',
+    'ph.example': 'Try: %s',
     // Echo verbs for clickable links. The command SENT is always the canonical
     // English one; these are only what gets echoed into the player's own
     // scrollback, so they follow the display language the way a typed command
@@ -255,7 +255,7 @@ const STRINGS = {
     'ov.map': 'карта',
     'ov.unread': 'Непрочитано: %d',
     'term.historyLoaded': 'ИСТОРИЯ ЧАТА ЗАГРУЖЕНА',
-    'ph.example': 'Введи команду, например: %s',
+    'ph.example': 'Введи: %s',
     'echo.read': 'читать',
     'echo.look': 'смотреть',
     'echo.help': 'помощь',
@@ -372,7 +372,7 @@ const STRINGS = {
     'ov.map': 'карта',
     'ov.unread': 'Непрочитано: %d',
     'term.historyLoaded': 'ІСТОРІЯ ЧАТУ ЗАВАНТАЖЕНА',
-    'ph.example': 'Введи команду, наприклад: %s',
+    'ph.example': 'Введи: %s',
     'echo.read': 'читати',
     'echo.look': 'дивитися',
     'echo.help': 'допомога',
