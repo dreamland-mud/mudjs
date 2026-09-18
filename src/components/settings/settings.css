@@ -487,6 +487,12 @@
 }
 
 .cfg-row-control {
+  /* A fieldset, for the `disabled` that stops the keyboard as well as the
+     mouse; its own border, padding and min-width are the browser's, not ours. */
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -497,11 +503,11 @@
 }
 
 /* A change is in flight. The control stays exactly where it was -- the server
-   has not agreed to anything yet -- and takes no second click until it answers
-   or the wait runs out. */
+   has not agreed to anything yet -- and takes nothing until it answers or the
+   wait runs out; the `disabled` on the fieldset does the stopping, mouse and
+   keyboard alike, and this only says so on screen. */
 .cfg-row-control.is-pending {
   opacity: 0.55;
-  pointer-events: none;
 }
 
 /* Why the server would not have it, in place of what the option usually says
