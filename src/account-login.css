@@ -262,7 +262,7 @@
   /* Frame inset from the left (anchored right) so it reaches just behind the
      diamond; the diamond + text keep their own positions (flex), so widening the
      frame leftward never shifts them. */
-  background: url('./classemblems/card-frame.svg') right center / calc(100% - 48px) 100% no-repeat;
+  background: url('./classemblems/card-frame.svg') right center / calc(100% - 40px) 100% no-repeat;
   border: 0;
   cursor: pointer;
   text-align: left;
@@ -272,7 +272,7 @@
 }
 .acc-card:hover {
   /* warm the gold frame + emblem on hover -- no dark plate, no halo */
-  filter: brightness(1.15);
+  filter: brightness(1.40);
 }
 .acc-card:active { transform: translateY(1px); }
 /* fallback letter sigil (a class-less row from an older engine) */
