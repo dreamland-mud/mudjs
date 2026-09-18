@@ -257,7 +257,7 @@
   /* Big left pad so name/class clear the overhanging emblem. The gold frame is the
      only fill (no dark plate behind the row); it is inset from the left and anchored
      right so its left tips land just past the diamond instead of under it. */
-  padding: 8px 28px 8px 44px;
+  padding: 4px 28px 4px 44px;
   min-height: 64px;
   /* Frame inset from the left (anchored right) so it reaches just behind the
      diamond; the diamond + text keep their own positions (flex), so widening the
@@ -317,7 +317,7 @@
   flex: none;
   padding-left: 12px;
   font-family: var(--display, serif);
-  font-size: 30px;
+  font-size: 26px;
   line-height: 1;
   /* lining figures so every digit is the same (cap) height, not Playfair's
      default old-style numerals where 0/1/2 sit low and 6/8 rise. */
