@@ -257,18 +257,22 @@
   /* Big left pad so name/class clear the overhanging emblem. The gold frame is the
      only fill (no dark plate behind the row); it is inset from the left and anchored
      right so its left tips land just past the diamond instead of under it. */
-  padding: 12px 40px 12px 44px;
-  min-height: 72px;
-  background: url('./classemblems/card-frame.svg') right center / calc(100% - 72px) 100% no-repeat;
+  padding: 8px 28px 8px 44px;
+  min-height: 64px;
+  /* Frame inset from the left (anchored right) so it reaches just behind the
+     diamond; the diamond + text keep their own positions (flex), so widening the
+     frame leftward never shifts them. */
+  background: url('./classemblems/card-frame.svg') right center / calc(100% - 48px) 100% no-repeat;
   border: 0;
   cursor: pointer;
   text-align: left;
   color: inherit;
   overflow: visible;
-  transition: box-shadow 0.15s, transform 0.06s;
+  transition: filter 0.15s, transform 0.06s;
 }
 .acc-card:hover {
-  box-shadow: 0 0 20px var(--arcane-glow, rgba(187, 134, 252, 0.32));
+  /* warm the gold frame + emblem on hover -- no dark plate, no halo */
+  filter: brightness(1.15);
 }
 .acc-card:active { transform: translateY(1px); }
 /* fallback letter sigil (a class-less row from an older engine) */
