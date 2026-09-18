@@ -343,13 +343,19 @@ export default function OptionRow({
       </div>
 
       {/* A control with a change in flight takes no second click: the first one
-          has not been answered yet, and the server is the one who decides. */}
-      <div
+          has not been answered yet, and the server is the one who decides.
+
+          A fieldset rather than a div, because `disabled` on it disables every
+          control inside for the keyboard too. Greying the layer out and turning
+          off pointer-events stopped the mouse and nothing else: the row was
+          still reachable by Tab and still answered Space. */}
+      <fieldset
         className={pending ? 'cfg-row-control is-pending' : 'cfg-row-control'}
+        disabled={pending || undefined}
         aria-busy={pending ? 'true' : undefined}
       >
         {control}
-      </div>
+      </fieldset>
 
       {/* A line of its own under both: inside the text column the help would be
           squeezed by the width of the switch, and the switch would drift down
