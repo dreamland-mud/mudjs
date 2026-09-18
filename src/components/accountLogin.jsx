@@ -671,6 +671,11 @@ export default function AccountLogin() {
       <div className="acc-slab acc-slab-top" aria-hidden="true" />
       <div className="acc-slab acc-slab-bottom" aria-hidden="true" />
 
+      {/* The living arcane glow behind the card -- a wormhole that pulses unevenly
+          and lights the gold rim from behind. Sits below .acc-controls (z 2 vs 3).
+          See .acc-portal in account-login.css. */}
+      <div className="acc-portal" aria-hidden="true" />
+
       <div className="acc-controls">
         <div className="acc-inner-frame" aria-hidden="true" />
         <div className="acc-seam" aria-hidden="true" />

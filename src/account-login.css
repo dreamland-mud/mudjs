@@ -94,6 +94,101 @@
     drop-shadow(0 0 32px var(--arcane-glow, rgba(187, 134, 252, 0.35)));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 0 44px rgba(0, 0, 0, 0.5);
   transition: opacity 0.22s ease-out, transform 0.28s ease-out;
+  /* The rim halo (the arcane drop-shadow of the base filter above) is taken over
+     by acc-rim-lit and breathed on the SAME 9.3s period as the portal's swell, so
+     the gold frame reads as lit from behind by the same light. Only the arcane
+     shadow moves; the black cast shadow is held. */
+  animation: acc-rim-lit 9.3s ease-in-out infinite;
+}
+@keyframes acc-rim-lit {
+  0% {
+    filter: drop-shadow(0 20px 46px rgba(0, 0, 0, 0.7))
+            drop-shadow(0 0 24px rgba(187, 134, 252, 0.26));
+  }
+  37% {
+    filter: drop-shadow(0 20px 46px rgba(0, 0, 0, 0.7))
+            drop-shadow(0 0 48px rgba(206, 158, 255, 0.62));
+  }
+  61% {
+    filter: drop-shadow(0 20px 46px rgba(0, 0, 0, 0.7))
+            drop-shadow(0 0 32px rgba(187, 134, 252, 0.36));
+  }
+  100% {
+    filter: drop-shadow(0 20px 46px rgba(0, 0, 0, 0.7))
+            drop-shadow(0 0 24px rgba(187, 134, 252, 0.26));
+  }
+}
+
+/* ---- the portal: a living arcane glow behind the login card ----------------
+   A wormhole of purple light behind .acc-controls. Three layers run on their own
+   coprime-ish periods (7.3 / 9.3 / 11.1s) so their brightness beats against each
+   other and never settles into an even pulse -- the swell stays uneven and the
+   bright eye wanders. Sits above the obsidian slabs (z 2) and below the card
+   (z 3), so the light bleeds around the octagon edge and lights the gold rim
+   from behind (see acc-rim-lit, shared 9.3s period). */
+.acc-portal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(760px, 150%);
+  height: min(600px, 150%);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+  animation: acc-portal-swell 9.3s ease-in-out infinite;
+}
+.acc-portal::before,
+.acc-portal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+/* outer haze: broad, cool violet, drifts + turns like a slow vortex */
+.acc-portal::before {
+  background: radial-gradient(58% 46% at 50% 50%,
+    rgba(150, 96, 240, 0.55) 0%,
+    rgba(123, 70, 210, 0.30) 34%,
+    rgba(80, 40, 150, 0) 72%);
+  filter: blur(30px);
+  animation: acc-portal-outer 11.1s ease-in-out infinite;
+}
+/* inner eye: tighter, hotter lilac, faster + offset; screened over the haze so
+   the overlap flares toward white -- the incandescent core of the wormhole */
+.acc-portal::after {
+  background: radial-gradient(40% 32% at 50% 46%,
+    rgba(214, 178, 255, 0.78) 0%,
+    rgba(187, 134, 252, 0.42) 40%,
+    rgba(150, 96, 240, 0) 74%);
+  filter: blur(16px);
+  mix-blend-mode: screen;
+  animation: acc-portal-core 7.3s ease-in-out infinite;
+}
+@keyframes acc-portal-swell {
+  0%   { filter: brightness(0.80) hue-rotate(-6deg); }
+  37%  { filter: brightness(1.20) hue-rotate(8deg); }
+  61%  { filter: brightness(0.92) hue-rotate(-3deg); }
+  100% { filter: brightness(0.80) hue-rotate(-6deg); }
+}
+@keyframes acc-portal-outer {
+  0%   { opacity: 0.50; transform: rotate(0deg)   scale(1.02) translate(-1%, 1%); }
+  29%  { opacity: 0.82; transform: rotate(40deg)  scale(1.12) translate(2%, -1%); }
+  55%  { opacity: 0.58; transform: rotate(150deg) scale(0.96) translate(-2%, 2%); }
+  78%  { opacity: 0.90; transform: rotate(240deg) scale(1.08) translate(1%, -2%); }
+  100% { opacity: 0.50; transform: rotate(360deg) scale(1.02) translate(-1%, 1%); }
+}
+@keyframes acc-portal-core {
+  0%   { opacity: 0.35; transform: scale(0.86) translate(3%, -2%); }
+  22%  { opacity: 0.85; transform: scale(1.06) translate(-2%, 3%); }
+  48%  { opacity: 0.50; transform: scale(0.94) translate(2%, 2%); }
+  71%  { opacity: 0.96; transform: scale(1.12) translate(-3%, -3%); }
+  100% { opacity: 0.35; transform: scale(0.86) translate(3%, -2%); }
+}
+/* on the reveal, the portal fades with the card instead of lingering over the
+   parting slabs */
+.acc-overlay.is-opening .acc-portal {
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
 }
 
 /* arcane seam across the top rail -- a nod to the site step-card top rule */
@@ -389,10 +484,16 @@
   .acc-create-btn { display: none; }
 }
 
-/* Accessibility: respect reduced-motion -- no curtain, just clear the panel. */
+/* Accessibility: respect reduced-motion -- no curtain, no portal pulse, no
+   rim breathing. The card keeps its static base filter (the calm arcane bloom)
+   and the portal holds a steady glow. */
 @media (prefers-reduced-motion: reduce) {
   .acc-slab, .acc-controls { transition: none !important; }
   .acc-stage { animation: none !important; }
+  .acc-controls,
+  .acc-portal,
+  .acc-portal::before,
+  .acc-portal::after { animation: none !important; }
 }
 
 /* Telegram Login Widget (path B). Telegram renders its own iframe button inside the
