@@ -150,7 +150,7 @@ function Secret({ text, lang }) {
   );
 }
 
-function Text({ value, placeholder, action, onChange, onAction }) {
+function Text({ value, placeholder, action, onChange, onAction, clearable }) {
   const [draft, setDraft] = useState(value || '');
   const [known, setKnown] = useState(value || '');
 
@@ -177,9 +177,13 @@ function Text({ value, placeholder, action, onChange, onAction }) {
           if (e.key === 'Enter') commit();
         }}
       />
-      <button type="button" className="cfg-button" onClick={onAction}>
-        {action}
-      </button>
+      {/* Nothing to clear when the box is already empty: a button that does
+          nothing still reads as a button that should. */}
+      {clearable ? (
+        <button type="button" className="cfg-button" onClick={onAction}>
+          {action}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -211,7 +215,15 @@ function describe(option, value) {
   return (option.desc || option.hint || '').replace('%s', held);
 }
 
-export default function OptionRow({ option, value, lang, query, onChange }) {
+export default function OptionRow({
+  option,
+  value,
+  lang,
+  query,
+  onChange,
+  pending,
+  refused,
+}) {
   const [open, setOpen] = useState(false);
 
   // The server already sent everything in the player's language.
@@ -293,6 +305,7 @@ export default function OptionRow({ option, value, lang, query, onChange }) {
         value={value}
         placeholder={option.placeholder}
         action={t('cfg.clear', lang)}
+        clearable={!!value}
         onChange={next => change(next, next || t('cfg.clear', lang))}
         onAction={() => change('', t('cfg.clear', lang))}
       />
@@ -318,10 +331,25 @@ export default function OptionRow({ option, value, lang, query, onChange }) {
             </button>
           ) : null}
         </div>
-        <div className="cfg-row-desc">{describe(option, value)}</div>
+        {/* What the server says the option is, or -- until the next thing
+            happens to it -- why the server would not have it. */}
+        {refused ? (
+          <div className="cfg-row-desc cfg-row-refused">
+            {typeof refused === 'string' ? refused : t('cfg.refused', lang)}
+          </div>
+        ) : (
+          <div className="cfg-row-desc">{describe(option, value)}</div>
+        )}
       </div>
 
-      <div className="cfg-row-control">{control}</div>
+      {/* A control with a change in flight takes no second click: the first one
+          has not been answered yet, and the server is the one who decides. */}
+      <div
+        className={pending ? 'cfg-row-control is-pending' : 'cfg-row-control'}
+        aria-busy={pending ? 'true' : undefined}
+      >
+        {control}
+      </div>
 
       {/* A line of its own under both: inside the text column the help would be
           squeezed by the width of the switch, and the switch would drift down

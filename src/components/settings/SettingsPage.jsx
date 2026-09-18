@@ -4,7 +4,16 @@ import OptionRow from './OptionRow.jsx';
 // One page of the dialog: a heading, a line saying what the page is about, and
 // the settings themselves. The heading is shared with the script page, which is
 // why it takes children.
-export default function SettingsPage({ page, values, lang, query, onChange, children }) {
+export default function SettingsPage({
+  page,
+  values,
+  lang,
+  query,
+  onChange,
+  pending,
+  refused,
+  children,
+}) {
   if (!page) return null;
 
   // Account and script pages bring their own content and want the full height,
@@ -32,6 +41,8 @@ export default function SettingsPage({ page, values, lang, query, onChange, chil
           lang={lang}
           query={query}
           onChange={onChange}
+          pending={!!(pending || {})[option.key]}
+          refused={(refused || {})[option.key]}
         />
       ))}
     </div>

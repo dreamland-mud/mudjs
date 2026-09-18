@@ -1999,6 +1999,7 @@ body.mud-fighting form#input {
   --cfg-accent: #55a3f2; /* {B */
   --cfg-key: #2cf4eb; /* {C -- option names, as in the command */
   --cfg-yes: #8ee34f; /* {G */
+  --cfg-warn: #e0725a; /* {R -- a refusal, as the game paints one */
 
   position: fixed;
   top: 0;
