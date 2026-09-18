@@ -254,13 +254,12 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  /* Big left pad so name/class clear the overhanging emblem; the frame art itself
-     fills the whole row via the background below. */
-  padding: 12px 20px 12px 44px;
+  /* Big left pad so name/class clear the overhanging emblem. The gold frame is the
+     only fill (no dark plate behind the row); it is inset from the left and anchored
+     right so its left tips land just past the diamond instead of under it. */
+  padding: 12px 40px 12px 44px;
   min-height: 72px;
-  background:
-    url('./classemblems/card-frame.svg') center / 100% 100% no-repeat,
-    linear-gradient(180deg, rgba(18, 15, 24, 0.62), rgba(6, 5, 10, 0.74));
+  background: url('./classemblems/card-frame.svg') right center / calc(100% - 72px) 100% no-repeat;
   border: 0;
   cursor: pointer;
   text-align: left;
@@ -302,8 +301,8 @@
 .acc-card-name { font-family: var(--display, serif); font-size: 18px; line-height: 1.1; color: var(--gold-bright, #e6cd86); }
 .acc-card-cls {
   font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
   color: var(--text-dim, #b7ad95);
 }
 .acc-card-title { font-size: 11px; color: var(--text-dim, #b7ad95); }
@@ -316,6 +315,10 @@
   font-family: var(--display, serif);
   font-size: 30px;
   line-height: 1;
+  /* lining figures so every digit is the same (cap) height, not Playfair's
+     default old-style numerals where 0/1/2 sit low and 6/8 rise. */
+  font-variant-numeric: lining-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
   color: var(--gold, #c6a24e);
 }
 
