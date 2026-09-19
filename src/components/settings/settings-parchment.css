@@ -52,9 +52,12 @@
 .cfg-echo {
   font-family: var(--ui, 'Alegreya Sans', sans-serif);
 }
-/* Real code keeps a monospace: the help example block and the script editor. */
+/* Real code keeps a monospace: the help example block and the script editor.
+   Uses --mono (Fira Code) -- the theme dropped the JetBrains webfont, and this
+   is the only place that referenced it, so a literal 'JetBrains Mono' here would
+   silently fall back to the OS monospace. */
 .cfg-help-example-text {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
 }
 
 /* --- 3. focus: arcane glow everywhere, like the login inputs --------------- */

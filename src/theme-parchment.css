@@ -457,7 +457,9 @@ td.v-bottom{vertical-align:bottom}
 #cs-modal .modal-body,#textedit-modal.webeditor .modal-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding:0;color:var(--text)}
 #cs-modal .form-group{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-bottom:0}
 #cs-modal .editor,#textedit-modal .editor{flex:1 1 auto;min-height:0;height:auto}
-#textedit-modal .editor{border-radius:0;overflow:hidden;font-family:'Fira Code',ui-monospace,monospace !important;background-color:black;color:white}
+/* the host div; Monaco inlines its own fontFamily (see textedit.js) so this is
+   the pre-mount / fallback face -- var(--article) keeps it on the one mono. */
+#textedit-modal .editor{border-radius:0;overflow:hidden;font-family:var(--article) !important;background-color:black;color:white}
 .editor{height:70vh;background-color:black;color:white}
 .modal-body .editor{font-size:18px}
 
@@ -1062,26 +1064,9 @@ body.mud-fighting form#input {
   color:var(--gold-dim);margin-bottom:4px;padding-bottom:2px;
   border-bottom:1px solid rgba(133,102,50,.3);
 }
-/* data-chip grammar (DS canon): accent dot + accent-tinted border. The affect NAME
-   keeps its state colour from the fg-ansi-bright-color-N class the JSX adds; the dot
-   is a second, non-colour cue (shape) for the ~30% low-vision players. --chip-accent
-   is set per state class below to the matching ANSI bright hue. */
-.aff-chip{
-  --chip-accent:var(--gold-bright);
-  display:inline-flex;align-items:center;gap:5px;margin:2px 3px 0 0;padding:1px 9px;
-  border-radius:200px;font-size:12px;line-height:1.55;
-  background:var(--stone-900);
-  border:1px solid color-mix(in srgb,var(--chip-accent) 50%,var(--gold-metal-lo));
-  box-shadow:0 1px 2px rgba(8,7,12,.25);
-  text-shadow:0 1px 1px rgba(0,0,0,.7);
-}
-.aff-chip::before{content:"";width:6px;height:6px;border-radius:50%;flex:none;
-  background:var(--chip-accent);box-shadow:0 0 5px color-mix(in srgb,var(--chip-accent) 60%,transparent)}
-/* map each duration/family state to its ANSI bright hue (matches the label colour) */
-.aff-chip.fg-ansi-bright-color-1{--chip-accent:#ed2330}  /* maladiction / debuff */
-.aff-chip.fg-ansi-bright-color-2{--chip-accent:#8ee34f}  /* buff */
-.aff-chip.fg-ansi-bright-color-3{--chip-accent:#fdea56}  /* about to expire */
-.aff-chip.fg-ansi-bright-color-6{--chip-accent:#2cf4eb}  /* permanent / set-bound */
+/* The flat affect chip (border, dot, accent, padding) is owned by affects.css --
+   scoped #player-affects-table.affects-flat .aff-chip so one file wins by
+   specificity. The data-chip accent border + dot live THERE, not here. */
 
 /* collapse toggle: small gilded square button */
 .table-wrapper .close{
