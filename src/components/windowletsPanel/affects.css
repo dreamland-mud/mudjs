@@ -23,8 +23,10 @@
 }
 
 #player-affects-table.affects-flat .aff-chip {
+  --chip-accent: var(--gold-bright, #e6cd86);
   display: inline-flex;
   align-items: center;
+  gap: 5px;                  /* room for the state dot */
   margin: 0;                 /* the container gap owns spacing now */
   padding: 0 6px;
   border-radius: 200px;      /* full pill */
@@ -33,10 +35,30 @@
   line-height: 1.4;
   white-space: nowrap;
   background: var(--ink-panel, #131019);
-  border: 0.5px solid var(--gold-metal-lo, #40300f);
+  /* DS data-chip border, tinted to the chip's state accent (color-mix onto the
+     bronze edge). --chip-accent is the ANSI bright hue of the chip's state, set
+     per class below -- so it MATCHES the label colour. Deliberately the ANSI
+     palette, NOT the SoT .ds-datachip gem tokens (--emerald/--ruby/...): here the
+     label is coloured by the fg-ansi class, and dot + border track that. Do not
+     "fix" it to the gem tokens. */
+  border: 1px solid color-mix(in srgb, var(--chip-accent) 50%, var(--gold-metal-lo, #40300f));
   box-shadow: 0 1px 2px rgba(8, 7, 12, 0.25);
   text-shadow: none;         /* the older gem chip glowed; this one is flat */
 }
+/* state dot -- a coloured status marker echoing the label's ANSI hue (a colour
+   cue reinforcing the text colour, not a shape/non-colour cue). */
+#player-affects-table.affects-flat .aff-chip::before {
+  content: "";
+  width: 6px; height: 6px; border-radius: 50%; flex: none;
+  background: var(--chip-accent);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--chip-accent) 60%, transparent);
+}
+/* each duration/family state -> its ANSI bright hue (== the label colour set by
+   the fg-ansi-bright-color-N class the JSX adds; see affColor() in affectsItem.jsx) */
+#player-affects-table.affects-flat .aff-chip.fg-ansi-bright-color-1 { --chip-accent: #ed2330; } /* maladiction / debuff */
+#player-affects-table.affects-flat .aff-chip.fg-ansi-bright-color-2 { --chip-accent: #8ee34f; } /* buff */
+#player-affects-table.affects-flat .aff-chip.fg-ansi-bright-color-3 { --chip-accent: #fdea56; } /* about to expire */
+#player-affects-table.affects-flat .aff-chip.fg-ansi-bright-color-6 { --chip-accent: #2cf4eb; } /* permanent / set-bound */
 
 /*
  * Your Stats widget -- the same flat chips, in the Online widget's font style (11px,

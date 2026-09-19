@@ -59,10 +59,13 @@ $(document).ready(function () {
       minimap: { enabled: false },
       scrollBeyondLastLine: false,
       fontSize: 16,
-      // Monospace (same font as the in-game terminal) so the column-80 ruler
-      // and wrap line up with real character columns and mirror what players
-      // see. The text is mostly Cyrillic, so also turn off Unicode highlight.
-      fontFamily: "'Roboto Mono', monospace",
+      // Monospace (same font as the in-game terminal -- Fira Code) so the
+      // column-80 ruler and wrap line up with real character columns and mirror
+      // what players see. Monaco writes this as an inline style on its own nodes,
+      // so the value here (not the theme CSS) is what actually renders; Monaco
+      // also defaults fontLigatures off, so column alignment stays exact. The
+      // text is mostly Cyrillic, so also turn off Unicode highlight.
+      fontFamily: "'Fira Code', monospace",
       unicodeHighlight: {
         ambiguousCharacters: false,
         invisibleCharacters: false,

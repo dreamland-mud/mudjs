@@ -23,7 +23,7 @@
  * stray one silently kills the whole sheet.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Alegreya+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Alegreya+Sans:wght@400;500;700&family=Fira+Code:wght@400;600&display=swap');
 
 :root{
   /* ground -- deep obsidian, mudjs-dark aligned */
@@ -75,13 +75,22 @@
 
   --display:'Playfair Display','Times New Roman',serif;
   --ui:'Alegreya Sans','Segoe UI',sans-serif;
-  --mono:'JetBrains Mono',ui-monospace,monospace;
+  /* one monospace, Fira Code, for everything: UI labels, code AND game text
+     (JetBrains retired -- DS canon #4). --mono = UI labels; --article = game-text
+     bodies (terminal/map/input), which turn ligatures OFF per surface. */
+  --mono:'Fira Code',ui-monospace,monospace;
+  --article:'Fira Code',ui-monospace,monospace;
 
   --radius:5px;
   --frame-inset:6px;
 
   /* fractal-noise grain for parchment + stone texture */
   --noise:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='160'%20height='160'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.8'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23n)'%20opacity='0.4'/%3E%3C/svg%3E");
+
+  /* windowlet-top chevron band -- the resolved seamless meander tile (DS canon,
+     Figma 1124:7090; tile at 30px). Rode as a currentColor mask: the element
+     paints the colour, the meander carves it. Replaces the old base64 export. */
+  --chev-band:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2030%2014'%20fill='none'%20preserveAspectRatio='none'%3E%3Cpath%20transform='translate(-30%200)'%20id='Vector%2031'%20d='M10.7959%208.5L11.9423%207.35355C12.1376%207.15829%2012.4542%207.15829%2012.6495%207.35355L17.4423%2012.1464C17.7573%2012.4614%2017.5342%2013%2017.0888%2013H12.2959H6.2959H1.50301C1.05755%2013%200.834471%2012.4614%201.14945%2012.1464L11.9423%201.35355C12.1376%201.15829%2012.4542%201.15829%2012.6495%201.35355L23.9423%2012.6464C24.1376%2012.8417%2024.4542%2012.8417%2024.6495%2012.6464L35.4423%201.85355C35.7573%201.53857%2035.5342%201%2035.0888%201H19.503C19.0576%201%2018.8345%201.53857%2019.1495%201.85355L23.9423%206.64645C24.1376%206.84171%2024.4542%206.84171%2024.6495%206.64645L25.7959%205.5'%20stroke='%2308070C'%20stroke-width='2'%20stroke-linecap='round'/%3E%3Cpath%20id='Vector%2031'%20d='M10.7959%208.5L11.9423%207.35355C12.1376%207.15829%2012.4542%207.15829%2012.6495%207.35355L17.4423%2012.1464C17.7573%2012.4614%2017.5342%2013%2017.0888%2013H12.2959H6.2959H1.50301C1.05755%2013%200.834471%2012.4614%201.14945%2012.1464L11.9423%201.35355C12.1376%201.15829%2012.4542%201.15829%2012.6495%201.35355L23.9423%2012.6464C24.1376%2012.8417%2024.4542%2012.8417%2024.6495%2012.6464L35.4423%201.85355C35.7573%201.53857%2035.5342%201%2035.0888%201H19.503C19.0576%201%2018.8345%201.53857%2019.1495%201.85355L23.9423%206.64645C24.1376%206.84171%2024.4542%206.84171%2024.6495%206.64645L25.7959%205.5'%20stroke='%2308070C'%20stroke-width='2'%20stroke-linecap='round'/%3E%3C/svg%3E");
 
   /* --rf-* aliases: the verbatim engine/structural blocks below reference these.
      Re-pointed to Parchment values so the copied rules stay in-theme by default. */
@@ -196,12 +205,19 @@ body{
 /* nav-tabs (cs/fenia editor) */
 .nav{display:flex;flex-wrap:wrap;padding-left:0;margin:0;list-style:none}
 .nav-tabs{border-bottom:1px solid var(--gold-deep)}
+/* segmented-control grammar (DS canon): ghost off, gold-gem active. Controls use
+   Alegreya at small sizes for legibility (not Playfair). No sliding indicator --
+   these are jQuery-driven, wrapping file tabs, so the active one just fills gold. */
 .nav-tabs .nav-link{
-  display:block;padding:.4rem .8rem;cursor:pointer;color:var(--text-dim);font-family:var(--display);
-  border:1px solid transparent;border-top-left-radius:5px;border-top-right-radius:5px;
+  display:flex;align-items:center;padding:.34rem .8rem;cursor:pointer;
+  font-family:var(--ui);font-weight:700;font-size:.92rem;color:var(--gold-dim);
+  background:transparent;border:1px solid transparent;
+  border-top-left-radius:5px;border-top-right-radius:5px;
+  transition:color .18s,background .18s,box-shadow .18s;
 }
-.nav-tabs .nav-link:hover{color:var(--gold-bright);border-color:var(--gold-deep)}
-.nav-tabs .nav-link.active{color:var(--gold-bright);background:var(--stone-900);border-color:var(--gold-deep) var(--gold-deep) transparent}
+.nav-tabs .nav-link:hover{color:var(--gold-bright);background:rgba(19,16,25,.5)}
+.nav-tabs .nav-link.active{color:#1c1206;text-shadow:0 1px 0 rgba(255,255,255,.3);
+  background:var(--gem-face);box-shadow:var(--gem-shadow);border-color:transparent}
 
 /* progress / vitals (bar colour is inline; give it an inset track + sheen) */
 .progress{
@@ -268,14 +284,14 @@ body.modal-open{overflow:hidden}
   padding:5px 10px 10px 10px;
 }
 .terminal{
-  font-family:'Roboto Mono',ui-monospace,monospace;font-size:1.3em;
+  font-family:var(--article);font-variant-ligatures:none;font-size:1.3em;
   color:var(--text);white-space:pre-wrap;position:relative;min-height:100%;
 }
 /* 80-column guide -- the MUD terminal width, tinted aged gold */
 .terminal::after{content:'';position:absolute;top:0;bottom:0;left:80ch;width:1px;background-color:rgba(133,102,50,.4);pointer-events:none}
 
 /* ===================== command input ===================== */
-#input input{width:100%;box-sizing:border-box;font-family:'Roboto Mono',ui-monospace,monospace;font-size:1.3em}
+#input input{width:100%;box-sizing:border-box;font-family:var(--article);font-variant-ligatures:none;font-size:1.3em}
 @media only screen and (min-width:768px){
   .terminal-wrap{
     border:1px solid var(--gold-deep);border-radius:var(--radius);
@@ -341,10 +357,11 @@ body.modal-open{overflow:hidden}
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;mask-composite:exclude;
 }
-.table-wrapper::after{ /* exact ornament vectors from the node, overlay + faint */
+.table-wrapper::after{ /* windowlet chevron top -- resolved --chev-band mask (DS canon) */
   content:"";position:absolute;left:0;right:0;top:0;height:14px;z-index:0;pointer-events:none;
-  background:url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjc5IiBoZWlnaHQ9IjE0IiB2aWV3Qm94PSIwIDAgMjc5IDE0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8ZyBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6b3ZlcmxheSIgb3BhY2l0eT0iMC4yIj4KPHBhdGggZD0iTS0zIDUuNUwtNC4xNDY0NSA2LjY0NjQ1Qy00LjM0MTcxIDYuODQxNzEgLTQuNjU4MjkgNi44NDE3MSAtNC44NTM1NSA2LjY0NjQ1TC05LjY0NjQ1IDEuODUzNTVDLTkuOTYxNDMgMS41Mzg1NyAtOS43MzgzNCAxIC05LjI5Mjg5IDFINi4yOTI4OUM2LjczODM1IDEgNi45NjE0MyAxLjUzODU3IDYuNjQ2NDUgMS44NTM1NUwtNC4xNDY0NSAxMi42NDY0Qy00LjM0MTcxIDEyLjg0MTcgLTQuNjU4MjkgMTIuODQxNyAtNC44NTM1NSAxMi42NDY0TC0xNS42NDY0IDEuODUzNTVDLTE1Ljk2MTQgMS41Mzg1NyAtMTYuNSAxLjc2MTY1IC0xNi41IDIuMjA3MTFWMTIuNUMtMTYuNSAxMi43NzYxIC0xNi4yNzYxIDEzIC0xNiAxM0gtMTAuNzA3MUMtMTAuMjYxNyAxMyAtMTAuMDM4NiAxMi40NjE0IC0xMC4zNTM2IDEyLjE0NjRMLTExLjUgMTEiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0xMiA4LjVMMTMuMTQ2NCA3LjM1MzU1QzEzLjM0MTcgNy4xNTgyOSAxMy42NTgzIDcuMTU4MjkgMTMuODUzNiA3LjM1MzU1TDE4LjY0NjQgMTIuMTQ2NEMxOC45NjE0IDEyLjQ2MTQgMTguNzM4MyAxMyAxOC4yOTI5IDEzSDEzLjVINy41SDIuNzA3MTFDMi4yNjE2NSAxMyAyLjAzODU3IDEyLjQ2MTQgMi4zNTM1NSAxMi4xNDY0TDEzLjE0NjQgMS4zNTM1NUMxMy4zNDE3IDEuMTU4MjkgMTMuNjU4MyAxLjE1ODI5IDEzLjg1MzYgMS4zNTM1NUwyNS4xNDY0IDEyLjY0NjRDMjUuMzQxNyAxMi44NDE3IDI1LjY1ODMgMTIuODQxNyAyNS44NTM2IDEyLjY0NjRMMzYuNjQ2NCAxLjg1MzU1QzM2Ljk2MTQgMS41Mzg1NyAzNi43MzgzIDEgMzYuMjkyOSAxSDIwLjcwNzFDMjAuMjYxNyAxIDIwLjAzODYgMS41Mzg1NyAyMC4zNTM2IDEuODUzNTVMMjUuMTQ2NCA2LjY0NjQ1QzI1LjM0MTcgNi44NDE3MSAyNS42NTgzIDYuODQxNzEgMjUuODUzNiA2LjY0NjQ1TDI3IDUuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTQyIDguNUw0My4xNDY0IDcuMzUzNTVDNDMuMzQxNyA3LjE1ODI5IDQzLjY1ODMgNy4xNTgyOSA0My44NTM2IDcuMzUzNTVMNDguNjQ2NCAxMi4xNDY0QzQ4Ljk2MTQgMTIuNDYxNCA0OC43MzgzIDEzIDQ4LjI5MjkgMTNINDMuNUgzNy41SDMyLjcwNzFDMzIuMjYxNyAxMyAzMi4wMzg2IDEyLjQ2MTQgMzIuMzUzNiAxMi4xNDY0TDQzLjE0NjQgMS4zNTM1NUM0My4zNDE3IDEuMTU4MjkgNDMuNjU4MyAxLjE1ODI5IDQzLjg1MzYgMS4zNTM1NUw1NS4xNDY0IDEyLjY0NjRDNTUuMzQxNyAxMi44NDE3IDU1LjY1ODMgMTIuODQxNyA1NS44NTM2IDEyLjY0NjRMNjYuNjQ2NCAxLjg1MzU1QzY2Ljk2MTQgMS41Mzg1NyA2Ni43MzgzIDEgNjYuMjkyOSAxSDUwLjcwNzFDNTAuMjYxNyAxIDUwLjAzODYgMS41Mzg1NyA1MC4zNTM2IDEuODUzNTVMNTUuMTQ2NCA2LjY0NjQ1QzU1LjM0MTcgNi44NDE3MSA1NS42NTgzIDYuODQxNzEgNTUuODUzNiA2LjY0NjQ1TDU3IDUuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTcyIDguNUw3My4xNDY0IDcuMzUzNTVDNzMuMzQxNyA3LjE1ODI5IDczLjY1ODMgNy4xNTgyOSA3My44NTM2IDcuMzUzNTVMNzguNjQ2NCAxMi4xNDY0Qzc4Ljk2MTQgMTIuNDYxNCA3OC43MzgzIDEzIDc4LjI5MjkgMTNINzMuNUg2Ny41SDYyLjcwNzFDNjIuMjYxNyAxMyA2Mi4wMzg2IDEyLjQ2MTQgNjIuMzUzNiAxMi4xNDY0TDczLjE0NjQgMS4zNTM1NUM3My4zNDE3IDEuMTU4MjkgNzMuNjU4MyAxLjE1ODI5IDczLjg1MzYgMS4zNTM1NUw4NS4xNDY0IDEyLjY0NjRDODUuMzQxNyAxMi44NDE3IDg1LjY1ODMgMTIuODQxNyA4NS44NTM2IDEyLjY0NjRMOTYuNjQ2NCAxLjg1MzU1Qzk2Ljk2MTQgMS41Mzg1NyA5Ni43MzgzIDEgOTYuMjkyOSAxSDgwLjcwNzFDODAuMjYxNyAxIDgwLjAzODYgMS41Mzg1NyA4MC4zNTM2IDEuODUzNTVMODUuMTQ2NCA2LjY0NjQ1Qzg1LjM0MTcgNi44NDE3MSA4NS42NTgzIDYuODQxNzEgODUuODUzNiA2LjY0NjQ1TDg3IDUuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTEwMiA4LjVMMTAzLjE0NiA3LjM1MzU1QzEwMy4zNDIgNy4xNTgyOSAxMDMuNjU4IDcuMTU4MjkgMTAzLjg1NCA3LjM1MzU1TDEwOC42NDYgMTIuMTQ2NEMxMDguOTYxIDEyLjQ2MTQgMTA4LjczOCAxMyAxMDguMjkzIDEzSDEwMy41SDk3LjVIOTIuNzA3MUM5Mi4yNjE3IDEzIDkyLjAzODYgMTIuNDYxNCA5Mi4zNTM2IDEyLjE0NjRMMTAzLjE0NiAxLjM1MzU1QzEwMy4zNDIgMS4xNTgyOSAxMDMuNjU4IDEuMTU4MjkgMTAzLjg1NCAxLjM1MzU1TDExNS4xNDYgMTIuNjQ2NEMxMTUuMzQyIDEyLjg0MTcgMTE1LjY1OCAxMi44NDE3IDExNS44NTQgMTIuNjQ2NEwxMjYuNjQ2IDEuODUzNTVDMTI2Ljk2MSAxLjUzODU3IDEyNi43MzggMSAxMjYuMjkzIDFIMTEwLjcwN0MxMTAuMjYyIDEgMTEwLjAzOSAxLjUzODU3IDExMC4zNTQgMS44NTM1NUwxMTUuMTQ2IDYuNjQ2NDVDMTE1LjM0MiA2Ljg0MTcxIDExNS42NTggNi44NDE3MSAxMTUuODU0IDYuNjQ2NDVMMTE3IDUuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTEzMiA4LjVMMTMzLjE0NiA3LjM1MzU1QzEzMy4zNDIgNy4xNTgyOSAxMzMuNjU4IDcuMTU4MjkgMTMzLjg1NCA3LjM1MzU1TDEzOC42NDYgMTIuMTQ2NEMxMzguOTYxIDEyLjQ2MTQgMTM4LjczOCAxMyAxMzguMjkzIDEzSDEzMy41SDEyNy41SDEyMi43MDdDMTIyLjI2MiAxMyAxMjIuMDM5IDEyLjQ2MTQgMTIyLjM1NCAxMi4xNDY0TDEzMy4xNDYgMS4zNTM1NUMxMzMuMzQyIDEuMTU4MjkgMTMzLjY1OCAxLjE1ODI5IDEzMy44NTQgMS4zNTM1NUwxNDUuMTQ2IDEyLjY0NjRDMTQ1LjM0MiAxMi44NDE3IDE0NS42NTggMTIuODQxNyAxNDUuODU0IDEyLjY0NjRMMTU2LjY0NiAxLjg1MzU1QzE1Ni45NjEgMS41Mzg1NyAxNTYuNzM4IDEgMTU2LjI5MyAxSDE0MC43MDdDMTQwLjI2MiAxIDE0MC4wMzkgMS41Mzg1NyAxNDAuMzU0IDEuODUzNTVMMTQ1LjE0NiA2LjY0NjQ1QzE0NS4zNDIgNi44NDE3MSAxNDUuNjU4IDYuODQxNzEgMTQ1Ljg1NCA2LjY0NjQ1TDE0NyA1LjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0xNjIgOC41TDE2My4xNDYgNy4zNTM1NUMxNjMuMzQyIDcuMTU4MjkgMTYzLjY1OCA3LjE1ODI5IDE2My44NTQgNy4zNTM1NUwxNjguNjQ2IDEyLjE0NjRDMTY4Ljk2MSAxMi40NjE0IDE2OC43MzggMTMgMTY4LjI5MyAxM0gxNjMuNUgxNTcuNUgxNTIuNzA3QzE1Mi4yNjIgMTMgMTUyLjAzOSAxMi40NjE0IDE1Mi4zNTQgMTIuMTQ2NEwxNjMuMTQ2IDEuMzUzNTVDMTYzLjM0MiAxLjE1ODI5IDE2My42NTggMS4xNTgyOSAxNjMuODU0IDEuMzUzNTVMMTc1LjE0NiAxMi42NDY0QzE3NS4zNDIgMTIuODQxNyAxNzUuNjU4IDEyLjg0MTcgMTc1Ljg1NCAxMi42NDY0TDE4Ni42NDYgMS44NTM1NUMxODYuOTYxIDEuNTM4NTcgMTg2LjczOCAxIDE4Ni4yOTMgMUgxNzAuNzA3QzE3MC4yNjIgMSAxNzAuMDM5IDEuNTM4NTcgMTcwLjM1NCAxLjg1MzU1TDE3NS4xNDYgNi42NDY0NUMxNzUuMzQyIDYuODQxNzEgMTc1LjY1OCA2Ljg0MTcxIDE3NS44NTQgNi42NDY0NUwxNzcgNS41IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMTkyIDguNUwxOTMuMTQ2IDcuMzUzNTVDMTkzLjM0MiA3LjE1ODI5IDE5My42NTggNy4xNTgyOSAxOTMuODU0IDcuMzUzNTVMMTk4LjY0NiAxMi4xNDY0QzE5OC45NjEgMTIuNDYxNCAxOTguNzM4IDEzIDE5OC4yOTMgMTNIMTkzLjVIMTg3LjVIMTgyLjcwN0MxODIuMjYyIDEzIDE4Mi4wMzkgMTIuNDYxNCAxODIuMzU0IDEyLjE0NjRMMTkzLjE0NiAxLjM1MzU1QzE5My4zNDIgMS4xNTgyOSAxOTMuNjU4IDEuMTU4MjkgMTkzLjg1NCAxLjM1MzU1TDIwNS4xNDYgMTIuNjQ2NEMyMDUuMzQyIDEyLjg0MTcgMjA1LjY1OCAxMi44NDE3IDIwNS44NTQgMTIuNjQ2NEwyMTYuNjQ2IDEuODUzNTVDMjE2Ljk2MSAxLjUzODU3IDIxNi43MzggMSAyMTYuMjkzIDFIMjAwLjcwN0MyMDAuMjYyIDEgMjAwLjAzOSAxLjUzODU3IDIwMC4zNTQgMS44NTM1NUwyMDUuMTQ2IDYuNjQ2NDVDMjA1LjM0MiA2Ljg0MTcxIDIwNS42NTggNi44NDE3MSAyMDUuODU0IDYuNjQ2NDVMMjA3IDUuNSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHBhdGggZD0iTTIyMiA4LjVMMjIzLjE0NiA3LjM1MzU1QzIyMy4zNDIgNy4xNTgyOSAyMjMuNjU4IDcuMTU4MjkgMjIzLjg1NCA3LjM1MzU1TDIyOC42NDYgMTIuMTQ2NEMyMjguOTYxIDEyLjQ2MTQgMjI4LjczOCAxMyAyMjguMjkzIDEzSDIyMy41SDIxNy41SDIxMi43MDdDMjEyLjI2MiAxMyAyMTIuMDM5IDEyLjQ2MTQgMjEyLjM1NCAxMi4xNDY0TDIyMy4xNDYgMS4zNTM1NUMyMjMuMzQyIDEuMTU4MjkgMjIzLjY1OCAxLjE1ODI5IDIyMy44NTQgMS4zNTM1NUwyMzUuMTQ2IDEyLjY0NjRDMjM1LjM0MiAxMi44NDE3IDIzNS42NTggMTIuODQxNyAyMzUuODU0IDEyLjY0NjRMMjQ2LjY0NiAxLjg1MzU1QzI0Ni45NjEgMS41Mzg1NyAyNDYuNzM4IDEgMjQ2LjI5MyAxSDIzMC43MDdDMjMwLjI2MiAxIDIzMC4wMzkgMS41Mzg1NyAyMzAuMzU0IDEuODUzNTVMMjM1LjE0NiA2LjY0NjQ1QzIzNS4zNDIgNi44NDE3MSAyMzUuNjU4IDYuODQxNzEgMjM1Ljg1NCA2LjY0NjQ1TDIzNyA1LjUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjxwYXRoIGQ9Ik0yNTIgOC41TDI1My4xNDYgNy4zNTM1NUMyNTMuMzQyIDcuMTU4MjkgMjUzLjY1OCA3LjE1ODI5IDI1My44NTQgNy4zNTM1NUwyNTguNjQ2IDEyLjE0NjRDMjU4Ljk2MSAxMi40NjE0IDI1OC43MzggMTMgMjU4LjI5MyAxM0gyNTMuNUgyNDcuNUgyNDIuNzA3QzI0Mi4yNjIgMTMgMjQyLjAzOSAxMi40NjE0IDI0Mi4zNTQgMTIuMTQ2NEwyNTMuMTQ2IDEuMzUzNTVDMjUzLjM0MiAxLjE1ODI5IDI1My42NTggMS4xNTgyOSAyNTMuODU0IDEuMzUzNTVMMjY1LjE0NiAxMi42NDY0QzI2NS4zNDIgMTIuODQxNyAyNjUuNjU4IDEyLjg0MTcgMjY1Ljg1NCAxMi42NDY0TDI3Ni42NDYgMS44NTM1NUMyNzYuOTYxIDEuNTM4NTcgMjc2LjczOCAxIDI3Ni4yOTMgMUgyNjAuNzA3QzI2MC4yNjIgMSAyNjAuMDM5IDEuNTM4NTcgMjYwLjM1NCAxLjg1MzU1TDI2NS4xNDYgNi42NDY0NUMyNjUuMzQyIDYuODQxNzEgMjY1LjY1OCA2Ljg0MTcxIDI2NS44NTQgNi42NDY0NUwyNjcgNS41IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cGF0aCBkPSJNMjgyIDguNUwyODMuMTQ2IDcuMzUzNTVDMjgzLjM0MiA3LjE1ODI5IDI4My42NTggNy4xNTgyOSAyODMuODU0IDcuMzUzNTVMMjg4LjY0NiAxMi4xNDY0QzI4OC45NjEgMTIuNDYxNCAyODguNzM4IDEzIDI4OC4yOTMgMTNIMjcyLjcwN0MyNzIuMjYyIDEzIDI3Mi4wMzkgMTIuNDYxNCAyNzIuMzU0IDEyLjE0NjRMMjgzLjE0NiAxLjM1MzU1QzI4My4zNDIgMS4xNTgyOSAyODMuNjU4IDEuMTU4MjkgMjgzLjg1NCAxLjM1MzU1TDI5NC42NDYgMTIuMTQ2NEMyOTQuOTYxIDEyLjQ2MTQgMjk1LjUgMTIuMjM4MyAyOTUuNSAxMS43OTI5VjEuNUMyOTUuNSAxLjIyMzg2IDI5NS4yNzYgMSAyOTUgMUgyODkuNzA3QzI4OS4yNjIgMSAyODkuMDM5IDEuNTM4NTcgMjg5LjM1NCAxLjg1MzU1TDI5MC41IDMiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CjwvZz4KPC9zdmc+Cg==") repeat-x left top;
-  mix-blend-mode:overlay;opacity:.28;
+  background:#e6cd86;
+  -webkit-mask:var(--chev-band) repeat-x left top/30px 14px;mask:var(--chev-band) repeat-x left top/30px 14px;
+  mix-blend-mode:overlay;opacity:.4;
 }
 .table-wrapper > *{position:relative;z-index:1}
 .table-wrapper .close{position:absolute;top:5px;right:5px}
@@ -418,7 +435,7 @@ td.v-bottom{vertical-align:bottom}
 
 /* ===================== map ===================== */
 #map-wrap{overflow-y:scroll;-webkit-overflow-scrolling:touch;background-color:#0c0b11;padding-top:3em;position:absolute;height:100%;width:100%}
-#map{font-family:'Roboto Mono',ui-monospace,monospace;font-size:1em;background-color:#0c0b11;color:var(--text);white-space:pre-wrap;padding:1em}
+#map{font-family:var(--article);font-variant-ligatures:none;font-size:1em;background-color:#0c0b11;color:var(--text);white-space:pre-wrap;padding:1em}
 #map > pre{overflow-y:unset;overflow-x:unset;margin-bottom:0}
 
 /* ===================== code-editor modals (settings/cs/textedit) ===================== */
@@ -440,7 +457,9 @@ td.v-bottom{vertical-align:bottom}
 #cs-modal .modal-body,#textedit-modal.webeditor .modal-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding:0;color:var(--text)}
 #cs-modal .form-group{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-bottom:0}
 #cs-modal .editor,#textedit-modal .editor{flex:1 1 auto;min-height:0;height:auto}
-#textedit-modal .editor{border-radius:0;overflow:hidden;font-family:'Roboto Mono',monospace !important;background-color:black;color:white}
+/* the host div; Monaco inlines its own fontFamily (see textedit.js) so this is
+   the pre-mount / fallback face -- var(--article) keeps it on the one mono. */
+#textedit-modal .editor{border-radius:0;overflow:hidden;font-family:var(--article) !important;background-color:black;color:white}
 .editor{height:70vh;background-color:black;color:white}
 .modal-body .editor{font-size:18px}
 
@@ -1045,12 +1064,9 @@ body.mud-fighting form#input {
   color:var(--gold-dim);margin-bottom:4px;padding-bottom:2px;
   border-bottom:1px solid rgba(133,102,50,.3);
 }
-.aff-chip{
-  display:inline-block;margin:2px 3px 0 0;padding:1px 8px;border-radius:11px;font-size:12px;line-height:1.55;
-  background:linear-gradient(180deg,rgba(43,35,56,.9),rgba(21,20,29,.9));border:1px solid var(--gold-deep);
-  box-shadow:inset 0 1px 0 rgba(230,205,134,.08),0 1px 2px rgba(0,0,0,.4);
-  text-shadow:0 1px 1px rgba(0,0,0,.7);
-}
+/* The flat affect chip (border, dot, accent, padding) is owned by affects.css --
+   scoped #player-affects-table.affects-flat .aff-chip so one file wins by
+   specificity. The data-chip accent border + dot live THERE, not here. */
 
 /* collapse toggle: small gilded square button */
 .table-wrapper .close{
