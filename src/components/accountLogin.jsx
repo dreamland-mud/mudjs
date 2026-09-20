@@ -7,6 +7,7 @@ import { at, LANGS } from '../accountStrings';
 import { getLang, setLang } from '../i18n';
 import { classIconFor } from '../classIcons';
 import PropertiesStorage from '../properties';
+import LoginDragon from './LoginDragon';
 import '../account-login.css';
 
 // The front-door account panel for /newui. Two obsidian slabs meet at a gold seam;
@@ -128,6 +129,7 @@ export default function AccountLogin() {
   }
 
   const nameRef = useRef(null);
+  const dragonRef = useRef(null);       // the login dragon; .shake() on a wrong password
   const timers = useRef([]);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
@@ -235,6 +237,7 @@ export default function AccountLogin() {
       clearTimers();
       setBusy('');
       setBerror(at('enterfail', lang));
+      if (dragonRef.current) dragonRef.current.shake();   // entry refused -> the dragon says no
     };
     $('#rpc-events').on('rpc-account_enter_failed', onEnterFailed);
     return () => $('#rpc-events').off('rpc-account_enter_failed', onEnterFailed);
@@ -441,6 +444,7 @@ export default function AccountLogin() {
       if (phaseRef.current === 'login') {
         setBusy('');
         setError(at('fail', lang));
+        if (dragonRef.current) dragonRef.current.shake();   // wrong password -> the dragon says no
       }
     }, LOGIN_TIMEOUT_MS);
   };
@@ -676,6 +680,8 @@ export default function AccountLogin() {
           See .acc-portal in account-login.css. */}
       <div className="acc-portal" aria-hidden="true" />
 
+      <div className="acc-stack">
+      <LoginDragon ref={dragonRef} />
       <div className="acc-controls">
         <div className="acc-inner-frame" aria-hidden="true" />
         <div className="acc-seam" aria-hidden="true" />
@@ -935,6 +941,7 @@ export default function AccountLogin() {
           </>
         )}
         </div>
+      </div>
       </div>
     </div>
   );
