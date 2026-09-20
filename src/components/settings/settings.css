@@ -578,7 +578,7 @@
   height: 31px;
   padding: 2px;
   border: none;
-  border-radius: 999px;
+  border-radius: 7px;   /* small-rounded, not a pill (DS switch reads as a small button) */
   background: #2a2f38;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   display: flex;
@@ -594,9 +594,10 @@
 }
 
 .cfg-switch-knob {
+  position: relative;
   width: 27px;
   height: 27px;
-  border-radius: 999px;
+  border-radius: 5px;   /* small-rounded to match the track */
   background: #c9ced6;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
