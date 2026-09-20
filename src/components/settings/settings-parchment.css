@@ -261,3 +261,46 @@ body.cfg-resizing .cfg-grip::after {
   background: var(--arcane, #bb86fc);
   box-shadow: 0 0 12px var(--arcane-glow, rgba(187, 134, 252, 0.5));
 }
+
+/* --- 11. warm the last hardcoded cyborg-slate values -----------------------
+   Base settings.css bakes these as literal cool hex (bypassing the --cfg-*
+   tokens the section-1 re-point warms), so they leak grey-blue under Parchment.
+   All -> warm gold / stone. ------------------------------------------------- */
+/* scrollbars: a gold-tinted thumb, not cool grey (#2c333d / #3b434f) */
+.cfg-pane, .cfg-tree-list, .cfg-body-mobile, .cfg-help-example-text {
+  scrollbar-color: rgba(198, 162, 78, 0.45) transparent;
+}
+.cfg-pane::-webkit-scrollbar-thumb,
+.cfg-tree-list::-webkit-scrollbar-thumb,
+.cfg-body-mobile::-webkit-scrollbar-thumb,
+.cfg-help-example-text::-webkit-scrollbar-thumb { background: rgba(198, 162, 78, 0.45); }
+.cfg-pane::-webkit-scrollbar-thumb:hover,
+.cfg-tree-list::-webkit-scrollbar-thumb:hover,
+.cfg-body-mobile::-webkit-scrollbar-thumb:hover,
+.cfg-help-example-text::-webkit-scrollbar-thumb:hover { background: rgba(198, 162, 78, 0.65); }
+/* interactive hovers -> a warm gold wash (was #1a1f26 / #1f242c / #252b34 / #1d222a).
+   .cfg-button-main is excluded -- it owns the arcane gem hover (section 6). */
+.cfg-close:hover,
+.cfg-search-clear:hover,
+.cfg-branch-head:hover,
+.cfg-leaf:hover,
+.cfg-button:not(.cfg-button-main):hover,
+.cfg-list-item:hover { background: rgba(198, 162, 78, 0.10); }
+/* active toggle at rest -> a stronger gold wash (was cool slate #2f3946) */
+.cfg-button-on { background: rgba(198, 162, 78, 0.16); }
+/* the mobile back chip -> a warm gold-deep ghost, not cool slate */
+.cfg-back {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--gold-deep, #6f5a26);
+  color: var(--gold, #c6a24e);
+}
+.cfg-back:hover { border-color: var(--gold, #c6a24e); color: var(--gold-bright, #e6cd86); }
+/* cool dividers -> warm */
+.cfg-branch-body { border-left-color: var(--gold-deep, #6f5a26); }
+.cfg-list-item { border-top-color: rgba(198, 162, 78, 0.18); }
+/* cool-grey meta text -> warm faint */
+.cfg-foot-note,
+.cfg-list-item-meta { color: var(--text-faint, #8a8168); }
+/* near-black wells -> warm obsidian (was cool #0d1015 / #181c23) */
+.cfg-script-editor { background: var(--cfg-sunk, #0b0a10); }
+.cfg-list-card { background: var(--cfg-chrome, #100e18); }
