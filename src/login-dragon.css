@@ -1,0 +1,91 @@
+/*
+ * Login dragon: the ghost-drake that rises behind the account card.
+ * The real card (.acc-controls) centres itself absolutely in the overlay; here it is
+ * wrapped in .acc-stack (which takes over the centring) as a flex column with the dragon
+ * above it. The dragon overlaps the card's top edge and sits a layer below it (z:1 vs the
+ * card's z:3), so the card's frame cuts across the dragon and it reads as rising from behind.
+ * See LoginDragon.jsx for the scene. Poster covers load + prefers-reduced-motion.
+ */
+.acc-stack {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(440px, 90%);
+}
+/* the card goes static + full width inside the stack (was absolute-centred on its own) */
+.acc-stack > .acc-controls {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin: 0;
+  width: 100%;
+  z-index: 3;
+}
+
+.login-dragon {
+  position: relative;
+  z-index: 1;                 /* below the card (3), above the portal (2) */
+  width: 100%;
+  height: 300px;
+  margin-bottom: -52px;       /* tuck the feet behind the card's top edge */
+  pointer-events: none;
+}
+.login-dragon .ld-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: auto;
+  cursor: crosshair;
+}
+.login-dragon .ld-scene canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+.login-dragon .ld-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.login-dragon .ld-glow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 110px;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(58% 100% at 50% 100%, rgba(57, 214, 255, 0.22), rgba(57, 214, 255, 0) 72%);
+}
+
+/* the reveal (successful login) fades + lifts the whole stack; cancel the card's own
+   absolute-centring opening transform so it doesn't jump while stacked */
+.acc-overlay.is-opening .acc-stack {
+  opacity: 0;
+  transform: translate(-50%, -54%) scale(0.985);
+  transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+}
+.acc-overlay.is-opening .acc-stack > .acc-controls {
+  transform: none;
+}
+
+/* keep the form on screen on short / small viewports: shrink the crest, never the card */
+@media (max-height: 780px) {
+  .login-dragon { height: 220px; margin-bottom: -42px; }
+}
+@media (max-width: 600px) {
+  .login-dragon { height: 240px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .login-dragon .ld-scene { display: none; }
+}
