@@ -97,7 +97,11 @@
   box-shadow: inset 0 0 0 1px var(--gold-deep, #6f5a26),
     0 0 14px rgba(187, 134, 252, 0.14);
 }
-.cfg-leaf { border-radius: 6px; }
+/* resting tree text: warm (base bakes cool #c6cdd6 / #a4acb8). These sit BEFORE
+   .cfg-leaf-on so the active page keeps its gold-bright, and :hover (higher
+   specificity) still wins -- leaf stays a shade quieter than the branch. */
+.cfg-branch-head { color: var(--text, #e8e2d2); }
+.cfg-leaf { border-radius: 6px; color: var(--text-dim, #b7ad95); }
 .cfg-leaf-on {
   color: var(--gold-bright, #e6cd86);
   background: rgba(198, 162, 78, 0.10);
@@ -261,3 +265,60 @@ body.cfg-resizing .cfg-grip::after {
   background: var(--arcane, #bb86fc);
   box-shadow: 0 0 12px var(--arcane-glow, rgba(187, 134, 252, 0.5));
 }
+
+/* --- 11. warm the last hardcoded cyborg-slate values -----------------------
+   Base settings.css bakes these as literal cool hex (bypassing the --cfg-*
+   tokens the section-1 re-point warms), so they leak grey-blue under Parchment.
+   All -> warm gold / stone. ------------------------------------------------- */
+/* scrollbars: a gold-tinted thumb, not cool grey (#2c333d / #3b434f) */
+.cfg-pane, .cfg-tree-list, .cfg-body-mobile, .cfg-mobile-page, .cfg-mobile-list, .cfg-help-example-text {
+  scrollbar-color: rgba(198, 162, 78, 0.45) transparent;
+}
+.cfg-pane::-webkit-scrollbar-thumb,
+.cfg-tree-list::-webkit-scrollbar-thumb,
+.cfg-body-mobile::-webkit-scrollbar-thumb,
+.cfg-mobile-page::-webkit-scrollbar-thumb,
+.cfg-mobile-list::-webkit-scrollbar-thumb,
+.cfg-help-example-text::-webkit-scrollbar-thumb { background: rgba(198, 162, 78, 0.45); }
+.cfg-pane::-webkit-scrollbar-thumb:hover,
+.cfg-tree-list::-webkit-scrollbar-thumb:hover,
+.cfg-body-mobile::-webkit-scrollbar-thumb:hover,
+.cfg-mobile-page::-webkit-scrollbar-thumb:hover,
+.cfg-mobile-list::-webkit-scrollbar-thumb:hover,
+.cfg-help-example-text::-webkit-scrollbar-thumb:hover { background: rgba(198, 162, 78, 0.65); }
+/* interactive hovers -> a warm gold wash (was #1a1f26 / #1f242c / #252b34 / #1d222a).
+   .cfg-button-main is excluded -- it owns the arcane gem hover (section 6). */
+.cfg-close:hover,
+.cfg-search-clear:hover,
+.cfg-branch-head:hover,
+.cfg-leaf:hover,
+.cfg-button:not(.cfg-button-main):hover,
+.cfg-list-item:hover { background: rgba(198, 162, 78, 0.10); }
+/* active toggle at rest -> a stronger gold wash (was cool slate #2f3946) */
+.cfg-button-on { background: rgba(198, 162, 78, 0.16); }
+/* the mobile back chip -> a warm gold-deep ghost, not cool slate (DS radius 5px) */
+.cfg-back {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--gold-deep, #6f5a26);
+  border-radius: 5px;
+  color: var(--gold, #c6a24e);
+}
+.cfg-back:hover {
+  border-color: var(--gold, #c6a24e);
+  color: var(--gold-bright, #e6cd86);
+  box-shadow: 0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.3));
+}
+/* cool dividers -> warm */
+.cfg-branch-body { border-left-color: var(--gold-deep, #6f5a26); }
+.cfg-list-item { border-top-color: var(--cfg-line-soft, rgba(198, 162, 78, 0.18)); }
+/* cool-grey meta text -> warm dim (NOT --text-faint: its live value #6f6857 is
+   only ~3.45:1 on the chrome bg at 11.5px; --cfg-dim = --text-dim is ~6.86:1). */
+.cfg-foot-note,
+.cfg-list-item-meta { color: var(--cfg-dim, #a49a84); }
+/* cool input borders section 4 misses (base bakes #2a303a; the number field's
+   base rule is (0,2,1), so match it and come later). */
+.cfg-text input,
+.cfg-number input[type='number'] { border-color: var(--gold-deep, #6f5a26); }
+/* near-black wells -> warm obsidian (was cool #0d1015 / #181c23) */
+.cfg-script-editor { background: var(--cfg-sunk, #0b0a10); }
+.cfg-list-card { background: var(--cfg-chrome, #100e18); }
