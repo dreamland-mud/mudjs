@@ -603,15 +603,16 @@ td.v-bottom{vertical-align:bottom}
   border: 0;
   cursor: pointer;
 }
+/* DS menu grammar: hovering a command item is a power/about-to-fire state -> arcane */
 .dropdown-item:hover,
 .dropdown-item:focus {
-  color: #1c1206;
+  color: #f3ecff;
   text-decoration: none;
-  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  background: var(--gem-face-hover);
 }
 .dropdown-item:active {
-  color: #1c1206;
-  background: var(--gold);
+  color: #fff;
+  background: radial-gradient(140% 140% at 50% 0%, #6c3aa8, var(--arcane-deep) 60%, #24123f);
 }
 .dropdown-divider {
   height: 0;

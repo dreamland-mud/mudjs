@@ -60,11 +60,12 @@
   font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
 }
 
-/* --- 3. focus: arcane glow everywhere, like the login inputs --------------- */
+/* --- 3. focus: the gold ring (DS canon for small inputs -- gold = the focus/choose
+   accent; the arcane orbit is reserved for the DS-page inputs, not small live ones) - */
 .cfg-dialog :focus-visible {
   outline: none;
-  border-color: var(--arcane, #bb86fc);
-  box-shadow: 0 0 0 3px var(--arcane-glow, rgba(187, 134, 252, 0.35));
+  border-color: var(--gold, #c6a24e);
+  box-shadow: 0 0 0 2px rgba(198, 162, 78, 0.3);
 }
 
 /* --- 4. inputs (search + number) -> account-login .acc-input --------------- */
@@ -80,8 +81,8 @@
 }
 .cfg-search:focus,
 .cfg-number input:focus {
-  border-color: var(--arcane, #bb86fc);
-  box-shadow: 0 0 0 3px var(--arcane-glow, rgba(187, 134, 252, 0.35));
+  border-color: var(--gold, #c6a24e);
+  box-shadow: 0 0 0 2px rgba(198, 162, 78, 0.3);
 }
 .cfg-search-clear { color: var(--gold, #c6a24e); }
 .cfg-search-clear:hover { color: var(--gold-bright, #e6cd86); }
@@ -119,30 +120,50 @@
   box-shadow: 0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.3));
 }
 .cfg-button:active { transform: translateY(1px); }
+/* primary = the matte gem finish (DS canon #1: gem is antique/matte, arcane hover) */
 .cfg-button-main {
-  border-color: var(--gold, #c6a24e);
-  background: linear-gradient(180deg, var(--gold-bright, #e6cd86), var(--gold, #c6a24e));
-  color: #1a140a;
+  border: 0;
+  color: #1c1206;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: radial-gradient(140% 140% at 50% 0%, var(--gold-metal-hi, #b8973f), var(--gold-metal, #7e6127) 55%, var(--gold-metal-lo, #40300f));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--gold-deep, #55411d);
   font-weight: 700;
 }
-.cfg-button-main:hover { filter: brightness(1.08); }
+.cfg-button-main:hover {
+  color: #f3ecff;
+  filter: none;
+  background: radial-gradient(140% 140% at 50% 0%, #6c3aa8, var(--arcane-deep, #4c2a7a) 60%, #24123f);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.28), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px #2a1650, 0 0 18px var(--arcane-glow, rgba(187, 134, 252, 0.45));
+}
 .cfg-button-on {
   border-color: var(--gold, #c6a24e);
   color: var(--gold-bright, #e6cd86);
 }
 
-/* --- 7. switch + segments: gold "on", not cyborg grey/blue ----------------- */
+/* --- 7. switch + segments (DS selection language): a switch is a power/ON state,
+   so OFF = muted dark-gold (reads inactive), ON = ARCANE -- never gold. Gold is for
+   choosing-one-among-peers (the segments below); arcane is the on/power state. --- */
 .cfg-switch {
-  background: rgba(0, 0, 0, 0.4);
-  box-shadow: inset 0 0 0 1px var(--gold-deep, #6f5a26);
+  background: linear-gradient(180deg, #463714, #241b0b);
+  box-shadow: inset 0 0 0 1px var(--gold-deep, #6f5a26), inset 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 .cfg-switch-on {
-  background: linear-gradient(180deg, var(--gold-bright, #e6cd86), var(--gold, #c6a24e));
-  box-shadow: inset 0 0 0 1px var(--gold, #c6a24e),
-    0 0 12px var(--arcane-glow, rgba(187, 134, 252, 0.3));
+  background: radial-gradient(140% 140% at 50% 0%, #6c3aa8, var(--arcane-deep, #4c2a7a) 70%, #24123f);
+  box-shadow: inset 0 0 0 1px var(--arcane-deep, #4c2a7a),
+    0 0 12px var(--arcane-glow, rgba(187, 134, 252, 0.35));
 }
-.cfg-switch-knob { background: var(--parchment, #e4d6b2); }
-.cfg-switch-on .cfg-switch-knob { background: #fff8e6; }
+/* knob: matte gold-metal OFF, light-arcane ON, with an engraved vertical grip */
+.cfg-switch-knob {
+  background: radial-gradient(140% 140% at 50% 0%, var(--gold-metal-hi, #b8973f), var(--gold-metal-lo, #40300f));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.cfg-switch-on .cfg-switch-knob { background: linear-gradient(180deg, #efe1ff, #c79dff); }
+.cfg-switch-knob::after {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 8px; height: 11px;
+  transform: translate(-50%, -50%); opacity: 0.85;
+  background: repeating-linear-gradient(to right, var(--grip, rgba(28, 17, 4, 0.55)) 0 1px, transparent 1px 3px);
+}
+.cfg-switch-on .cfg-switch-knob::after { --grip: rgba(58, 32, 96, 0.5); }
 
 .cfg-segments {
   background: rgba(0, 0, 0, 0.35);
@@ -151,11 +172,13 @@
 }
 .cfg-segment { color: var(--text-dim, #b7ad95); border-radius: 4px; }
 .cfg-segment:hover { color: var(--gold-bright, #e6cd86); }
+/* active segment = the gold gem fill (DS: choosing one among peers = primary gold) */
 .cfg-segment-on {
-  background: rgba(198, 162, 78, 0.16);
-  color: var(--gold-bright, #e6cd86);
-  font-weight: 600;
-  box-shadow: inset 0 0 0 1px var(--gold-deep, #6f5a26);
+  color: #1c1206;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  font-weight: 700;
+  background: radial-gradient(140% 140% at 50% 0%, var(--gold-metal-hi, #b8973f), var(--gold-metal, #7e6127) 55%, var(--gold-metal-lo, #40300f));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--gold-deep, #55411d);
 }
 
 /* --- 8. rows, marks, help -------------------------------------------------- */
