@@ -8,8 +8,9 @@ import { getLang } from './i18n';
 const STRINGS = {
   en: {
     new_hero_lead: 'New to Dreamland?',
-    new_hero_body: 'Type the name of your future game character in the terminal window to get started. Yep, this is a typing game, get used to it.',
+    new_hero_body: 'Hit Create character below and name your future hero. Yep, this is a typing game, get used to it.',
     create_char: 'Create character',
+    existing_login: 'Existing character or account',
     cr_title: 'Create your hero',
     cr_pass2: 'Repeat password',
     cr_pw_hint: 'At least 5 characters.',
@@ -66,8 +67,9 @@ const STRINGS = {
   },
   ru: {
     new_hero_lead: 'Впервые в Dreamland?',
-    new_hero_body: 'Напечатай имя своего будущего персонажа в окне терминала, и вперёд. Да, это игра про печатание. Привыкай.',
+    new_hero_body: 'Жми «Создать персонажа» ниже и придумай имя будущему герою. Да, это игра про печатание. Привыкай.',
     create_char: 'Создать персонажа',
+    existing_login: 'Уже есть персонаж или аккаунт',
     cr_title: 'Создай своего героя',
     cr_pass2: 'Повтори пароль',
     cr_pw_hint: 'Не короче пяти символов.',
@@ -124,8 +126,9 @@ const STRINGS = {
   },
   ua: {
     new_hero_lead: 'Вперше у Dreamland?',
-    new_hero_body: 'Надрукуй імʼя свого майбутнього персонажа у вікні термінала, і погнали. Так, це гра про друкування. Звикай.',
+    new_hero_body: 'Тисни «Створити персонажа» нижче і вигадай імʼя майбутньому герою. Так, це гра про друкування. Звикай.',
     create_char: 'Створити персонажа',
+    existing_login: 'Вже є персонаж або акаунт',
     cr_title: 'Створи свого героя',
     cr_pass2: 'Повтори пароль',
     cr_pw_hint: 'Не коротший за пʼять символів.',

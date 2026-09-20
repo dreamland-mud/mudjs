@@ -25,15 +25,15 @@ const DRIVE_TIMEOUT_MS = 4000;   // no nanny_step after submit -> server is not 
 // web character-creation form, one level in from the idle door like a subflow.
 const STEP_DEPTH = { idle: 0, email: 1, telegram: 1, roster: 1, code: 2, create: 1 };
 
-// Web character creation (nanny V2 web front). Off by default; it flips on together
-// with the server's .tmp.nanny.v2 at go-live. Testable ahead of that with ?nannyv2=1
-// or the localStorage key mudjs.nannyv2, so the dark form can be exercised end to end
-// while it ships dark. Off -> the Create button drops to the raw terminal as before.
+// Web character creation (nanny V2 web front). Live since the 2026-09-17 go-live
+// (dreamland_fenia/newbie/nanny this.v2 = true), so it defaults ON: the Create button
+// opens the web form. A stray ?nannyv2=0 or the localStorage key mudjs.nannyv2='0'
+// forces the old drop-to-terminal path for debugging.
 const NANNY_V2 = (() => {
   try {
-    if (/[?&]nannyv2=1(&|$)/.test(window.location.search)) return true;
-    return window.localStorage.getItem('mudjs.nannyv2') === '1';
-  } catch (e) { return false; }
+    if (/[?&]nannyv2=0(&|$)/.test(window.location.search)) return false;
+    return window.localStorage.getItem('mudjs.nannyv2') !== '0';
+  } catch (e) { return true; }
 })();
 
 // A basic login name: letters only (either alphabet -- never mixed, the server
@@ -113,6 +113,11 @@ export default function AccountLogin() {
   const [screenreader, setScreenreader] = useState(false);
   const [nameStatus, setNameStatus] = useState('');    // '' | checking | ok | taken | reserved | online | bad
   const [crError, setCrError] = useState('');          // create-form error line
+  // The idle front door has two faces so the card stays short under the dragon: a
+  // short welcome (create + a button into the login controls), or the existing-login
+  // controls (path A + the account methods). It persists across the path-B subflows,
+  // so a Back out of email/telegram returns here, not to the welcome face.
+  const [idleView, setIdleView] = useState('welcome'); // welcome | existing
 
   // The panel is laid over the widgets + map (the mosaic's non-terminal region), so its
   // left edge meets the terminal split -- same maths as App.getResponsiveLayout. Clamped
@@ -129,6 +134,7 @@ export default function AccountLogin() {
   }
 
   const nameRef = useRef(null);
+  const createBtnRef = useRef(null);    // welcome-face Create button; focus target when no input is on screen
   const dragonRef = useRef(null);       // the login dragon; .shake() on a wrong password
   const timers = useRef([]);
   const phaseRef = useRef(phase);
@@ -201,15 +207,19 @@ export default function AccountLogin() {
     }
   }, [prompt]);
 
-  // Focus the name field once the idle form is actually on screen -- after the session
-  // check clears, not while "Checking…" covers it. On the roster there is no name input,
-  // so the guard no-ops.
+  // Move focus to the right control whenever the visible face changes, so activating a
+  // button never drops focus to <body> (WCAG 2.4.3; ~30% of players use a screen reader).
+  // The name field when one is mounted (existing login or the create form), else the
+  // welcome-face Create button. bstep + idleView are in the deps so this re-runs on every
+  // face switch, not just the initial session-check clear. No mounted target -> no-op.
   useEffect(() => {
-    if (phase === 'login' && !checking) {
-      const id = setTimeout(() => nameRef.current && nameRef.current.focus(), 40);
-      return () => clearTimeout(id);
-    }
-  }, [phase, checking]);
+    if (phase !== 'login' || checking) return;
+    const id = setTimeout(() => {
+      if (nameRef.current) nameRef.current.focus();
+      else if (createBtnRef.current) createBtnRef.current.focus();
+    }, 40);
+    return () => clearTimeout(id);
+  }, [phase, checking, bstep, idleView]);
 
   useEffect(() => () => {
     clearTimers();
@@ -342,6 +352,7 @@ export default function AccountLogin() {
       const err = u.searchParams.get('acct_error');
       if (err) {
         setBstep('idle');
+        setIdleView('existing');   // the error line lives on the existing face; show it there
         if (err === 'discord_nolink') setBerror(at('d_nolink', lang));
         else if (err === 'discord_off') setBerror(at('soon', lang));
         else setBerror(at('berror', lang));
@@ -396,11 +407,11 @@ export default function AccountLogin() {
       if (d.ok) {
         refreshSession();
       } else if (d.error === 'discord_nolink') {
-        setBstep('idle'); setBerror(at('d_nolink', lang));
+        setBstep('idle'); setIdleView('existing'); setBerror(at('d_nolink', lang));
       } else if (d.error === 'discord_off') {
-        setBstep('idle'); setBerror(at('soon', lang));
+        setBstep('idle'); setIdleView('existing'); setBerror(at('soon', lang));
       } else {
-        setBstep('idle'); setBerror(at('berror', lang));
+        setBstep('idle'); setIdleView('existing'); setBerror(at('berror', lang));
       }
     };
     const onFocus = () => { if (discordRef.current) refreshSession(); };
@@ -618,9 +629,12 @@ export default function AccountLogin() {
       }, LOGIN_TIMEOUT_MS);
     } else if (status === 401) {
       // Session expired between the roster and the click -- send back to the start.
+      // Land on the existing face so the expired-session line is visible (a player
+      // who arrived on the roster via the /session probe never toggled idleView).
       setBusy('');
       setBerror(at('expired', lang));
       setBstep('idle');
+      setIdleView('existing');
     } else if (status === 400) {
       setBusy('');
       setBerror(at('notowned', lang));
@@ -657,7 +671,10 @@ export default function AccountLogin() {
   // The centered status line covers either a transient action (busy) or the mount/return
   // session check (checking). Either one hides the step behind it and shares the 'busy' key.
   const statusLine = busy || (checking ? at('loading', lang) : '');
-  const stageKey = statusLine ? 'busy' : bstep;
+  // Fold idleView into the key so the welcome<->existing toggle remounts the stage and
+  // replays the enter animation, like every other step change (both faces are depth 0,
+  // so it cross-fades rather than sliding).
+  const stageKey = statusLine ? 'busy' : (bstep === 'idle' ? 'idle-' + idleView : bstep);
   const curDepth = STEP_DEPTH[bstep] != null ? STEP_DEPTH[bstep] : 0;
   let stageDir = 'fade';
   if (!statusLine) {
@@ -764,26 +781,33 @@ export default function AccountLogin() {
           </form>
         ) : (
           <>
-            {/* New-player explainer + create button, and the whole two-path chooser,
-                only on the idle front door. Once you step into an account subflow
-                (email/code/telegram) or the roster, everything but that one flow is
-                hidden and a Back link returns here -- one thing on screen at a time. */}
-            {bstep === 'idle' && (
+            {/* The idle front door, welcome face: a short new-player explainer, the
+                Create button, and one button through to the existing-login controls.
+                Kept short so the card stays compact under the dragon. */}
+            {bstep === 'idle' && idleView === 'welcome' && (
               <>
                 <p className="acc-newhero-hint">
                   <strong>{at('new_hero_lead', lang)}</strong> {at('new_hero_body', lang)}
                 </p>
-                <button type="button" className="btn btn-primary acc-create acc-create-btn" onClick={startCreate}>
+                <button type="button" ref={createBtnRef} className="btn btn-primary acc-create" onClick={startCreate}>
                   {at('create_char', lang)}
+                </button>
+                <button type="button" className="btn btn-secondary acc-existing"
+                  onClick={() => { setBerror(''); setError(''); setIdleView('existing'); }}>
+                  {at('existing_login', lang)}
                 </button>
               </>
             )}
+            {/* The login controls (path A + the account methods), and every path-B
+                subflow. Shown on the idle 'existing' face, and always for a subflow /
+                the roster (which arrive by their own bstep, welcome face or not). */}
+            {(bstep !== 'idle' || idleView === 'existing') && (
             <div className="acc-cols">
-            {/* path A -- character login; only on the idle front door, hidden inside
-                any account subflow (email/code/telegram) and the roster */}
+            {/* path A -- character login; only on the idle door, hidden inside any
+                account subflow (email/code/telegram) and the roster. Its fields carry
+                their own labels, so no section head. */}
             {bstep === 'idle' && (
             <div className="acc-col">
-              <div className="acc-col-head">{at('pathA', lang)}</div>
               <form onSubmit={submitChar}>
                 <div className="acc-field-row">
                   <div className="acc-field">
@@ -816,12 +840,9 @@ export default function AccountLogin() {
             </div>
             )}
 
-            {/* path B -- master login via the account broker (email real; bots soon) */}
+            {/* path B -- master login via the account broker (email real; bots soon).
+                No section head: the buttons name themselves. */}
             <div className="acc-col">
-              {/* the "Log in with your account" head labels the three method buttons;
-                  inside a subflow each step carries its own head, so drop this one */}
-              {bstep === 'idle' && <div className="acc-col-head">{at('pathB', lang)}</div>}
-
               {bstep === 'idle' && (
                 <div className="acc-methods">
                   <button className="btn btn-secondary acc-method"
@@ -937,7 +958,16 @@ export default function AccountLogin() {
 
               <div className="acc-error" role="alert">{berror}</div>
             </div>
+
+            {/* Back to the welcome face -- only on the idle existing door */}
+            {bstep === 'idle' && (
+              <button type="button" className="acc-newhero"
+                onClick={() => { setBerror(''); setError(''); setIdleView('welcome'); }}>
+                {at('back', lang)}
+              </button>
+            )}
             </div>
+            )}
           </>
         )}
         </div>

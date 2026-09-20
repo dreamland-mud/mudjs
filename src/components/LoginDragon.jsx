@@ -21,6 +21,7 @@ const PERCH = 0.61, ZOOM = 0.70;         // framing
 const HALO = 0.20;                       // outer cyan glow (canvas drop-shadow + bottom pool)
 const ORB = new THREE.Vector3(0.29, 1.02, 0.52); // orb centre (object space)
 const ORB_R = 0.15;
+const ORB_PULSE_S = 2.6;                 // orb glow period -- matches the login input focus orbit
 const WINGS = ['Bone_028', 'Bone_029', 'Bone_030', 'Bone_031']; // the upper-back pair + tips
 const HEAD_BONE = 'Bone_032';
 const ORB_BLUE = 'vec3(0.36,0.52,1.0)';  // orb glow colour in the shader (blends toward cyan)
@@ -73,6 +74,7 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
       const root = new THREE.Group(); scene.add(root);
       const meshMats = [];
       let head = null;
+      let orbLight = null, orbSprite = null, orbBase = 0;   // set once the orb is built; pulsed in animate()
       const rest = new WeakMap();
       const flapBones = {};
 
@@ -159,7 +161,7 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
           }
 
           // real light + white->brand-purple gradient core at the orb hand
-          const orbLight = new THREE.PointLight(0x6a86ff, ORB_EMIT, 2.6, 2.0);
+          orbLight = new THREE.PointLight(0x6a86ff, ORB_EMIT, 2.6, 2.0);
           orbLight.position.copy(ORB); model.add(orbLight);
           const cv = document.createElement('canvas'); cv.width = cv.height = 128;
           const g = cv.getContext('2d'); const rg = g.createRadialGradient(64, 64, 0, 64, 64, 64);
@@ -167,8 +169,8 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
           rg.addColorStop(0.60, 'rgba(187,134,252,0.5)'); rg.addColorStop(1, 'rgba(187,134,252,0)');
           g.fillStyle = rg; g.fillRect(0, 0, 128, 128);
           const spTex = new THREE.CanvasTexture(cv); spTex.colorSpace = THREE.SRGBColorSpace;
-          const orbSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: spTex, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
-          orbSprite.position.copy(ORB); const ss = ORB_R * 2.6; orbSprite.scale.set(ss, ss, ss);
+          orbSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: spTex, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+          orbSprite.position.copy(ORB); orbBase = ORB_R * 2.6; orbSprite.scale.set(orbBase, orbBase, orbBase);
           model.add(orbSprite);
 
           setTex('albedo.png', true, (m, tx) => { m.map = tx; m.emissiveMap = tx; });
@@ -220,12 +222,17 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
           const fb = flapBones[n];
           if (WINGS.indexOf(n) >= 0) flapBone(fb, wingAng * fb.side);
         }
+        // orb glow pulses on the same 2.6s cadence as a focused login input
+        // (pc-focus-orbit), so the crest and the form breathe together
+        const orbPulse = 0.5 + 0.5 * Math.sin(t * (Math.PI * 2 / ORB_PULSE_S)); // 0..1
+        const orbEmit = ORB_EMIT * (0.75 + 0.5 * orbPulse);                     // ~0.75..1.25 x
         const breathe = FEAT * (1 + Math.sin(t * 1.4) * 0.12);
-        const orbEmit = ORB_EMIT * (0.9 + Math.sin(t * 1.4) * 0.1);
         for (const m of meshMats) {
           m.emissiveIntensity = breathe;
           if (m.userData.shader) m.userData.shader.uniforms.uOrbEmit.value = orbEmit;
         }
+        if (orbLight) orbLight.intensity = orbEmit;
+        if (orbSprite) { const s = orbBase * (0.9 + 0.2 * orbPulse); orbSprite.scale.set(s, s, s); }
       }
       function tick() {
         raf = requestAnimationFrame(tick);
