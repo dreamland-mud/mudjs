@@ -31,6 +31,10 @@
   --rf-gold:#a9760f;
   --rf-radius:6px;
   --rf-ctrl-h:40px;  /* shared height for every input/button on the top + bottom bars */
+  /* one monospace, Fira Code, for everything (fetched globally in index.html).
+     --mono = UI labels; --article = game text (terminal/input/map, ligatures OFF). */
+  --mono:'Fira Code',ui-monospace,monospace;
+  --article:'Fira Code',ui-monospace,monospace;
   /* faint grain, dark panels only -- desaturated so it reads as monochrome grain, not colour static */
   --rf-noise:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='120'%20height='120'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23n)'/%3E%3C/svg%3E");
   --rf-corner:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%20fill='none'%20stroke='%238a7fb0'%20stroke-width='1.4'%3E%3Cpath%20d='M3%2022%20L3%209%20Q3%203%209%203%20L22%203'/%3E%3Cpath%20d='M8%2013%20Q8%208%2013%208'%20stroke-width='1'/%3E%3Ccircle%20cx='7'%20cy='7'%20r='1.5'%20fill='%238a7fb0'%20stroke='none'/%3E%3C/svg%3E");
@@ -43,7 +47,7 @@ body{
   color:var(--rf-text);
   background:
     radial-gradient(135% 95% at 50% -12%, #17151f 0%, var(--rf-bg) 55%, #08070b 100%) fixed;
-  font-family:'Roboto Mono',ui-monospace,monospace;
+  font-family:var(--mono);
 }
 .main-content{overflow:hidden;position:relative}
 #root,#page{min-height:100%;height:100%;width:100%;overflow:hidden}
@@ -167,14 +171,14 @@ body.modal-open{overflow:hidden}
   padding:5px 10px 10px 10px;
 }
 .terminal{
-  font-family:'Roboto Mono',ui-monospace,monospace;font-size:1.3em;
+  font-family:var(--article);font-variant-ligatures:none;font-size:1.3em;
   color:var(--rf-text);white-space:pre-wrap;position:relative;min-height:100%;
 }
 /* 80-column guide -- the MUD terminal width */
 .terminal::after{content:'';position:absolute;top:0;bottom:0;left:80ch;width:1px;background-color:#2a2830;pointer-events:none}
 
 /* ===================== command input ===================== */
-#input input{width:100%;box-sizing:border-box;font-family:'Roboto Mono',ui-monospace,monospace;font-size:1.3em}
+#input input{width:100%;box-sizing:border-box;font-family:var(--article);font-variant-ligatures:none;font-size:1.3em}
 @media only screen and (min-width:768px){
   .terminal-wrap{border:1px solid #141319}
   #overlay{top:3px}
@@ -272,7 +276,7 @@ td.v-bottom{vertical-align:bottom}
 
 /* ===================== map ===================== */
 #map-wrap{overflow-y:scroll;-webkit-overflow-scrolling:touch;background-color:#100f14;padding-top:3em;position:absolute;height:100%;width:100%}
-#map{font-family:'Roboto Mono',ui-monospace,monospace;font-size:1em;background-color:#100f14;color:var(--rf-text);white-space:pre-wrap;padding:1em}
+#map{font-family:var(--article);font-variant-ligatures:none;font-size:1em;background-color:#100f14;color:var(--rf-text);white-space:pre-wrap;padding:1em}
 #map > pre{overflow-y:unset;overflow-x:unset;margin-bottom:0}
 
 /* ===================== code-editor modals (settings/cs/textedit) ===================== */
@@ -286,7 +290,8 @@ td.v-bottom{vertical-align:bottom}
 #cs-modal .modal-body,#textedit-modal.webeditor .modal-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;padding:0}
 #cs-modal .form-group{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;margin-bottom:0}
 #cs-modal .editor,#textedit-modal .editor{flex:1 1 auto;min-height:0;height:auto}
-#textedit-modal .editor{border-radius:0;overflow:hidden;font-family:'Roboto Mono',monospace !important;background-color:black;color:white}
+/* host div; Monaco inlines its own fontFamily (textedit.js) -- this is the pre-mount/fallback face */
+#textedit-modal .editor{border-radius:0;overflow:hidden;font-family:var(--article) !important;background-color:black;color:white}
 .editor{height:70vh;background-color:black;color:white}
 .modal-body .editor{font-size:18px}
 

@@ -24,7 +24,7 @@ const theme = createTheme({
     divider: 'rgba(255,255,255,0.08)',
   },
   shape: { borderRadius: 6 },
-  typography: { fontFamily: "'Roboto Mono', ui-monospace, monospace" },
+  typography: { fontFamily: "'Fira Code', ui-monospace, monospace" },
   components: {
     MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
     MuiTableCell: { styleOverrides: { root: { borderColor: 'rgba(255,255,255,0.06)' } } },

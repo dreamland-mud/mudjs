@@ -5,7 +5,7 @@
    nested under `.dl-mapper-root` so the generic class names (.btn, .panel, .toast,
    .section, .search ...) cannot leak into — or be clobbered by — mudjs/bootstrap
    globals. The palette/type already mirror the mudjs terminal (#121212 / #bb86fc /
-   Roboto Mono), so it sits inside the map mosaic tile without a seam.
+   Fira Code), so it sits inside the map mosaic tile without a seam.
    ============================================================================ */
 
 .dl-mapper-root {
@@ -33,7 +33,7 @@
   --cyan:          #2cf4eb;
   --cyan-dark:     #06989a;
   /* Type */
-  --font-mono:  'Roboto Mono', ui-monospace, Menlo, Consolas, monospace;
+  --font-mono:  'Fira Code', ui-monospace, Menlo, Consolas, monospace;
   --font-serif: 'Georgia', 'Times New Roman', 'Source Serif Pro', serif;
 
   position: relative;
@@ -65,7 +65,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   /* Match the .dark-panel-title widget headers: purple, 600, app sans font at 14px. */
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--ui, 'Alegreya Sans', 'Helvetica Neue', Arial, sans-serif);
   font-weight: 600;
   font-size: 14px;
   color: #bb86fc;
@@ -310,7 +310,7 @@
 /* Room name matches the .dark-panel-title widget headers (purple, 600, sans). */
 .dl-mapper-root .panel-title {
   margin: 0;
-  font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--ui, 'Alegreya Sans', 'Helvetica Neue', Arial, sans-serif);
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
