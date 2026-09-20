@@ -312,7 +312,14 @@
 }
 .acc-input:focus {
   border-color: var(--arcane, #bb86fc);
+  /* Static ring as the base focus indicator so a skin without the keyframe (Runeforge
+     has no pc-focus-orbit) still shows focus. Parchment layers the arcane orbit glow on
+     top (theme-parchment pc-focus-orbit), so the field pulses like every other input. */
   box-shadow: 0 0 0 3px var(--arcane-glow, rgba(187, 134, 252, 0.35));
+  animation: pc-focus-orbit 2.6s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .acc-input:focus { animation: none; }   /* the static ring above remains the indicator */
 }
 
 /* Buttons reuse the app's .btn set (theme-parchment.css) so the login matches
@@ -325,8 +332,11 @@
 .acc-cta { margin-top: 4px; }
 /* the three login methods sit in one equal-width row */
 .acc-methods { display: flex; gap: 10px; }
-.acc-methods .btn { width: auto; }
-.acc-method { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 8px; font-family: var(--ui, 'Alegreya Sans', sans-serif); }
+/* .acc-methods .btn beats plain .btn (0,0,2,0 vs 0,0,1,0) so the Alegreya label always
+   wins over the theme's Playfair -- Safari was letting .btn's --display through on an
+   equal-specificity tie decided by CSS load order. */
+.acc-methods .btn { width: auto; font-family: var(--ui, 'Alegreya Sans', sans-serif); }
+.acc-method { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 8px; }
 .acc-method .acc-ico { flex: none; }
 .acc-brand { width: 16px; height: 16px; vertical-align: middle; }
 
@@ -440,8 +450,10 @@
 }
 .acc-newhero-hint strong { color: var(--gold-bright, #e6cd86); font-weight: 700; }
 
-/* create-character button: mobile-only (desktop has the live terminal on the left) */
-.acc-create { width: 100%; margin-bottom: 22px; }
+/* welcome-face buttons: Create (opens the web creation form) over Existing (reveals
+   the login controls). Full width on every size now the web form is the create path. */
+.acc-create { width: 100%; margin-bottom: 10px; }
+.acc-existing { width: 100%; margin-bottom: 4px; }
 
 /* the small link-button (path B "back"). It sits in a flex column, so left to
    itself it stretches full width and its dotted underline turns into a rule
@@ -474,14 +486,6 @@
 @media (max-width: 640px) {
   .acc-cols { gap: 12px; }
   .acc-col + .acc-col { padding-top: 0; }
-}
-
-/* Desktop: don't wall off the terminal. The login covers only the centre + right,
-   leaving the terminal live on the left so a new player can create a hero straight in
-   it while existing players log in on the panel. Mobile keeps the full login-first
-   overlay (no room to split). */
-@media (min-width: 600px) {
-  .acc-create-btn { display: none; }
 }
 
 /* Accessibility: respect reduced-motion -- no curtain, no portal pulse, no
