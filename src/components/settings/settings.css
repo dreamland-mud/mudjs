@@ -18,7 +18,7 @@
   min-height: 0;
   background: var(--cfg-bg);
   color: var(--cfg-text);
-  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   font-size: 13px;
   overflow: hidden;
 }
@@ -279,7 +279,7 @@
 .cfg-branch-count {
   font-size: 11px;
   color: var(--cfg-dimmer);
-  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   flex: none;
 }
 
@@ -341,7 +341,7 @@
 .cfg-leaf-count {
   font-size: 11px;
   color: var(--cfg-dimmer);
-  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
 }
 
 /* The account tab is pinned flat at the foot of the tree rather than folded
@@ -468,7 +468,7 @@
 }
 
 .cfg-row-key {
-  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   font-size: 13px;
   color: var(--cfg-key);
 }
@@ -560,7 +560,7 @@
 }
 
 .cfg-help-example-text {
-  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   font-size: 12.5px;
   line-height: 1.55;
   background: #08090c;
@@ -659,7 +659,7 @@
 .cfg-number input[type='number'] {
   width: 66px;
   padding: 7px 8px;
-  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   font-size: 13px;
   color: var(--cfg-bright);
   background: var(--cfg-sunk);
@@ -680,7 +680,7 @@
   min-width: 120px;
   max-width: 180px;
   padding: 8px 10px;
-  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   font-size: 12.5px;
   color: var(--cfg-bright);
   background: var(--cfg-sunk);
@@ -809,7 +809,7 @@
 .cfg-echo {
   font-size: 11.5px;
   color: var(--cfg-dim);
-  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -914,7 +914,7 @@
 .cfg-list-item-meta {
   font-size: 11.5px;
   color: #7b838f;
-  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -964,7 +964,7 @@
   min-width: 120px;
   max-width: 180px;
   padding: 7px 8px;
-  font-family: 'Roboto Mono', ui-monospace, monospace;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   font-size: 12.5px;
   color: var(--cfg-bright);
   background: var(--cfg-sunk);
