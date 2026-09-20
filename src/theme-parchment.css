@@ -603,7 +603,8 @@ td.v-bottom{vertical-align:bottom}
   border: 0;
   cursor: pointer;
 }
-/* DS menu grammar: hovering a command item is a power/about-to-fire state -> arcane */
+/* the manip dropdown is a command list, so hovering an item is an about-to-fire state
+   -> arcane, like .btn:hover (not the quiet stone wash of a .ds-menu navigation item) */
 .dropdown-item:hover,
 .dropdown-item:focus {
   color: #f3ecff;
@@ -660,7 +661,6 @@ td.v-bottom{vertical-align:bottom}
 .manip-speedwalk:hover span {
   color: #fdea56;
 }
-
 
 /*
  * User command is echoed back with a small anchor before it.

@@ -60,12 +60,15 @@
   font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
 }
 
-/* --- 3. focus: the gold ring (DS canon for small inputs -- gold = the focus/choose
-   accent; the arcane orbit is reserved for the DS-page inputs, not small live ones) - */
+/* --- 3. focus: the gold ring. The client's small live inputs skip the arcane orbit
+   (same as .form-control / #help), so settings uses the static gold ring. Controls get
+   the stronger gold-bright ring (below); text inputs keep the softer gold ring. ------- */
 .cfg-dialog :focus-visible {
   outline: none;
   border-color: var(--gold, #c6a24e);
-  box-shadow: 0 0 0 2px rgba(198, 162, 78, 0.3);
+  /* the DS button focus ring (gold-bright at 55%, ~4.3:1) so buttons/switch/segments
+     clear the 3:1 focus-indicator target; text inputs keep the softer gold ring below. */
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold-bright, #e6cd86) 55%, transparent);
 }
 
 /* --- 4. inputs (search + number) -> account-login .acc-input --------------- */
@@ -179,6 +182,13 @@
   font-weight: 700;
   background: radial-gradient(140% 140% at 50% 0%, var(--gold-metal-hi, #b8973f), var(--gold-metal, #7e6127) 55%, var(--gold-metal-lo, #40300f));
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--gold-deep, #55411d);
+}
+/* keep the dark label when hovering the SELECTED segment (.cfg-segment:hover would
+   otherwise flip it to pale gold ON the gold gem -- unreadable); add the pill-tab
+   hover glow so the hover still reads. Must sit after .cfg-segment:hover to win. */
+.cfg-segment-on:hover {
+  color: #1c1206;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--gold-deep, #55411d), 0 0 12px var(--arcane-glow, rgba(187, 134, 252, 0.35));
 }
 
 /* --- 8. rows, marks, help -------------------------------------------------- */
