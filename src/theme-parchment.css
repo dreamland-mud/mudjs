@@ -403,7 +403,7 @@ td.v-bottom{vertical-align:bottom}
 
 .btn-ctrl{float:right;font-size:1.5em;color:var(--gold-dim);border:1px solid var(--gold-deep);margin:1px;background:rgba(19,16,25,.6)}
 .top-right-buttons .btn-ctrl{margin:0 .2em}
-.btn-ctrl:hover{background:var(--gold);border-color:var(--gold);color:#1c1206}
+.btn-ctrl:hover{background:var(--gem-face-hover);border-color:var(--arcane-deep);color:#fff}
 #nav .btn-ctrl{
   color:#1c1206;border:0;font-size:15px;
   background:var(--gem-face);
@@ -426,7 +426,7 @@ td.v-bottom{vertical-align:bottom}
 /* autocomplete plugin */
 .autocomplete-suggestions{border:1px solid var(--gold-deep);background:var(--stone-900);overflow:auto;cursor:pointer;color:var(--text);border-radius:5px;box-shadow:0 8px 24px rgba(0,0,0,.6)}
 .autocomplete-suggestion{padding:2px 6px;overflow:auto}
-.autocomplete-selected{background:var(--gold);color:#1c1206}
+.autocomplete-selected{background:var(--gem-face-hover);color:#fff}
 .autocomplete-suggestions strong{font-weight:600;color:var(--gold-bright)}
 .autocomplete-group{padding:2px 6px}
 .autocomplete-group strong{display:block;border-bottom:1px solid #000}
@@ -661,19 +661,6 @@ td.v-bottom{vertical-align:bottom}
   color: #fdea56;
 }
 
-.btn-orange:hover,
-.btn-orange {
-  border-color: #ff9900;
-  letter-spacing: 0.05em;
-}
-
-.btn-orange:hover {
-  background-color: #ff9900;
-}
-
-.btn-orange {
-  color: #ff9900;
-}
 
 /*
  * User command is echoed back with a small anchor before it.

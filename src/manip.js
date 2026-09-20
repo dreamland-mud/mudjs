@@ -102,7 +102,7 @@ function manipParseAndReplace(span) {
     .html()
     .replace(/\[map=([-0-9a-z_]{1,15})\.are\]/g, function (match, p1, string) {
       return (
-        '<a class="btn btn-sm btn-outline-info btn-orange" ' +
+        '<a class="btn btn-sm btn-primary" ' +
         'href="https://dreamland.rocks/maps.html#' +
         p1 +
         '" target=_blank>' +
