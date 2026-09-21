@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { t } from '../../i18n.js';
+// The same faceted jewel the vital bars use (stats.jsx). Its base facets are
+// currentColor, so the slider's --accent recolours the knob to match the fill.
+import gemSvg from '../gem.svg?raw';
 
 // One setting: its name, what the game says about its current state, and the
 // control that changes it. The question mark opens the longer explanation and,
@@ -68,45 +71,115 @@ function Segments({ options, value, onChange }) {
 // A slider reports every pixel it passes through. Sending each one would fire a
 // command a millisecond apart -- a flood at the server for one drag -- so the
 // number here moves freely and only the value the player settles on is sent.
-function NumberBox({ value, min, max, step, onChange }) {
+//
+// The track reads as a mana bar: a glass tube, a coloured fill up to the value,
+// and the vital-bar gem riding the fill edge as the knob. A plain field on the
+// right takes a typed value; the stepper it replaces is gone. Drag and keyboard
+// come from a role="slider" on the track, not a native range, because a native
+// thumb cannot carry the faceted gem.
+function GemSlider({ value, min, max, step, onChange }) {
   const [draft, setDraft] = useState(value);
   const [known, setKnown] = useState(value);
+  const track = useRef(null);
 
+  // Whatever the server settles this at, the control follows -- unless a drag or
+  // a typed digit is mid-flight and has not been committed yet.
   if (value !== known) {
     setKnown(value);
     setDraft(value);
   }
 
-  const commit = () => {
-    // A field hands back a string, the server sends a number: dragged away and
-    // back again, '60' and 60 would look like a change worth a command.
-    if (Number(draft) !== Number(value)) onChange(draft);
+  const span = max > min ? max - min : 1;
+  const clamp = n => Math.max(min, Math.min(max, n));
+  // Snap to the option's step, measured from min, so a step of 5 lands on 5s.
+  const snap = n => {
+    const s = step || 1;
+    return clamp(Math.round((n - min) / s) * s + min);
+  };
+
+  // A field hands back a string, the server sends a number: dragged away and
+  // back to the same place, '60' and 60 would still read as a change worth a
+  // command.
+  const commit = next => {
+    if (Number(next) !== Number(value)) onChange(next);
+  };
+
+  const now = clamp(Number(draft));
+  const pct = ((now - min) / span) * 100;
+
+  const valueAt = clientX => {
+    const box = track.current.getBoundingClientRect();
+    const ratio = box.width ? (clientX - box.left) / box.width : 0;
+    return snap(min + ratio * span);
+  };
+
+  const onPointerDown = e => {
+    // Focus the track so the arrow keys work right after a click; no
+    // preventDefault, which would have swallowed that focus. touch-action:none
+    // (stylesheet) is what keeps a drag from scrolling the page instead.
+    track.current.focus({ preventScroll: true });
+    track.current.setPointerCapture(e.pointerId);
+    setDraft(valueAt(e.clientX));
+  };
+  const onPointerMove = e => {
+    // Only while the button is down and this track owns the pointer: a bare
+    // hover must not drag the value along with the cursor.
+    if (e.buttons === 0 || !track.current.hasPointerCapture(e.pointerId)) return;
+    setDraft(valueAt(e.clientX));
+  };
+  const onPointerUp = e => {
+    if (track.current.hasPointerCapture(e.pointerId))
+      track.current.releasePointerCapture(e.pointerId);
+    commit(valueAt(e.clientX));
+  };
+
+  const onKeyDown = e => {
+    const s = step || 1;
+    let next = null;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = snap(now - s);
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = snap(now + s);
+    else if (e.key === 'Home') next = min;
+    else if (e.key === 'End') next = max;
+    if (next === null) return;
+    e.preventDefault();
+    setDraft(next);
+    commit(next);
   };
 
   return (
-    <div className="cfg-number">
+    <div className="cfg-slider-row">
+      <div
+        ref={track}
+        className="cfg-slider"
+        role="slider"
+        tabIndex={0}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={now}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onKeyDown={onKeyDown}
+      >
+        <div className="cfg-slider-fill" style={{ width: pct + '%' }} />
+        <span
+          className="cfg-slider-gem"
+          style={{ left: pct + '%' }}
+          aria-hidden="true"
+          dangerouslySetInnerHTML={{ __html: gemSvg }}
+        />
+      </div>
       <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={draft}
-        onChange={e => setDraft(e.target.value)}
-        onMouseUp={commit}
-        onTouchEnd={commit}
-        onKeyUp={commit}
-        onBlur={commit}
-      />
-      <input
+        className="cfg-slider-input"
         type="number"
         min={min}
         max={max}
         step={step}
         value={draft}
         onChange={e => setDraft(e.target.value)}
-        onBlur={commit}
+        onBlur={() => commit(draft)}
         onKeyDown={e => {
-          if (e.key === 'Enter') commit();
+          if (e.key === 'Enter') commit(draft);
         }}
       />
     </div>
@@ -271,7 +344,7 @@ export default function OptionRow({
         >
           {t('cfg.off', lang)}
         </button>
-        <NumberBox
+        <GemSlider
           value={Number.isFinite(number) ? number : off}
           min={option.min != null ? option.min : 0}
           max={option.max != null ? option.max : 100}
@@ -343,9 +416,15 @@ export default function OptionRow({
       </div>
 
       {/* A control with a change in flight takes no second click: the first one
-          has not been answered yet, and the server is the one who decides. */}
+          has not been answered yet, and the server is the one who decides. The
+          slider (int) wants the whole row width, so it drops under the label
+          rather than being pinned to the right like a switch or a segment. */}
       <div
-        className={pending ? 'cfg-row-control is-pending' : 'cfg-row-control'}
+        className={
+          'cfg-row-control'
+          + (option.type === 'int' ? ' cfg-row-control-wide' : '')
+          + (pending ? ' is-pending' : '')
+        }
         aria-busy={pending ? 'true' : undefined}
       >
         {control}

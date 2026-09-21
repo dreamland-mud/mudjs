@@ -74,7 +74,7 @@ export default function SettingsDialog() {
   const sheet = useRef(null);
   const cfgSegRef = useRef(null);       // language segmented-control track
   const cfgSegIndRef = useRef(null);    // its sliding gold-gem indicator
-  const { schema, values, support, set, echo, pending, refused } = useConfig(open, lang);
+  const { schema, values, support, set, pending, refused } = useConfig(open, lang);
 
   // The gear over the terminal is the only way in; everything else here closes.
   useEffect(() => {
@@ -339,6 +339,23 @@ export default function SettingsDialog() {
   const current = page || (narrow ? null : landing);
   const isScript = !!current && current.key === SCRIPT_PAGE;
   const isAccount = !!current && current.key === ACCOUNT_PAGE;
+  // The Download log used to sit in a footer strip of its own. It belongs to the
+  // terminal page now (server key 'terminal' -- "Display and terminal"), where
+  // the output buffer it saves is set. The id stays 'logs-button' so main.js's
+  // delegated click handler still finds it after the footer is gone.
+  const downloadTail = (!!current && current.key === 'terminal') ? (
+    <div className="cfg-page-tail">
+      <button
+        type="button"
+        id="logs-button"
+        className="cfg-log-download"
+        aria-label={t('cfg.log.download', lang)}
+      >
+        <i className="fa fa-download" aria-hidden="true" />
+        <span>{t('cfg.log.download', lang)}</span>
+      </button>
+    </div>
+  ) : null;
   // Searching does not walk into a page of its own accord: on a narrow sheet
   // the box lives in the list, and jumping to a page at the first letter typed
   // takes it off the screen with the text still in it.
@@ -448,9 +465,10 @@ export default function SettingsDialog() {
             setCollapsed(was => ({ ...was, [section.key]: isOpen }))
           }
         >
-          <span className="cfg-caret">{isOpen ? '▾' : '▸'}</span>
           <span className="cfg-branch-name">{section.label}</span>
           <span className="cfg-branch-count">{section.pages.length}</span>
+          {/* Drawn in CSS and rotated by aria-expanded -- the DS menu caret. */}
+          <span className="cfg-caret" aria-hidden="true" />
         </button>
 
         {isOpen ? (
@@ -492,6 +510,7 @@ export default function SettingsDialog() {
           onChange={change}
           pending={pending}
           refused={refused}
+          tail={downloadTail}
         />
       ) : (
         <div className="cfg-page">
@@ -509,6 +528,27 @@ export default function SettingsDialog() {
         <div hidden={!isScript || !shown.length} className="cfg-pane-script">
           <SettingsPage page={findPage(tree, SCRIPT_PAGE)} values={values} lang={lang}>
             <ScriptPage visible={isScript && open} />
+            {/* The script's Close/Save were in the shared footer that is gone
+                now; they live at the foot of the editor's own page instead. */}
+            <div className="cfg-script-actions">
+              <span className="cfg-foot-note">{t('cfg.save.note', lang)}</span>
+              <div className="cfg-foot-buttons">
+                <button
+                  type="button"
+                  className="cfg-button"
+                  onClick={() => setOpen(false)}
+                >
+                  {t('cfg.close', lang)}
+                </button>
+                <button
+                  type="button"
+                  className="cfg-button cfg-button-main"
+                  onClick={saveScript}
+                >
+                  {t('cfg.save', lang)}
+                </button>
+              </div>
+            </div>
           </SettingsPage>
         </div>
       ) : null}
@@ -602,7 +642,6 @@ export default function SettingsDialog() {
 
               <div hidden={onPage} className="cfg-mobile-list">
                 <div className="cfg-list">
-                  {langRow}
                   {search}
                   {shown.map(section => (
                     <div className="cfg-list-branch" key={section.key}>
@@ -642,64 +681,24 @@ export default function SettingsDialog() {
                       </div>
                     </div>
                   ))}
+                  {/* Language pinned at the foot of the drill-down list. */}
+                  <div className="cfg-list-foot">{langRow}</div>
                 </div>
               </div>
             </div>
           ) : (
             <div className="cfg-body">
               <div className="cfg-tree">
-                {langRow}
                 <div className="cfg-search-box">{search}</div>
                 {accountTab}
                 <div className="cfg-tree-list">{treeNodes}</div>
+                {/* Language pinned at the foot of the menu, below the sections. */}
+                <div className="cfg-tree-foot">{langRow}</div>
               </div>
               <div className="cfg-pane">{body}</div>
             </div>
           )}
 
-          {/* The footer is now always present: a persistent "Download log" action
-              on the left (moved out of the terminal overlay -- keeps id logs-button
-              for main.js's delegated handler), and the page's own footer content on
-              the right (script Close/Save, or the live echo; the account page has
-              none, so only the download shows). */}
-          <div className="cfg-foot">
-            <button
-              type="button"
-              id="logs-button"
-              className="cfg-log-download"
-              aria-label={t('cfg.log.download', lang)}
-            >
-              <i className="fa fa-download" aria-hidden="true" />
-              <span>{t('cfg.log.download', lang)}</span>
-            </button>
-
-            {isScript ? (
-              <div className="cfg-foot-right">
-                <span className="cfg-foot-note">{t('cfg.save.note', lang)}</span>
-                <div className="cfg-foot-buttons">
-                  <button
-                    type="button"
-                    className="cfg-button"
-                    onClick={() => setOpen(false)}
-                  >
-                    {t('cfg.close', lang)}
-                  </button>
-                  <button
-                    type="button"
-                    className="cfg-button cfg-button-main"
-                    onClick={saveScript}
-                  >
-                    {t('cfg.save', lang)}
-                  </button>
-                </div>
-              </div>
-            ) : isAccount ? null : (
-              <div className="cfg-foot-right cfg-foot-echo">
-                <span className="cfg-dot" />
-                <span className="cfg-echo">{echo || t('cfg.echo.idle', lang)}</span>
-              </div>
-            )}
-          </div>
         </div>
       </aside>
     </>

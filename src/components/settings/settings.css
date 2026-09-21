@@ -195,13 +195,14 @@
   background: #1f242c;
 }
 
-/* Language switch pinned at the top of the nav. Flips the in-game display language
+/* Language switch, pinned at the FOOT of the nav (in .cfg-tree-foot on a wide
+   sheet, .cfg-list-foot on a narrow one). Flips the in-game display language
    (config lang) and re-looks the room -- matches the login flag row so the two
-   switchers read the same. Active flag takes the theme accent (gold on parchment). */
+   switchers read the same. The foot wrapper carries the padding and rule. */
 .cfg-langs {
   display: flex;
   justify-content: center;
-  padding: 12px 12px 4px;
+  padding: 0;
 }
 .cfg-lang {
   flex: 1;
@@ -236,6 +237,11 @@
   flex-direction: column;
   gap: 1px;
   padding-bottom: 6px;
+  /* A hair-line between sections, DS menu style. */
+  border-bottom: 1px solid var(--cfg-line-soft);
+}
+.cfg-branch:last-child {
+  border-bottom: none;
 }
 
 .cfg-branch-head {
@@ -257,12 +263,24 @@
   background: #1a1f26;
 }
 
+/* DS menu caret: a small chevron drawn from two borders, sitting at the right of
+   the row, that rotates a quarter-turn when its section is open. */
 .cfg-caret {
-  width: 12px;
-  font-size: 10px;
-  color: #6b7381;
+  width: 8px;
+  height: 8px;
   flex: none;
-  text-align: center;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  color: #6b7381;
+  transform: translateY(-2px) rotate(-45deg);
+  transition: transform 0.2s;
+  opacity: 0.7;
+}
+.cfg-branch-head[aria-expanded='true'] .cfg-caret {
+  transform: translateY(-1px) rotate(45deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cfg-caret { transition: none; }
 }
 
 .cfg-branch-name {
@@ -496,6 +514,14 @@
   min-height: 44px;
 }
 
+/* The slider (int) is the one control that wants the whole row: it drops onto
+   its own line under the label and stretches, rather than sitting to the right
+   the way a switch or a segment does. */
+.cfg-row-control-wide {
+  flex: 1 1 100%;
+  justify-content: flex-start;
+}
+
 /* A change is in flight. The control stays exactly where it was -- the server
    has not agreed to anything yet -- and takes no second click until it answers
    or the wait runs out. */
@@ -573,15 +599,17 @@
 }
 
 /* --- controls --- */
+/* DS switch: 48x26, small-rounded (not a pill -- reads as a small button). */
 .cfg-switch {
-  width: 51px;
-  height: 31px;
+  width: 48px;
+  height: 26px;
   padding: 2px;
   border: none;
-  border-radius: 7px;   /* small-rounded, not a pill (DS switch reads as a small button) */
+  border-radius: 6px;
   background: #2a2f38;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   display: flex;
+  align-items: center;
   justify-content: flex-start;
   cursor: pointer;
   flex: none;
@@ -595,9 +623,9 @@
 
 .cfg-switch-knob {
   position: relative;
-  width: 27px;
-  height: 27px;
-  border-radius: 5px;   /* small-rounded to match the track */
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;   /* small-rounded to match the track */
   background: #c9ced6;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
@@ -637,28 +665,70 @@
   font-weight: 500;
 }
 
+/* The int control: an "Off" button and, filling the rest of the row, a mana-bar
+   slider -- a glass tube, a fill up to the value, and the vital-bar gem riding
+   the fill edge as the knob -- with a plain value field. The gem, the drag and
+   the keyboard all live on the track (a role="slider" in OptionRow); there is no
+   native range under it, because a native thumb cannot carry the faceted gem. */
 .cfg-number-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  width: 100%;
 }
 
-.cfg-number {
+.cfg-slider-row {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-.cfg-number input[type='range'] {
-  flex: 1 1 110px;
-  min-width: 90px;
-  max-width: 150px;
-  accent-color: var(--cfg-accent);
-  background: transparent;
+.cfg-slider {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 14px;
+  border-radius: 200px;
+  background: var(--cfg-sunk);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  /* The drag is ours; the browser must not take it as a scroll. */
+  touch-action: none;
 }
 
-.cfg-number input[type='number'] {
-  width: 66px;
+.cfg-slider-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 200px;
+  background: var(--cfg-accent);
+  pointer-events: none;
+}
+
+.cfg-slider-gem {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  transform: translate(-50%, -50%);
+  line-height: 0;
+  color: var(--cfg-accent);
+  pointer-events: none;
+}
+
+.cfg-slider-gem svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cfg-slider-input {
+  flex: none;
+  width: 64px;
   padding: 7px 8px;
   font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   font-size: 13px;
@@ -668,6 +738,14 @@
   border-radius: 8px;
   text-align: center;
   box-sizing: border-box;
+  /* A plain field, no spin stepper. */
+  -moz-appearance: textfield;
+}
+
+.cfg-slider-input::-webkit-outer-spin-button,
+.cfg-slider-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .cfg-text {
@@ -691,7 +769,7 @@
 }
 
 .cfg-text input:focus,
-.cfg-number input[type='number']:focus {
+.cfg-slider-input:focus {
   border-color: var(--cfg-accent);
   outline: none;
 }
@@ -769,17 +847,44 @@
      ends off it. */
 }
 
-/* --- footer --- */
-.cfg-foot {
+/* --- the terminal page's Download log tail + the script page's Close/Save bar.
+   The shared footer strip these two used to sit in is gone. --- */
+
+/* Download log: set off from the last option at the foot of the terminal page. */
+.cfg-page-tail {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--cfg-line-soft);
+}
+
+.cfg-log-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #1d222a;
+  border: 1px solid #2a303a;
+  color: #c6cdd6;
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.cfg-log-download:hover {
+  background: #252b34;
+}
+
+/* Close/Save at the foot of the script editor's own page. */
+.cfg-script-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex: none;
   padding: 11px 16px;
   border-top: 1px solid var(--cfg-line);
   background: var(--cfg-chrome);
-  flex: none;
-  min-height: 44px;
   box-sizing: border-box;
 }
 
@@ -792,28 +897,6 @@
   display: flex;
   gap: 8px;
   flex: none;
-}
-
-.cfg-foot-echo {
-  justify-content: flex-start;
-  gap: 10px;
-}
-
-.cfg-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--cfg-yes);
-  flex: none;
-}
-
-.cfg-echo {
-  font-size: 11.5px;
-  color: var(--cfg-dim);
-  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 /* --- narrow screen: the tree becomes a drill-down list --- */
@@ -846,6 +929,13 @@
   width: 24px;
   height: 24px;
   font-size: 12px;
+}
+
+/* Language row at the foot of the mobile drill-down list. */
+.cfg-list-foot {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 4px;
 }
 
 .cfg-list-branch {

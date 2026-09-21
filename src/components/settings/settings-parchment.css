@@ -48,8 +48,7 @@
    them back to the UI face (the tabular look is not worth a foreign font). */
 .cfg-branch-count,
 .cfg-leaf-count,
-.cfg-row-key,
-.cfg-echo {
+.cfg-row-key {
   font-family: var(--ui, 'Alegreya Sans', sans-serif);
 }
 /* Real code keeps a monospace: the help example block and the script editor.
@@ -73,7 +72,7 @@
 
 /* --- 4. inputs (search + number) -> account-login .acc-input --------------- */
 .cfg-search,
-.cfg-number input,
+.cfg-slider-input,
 .cfg-account input[type='text'],
 .cfg-account input[type='email'] {
   background: rgba(0, 0, 0, 0.35);
@@ -83,7 +82,7 @@
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .cfg-search:focus,
-.cfg-number input:focus {
+.cfg-slider-input:focus {
   border-color: var(--gold, #c6a24e);
   box-shadow: 0 0 0 2px rgba(198, 162, 78, 0.3);
 }
@@ -215,23 +214,8 @@
   color: var(--parchment, #e4d6b2);
 }
 
-/* --- 9. footer: persistent Download log (left) + page content (right) ------ */
-.cfg-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.cfg-foot-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-left: auto;
-}
-/* the moved-in download control: a compact gold-deep ghost with the icon,
-   the same treatment as account-login's .acc-btn-ghost */
-/* Download log -> the DS secondary button (btn-secondary grammar). */
+/* --- 9. Download log button -- now a tail at the foot of the terminal page,
+   no longer a footer strip. A compact gold-deep ghost (DS btn-secondary). --- */
 .cfg-log-download {
   display: inline-flex;
   align-items: center;
@@ -250,11 +234,12 @@
 }
 .cfg-log-download:hover {
   color: #fff;
+  /* keep the obsidian ground -- the base sheet's cool #252b34 hover would leak. */
+  background: rgba(19, 16, 25, 0.85);
   border-color: var(--arcane-deep, #4c2a7a);
 }
 .cfg-log-download:active { transform: translateY(1px); }
 .cfg-log-download .fa { color: currentColor; }
-.cfg-dot { background: var(--gold, #c6a24e); }
 
 /* --- 10. resize grip: gold, purple on hover (matches the mosaic seam grip) --- */
 .cfg-grip::after {
@@ -320,7 +305,7 @@ body.cfg-resizing .cfg-grip::after {
 /* cool input borders section 4 misses (base bakes #2a303a; the number field's
    base rule is (0,2,1), so match it and come later). */
 .cfg-text input,
-.cfg-number input[type='number'] { border-color: var(--gold-deep, #6f5a26); }
+.cfg-slider-input { border-color: var(--gold-deep, #6f5a26); }
 /* near-black wells -> warm obsidian (was cool #0d1015 / #181c23) */
 .cfg-script-editor { background: var(--cfg-sunk, #0b0a10); }
 .cfg-list-card { background: var(--cfg-chrome, #100e18); }
@@ -413,4 +398,46 @@ body.cfg-resizing .cfg-grip::after {
 .cfg-leaf-on .cfg-leaf-bar {
   background: var(--arcane, #bb86fc);
   box-shadow: 0 0 8px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+
+/* --- 13. int slider -> the mana bar (dreamland.rocks/design vital bars) -------
+   Track = the arcane glass tube from theme-parchment's .pbar; fill = the mana
+   gradient; the gem knob = the vital-bar jewel (arcane), its glow lifting on
+   hover/focus. The value field inherits the obsidian input from section 4. ---- */
+.cfg-slider {
+  background: linear-gradient(180deg, rgba(13, 11, 18, 0.92), #241d30 50%, rgba(5, 4, 8, 0.98));
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 215, 207, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+    inset 0 -2px 3px rgba(8, 7, 12, 0.45),
+    0 2px 6px rgba(8, 7, 12, 0.4);
+}
+.cfg-slider-fill {
+  --fill-edge: #3d2a63;
+  --fill-mid: #bb86fc;
+  --glow: rgba(187, 134, 252, 0.45);
+  background: linear-gradient(180deg, var(--fill-edge), var(--fill-mid) 48%, color-mix(in srgb, var(--fill-edge) 62%, #000));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 3px 5px var(--glow),
+    0 0 7px var(--glow);
+}
+.cfg-slider-gem {
+  color: #bb86fc;
+  filter: drop-shadow(0 0 3px rgba(187, 134, 252, 0.55)) drop-shadow(1px 0 2px rgba(0, 0, 0, 0.4));
+}
+.cfg-slider:hover .cfg-slider-gem,
+.cfg-slider:focus-visible .cfg-slider-gem {
+  filter: drop-shadow(0 0 6px rgba(187, 134, 252, 0.85)) drop-shadow(1px 0 2px rgba(0, 0, 0, 0.4));
+}
+/* The track's own focus ring: keep the glass tube shadow and add the gold ring,
+   so the shared .cfg-dialog :focus-visible rule does not flatten the tube. */
+.cfg-slider:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 215, 207, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.6),
+    0 0 0 2px color-mix(in srgb, var(--gold-bright, #e6cd86) 55%, transparent);
 }

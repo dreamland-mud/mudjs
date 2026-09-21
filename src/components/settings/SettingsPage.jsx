@@ -1,9 +1,14 @@
 import React from 'react';
 import OptionRow from './OptionRow.jsx';
 
-// One page of the dialog: a heading, a line saying what the page is about, and
-// the settings themselves. The heading is shared with the script page, which is
-// why it takes children.
+// One page of the dialog: the settings themselves, plus optional content the
+// dialog hands in -- children (the account/script bodies) before the rows, a
+// tail (the Download log on the terminal page) after them.
+//
+// A real page opens straight on its first control: the page's name is already
+// lit in the left menu, so a repeated title above the rows only pushed the UI
+// down. The one heading left is the server stand-in's ("nobody is in the world
+// yet"), whose whole message lives in that block.
 export default function SettingsPage({
   page,
   values,
@@ -12,24 +17,21 @@ export default function SettingsPage({
   onChange,
   pending,
   refused,
+  tail,
   children,
 }) {
   if (!page) return null;
 
-  // Account and script pages bring their own content and want the full height,
-  // so they get no page heading ("My account" / "Custom script" both drop).
-  const bareHead = page.kind === 'account' || page.kind === 'script';
-
   return (
     <div className={page.kind === 'script' ? 'cfg-page cfg-page-script' : 'cfg-page'}>
-      {bareHead ? null : (
+      {page.kind === 'missing' ? (
         <div className="cfg-page-head">
           <div className="cfg-page-title">{page.label}</div>
           {page.subtitle ? (
             <div className="cfg-page-subtitle">{page.subtitle}</div>
           ) : null}
         </div>
-      )}
+      ) : null}
 
       {children}
 
@@ -45,6 +47,8 @@ export default function SettingsPage({
           refused={(refused || {})[option.key]}
         />
       ))}
+
+      {tail}
     </div>
   );
 }
