@@ -231,27 +231,29 @@
 }
 /* the moved-in download control: a compact gold-deep ghost with the icon,
    the same treatment as account-login's .acc-btn-ghost */
+/* Download log -> the DS secondary button (btn-secondary grammar). */
 .cfg-log-download {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 13px;
-  border-radius: 5px;
-  border: 1px solid var(--gold-deep, #6f5a26);
-  background: rgba(0, 0, 0, 0.3);
-  color: var(--text, #e8e2d2);
+  border-radius: 4px;
+  border: 1px solid var(--gold-dim, #856632);
+  background: rgba(19, 16, 25, 0.6);
+  color: var(--gold-bright, #e6cd86);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
   font-family: var(--ui, sans-serif);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.05s;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.05s;
 }
 .cfg-log-download:hover {
-  border-color: var(--gold, #c6a24e);
-  box-shadow: 0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.3));
+  color: #fff;
+  border-color: var(--arcane-deep, #4c2a7a);
 }
 .cfg-log-download:active { transform: translateY(1px); }
-.cfg-log-download .fa { color: var(--gold, #c6a24e); }
+.cfg-log-download .fa { color: currentColor; }
 .cfg-dot { background: var(--gold, #c6a24e); }
 
 /* --- 10. resize grip: gold, purple on hover (matches the mosaic seam grip) --- */
@@ -322,3 +324,93 @@ body.cfg-resizing .cfg-grip::after {
 /* near-black wells -> warm obsidian (was cool #0d1015 / #181c23) */
 .cfg-script-editor { background: var(--cfg-sunk, #0b0a10); }
 .cfg-list-card { background: var(--cfg-chrome, #100e18); }
+
+/* --- 12. DS controls (dreamland.rocks/design) --------------------------------
+   Segmented language switch, gem close, DS search field, DS menu tree. Appended so
+   these win over the section-4/5 skins and the shared :hover rule by source order. */
+
+/* language selector -- DS segmented control (indicator positioned in SettingsDialog.jsx) */
+.cfg-seg {
+  position: relative;
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 6px;
+  background: var(--stone-950, #0d0b12);
+  border: 1px solid var(--stone-700, #2b2338);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+.cfg-seg__ind {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 0;
+  width: 0;
+  border-radius: 4px;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--gem-face, radial-gradient(140% 140% at 50% 0%, #b8973f, #7e6127 55%, #40300f));
+  box-shadow: var(--gem-shadow, inset 0 1px 1px rgba(255,255,255,.6), 0 1px 2px rgba(0,0,0,.5), 0 0 0 1px #6f5a26);
+  transform: translateX(3px);
+  transition: transform 0.26s cubic-bezier(0.32, 0.72, 0, 1), width 0.26s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.cfg-seg__btn {
+  position: relative;
+  z-index: 1;
+  padding: 6px 16px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: var(--gold-dim, #856632);
+  transition: color 0.2s;
+}
+.cfg-seg__btn:hover { color: var(--gold-bright, #e6cd86); }
+.cfg-seg__btn[aria-selected="true"] { color: #1c1206; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3); }
+@media (prefers-reduced-motion: reduce) { .cfg-seg__ind { transition: none; } }
+
+/* [X] close -> a small gold gem button (DS ds-mapctrl) */
+.cfg-close {
+  border-radius: 5px;
+  background: var(--gem-face, radial-gradient(140% 140% at 50% 0%, #b8973f, #7e6127 55%, #40300f));
+  box-shadow: var(--gem-shadow, inset 0 1px 1px rgba(255,255,255,.6), 0 1px 2px rgba(0,0,0,.5), 0 0 0 1px #6f5a26);
+  color: #1c1206;
+}
+.cfg-close:hover {
+  background: var(--gem-face-hover, radial-gradient(140% 140% at 50% 0%, #6c3aa8, #4c2a7a 60%, #24123f));
+  color: #fff;
+}
+
+/* search field -> the full DS input: solid obsidian well + the arcane focus orbit
+   (a step beyond the shared static-ring inputs in section 4). */
+.cfg-search { background: #0b0a12; }
+.cfg-search:focus {
+  border-color: var(--gold, #c6a24e);
+  box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(198, 162, 78, 0.25);
+  animation: pc-focus-orbit 2.6s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) { .cfg-search:focus { animation: none; } }
+
+/* left menu -> DS ds-menu grammar: gilded uppercase category eyebrows, and the active
+   page as the arcane power state with a glowing left accent bar (not gold). */
+.cfg-branch-name {
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-dim, #856632);
+}
+.cfg-leaf-on,
+.cfg-leaf-on:hover {
+  color: #fff;
+  background: color-mix(in srgb, var(--arcane-deep, #4c2a7a) 72%, transparent);
+}
+.cfg-leaf-on .cfg-leaf-bar {
+  background: var(--arcane, #bb86fc);
+  box-shadow: 0 0 8px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}

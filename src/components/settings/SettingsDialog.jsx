@@ -72,6 +72,8 @@ export default function SettingsDialog() {
   const pushedBy = useRef(0);
 
   const sheet = useRef(null);
+  const cfgSegRef = useRef(null);       // language segmented-control track
+  const cfgSegIndRef = useRef(null);    // its sliding gold-gem indicator
   const { schema, values, support, set, echo, pending, refused } = useConfig(open, lang);
 
   // The gear over the terminal is the only way in; everything else here closes.
@@ -139,6 +141,31 @@ export default function SettingsDialog() {
     const input = document.getElementById('inputBox');
     if (input) input.focus({ preventScroll: true });
   }, [open]);
+
+  // Slide the language segmented-control indicator under the active language. Positioned
+  // from layout on language change, on open, when the sheet flips narrow/wide (the row
+  // remounts), after fonts settle, and on resize -- the same technique as the DS control.
+  useEffect(() => {
+    const place = () => {
+      const seg = cfgSegRef.current, ind = cfgSegIndRef.current;
+      if (!seg || !ind) return;
+      const act = seg.querySelector('[aria-selected="true"]');
+      if (!act) return;
+      ind.style.transform = 'translateX(' + act.offsetLeft + 'px)';
+      ind.style.width = act.offsetWidth + 'px';
+    };
+    place();
+    let cancelled = false;
+    const fonts = document.fonts;
+    if (fonts && fonts.ready) fonts.ready.then(() => { if (!cancelled) place(); });
+    if (fonts && fonts.addEventListener) fonts.addEventListener('loadingdone', place);
+    window.addEventListener('resize', place);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('resize', place);
+      if (fonts && fonts.removeEventListener) fonts.removeEventListener('loadingdone', place);
+    };
+  }, [lang, open, narrow]);
 
   // Swiping the sheet away, left to right, on a narrow screen -- where the cross
   // in the corner is a long reach for a thumb. The sheet follows the finger, so
@@ -364,17 +391,22 @@ export default function SettingsDialog() {
   };
 
   const langRow = (
-    <div className="cfg-langs" role="group" aria-label={t('cfg.lang', lang)}>
-      {LANGS.map(l => (
-        <button
-          key={l.code}
-          type="button"
-          className={'cfg-lang' + (lang === l.code ? ' is-on' : '')}
-          onClick={() => pickLang(l.code)}
-        >
-          {l.code.toUpperCase()}
-        </button>
-      ))}
+    <div className="cfg-langs">
+      <div className="cfg-seg" role="tablist" aria-label={t('cfg.lang', lang)} ref={cfgSegRef}>
+        <span className="cfg-seg__ind" aria-hidden="true" ref={cfgSegIndRef} />
+        {LANGS.map(l => (
+          <button
+            key={l.code}
+            type="button"
+            role="tab"
+            aria-selected={lang === l.code}
+            className="cfg-seg__btn"
+            onClick={() => pickLang(l.code)}
+          >
+            {l.code.toUpperCase()}
+          </button>
+        ))}
+      </div>
     </div>
   );
 

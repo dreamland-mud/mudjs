@@ -506,14 +506,28 @@
    itself it stretches full width and its dotted underline turns into a rule
    across the whole panel -- a false divider under the roster. Shrink it to its
    text so the underline reads as a link, not a divider. */
+/* Back / Logout: a small secondary button (DS btn-secondary grammar), centered at the
+   foot of the card. fit-content + auto margins centre it in a block form; align-self
+   centres it in the flex columns. */
 .acc-newhero {
+  display: block;
+  width: fit-content;
+  margin: 12px auto 0;
   align-self: center;
-  background: none; border: none; padding: 0;
-  color: var(--text-dim, #b7ad95);
-  font-size: 12px; cursor: pointer; text-decoration: none;
-  border-bottom: 1px dotted var(--gold-deep, #6f5a26);
+  padding: 0.24rem 0.8rem;
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--gold-bright, #e6cd86);
+  background: rgba(19, 16, 25, 0.6);
+  border: 1px solid var(--gold-dim, #856632);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.16s, border-color 0.16s, background 0.16s;
 }
-.acc-newhero:hover { color: var(--gold-bright, #e6cd86); }
+.acc-newhero:hover { color: #fff; border-color: var(--arcane-deep, #4c2a7a); }
 
 .acc-langs { display: flex; justify-content: center; margin: 16px 0 20px; }
 /* language selector -- the DS segmented control (ds-seg): a ghost track, ghost-off
@@ -611,14 +625,66 @@
   color: var(--text-faint, #8a8168);
 }
 
-.acc-check {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  margin: 4px 0 10px;
-  font-size: 13px;
-  color: var(--text, #e8e2d2);
+/* the password hint under the pass / repeat-pass row */
+.acc-fieldhint-row { margin: -2px 0 14px; }
+
+/* big primary Create button (full width, taller than the .btn default) */
+.acc-cta-lg { width: 100%; padding: 0.55rem 1rem; font-size: 1.05rem; margin-top: 8px; }
+
+/* screen-reader support: the DS toggle switch + its label */
+.acc-switch-row { display: flex; align-items: center; gap: 12px; margin: 6px 0 16px; }
+.acc-switch-label { font-size: 13px; line-height: 1.35; color: var(--text, #e8e2d2); }
+
+/* DS toggle switch, ported from the design system (dreamland.rocks/design .ds-switch).
+   OFF = muted dark-gold; ON (aria-pressed) = arcane, knob slides right. */
+.ds-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  flex: none;
+  border-radius: 6px;
+  padding: 2px;
   cursor: pointer;
+  border: 1px solid var(--gold-deep, #6f5a26);
+  background: linear-gradient(180deg, #463714, #241b0b);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
-.acc-check input { margin-top: 2px; flex: 0 0 auto; accent-color: var(--arcane, #bb86fc); }
-.acc-check span { line-height: 1.35; }
+.ds-switch__knob {
+  display: block;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: radial-gradient(140% 140% at 50% 0%, var(--gold-metal-hi, #b8973f), var(--gold-metal-lo, #40300f));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s cubic-bezier(0.32, 0.72, 0, 1), background 0.2s;
+}
+.ds-switch__knob::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  opacity: 0.85;
+  background: repeating-linear-gradient(to right, var(--grip, rgba(28, 17, 4, 0.55)) 0 1px, transparent 1px 3px);
+}
+.ds-switch[aria-pressed="true"] {
+  border-color: var(--arcane-deep, #4c2a7a);
+  background: radial-gradient(140% 140% at 50% 0%, #6c3aa8, var(--arcane-deep, #4c2a7a) 70%, #24123f);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 12px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+.ds-switch[aria-pressed="true"] .ds-switch__knob {
+  transform: translateX(22px);
+  background: linear-gradient(180deg, #efe1ff, #c79dff);
+}
+.ds-switch[aria-pressed="true"] .ds-switch__knob::after { --grip: rgba(58, 32, 96, 0.5); }
+.ds-switch:focus-visible {
+  outline: none;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 0 2px var(--arcane-glow, rgba(187, 134, 252, 0.45));
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-switch, .ds-switch__knob { transition: none; }
+}

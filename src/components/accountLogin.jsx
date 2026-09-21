@@ -788,40 +788,49 @@ export default function AccountLogin() {
               )}
             </div>
 
-            <div className="acc-field">
-              <label htmlFor="cr-pass">{at('password', lang)}</label>
-              <input
-                id="cr-pass"
-                className="acc-input"
-                type="password"
-                autoComplete="new-password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-              />
-              <div className="acc-fieldhint">{at('cr_pw_hint', lang)}</div>
+            <div className="acc-field-row">
+              <div className="acc-field">
+                <label htmlFor="cr-pass">{at('password', lang)}</label>
+                <input
+                  id="cr-pass"
+                  className="acc-input"
+                  type="password"
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
+              </div>
+              <div className="acc-field">
+                <label htmlFor="cr-pass2">{at('cr_pass2', lang)}</label>
+                <input
+                  id="cr-pass2"
+                  className="acc-input"
+                  type="password"
+                  autoComplete="new-password"
+                  value={password2}
+                  onChange={e => setPassword2(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="acc-fieldhint acc-fieldhint-row">{at('cr_pw_hint', lang)}</div>
+
+            {/* screen-reader support -- the DS toggle switch (aria-pressed drives its skin) */}
+            <div className="acc-switch-row">
+              <button
+                type="button"
+                className="ds-switch"
+                aria-pressed={screenreader}
+                aria-label={at('cr_sr', lang)}
+                onClick={() => setScreenreader(v => !v)}
+              >
+                <span className="ds-switch__knob" />
+              </button>
+              <span className="acc-switch-label">{at('cr_sr', lang)}</span>
             </div>
 
-            <div className="acc-field">
-              <label htmlFor="cr-pass2">{at('cr_pass2', lang)}</label>
-              <input
-                id="cr-pass2"
-                className="acc-input"
-                type="password"
-                autoComplete="new-password"
-                value={password2}
-                onChange={e => setPassword2(e.target.value)}
-              />
-            </div>
-
-            <label className="acc-check">
-              <input type="checkbox" checked={screenreader}
-                onChange={e => setScreenreader(e.target.checked)} />
-              <span>{at('cr_sr', lang)}</span>
-            </label>
-
-            <button type="submit" className="btn acc-cta">{at('cr_create', lang)}</button>
+            <button type="submit" className="btn btn-primary acc-cta acc-cta-lg">{at('cr_create', lang)}</button>
             <div className="acc-error" role="alert">{crError}</div>
-            <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
+            <button type="button" className="acc-newhero"
               onClick={() => { setBstep('idle'); setCrError(''); }}>{at('back', lang)}</button>
           </form>
         ) : (
@@ -923,7 +932,7 @@ export default function AccountLogin() {
                     />
                   </div>
                   <button type="submit" className="btn acc-cta">{at('send_code', lang)}</button>
-                  <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
+                  <button type="button" className="acc-newhero"
                     onClick={() => { setBerror(''); setBstep('idle'); }}>{at('back', lang)}</button>
                 </form>
               )}
@@ -945,7 +954,7 @@ export default function AccountLogin() {
                     />
                   </div>
                   <button type="submit" className="btn acc-cta">{at('verify', lang)}</button>
-                  <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
+                  <button type="button" className="acc-newhero"
                     onClick={() => { setBerror(''); setBstep('email'); }}>{at('back', lang)}</button>
                 </form>
               )}
@@ -955,7 +964,7 @@ export default function AccountLogin() {
                   <div className="acc-col-head" style={{ fontSize: 14 }}>{at('tg_head', lang)}</div>
                   <div style={{ fontSize: 13, opacity: 0.8, margin: '4px 0 10px' }}>{at('tg_hint', lang)}</div>
                   <div id="acc-tg-widget" className="acc-tg-widget" aria-label={at('tg_head', lang)} />
-                  <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
+                  <button type="button" className="acc-newhero"
                     onClick={() => { setBerror(''); setBstep('idle'); }}>{at('back', lang)}</button>
                 </div>
               )}
@@ -996,7 +1005,7 @@ export default function AccountLogin() {
                       );
                     })}
                   </div>
-                  <button type="button" className="acc-newhero" style={{ marginTop: 10 }}
+                  <button type="button" className="acc-newhero"
                     onClick={logout}>{at('logout', lang)}</button>
                 </>
               )}
