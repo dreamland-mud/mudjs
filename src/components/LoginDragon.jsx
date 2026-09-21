@@ -17,6 +17,7 @@ const BODY = [0x2c / 255 * 0.34, 0x32 / 255 * 0.34, 0x3b / 255 * 0.34]; // obsid
 const FEAT = 1.65;                       // eyes/cracks emissive
 const ORB_EMIT = 2.2;                    // orb glow strength
 const FLAP = 0.12;                       // idle wing amplitude
+const WINGSPAN = 1.45;                    // >1 grows the wings; scaled onto the wing-root bones
 const PERCH = 0.61, ZOOM = 0.70;         // framing
 const HALO = 0.20;                       // outer cyan glow (canvas drop-shadow + bottom pool)
 const ORB = new THREE.Vector3(0.29, 1.02, 0.52); // orb centre (object space)
@@ -158,6 +159,16 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
             if (!b) continue;
             b.getWorldPosition(wpos);
             flapBones[n] = { obj: b, rest: b.quaternion.clone(), side: wpos.x >= 0 ? 1 : -1 };
+          }
+          // Widen the wingspan. Scale only the ROOT wing bones (whose parent is not
+          // itself a wing bone); the child tips ride the same growth once, so a
+          // parent+child pair does not compound. flapBone() only writes the
+          // quaternion each frame, so this scale stays put.
+          for (const n of WINGS) {
+            const fb = flapBones[n];
+            if (!fb) continue;
+            const parentIsWing = fb.obj.parent && WINGS.indexOf(fb.obj.parent.name) >= 0;
+            if (!parentIsWing) fb.obj.scale.multiplyScalar(WINGSPAN);
           }
 
           // real light + white->brand-purple gradient core at the orb hand

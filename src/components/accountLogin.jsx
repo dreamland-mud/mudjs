@@ -730,7 +730,11 @@ export default function AccountLogin() {
       <div className="acc-portal" aria-hidden="true" />
 
       <div className="acc-stack">
-      <LoginDragon ref={dragonRef} />
+      {/* The dragon guards the gate: it perches while you are still getting in,
+          and is gone once you are (the roster is the character-select screen --
+          you are already authenticated, nothing left to halt). Dropping it lets
+          the stack re-centre the card on its own. */}
+      {bstep !== 'roster' ? <LoginDragon ref={dragonRef} /> : null}
       <div className="acc-controls">
         {/* the DS "big inset" modular inner frame (ds-frame): corners + double-stroke
             sides + keystones, a fine engraved rule a step inside the gold rail */}
