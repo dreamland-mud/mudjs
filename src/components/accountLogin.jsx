@@ -44,8 +44,9 @@ const NAME_RE = /^[A-Za-zА-Яа-яЁёІіЇїЄєҐґ]{2,15}$/;
 // The plain-front steps the server signals (nanny_step), in order, and the answer
 // the form sends for each. name/password come from form state at submit; the two
 // confirms and the screenreader toggle are fixed yes/no tokens the engine accepts
-// in every language (patternYes/patternNo). `handoff` reveals the terminal.
-const CREATE_STEPS = ['name', 'name_confirm', 'password', 'password_confirm', 'screenreader'];
+// in every language (patternYes/patternNo). `account` (the mid-creation link offer) is
+// auto-declined on the web; `handoff` reveals the terminal.
+const CREATE_STEPS = ['name', 'name_confirm', 'password', 'password_confirm', 'screenreader', 'account'];
 
 // Path B (account login) talks to the dreamland_web account broker, same origin.
 // The broker holds the web token; the browser only ever sees the one-use entry
@@ -134,8 +135,9 @@ export default function AccountLogin() {
   }
 
   const nameRef = useRef(null);
-  const createBtnRef = useRef(null);    // welcome-face Create button; focus target when no input is on screen
   const dragonRef = useRef(null);       // the login dragon; .shake() on a wrong password
+  const segRef = useRef(null);          // language segmented-control track
+  const segIndRef = useRef(null);       // its sliding gold-gem indicator
   const timers = useRef([]);
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
@@ -207,19 +209,44 @@ export default function AccountLogin() {
     }
   }, [prompt]);
 
-  // Move focus to the right control whenever the visible face changes, so activating a
-  // button never drops focus to <body> (WCAG 2.4.3; ~30% of players use a screen reader).
-  // The name field when one is mounted (existing login or the create form), else the
-  // welcome-face Create button. bstep + idleView are in the deps so this re-runs on every
-  // face switch, not just the initial session-check clear. No mounted target -> no-op.
+  // Focus the name field wherever one is mounted (existing login or the create form),
+  // so a face switch lands focus on the first input instead of dropping it to <body>.
+  // bstep + idleView are in the deps so it re-runs on every face switch. The welcome
+  // face has no input and we do NOT focus the Create button -- a programmatic focus lit
+  // its :focus gem and read as "already tabbed into" (Kit). No target -> no-op.
   useEffect(() => {
     if (phase !== 'login' || checking) return;
-    const id = setTimeout(() => {
-      if (nameRef.current) nameRef.current.focus();
-      else if (createBtnRef.current) createBtnRef.current.focus();
-    }, 40);
+    const id = setTimeout(() => { if (nameRef.current) nameRef.current.focus(); }, 40);
     return () => clearTimeout(id);
   }, [phase, checking, bstep, idleView]);
+
+  // Slide the language segmented-control indicator under the active language. Positioned
+  // from layout (offsetLeft/width) on lang change, on mount once the panel is up, after
+  // fonts settle, and on resize -- the same technique as the DS segmented control.
+  useEffect(() => {
+    const place = () => {
+      const seg = segRef.current, ind = segIndRef.current;
+      if (!seg || !ind) return;
+      const act = seg.querySelector('[aria-selected="true"]');
+      if (!act) return;
+      ind.style.transform = 'translateX(' + act.offsetLeft + 'px)';
+      ind.style.width = act.offsetWidth + 'px';
+    };
+    place();
+    let cancelled = false;
+    const fonts = document.fonts;
+    if (fonts && fonts.ready) fonts.ready.then(() => { if (!cancelled) place(); });
+    // Re-place when a webfont finishes loading -- on a cold cache the first placement
+    // can measure the fallback font before the theme + Alegreya land (fonts.ready is
+    // already resolved by then, so it alone would miss the later load).
+    if (fonts && fonts.addEventListener) fonts.addEventListener('loadingdone', place);
+    window.addEventListener('resize', place);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('resize', place);
+      if (fonts && fonts.removeEventListener) fonts.removeEventListener('loadingdone', place);
+    };
+  }, [lang, phase, checking]);
 
   useEffect(() => () => {
     clearTimers();
@@ -297,6 +324,11 @@ export default function AccountLogin() {
       else if (step === 'password') send(a.password);
       else if (step === 'password_confirm') send(a.password);
       else if (step === 'screenreader') send(a.sr);
+      // The engine offers a mid-creation account link (taskAccount). The web form has
+      // no account field yet, so decline it -- the player links later from the account
+      // login or the in-world `account` command. Without this the drive would stall on
+      // the engine's waitConfirm and the watchdog would false-fail as "name taken".
+      else if (step === 'account') send('no');
       armWatchdog(lang);   // progress made -- re-arm for the next step
     };
 
@@ -700,21 +732,34 @@ export default function AccountLogin() {
       <div className="acc-stack">
       <LoginDragon ref={dragonRef} />
       <div className="acc-controls">
-        <div className="acc-inner-frame" aria-hidden="true" />
+        {/* the DS "big inset" modular inner frame (ds-frame): corners + double-stroke
+            sides + keystones, a fine engraved rule a step inside the gold rail */}
+        <div className="acc-inner-frame ds-frame" aria-hidden="true">
+          <span className="ds-frame__c tl" /><span className="ds-frame__c tr" />
+          <span className="ds-frame__c bl" /><span className="ds-frame__c br" />
+          <span className="ds-frame__s top" /><span className="ds-frame__s bottom" />
+          <span className="ds-frame__s left" /><span className="ds-frame__s right" />
+          <span className="ds-frame__k" /><span className="ds-frame__k bottom" />
+        </div>
         <div className="acc-seam" aria-hidden="true" />
         <h1 className="acc-logo" role="img" aria-label="Dreamland" />
 
-        <div className="acc-langs" role="group" aria-label={at('lang', lang)}>
-          {LANGS.map(l => (
-            <button
-              key={l.code}
-              type="button"
-              className={'acc-lang' + (lang === l.code ? ' is-on' : '')}
-              onClick={() => pickLang(l.code)}
-            >
-              {l.code.toUpperCase()}
-            </button>
-          ))}
+        <div className="acc-langs">
+          <div className="acc-seg" role="tablist" aria-label={at('lang', lang)} ref={segRef}>
+            <span className="acc-seg__ind" aria-hidden="true" ref={segIndRef} />
+            {LANGS.map(l => (
+              <button
+                key={l.code}
+                type="button"
+                role="tab"
+                aria-selected={lang === l.code}
+                className="acc-seg__btn"
+                onClick={() => pickLang(l.code)}
+              >
+                {l.code.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="acc-stage" key={stageKey} data-dir={stageDir}>
@@ -789,7 +834,7 @@ export default function AccountLogin() {
                 <p className="acc-newhero-hint">
                   <strong>{at('new_hero_lead', lang)}</strong> {at('new_hero_body', lang)}
                 </p>
-                <button type="button" ref={createBtnRef} className="btn btn-primary acc-create" onClick={startCreate}>
+                <button type="button" className="btn btn-primary acc-create" onClick={startCreate}>
                   {at('create_char', lang)}
                 </button>
                 <button type="button" className="btn btn-secondary acc-existing"
