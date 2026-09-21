@@ -200,8 +200,8 @@
    switchers read the same. Active flag takes the theme accent (gold on parchment). */
 .cfg-langs {
   display: flex;
-  gap: 6px;
-  padding: 12px 12px 0;
+  justify-content: center;
+  padding: 12px 12px 4px;
 }
 .cfg-lang {
   flex: 1;
