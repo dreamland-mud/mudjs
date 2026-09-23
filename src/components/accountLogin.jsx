@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import $ from 'jquery';
 import { useSelector } from 'react-redux';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { send, rpccmd, reconnect } from '../websock';
+import { send, rpccmd, reconnect, ensureOpen, isOpen, rpcWhenOpen, cancelFirstFrame } from '../websock';
 import { at, LANGS } from '../accountStrings';
 import { getLang, setLang } from '../i18n';
 import { classIconFor } from '../classIcons';
@@ -17,6 +17,8 @@ import '../account-login.css';
 
 const REVEAL_MS = 950;      // slab curtain + settle before we unmount
 const LOGIN_TIMEOUT_MS = 4500;
+// The same wait when the socket had died first: reconnect + nanny greeting + the entry.
+const RECONNECT_WAIT_MS = 12000;
 const DRIVE_TIMEOUT_MS = 4000;   // no nanny_step after submit -> server is not in v2 mode
 
 // How deep each path-B step sits, so a step change can slide the new panel in from
@@ -93,6 +95,7 @@ const TelegramIcon = () => (
 
 export default function AccountLogin() {
   const prompt = useSelector(s => s.prompt);
+  const connected = useSelector(s => s.connection.connected);
   const [phase, setPhase] = useState(prompt ? 'hidden' : 'login'); // login | revealing | hidden
   const [lang, setLangState] = useState(getLang());
   const [name, setName] = useState('');
@@ -155,6 +158,8 @@ export default function AccountLogin() {
   const checkTimer = useRef(null);      // debounce timer for check_name
   const latestName = useRef('');        // echo-guard: drop a check_name reply for an old value
   const driveTimer = useRef(null);      // watchdog: no nanny_step -> server not in v2 mode
+  const pendingLogin = useRef(null);    // path A typed over a dead socket: {name, password} for the fresh nanny
+  const pendingCheck = useRef(null);    // a check_name the dead socket could not carry
 
   const later = (fn, ms) => {
     const id = setTimeout(fn, ms);
@@ -172,7 +177,7 @@ export default function AccountLogin() {
   // existing-character path, which emits nothing) -- reconnect for a fresh nanny so
   // the next name is not typed at a stale password prompt. No kick at all means the
   // server is still on the old nanny (client flag on, server .tmp.nanny.v2 off).
-  const armWatchdog = l => {
+  const armWatchdog = (l, ms) => {
     if (driveTimer.current) clearTimeout(driveTimer.current);
     driveTimer.current = setTimeout(() => {
       if (!driving.current) return;
@@ -190,8 +195,14 @@ export default function AccountLogin() {
       } else {
         setCrError(at('cr_unavailable', l));
       }
-    }, DRIVE_TIMEOUT_MS);
+    }, ms || DRIVE_TIMEOUT_MS);
   };
+
+  // A step signalled by a socket that has since died belongs to a nanny that is
+  // gone. The fresh socket's nanny signals its own.
+  useEffect(() => {
+    if (!connected) nannyStepRef.current = null;
+  }, [connected]);
 
   // Drive the reveal off the login-state signal: prompt null -> in world.
   useEffect(() => {
@@ -271,8 +282,10 @@ export default function AccountLogin() {
   // (a same-account conflict, an expired token, a cold-load refusal) react at once
   // instead of waiting out the backstop.
   useEffect(() => {
+    // Not gated on enterPending: an ok that lands after the backstop gave up still
+    // means this socket is in the world, and the door must not stay shut over it.
     const onEnterOk = () => {
-      if (!enterPending.current || phaseRef.current !== 'login') return;
+      if (phaseRef.current !== 'login') return;
       enterPending.current = false;
       openCurtain();
     };
@@ -300,6 +313,22 @@ export default function AccountLogin() {
   useEffect(() => {
     const onStep = (e, step) => {
       nannyStepRef.current = step;
+
+      // A fresh socket's nanny has reached the name: finish what the dead one
+      // could not carry.
+      if (step === 'name' && pendingLogin.current) {
+        const p = pendingLogin.current;
+        pendingLogin.current = null;
+        send(p.name);
+        later(() => send(p.password), 180);
+        return;
+      }
+      if (step === 'name' && pendingCheck.current) {
+        const v = pendingCheck.current;
+        pendingCheck.current = null;
+        if (v === latestName.current) rpccmd('check_name', v);
+      }
+
       if (!driving.current) return;
       const a = driveAnswers.current;
       if (!a) return;
@@ -492,16 +521,24 @@ export default function AccountLogin() {
     if (!name.trim() || !password) return;
     setError('');
     setBusy(at('entering', lang));
-    send(name.trim());
-    later(() => send(password), 180);
+    const open = isOpen();
+    if (open) {
+      send(name.trim());
+      later(() => send(password), 180);
+    } else {
+      // Typed at a dead line: bring it back and answer the fresh nanny's name step.
+      pendingLogin.current = { name: name.trim(), password };
+      ensureOpen();
+    }
     // If the prompt never arrives, the credentials were wrong -- re-show the form.
     later(() => {
+      pendingLogin.current = null;
       if (phaseRef.current === 'login') {
         setBusy('');
         setError(at('fail', lang));
         if (dragonRef.current) dragonRef.current.shake();   // wrong password -> the dragon says no
       }
-    }, LOGIN_TIMEOUT_MS);
+    }, open ? LOGIN_TIMEOUT_MS : RECONNECT_WAIT_MS);
   };
 
   // ---- character creation (nanny V2 web front) -----------------------------
@@ -526,7 +563,12 @@ export default function AccountLogin() {
     if (v === '') { setNameStatus(''); return; }
     if (!NAME_RE.test(v)) { setNameStatus('bad'); return; }
     setNameStatus('checking');
-    checkTimer.current = setTimeout(() => rpccmd('check_name', v), 350);
+    checkTimer.current = setTimeout(() => {
+      if (rpccmd('check_name', v)) return;
+      // Dead line: ask again once the fresh nanny is up.
+      pendingCheck.current = v;
+      ensureOpen();
+    }, 350);
   };
 
   const submitCreate = e => {
@@ -543,7 +585,13 @@ export default function AccountLogin() {
 
     // The nanny is parked at the name step (it signalled `name` while the form was
     // filled). Send the name to advance it; each following step rides its own signal.
-    if (nannyStepRef.current === 'name') {
+    // Over a dead line, reconnect instead: the fresh nanny's own `name` signal starts
+    // the drive.
+    const open = isOpen();
+    if (!open) {
+      nannyStepRef.current = null;
+      ensureOpen();
+    } else if (nannyStepRef.current === 'name') {
       stepsSent.current.name = true;
       send(driveAnswers.current.name);
     }
@@ -551,7 +599,7 @@ export default function AccountLogin() {
     // Watchdog: if no nanny_step follows (server not in v2), or the name turns out
     // taken and the drive stalls, back out cleanly instead of hanging (armWatchdog
     // distinguishes the two and re-arms on each step).
-    armWatchdog(lang);
+    armWatchdog(lang, open ? DRIVE_TIMEOUT_MS : RECONNECT_WAIT_MS);
   };
 
   // ---- path B: master login via the account broker -------------------------
@@ -661,16 +709,19 @@ export default function AccountLogin() {
     const { status, json } = await postJson('/enter', { char });
     if (status === 200 && json && json.token) {
       enterPending.current = true;
-      rpccmd('account_enter', json.token);
+      // A dead socket (a reboot, a laptop lid) is reconnected and the token leads
+      // the fresh one; otherwise it goes out now.
+      const sentNow = rpcWhenOpen('account_enter', json.token);
       // account_enter_ok / _failed (handled above) clear this the instant the engine
       // answers; the timeout is only a backstop for a silent no-reply.
       later(() => {
         if (enterPending.current && phaseRef.current === 'login') {
           enterPending.current = false;
+          cancelFirstFrame();
           setBusy('');
           setBerror(at('enterfail', lang));
         }
-      }, LOGIN_TIMEOUT_MS);
+      }, sentNow ? LOGIN_TIMEOUT_MS : RECONNECT_WAIT_MS);
     } else if (status === 401) {
       // Session expired between the roster and the click -- send back to the start.
       // Land on the existing face so the expired-session line is visible (a player
