@@ -1052,9 +1052,9 @@ body.mud-fighting form#input {
   color:var(--gold-dim);margin-bottom:4px;padding-bottom:2px;
   border-bottom:1px solid rgba(133,102,50,.3);
 }
-/* The flat affect chip (border, dot, accent, padding) is owned by affects.css --
+/* The flat affect chip (border, accent, padding) is owned by affects.css --
    scoped #player-affects-table.affects-flat .aff-chip so one file wins by
-   specificity. The data-chip accent border + dot live THERE, not here. */
+   specificity. The data-chip accent border lives THERE, not here. No dot. */
 
 /* collapse toggle: small gilded square button */
 .table-wrapper .close{
