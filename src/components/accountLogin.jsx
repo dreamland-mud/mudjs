@@ -263,11 +263,19 @@ export default function AccountLogin() {
   }, [bstep, busy, checking]);
 
   // The engine answers account_enter with account_enter_ok / account_enter_failed over
-  // the WS (descriptor.cpp). Success needs no handler here -- the cold-load sends a
-  // prompt and the reveal effect above rides it. On failure (a same-account conflict,
-  // an expired token, a cold-load refusal) react at once instead of waiting out the
-  // backstop timeout in enterAs.
+  // the WS (descriptor.cpp). On success the socket is already in the world, so reveal
+  // now rather than wait for a prompt: a take-over or a held pager can leave the prompt
+  // late or absent, and the backstop in enterAs would then report a failed entry over a
+  // live session -- and offer a roster tap that this socket can never redeem. The
+  // prompt, when it lands, finds the door already open and changes nothing. On failure
+  // (a same-account conflict, an expired token, a cold-load refusal) react at once
+  // instead of waiting out the backstop.
   useEffect(() => {
+    const onEnterOk = () => {
+      if (!enterPending.current || phaseRef.current !== 'login') return;
+      enterPending.current = false;
+      openCurtain();
+    };
     const onEnterFailed = () => {
       if (!enterPending.current) return;
       enterPending.current = false;
@@ -276,8 +284,12 @@ export default function AccountLogin() {
       setBerror(at('enterfail', lang));
       if (dragonRef.current) dragonRef.current.shake();   // entry refused -> the dragon says no
     };
+    $('#rpc-events').on('rpc-account_enter_ok', onEnterOk);
     $('#rpc-events').on('rpc-account_enter_failed', onEnterFailed);
-    return () => $('#rpc-events').off('rpc-account_enter_failed', onEnterFailed);
+    return () => {
+      $('#rpc-events').off('rpc-account_enter_ok', onEnterOk);
+      $('#rpc-events').off('rpc-account_enter_failed', onEnterFailed);
+    };
   }, [lang]);
 
   // Web character creation: the server's plain nanny signals which mechanical step
@@ -640,8 +652,8 @@ export default function AccountLogin() {
   };
 
   // Click a character: mint a one-use entry token and hand it to the game over the
-  // WS. The engine cold-loads and sends a prompt, which flips redux `prompt` and
-  // fires the reveal effect -- the same signal path A relies on.
+  // WS. The engine enters and answers account_enter_ok (handled above), which opens
+  // the door.
   const enterAs = async char => {
     setBerror('');
     enterPending.current = false;
@@ -650,8 +662,8 @@ export default function AccountLogin() {
     if (status === 200 && json && json.token) {
       enterPending.current = true;
       rpccmd('account_enter', json.token);
-      // account_enter_failed (handled above) clears this the instant the engine
-      // refuses; the timeout is only a backstop for a silent no-reply.
+      // account_enter_ok / _failed (handled above) clear this the instant the engine
+      // answers; the timeout is only a backstop for a silent no-reply.
       later(() => {
         if (enterPending.current && phaseRef.current === 'login') {
           enterPending.current = false;
