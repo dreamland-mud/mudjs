@@ -1005,7 +1005,7 @@ form#input input{flex:1 1 auto;min-width:0}
 
 /* time/weather widget (plain table, ex-MUI) */
 .rf-tw{border-collapse:collapse}
-.rf-tw td{padding:1px 0;border:0;font-size:12px}
+.rf-tw td{padding:1px 0;border:0;font-size:11px}
 .rf-tw td.tw-ic{width:1.4em;padding-left:5px;padding-right:8px}
 .rf-tw .wi,.rf-tw .fa{font-size:16px;width:1.4em;display:inline-block;text-align:left;color:#bb86fc}
 
@@ -1077,7 +1077,7 @@ form#input input{flex:1 1 auto;min-width:0}
 #group-table td,#group-table th,#who-table td,#who-table th{padding:3px 6px}
 #player-params-1 td,#player-params-2 td{padding:2px 7px;font-size:12px}
 #questor-table p,#player-affects-table{font-size:12px}
-.rf-tw td{font-size:13px}
+.rf-tw td{font-size:12px}
 .aff-chip{font-size:12px}
 
 /* keypad slide-out (grid-rows 0fr<->1fr, same technique as the panel collapse) */
