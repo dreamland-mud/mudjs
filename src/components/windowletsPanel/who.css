@@ -1,0 +1,177 @@
+/*
+ * Who widget -- name / race / clan-badge rows (Figma DL_desktop node 1023-690).
+ *
+ * The card chrome (frame, header ornament, collapse button) is the shared
+ * .table-wrapper; this file owns only the body. Paddings are the Figma card_body
+ * insets (8 / 16 / 12 / 12) minus the .table-wrapper padding (1 / 5 / 7 / 5).
+ *
+ * Clan badges carry every Figma paint and effect of the "Chip" frames:
+ *   fills   -- 90deg edge->mid->edge gradient + a 20% white top-half sheen
+ *   stroke  -- 2px left/right only, CENTER aligned (::before, 1px outside the box)
+ *   effects -- inner 0 1 0 white 25%          (box-shadow)
+ *              inner 0 -1 2 obsidian 30%       MULTIPLY     (::after)
+ *              inner 0 4 4 <glow>              LINEAR_DODGE (.clan-chip__glow, plus-lighter)
+ *              drop  0 2 6 obsidian 40%        (box-shadow)
+ *   text    -- Alegreya Sans Bold 10/14, obsidian, 0 1 0 white 25% (SCREEN)
+ *   ornaments -- the "ryushechki" pair, 17x11, 9px past each end, 1.5px down.
+ *     The Figma vectors carry a 15px layer blur that the canvas does not show
+ *     (a blurred export is an empty smudge); the canvas render is the target,
+ *     so clan-ornament.svg is the unblurred shape with its white fade gradient.
+ * Loaded by both skins: the badge is clan identity, not skin chrome.
+ */
+
+#who-table.who-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  row-gap: 12px;
+  padding: 8px 11px 5px 7px;
+  font-family: var(--ui, inherit);
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text, #e3d8c0);
+}
+
+#who-table.who-grid .who-name {
+  font-weight: 700;
+}
+
+#who-table.who-grid .who-name,
+#who-table.who-grid .who-race {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+#who-table.who-grid .who-clan {
+  justify-self: end;
+  display: flex;
+}
+
+/* ---- clan badge ---------------------------------------------------------- */
+
+.clan-chip {
+  --edge: rgba(96, 79, 38, 0.85);
+  --mid: #c6a24e;
+  --stroke: rgba(230, 205, 134, 0.5);
+  --glow: rgba(230, 205, 134, 0.4);
+  --ink: var(--obsidian, #08070c);
+  --ink-shadow: rgba(255, 255, 255, 0.25);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 14px;
+  padding: 0 12px;
+  border-radius: 200px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12) 51.913%, rgba(255, 255, 255, 0) 51.923%),
+    linear-gradient(90deg, var(--edge) 0%, var(--mid) 50%, var(--edge) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 2px 6px rgba(8, 7, 12, 0.4);
+}
+
+.clan-chip::before {
+  content: '';
+  position: absolute;
+  inset: 0 -1px;
+  border-left: 2px solid var(--stroke);
+  border-right: 2px solid var(--stroke);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.clan-chip::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 -1px 2px rgba(8, 7, 12, 0.3);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.clan-chip__glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 4px 4px var(--glow);
+  mix-blend-mode: plus-lighter;
+  pointer-events: none;
+}
+
+.clan-chip__label {
+  position: relative;
+  font-family: 'Alegreya Sans', var(--ui, sans-serif);
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 14px;
+  color: var(--ink);
+  text-shadow: 0 1px 0 var(--ink-shadow);
+  white-space: nowrap;
+}
+
+.clan-chip__orn {
+  position: absolute;
+  top: 1.5px;
+  width: 17px;
+  height: 11px;
+  background: url('./clan-ornament.svg') no-repeat 0 0 / 17px 11px;
+  pointer-events: none;
+}
+
+.clan-chip__orn--l {
+  left: -9px;
+}
+
+.clan-chip__orn--r {
+  right: -9px;
+  transform: scaleX(-1);
+}
+
+/* ---- per-clan paints (keyed by the server's clan letter) ------------------ */
+
+.clan-chip[data-clan='h'] { /* Hunters */
+  --edge: rgba(96, 79, 38, 0.85); --mid: #c6a24e;
+  --stroke: rgba(230, 205, 134, 0.5); --glow: rgba(230, 205, 134, 0.4);
+}
+.clan-chip[data-clan='l'] { /* Lions */
+  --edge: rgba(23, 96, 61, 0.85); --mid: #2fa36b;
+  --stroke: rgba(47, 163, 107, 0.5); --glow: rgba(47, 163, 107, 0.4);
+}
+.clan-chip[data-clan='c'] { /* Chaos */
+  --edge: rgba(76, 42, 122, 0.85); --mid: #8043ca;
+  --stroke: rgba(187, 134, 252, 0.5); --glow: rgba(187, 134, 252, 0.4);
+}
+.clan-chip[data-clan='r'] { /* Rulers */
+  --edge: rgba(84, 110, 122, 0.85); --mid: #8fa0a7;
+  --stroke: rgba(212, 215, 207, 0.5); --glow: rgba(212, 215, 207, 0.4);
+}
+.clan-chip[data-clan='s'] { /* Shalafi */
+  --edge: rgba(39, 67, 132, 0.85); --mid: #4a74d4;
+  --stroke: rgba(74, 116, 212, 0.5); --glow: rgba(0, 255, 255, 0.4);
+}
+.clan-chip[data-clan='b'] { /* Fury (battleragers) */
+  --edge: rgba(124, 31, 48, 0.85); --mid: #c0384f;
+  --stroke: rgba(237, 35, 48, 0.5); --glow: rgba(255, 0, 0, 0.4);
+}
+.clan-chip[data-clan='k'] { /* Knights */
+  --edge: rgba(191, 192, 193, 0.85); --mid: #ffffff;
+  --stroke: rgba(198, 162, 78, 0.5); --glow: #e6cd86;
+}
+.clan-chip[data-clan='i'] { /* Invaders */
+  --edge: rgba(19, 16, 25, 0.85); --mid: #424242;
+  --stroke: rgba(75, 24, 34, 0.5); --glow: rgba(53, 23, 23, 0.4);
+  --ink: #ffffff; --ink-shadow: rgba(0, 0, 0, 0.25);
+}
+.clan-chip[data-clan='f'] { /* Flowers */
+  --edge: rgba(47, 163, 107, 0.85); --mid: #8ee34f;
+  --stroke: rgba(142, 227, 79, 0.5); --glow: rgba(142, 227, 79, 0.4);
+}
+.clan-chip[data-clan='g'] { /* Ghosts */
+  --edge: rgba(48, 63, 70, 0.85); --mid: #546e7a;
+  --stroke: rgba(84, 110, 122, 0.5); --glow: rgba(84, 110, 122, 0.4);
+}

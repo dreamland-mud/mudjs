@@ -391,7 +391,7 @@ td.v-bottom{vertical-align:bottom}
 #player-location .fa{font-size:150%;color:var(--gold)}
 #player-affects-table .flexcontainer-column{padding-left:5px;padding-right:5px;padding-bottom:5px;width:auto}
 #player-affects-table .aff-chip{text-transform:capitalize}
-#questor-table p{padding:0 4px;color:var(--gold);font-size:var(--panel-body-size)}
+#questor-table p{padding:0 4px;color:var(--gold);font-size:var(--panel-body-size);font-family:var(--ui)}
 #commands-table{justify-content:space-evenly;margin:0 0 0 5px}
 
 /* full-width panel command buttons -- gold gem, left-aligned label */
