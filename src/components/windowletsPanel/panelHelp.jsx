@@ -14,7 +14,8 @@ const echo = txt => {
 const DROPDOWN_MIN_WIDTH = 360;
 
 // Index and bodies are fetched on first focus, not on page load: most sessions
-// never touch the help box and the bodies are ~1 MB gzipped.
+// never touch the help box and the bodies are ~1 MB gzipped. `wanted` counts
+// focuses, so a failed fetch is retried the next time the box is focused.
 const useHelpData = (wanted, lang) => {
   const [index, setIndex] = useState(null);
   const [error, setError] = useState(null);
@@ -23,6 +24,7 @@ const useHelpData = (wanted, lang) => {
   useEffect(() => {
     if (!wanted || index) return;
     let live = true;
+    setError(null);
     loadIndex()
       .then(data => live && setIndex(data))
       .catch(e => {
@@ -35,13 +37,15 @@ const useHelpData = (wanted, lang) => {
   }, [wanted, index]);
 
   useEffect(() => {
-    if (!wanted) return;
+    if (!wanted || (bodies && bodies.lang === lang)) return;
     let live = true;
-    loadBodies(lang).then(b => live && setBodies(b));
+    loadBodies(lang)
+      .then(b => live && setBodies(b))
+      .catch(() => console.log('Cannot retrieve help texts.')); // keyword lines stay
     return () => {
       live = false;
     };
-  }, [wanted, lang]);
+  }, [wanted, lang, bodies]);
 
   // stripped article text for the current language, built lazily per article
   const textFor = useMemo(() => (bodies && bodies.lang === lang ? makeTextCache(bodies) : null), [bodies, lang]);
@@ -56,7 +60,7 @@ export default function Help() {
   const prompt = usePrompt();
   const lang = (prompt && prompt.lang) || getLang();
 
-  const [wanted, setWanted] = useState(false);
+  const [wanted, setWanted] = useState(0);
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -72,22 +76,41 @@ export default function Help() {
 
   // The panel scrolls, so the list lives in a portal on <body> and is pinned
   // under the input instead of being clipped by the panel.
+  const place = () => {
+    if (!inputRef.current) return;
+    const r = inputRef.current.getBoundingClientRect();
+    const width = Math.min(Math.max(r.width, DROPDOWN_MIN_WIDTH), window.innerWidth - 16);
+    const next = {
+      left: Math.max(8, Math.min(r.left, window.innerWidth - width - 8)),
+      top: r.bottom + 6,
+      width,
+      maxHeight: Math.max(160, window.innerHeight - r.bottom - 20),
+    };
+    setPos(cur =>
+      cur && Object.keys(next).every(k => cur[k] === next[k]) ? cur : next
+    );
+  };
+
   useLayoutEffect(() => {
     if (!showList) return;
-    const place = () => {
-      const r = inputRef.current.getBoundingClientRect();
-      const width = Math.min(Math.max(r.width, DROPDOWN_MIN_WIDTH), window.innerWidth - 16);
-      const left = Math.max(8, Math.min(r.left, window.innerWidth - width - 8));
-      setPos({ left, top: r.bottom + 6, width, maxHeight: Math.max(160, window.innerHeight - r.bottom - 20) });
-    };
-    place();
     window.addEventListener('resize', place);
     window.addEventListener('scroll', place, true);
+    // items above Help in the panel grow and shrink without any scroll event
+    const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => place()) : null;
+    const wrap = document.getElementById('panel-wrap');
+    if (ro && wrap) Array.from(wrap.children).forEach(el => ro.observe(el, { box: 'border-box' }));
     return () => {
       window.removeEventListener('resize', place);
       window.removeEventListener('scroll', place, true);
+      if (ro) ro.disconnect();
     };
   }, [showList]);
+
+  // Every prompt re-renders Help (usePrompt) and may mount or drop an item
+  // above it, so re-check the spot after each render; unchanged = no update.
+  useLayoutEffect(() => {
+    if (showList) place();
+  });
 
   useEffect(() => {
     if (!showList || !listRef.current) return;
@@ -134,6 +157,8 @@ export default function Help() {
         id={listId}
         className="help-results"
         role="listbox"
+        // mousedown on the list's own scrollbar would blur the input (Firefox)
+        onMouseDown={e => e.preventDefault()}
         style={{ left: pos.left, top: pos.top, width: pos.width, maxHeight: pos.maxHeight }}
       >
         {hits.length === 0 && <p className="help-results__empty">{t('help.notFound', lang)}</p>}
@@ -202,7 +227,7 @@ export default function Help() {
           aria-activedescendant={showList && hits[active] ? optionId(active) : undefined}
           value={query}
           onFocus={() => {
-            setWanted(true);
+            setWanted(n => n + 1);
             setOpen(true);
           }}
           onBlur={() => setOpen(false)}

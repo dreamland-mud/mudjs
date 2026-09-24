@@ -37,21 +37,33 @@ export function loadIndex() {
 }
 
 // Russian bodies are the base; EN/UA files overlay them and may be sparse.
-const bodyPromises = {};
+// A failed fetch drops its cached promise so the next focus tries again.
+const bodyFiles = {};
 function loadBodyFile(lang) {
-  if (!bodyPromises[lang])
-    bodyPromises[lang] = fetchData('help-body-' + lang + '.json').catch(() => {
-      delete bodyPromises[lang];
-      return {};
+  if (!bodyFiles[lang])
+    bodyFiles[lang] = fetchData('help-body-' + lang + '.json').catch(e => {
+      delete bodyFiles[lang];
+      throw e;
     });
-  return bodyPromises[lang];
+  return bodyFiles[lang];
 }
 
+// One object per language, so a repeat call hands back the same reference and
+// the text cache built over it survives.
+const bodySets = {};
 export function loadBodies(lang) {
   lang = normLang(lang);
-  const files = [loadBodyFile('ru')];
-  if (lang !== 'ru') files.push(loadBodyFile(lang));
-  return Promise.all(files).then(([ru, overlay]) => ({ lang, ru, overlay: overlay || {} }));
+  if (!bodySets[lang]) {
+    const files = [loadBodyFile('ru')];
+    if (lang !== 'ru') files.push(loadBodyFile(lang));
+    bodySets[lang] = Promise.all(files)
+      .then(([ru, overlay]) => ({ lang, ru, overlay: overlay || {} }))
+      .catch(e => {
+        delete bodySets[lang];
+        throw e;
+      });
+  }
+  return bodySets[lang];
 }
 
 const tr = (obj, lang) => (obj && (obj[normLang(lang)] || obj.ru)) || '';
@@ -91,6 +103,9 @@ export function kind(a, lang) {
 
 const squash = s => s.replace(/\s+/g, ' ').trim();
 
+// usage lines ("Format: c fireball", plus indented continuations) are noise in an excerpt
+const USAGE_RE = /(^|\n)[ \t]*(Format|Syntax|Формат|Синтаксис)[ \t]*:[^\n]*(\n[ \t]+\S[^\n]*)*/g;
+
 const plainText = markup =>
   String(markup || '')
     .replace(/<[^>]*>/g, '')
@@ -103,13 +118,23 @@ const plainText = markup =>
    skips to the first paragraph of real prose. */
 const HEADER_RE = /'[^'\n]+' (or|или|або) '/;
 function leadParagraph(text) {
-  const paras = text.split(/\n\s*\n/);
-  for (const para of paras) {
-    const lines = para.split('\n').filter(ln => ln.trim() && !/^\s/.test(ln) && !/^[*\-=]/.test(ln));
-    const p = squash(lines.join(' '));
-    if (p.length >= 40 && !HEADER_RE.test(p)) return p;
-  }
-  return squash(text);
+  // stats and tables are indented by two or more; some prose starts with one space
+  const paras = text
+    .split(/\n\s*\n/)
+    .map(para => squash(para.split('\n').filter(ln => ln.trim() && !/^\s{2,}/.test(ln) && !/^\s*[*\-=]/.test(ln)).join(' ')))
+    .filter(p => p && !HEADER_RE.test(p));
+  // a real paragraph first; failing that, any short line of prose
+  return paras.find(p => p.length >= 40) || paras[0] || ''; // '' = header-only article
+}
+
+/* First hit of q at or after `from`, preferring one at the start of a word:
+   "sword" should mark the sword, not pas[sword]. */
+const WORD_CH = /[\p{L}\p{N}]/u;
+function findHit(low, q, from) {
+  const first = low.indexOf(q, from);
+  for (let at = first; at >= 0; at = low.indexOf(q, at + 1))
+    if (at === 0 || !WORD_CH.test(low.charAt(at - 1))) return { at, word: true };
+  return { at: first, word: false };
 }
 
 /* Stripped body per article: flat (one line), low (flat, lowercased, what the
@@ -120,10 +145,10 @@ export function makeTextCache(bodies) {
   return id => {
     if (cache[id] === undefined) {
       const o = bodies.overlay[id];
-      const raw = plainText(o != null && o !== '' ? o : bodies.ru[id] || '');
+      const raw = plainText(o != null && o !== '' ? o : bodies.ru[id] || '').replace(USAGE_RE, '$1');
       // bullets and ruler lines read as noise once the lines are joined
       const flat = squash(raw.replace(/(^|\n)[ \t]*\*[ \t]+/g, '$1· ').replace(/[-=]{4,}/g, ' '));
-      const lead = leadParagraph(raw);
+      const lead = leadParagraph(raw) || flat;
       cache[id] = {
         flat,
         low: flat.toLowerCase(),
@@ -141,7 +166,7 @@ const EXCERPT = 160;
    keyword and the excerpt is just the article's lead. */
 export function excerpt(txt, q) {
   const flat = txt.flat;
-  const at = txt.low.indexOf(q, txt.leadAt);
+  const at = findHit(txt.low, q, txt.leadAt).at;
   if (at < 0) {
     const lead = txt.lead;
     return [lead.length > EXCERPT ? lead.slice(0, EXCERPT).replace(/\s\S*$/, '') + '...' : lead, '', ''];
@@ -170,22 +195,25 @@ export function excerpt(txt, q) {
 export const normQuery = q => squash(q).toLowerCase();
 
 /* Exact keyword, then title substring or keyword prefix, then article text
-   (3+ characters, prose only). textFor is null until the bodies are in. */
+   (word-start hits before mid-word ones)
+   -- 3+ characters, prose only. textFor is null until the bodies are in. */
 export function search(index, q, lang, textFor, limit = 24) {
   if (!q) return [];
   const exact = [];
   const partial = [];
-  const inBody = [];
+  const inWord = [];
+  const inPart = [];
   for (let i = 0; i < index.length && exact.length + partial.length < limit; i++) {
     const a = index[i];
     const kws = (a.kwList || []).map(k => k.toLowerCase());
     const title = label(a, lang).toLowerCase();
     if (kws.includes(q)) exact.push(a);
     else if (title.includes(q) || kws.some(k => k.startsWith(q))) partial.push(a);
-    else if (textFor && inBody.length < limit && q.length >= 3) {
+    else if (textFor && inWord.length < limit && q.length >= 3) {
       const txt = textFor(a.id);
-      if (txt.low.indexOf(q, txt.leadAt) >= 0) inBody.push(a);
+      const hit = findHit(txt.low, q, txt.leadAt);
+      if (hit.at >= 0) (hit.word ? inWord : inPart).push(a);
     }
   }
-  return exact.concat(partial, inBody).slice(0, limit);
+  return exact.concat(partial, inWord, inPart).slice(0, limit);
 }
