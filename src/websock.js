@@ -103,6 +103,8 @@ $(document).ready(function () {
         // Drop the token first: retrying would just meet the same mismatch,
         // silently, forever. The player needs to see the message and reload.
         setResumeToken(null);
+        loginRetries = LOGIN_RETRY_MAX;
+        firstFrame = null;
         ws.close();
       }
 
@@ -139,6 +141,28 @@ let deliberateReconnect = false;
  * A server that predates the label sends neither, and we retry as before. */
 const RESUME_RETRY_MAX = 5;
 let resumeRetries = 0;
+
+/* The login screen sits over a socket like everything else, and without a
+ * resume token nothing used to bring that socket back: a server reboot or a
+ * laptop lid left the roster clickable over a dead line, and a click sent its
+ * entry token nowhere. Before a character is in the world a dropped socket is
+ * now replaced silently, bounded so a server that keeps refusing us is not
+ * hammered for ever. The count resets whenever a nanny or a prompt proves the
+ * line good, and on any deliberate attempt (ensureOpen). */
+const LOGIN_RETRY_MAX = 40;
+let loginRetries = 0;
+let silentRetry = false;
+// A prompt arrived on the current socket: a character is in the world on it.
+let inWorld = false;
+
+/* One frame to lead a fresh socket with instead of the codepage answer -- the
+ * roster's account_enter, which redeems on a bare descriptor just as resume
+ * does (the server sets the codepage itself). Leading with '1' instead would
+ * leave that line in the input queue to be read as a command by the character
+ * the token just brought in. If the server refuses the token, the codepage
+ * answer follows then and the socket carries on as an ordinary login. */
+let firstFrame = null;
+let skippedCodepage = false;
 
 function resumeToken() {
   try {
@@ -255,7 +279,15 @@ function verifyConnection() {
 
   hiddenAt = 0;
 
-  if (!resumeToken()) return;
+  if (!resumeToken()) {
+    // A token-less session already in the world (storage disabled) keeps its
+    // old behaviour. At the login screen, check the line the same way: a
+    // laptop that slept kept an OPEN socket the server has long forgotten.
+    if (inWorld) return;
+    if (wsAlive()) probeSocket(away > STALE_AFTER ? PONG_WAIT_STALE : PONG_WAIT);
+    else ensureOpen();
+    return;
+  }
 
   if (wsAlive()) {
     probeSocket(away > STALE_AFTER ? PONG_WAIT_STALE : PONG_WAIT);
@@ -293,13 +325,82 @@ function reconnect() {
       /* already closing -- onclose still fires and consumes the flag */
     }
   } else {
+    // No socket, maybe mid-backoff: go now rather than wait out the timer.
     reconnectDelay = 0;
-    scheduleReconnect();
+    connect();
   }
 }
 
+function isOpen() {
+  return !!ws && ws.readyState === WebSocket.OPEN;
+}
+
+/** Make sure a socket is open or on its way. For a login action the player just
+ *  took. */
+function ensureOpen() {
+  loginRetries = 0;
+  if (wsAlive()) return;
+  reconnectDelay = 0;
+  // A CLOSING socket is not waited for: over a dropped NAT mapping its close
+  // can take a minute. The replacement goes now and the old one's onclose,
+  // arriving late, is ignored (see the guard there).
+  connect();
+}
+
+/** Send now if the socket is open, else lead a fresh socket with this frame
+ *  (see firstFrame). True when it went out now; false means it waits for a
+ *  socket still to come, which cancelFirstFrame() can call off. */
+function rpcWhenOpen(cmd, ...args) {
+  if (isOpen() && !probeTimer) return rpccmd(cmd, ...args);
+  firstFrame = { cmd: cmd, args: args };
+  // Mid-probe the socket is in doubt: an answer sends the frame over it (see
+  // onmessage), silence closes it and the frame leads the replacement.
+  if (!probeTimer) ensureOpen();
+  return false;
+}
+
+function cancelFirstFrame() {
+  firstFrame = null;
+}
+
+/** A new socket's opening words when there is no resume to ask for. */
+function answerFreshSocket() {
+  const f = firstFrame;
+  firstFrame = null;
+  if (f && rpccmd(f.cmd, ...f.args)) {
+    skippedCodepage = true;
+    return;
+  }
+  // Answer the server's very first prompt -- the codepage menu -- with '1' =
+  // koi8-r, which is the encoding this client decodes (see telnet.js koi2utf).
+  // REQUIRED: without it the session stays on the wrong codepage and text is
+  // garbled. This is NOT the language menu (that comes next and is handled by
+  // src/langsync.js).
+  send('1');
+}
+
 function connect() {
-  ws = new WebSocket(wsUrl, ['binary']);
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+  const quiet = silentRetry;
+  silentRetry = false;
+  // A deliberate cycle is consumed by its own socket's onclose. A connect that
+  // supersedes that socket first leaves the flag stale; drop it here.
+  deliberateReconnect = false;
+  inWorld = false;
+  skippedCodepage = false;
+
+  // Replacing a socket that is still closing: its onclose will be ignored, so
+  // say what it would have said (prompt gone, line down) and drop its probe.
+  if (ws) {
+    cancelProbe();
+    store.dispatch(onDisconnected());
+  }
+
+  const sock = new WebSocket(wsUrl, ['binary']);
+  ws = sock;
 
   ws.binaryType = 'arraybuffer';
 
@@ -310,6 +411,12 @@ function connect() {
     if (probeTimer) {
       cancelProbe();
       flushPending();
+      // This socket is long past its codepage menu: an ordinary send.
+      if (firstFrame) {
+        const f = firstFrame;
+        firstFrame = null;
+        rpccmd(f.cmd, ...f.args);
+      }
     }
 
     const b = JSON.parse(utf8Decoder.decode(e.data));
@@ -318,7 +425,11 @@ function connect() {
   };
 
   ws.onopen = function () {
-    reconnectDelay = 0;
+    /* A server that accepts and drops at once would otherwise be retried with
+     * no pause at all. The resume path keeps its reset here; the login path
+     * resets once a nanny proves the line (rpc-nanny_step) or on a player's
+     * own action (ensureOpen). */
+    if (resumeToken()) reconnectDelay = 0;
 
     /* Holding a token, say nothing else until the server has ruled on it: if
      * the resume takes, the codepage answer below would land in the game as a
@@ -328,15 +439,14 @@ function connect() {
       return;
     }
 
-    // Answer the server's very first prompt -- the codepage menu -- with '1' =
-    // koi8-r, which is the encoding this client decodes (see telnet.js koi2utf).
-    // REQUIRED: without it the session stays on the wrong codepage and text is
-    // garbled. This is NOT the language menu (that comes next and is handled by
-    // src/langsync.js).
-    send('1');
+    answerFreshSocket();
   };
 
   ws.onclose = function () {
+    // A socket someone already replaced has nothing left to say about the line.
+    if (ws !== sock) return;
+    const wasInWorld = inWorld;
+
     cancelProbe();
     ws = null;
     store.dispatch(onDisconnected());
@@ -354,6 +464,14 @@ function connect() {
      * silent retry instead, which is the whole point for a backgrounded phone:
      * the player comes back to their game, not to a red banner. */
     if (!resumeToken()) {
+      // Still at the login screen, or a roster click waiting for a line: come
+      // back quietly instead of leaving the login over a dead socket.
+      if (firstFrame || (!wasInWorld && loginRetries < LOGIN_RETRY_MAX)) {
+        loginRetries++;
+        silentRetry = true;
+        scheduleReconnect();
+        return;
+      }
       process(
         '\u001b[1;31m#################### DISCONNECTED ####################\u001b[0;37m\n'
       );
@@ -365,21 +483,42 @@ function connect() {
 
   // Silent while resuming: a backgrounded phone can go through several
   // attempts, and each one announcing itself is exactly the noise this feature
-  // exists to remove.
-  if (!resumeToken()) process('Connecting....\n');
+  // exists to remove. Same for the login screen's own quiet retries.
+  if (!resumeToken() && !quiet) process('Connecting....\n');
   store.dispatch(onConnected());
 }
 
 $(document).ready(function () {
   $('#rpc-events')
     .on('rpc-prompt', function (e, b) {
+      inWorld = true;
+      loginRetries = 0;
+      // In the world: an entry frame still waiting (a tap during a resume) must
+      // never go out later.
+      firstFrame = null;
       if (b && b.resume) setResumeToken(b.resume);
+    })
+    // The nanny reached a real question: the line is good.
+    .on('rpc-nanny_step', function () {
+      loginRetries = 0;
+      reconnectDelay = 0;
+    })
+    .on('rpc-account_enter_ok', function () {
+      skippedCodepage = false;
+    })
+    .on('rpc-account_enter_failed', function () {
+      // The token led a fresh socket and was refused: the descriptor is still
+      // at the codepage menu, so answer it now and carry on as a login.
+      if (!skippedCodepage) return;
+      skippedCodepage = false;
+      send('1');
     })
     .on('rpc-resume_ok', function () {
       // Straight back into the character: no banner, no login, and the
       // scrollback in this tab is still the one the player left.
       resumeRetries = 0;
       reconnectDelay = 0;
+      firstFrame = null;
       flushPending();
     })
     .on('rpc-resume_failed', function (e, reason) {
@@ -402,7 +541,7 @@ $(document).ready(function () {
       resumeRetries = 0;
       pending = [];
       setResumeToken(null);
-      send('1');
+      answerFreshSocket();
     });
 
   document.addEventListener('visibilitychange', function () {
@@ -419,4 +558,14 @@ $(document).ready(function () {
   window.addEventListener('online', verifyConnection);
 });
 
-export { send, rpccmd, connect, reconnect, ws };
+export {
+  send,
+  rpccmd,
+  connect,
+  reconnect,
+  ensureOpen,
+  isOpen,
+  rpcWhenOpen,
+  cancelFirstFrame,
+  ws,
+};
