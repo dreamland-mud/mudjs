@@ -12,6 +12,9 @@
  */
 
 :root{
+  /* widget type scale, shared by the panel and the help search dropdown */
+  --panel-title-size:14px;
+  --panel-body-size:12px;
   --rf-bg:#0f0e13;
   --rf-panel-lo:#17161d;
   --rf-panel-mid:#221f2b;
@@ -270,7 +273,7 @@ td.v-bottom{vertical-align:bottom}
 .help-results__item{display:block;padding:9px 16px;cursor:pointer;border-bottom:1px solid}
 .help-results__item:last-child{border-bottom:0}
 .help-results__title{display:block;font-weight:600;font-size:1.02rem}
-.help-results__kind{margin-left:8px;padding:0 6px;font-weight:400;font-size:.7rem;vertical-align:2px;border:1px solid;border-radius:4px}
+.help-results__kind{margin-left:8px;padding:0 6px;font-weight:400;font-size:.8em;vertical-align:2px;border:1px solid;border-radius:4px}
 .help-results__excerpt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;margin-top:3px;font-size:.86rem;line-height:1.4}
 .help-results__excerpt mark{background:none;font-weight:700}
 .help-results__kw{display:block;font-size:.72rem}
@@ -278,9 +281,9 @@ td.v-bottom{vertical-align:bottom}
 .help-results{background:linear-gradient(180deg,var(--rf-panel-mid),var(--rf-panel-lo));border-color:var(--rf-panel-hi);color:var(--rf-text)}
 .help-results__item{border-bottom-color:var(--rf-hair)}
 .help-results__item.is-active{background:rgba(187,134,252,.12)}
-.help-results__title{color:var(--rf-text)}
+.help-results__title{font-weight:600;font-size:var(--panel-title-size);color:var(--rf-text)}
 .help-results__kind{color:var(--rf-text-faint);border-color:var(--rf-hair-hi)}
-.help-results__excerpt{color:var(--rf-text-dim)}
+.help-results__excerpt{font-size:var(--panel-body-size);color:var(--rf-text-dim)}
 .help-results__excerpt mark{color:var(--rf-cyan)}
 .help-results__kw{font-family:monospace;color:var(--rf-text-faint)}
 .help-results__empty{color:var(--rf-text-dim)}
@@ -1093,12 +1096,12 @@ form#input input{flex:1 1 auto;min-width:0}
 
 /* widgets: a bit larger type + inner padding */
 #panel-wrap{font-size:13px}
-#panel-wrap .dark-panel-title{font-size:14px}
+#panel-wrap .dark-panel-title{font-size:var(--panel-title-size)}
 .table-wrapper{padding:1px 5px 7px}
 #group-table td,#group-table th,#who-table td,#who-table th{padding:3px 6px}
 #player-params-1 td,#player-params-2 td{padding:2px 7px;font-size:12px}
-#questor-table p,#player-affects-table{font-size:12px}
-.rf-tw td{font-size:12px}
+#questor-table p,#player-affects-table{font-size:var(--panel-body-size)}
+.rf-tw td{font-size:var(--panel-body-size)}
 .aff-chip{font-size:12px}
 
 /* keypad slide-out (grid-rows 0fr<->1fr, same technique as the panel collapse) */
