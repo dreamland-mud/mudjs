@@ -392,6 +392,13 @@ function connect() {
   inWorld = false;
   skippedCodepage = false;
 
+  // Replacing a socket that is still closing: its onclose will be ignored, so
+  // say what it would have said (prompt gone, line down) and drop its probe.
+  if (ws) {
+    cancelProbe();
+    store.dispatch(onDisconnected());
+  }
+
   const sock = new WebSocket(wsUrl, ['binary']);
   ws = sock;
 

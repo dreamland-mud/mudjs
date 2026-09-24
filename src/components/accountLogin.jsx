@@ -387,11 +387,17 @@ export default function AccountLogin() {
       setNameStatus(r === 'reserved' ? 'reserved' : r === 'online' ? 'online' : 'taken');
     };
 
+    // A new socket (version comes first on every one) has a nanny that has not
+    // asked anything yet; a step from the previous socket must not be trusted.
+    const onVersion = () => { nannyStepRef.current = null; };
+
     $('#rpc-events').on('rpc-nanny_step', onStep);
     $('#rpc-events').on('rpc-check_name_result', onCheck);
+    $('#rpc-events').on('rpc-version', onVersion);
     return () => {
       $('#rpc-events').off('rpc-nanny_step', onStep);
       $('#rpc-events').off('rpc-check_name_result', onCheck);
+      $('#rpc-events').off('rpc-version', onVersion);
     };
   }, [lang]);
 
