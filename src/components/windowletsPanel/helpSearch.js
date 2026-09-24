@@ -103,8 +103,9 @@ export function kind(a, lang) {
 
 const squash = s => s.replace(/\s+/g, ' ').trim();
 
-// usage lines ("Format: c fireball", plus indented continuations) are noise in an excerpt
-const USAGE_RE = /(^|\n)[ \t]*(Format|Syntax|Формат|Синтаксис)[ \t]*:[^\n]*(\n[ \t]+\S[^\n]*)*/g;
+// usage lines ("Format: c fireball", plus indented continuations) are noise in an
+// excerpt; a line longer than 80 chars has the description glued on, so it stays
+const USAGE_RE = /(^|\n)[ \t]*(Format|Syntax|Формат|Синтаксис)[ \t]*:[^\n]{0,80}(?=\n|$)(\n[ \t]+\S[^\n]{0,80}(?=\n|$))*/g;
 
 const plainText = markup =>
   String(markup || '')
