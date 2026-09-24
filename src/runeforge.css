@@ -14,7 +14,7 @@
 :root{
   /* widget type scale, shared by the panel and the help search dropdown */
   --panel-title-size:14px;
-  --panel-body-size:12px;
+  --panel-body-size:13px;
   --rf-bg:#0f0e13;
   --rf-panel-lo:#17161d;
   --rf-panel-mid:#221f2b;

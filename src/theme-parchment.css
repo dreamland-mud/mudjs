@@ -28,7 +28,7 @@
 :root{
   /* widget type scale, shared by the panel and the help search dropdown */
   --panel-title-size:12px;
-  --panel-body-size:10px;
+  --panel-body-size:11px;
   /* ground -- deep obsidian, mudjs-dark aligned */
   --obsidian:#08070c;
   --stone-950:#0d0b12;
