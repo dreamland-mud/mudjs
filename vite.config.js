@@ -87,6 +87,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/data': {
+        target: 'https://dreamland.rocks',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });

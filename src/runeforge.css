@@ -264,6 +264,27 @@ td.v-bottom{vertical-align:bottom}
 #help input:focus{background-color:#000;outline:none;border-color:var(--rf-brand)}
 .form-control-feedback{position:absolute;z-index:2;display:block;width:2.375rem;height:2.375rem;line-height:2.375rem;text-align:center;pointer-events:none;color:var(--rf-text-dim)}
 
+/* help search results (panelHelp.jsx): a portal on <body> pinned under the
+   input, same layout as the dreamland.rocks/help search dropdown */
+.help-results{position:fixed;z-index:1300;overflow-y:auto;text-align:left;border:1px solid;border-radius:10px;box-shadow:0 20px 44px rgba(0,0,0,.65)}
+.help-results__item{display:block;padding:9px 16px;cursor:pointer;border-bottom:1px solid}
+.help-results__item:last-child{border-bottom:0}
+.help-results__title{display:block;font-weight:600;font-size:1.02rem}
+.help-results__kind{margin-left:8px;padding:0 6px;font-weight:400;font-size:.7rem;vertical-align:2px;border:1px solid;border-radius:4px}
+.help-results__excerpt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;margin-top:3px;font-size:.86rem;line-height:1.4}
+.help-results__excerpt mark{background:none;font-weight:700}
+.help-results__kw{display:block;font-size:.72rem}
+.help-results__empty{margin:0;padding:12px 16px}
+.help-results{background:linear-gradient(180deg,var(--rf-panel-mid),var(--rf-panel-lo));border-color:var(--rf-panel-hi);color:var(--rf-text)}
+.help-results__item{border-bottom-color:var(--rf-hair)}
+.help-results__item.is-active{background:rgba(187,134,252,.12)}
+.help-results__title{color:var(--rf-text)}
+.help-results__kind{color:var(--rf-text-faint);border-color:var(--rf-hair-hi)}
+.help-results__excerpt{color:var(--rf-text-dim)}
+.help-results__excerpt mark{color:var(--rf-cyan)}
+.help-results__kw{font-family:monospace;color:var(--rf-text-faint)}
+.help-results__empty{color:var(--rf-text-dim)}
+
 /* autocomplete plugin */
 .autocomplete-suggestions{border:1px solid var(--rf-edge);background:var(--rf-panel-lo);overflow:auto;cursor:pointer;color:var(--rf-text);border-radius:5px;box-shadow:0 8px 24px rgba(0,0,0,.6)}
 .autocomplete-suggestion{padding:2px 6px;overflow:auto}
