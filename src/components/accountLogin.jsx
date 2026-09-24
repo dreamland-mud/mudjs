@@ -158,8 +158,10 @@ export default function AccountLogin() {
   const checkTimer = useRef(null);      // debounce timer for check_name
   const latestName = useRef('');        // echo-guard: drop a check_name reply for an old value
   const driveTimer = useRef(null);      // watchdog: no nanny_step -> server not in v2 mode
+  // Both ride the nanny's `name` step signal, which the V2 plain front emits
+  // (.tmp.nanny.v2). With V2 off they wait out the backstop instead.
   const pendingLogin = useRef(null);    // path A typed over a dead socket: {name, password} for the fresh nanny
-  const pendingCheck = useRef(null);    // a check_name the dead socket could not carry
+  const pendingCheck = useRef(null);    // a check_name still waiting for its answer
 
   const later = (fn, ms) => {
     const id = setTimeout(fn, ms);
@@ -193,7 +195,7 @@ export default function AccountLogin() {
         nannyStepRef.current = null;
         reconnect();
       } else {
-        setCrError(at('cr_unavailable', l));
+        setCrError(at(isOpen() ? 'cr_unavailable' : 'offline', l));
       }
     }, ms || DRIVE_TIMEOUT_MS);
   };
@@ -290,7 +292,8 @@ export default function AccountLogin() {
       openCurtain();
     };
     const onEnterFailed = () => {
-      if (!enterPending.current) return;
+      // A refused second tap must not stop a reveal the first one started.
+      if (!enterPending.current || phaseRef.current !== 'login') return;
       enterPending.current = false;
       clearTimers();
       setBusy('');
@@ -325,8 +328,8 @@ export default function AccountLogin() {
       }
       if (step === 'name' && pendingCheck.current) {
         const v = pendingCheck.current;
-        pendingCheck.current = null;
         if (v === latestName.current) rpccmd('check_name', v);
+        else pendingCheck.current = null;
       }
 
       if (!driving.current) return;
@@ -374,6 +377,7 @@ export default function AccountLogin() {
     };
 
     const onCheck = (e, data) => {
+      if (data && data.name === pendingCheck.current) pendingCheck.current = null;
       // Echo-guard: a reply for a value the field has since moved past is stale.
       if (!data || data.name !== latestName.current) return;
       if (data.ok) { setNameStatus('ok'); return; }
@@ -532,11 +536,13 @@ export default function AccountLogin() {
     }
     // If the prompt never arrives, the credentials were wrong -- re-show the form.
     later(() => {
+      // Still waiting on a line that never came back: say so, not "wrong password".
+      const lineDown = pendingLogin.current !== null;
       pendingLogin.current = null;
       if (phaseRef.current === 'login') {
         setBusy('');
-        setError(at('fail', lang));
-        if (dragonRef.current) dragonRef.current.shake();   // wrong password -> the dragon says no
+        setError(at(lineDown ? 'offline' : 'fail', lang));
+        if (!lineDown && dragonRef.current) dragonRef.current.shake();   // wrong password -> the dragon says no
       }
     }, open ? LOGIN_TIMEOUT_MS : RECONNECT_WAIT_MS);
   };
@@ -564,10 +570,10 @@ export default function AccountLogin() {
     if (!NAME_RE.test(v)) { setNameStatus('bad'); return; }
     setNameStatus('checking');
     checkTimer.current = setTimeout(() => {
-      if (rpccmd('check_name', v)) return;
-      // Dead line: ask again once the fresh nanny is up.
+      // Kept until the answer lands: if this socket turns out dead (closed now,
+      // or a zombie a probe later replaces), the fresh nanny's name step asks again.
       pendingCheck.current = v;
-      ensureOpen();
+      if (!rpccmd('check_name', v)) ensureOpen();
     }, 350);
   };
 
@@ -719,7 +725,7 @@ export default function AccountLogin() {
           enterPending.current = false;
           cancelFirstFrame();
           setBusy('');
-          setBerror(at('enterfail', lang));
+          setBerror(at(isOpen() ? 'enterfail' : 'offline', lang));
         }
       }, sentNow ? LOGIN_TIMEOUT_MS : RECONNECT_WAIT_MS);
     } else if (status === 401) {

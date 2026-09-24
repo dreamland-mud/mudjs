@@ -325,8 +325,9 @@ function reconnect() {
       /* already closing -- onclose still fires and consumes the flag */
     }
   } else {
+    // No socket, maybe mid-backoff: go now rather than wait out the timer.
     reconnectDelay = 0;
-    scheduleReconnect();
+    connect();
   }
 }
 
@@ -335,12 +336,14 @@ function isOpen() {
 }
 
 /** Make sure a socket is open or on its way. For a login action the player just
- *  took: a closing socket reconnects from its onclose, a missing one now. */
+ *  took. */
 function ensureOpen() {
   loginRetries = 0;
   if (wsAlive()) return;
   reconnectDelay = 0;
-  if (ws) return;
+  // A CLOSING socket is not waited for: over a dropped NAT mapping its close
+  // can take a minute. The replacement goes now and the old one's onclose,
+  // arriving late, is ignored (see the guard there).
   connect();
 }
 
@@ -383,6 +386,9 @@ function connect() {
   }
   const quiet = silentRetry;
   silentRetry = false;
+  // A deliberate cycle is consumed by its own socket's onclose. A connect that
+  // supersedes that socket first leaves the flag stale; drop it here.
+  deliberateReconnect = false;
   inWorld = false;
   skippedCodepage = false;
 
@@ -412,7 +418,11 @@ function connect() {
   };
 
   ws.onopen = function () {
-    reconnectDelay = 0;
+    /* A server that accepts and drops at once would otherwise be retried with
+     * no pause at all. The resume path keeps its reset here; the login path
+     * resets once a nanny proves the line (rpc-nanny_step) or on a player's
+     * own action (ensureOpen). */
+    if (resumeToken()) reconnectDelay = 0;
 
     /* Holding a token, say nothing else until the server has ruled on it: if
      * the resume takes, the codepage answer below would land in the game as a
@@ -476,11 +486,15 @@ $(document).ready(function () {
     .on('rpc-prompt', function (e, b) {
       inWorld = true;
       loginRetries = 0;
+      // In the world: an entry frame still waiting (a tap during a resume) must
+      // never go out later.
+      firstFrame = null;
       if (b && b.resume) setResumeToken(b.resume);
     })
     // The nanny reached a real question: the line is good.
     .on('rpc-nanny_step', function () {
       loginRetries = 0;
+      reconnectDelay = 0;
     })
     .on('rpc-account_enter_ok', function () {
       skippedCodepage = false;
@@ -497,6 +511,7 @@ $(document).ready(function () {
       // scrollback in this tab is still the one the player left.
       resumeRetries = 0;
       reconnectDelay = 0;
+      firstFrame = null;
       flushPending();
     })
     .on('rpc-resume_failed', function (e, reason) {
