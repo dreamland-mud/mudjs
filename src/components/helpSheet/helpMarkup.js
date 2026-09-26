@@ -40,19 +40,35 @@ function flatten(root, resolve) {
         segs.push({ text: n.nodeValue, chain });
       } else if (n.nodeType === 1) {
         const tag = n.tagName.toLowerCase();
-        let link = null, cls = null;
+        let link = null, cls = null, act = null;
         if (tag === 'c') cls = n.getAttribute('c');
+        else if (tag === 'hc') act = (n.textContent || '').trim();
         else if (tag === 'hh' || tag === 'hg') {
           // Resolved from the whole element: a colour span inside the anchor
           // would otherwise split the phrase that has to be looked up.
           link = n.getAttribute('id');
           if (!link && resolve) link = resolve(n.textContent || '');
         }
-        walk(n, chain.concat([{ tag, cls, link }]));
+        walk(n, chain.concat([{ tag, cls, link, act }]));
       }
     }
   })(root, []);
   return segs;
+}
+
+function cmdButton(action, label) {
+  return '<button type="button" class="hs-link hs-cmdlink" data-action="' + esc(action) + '">' + label + '</button>';
+}
+
+// Server command links, [cmd=<command>,see=<label>,nonce=<8>]. The nonce is the
+// session's (websock.js), so a player cannot forge one into text they control;
+// a wrong nonce leaves the label as plain text. Same rules as manip.js.
+function cmdLinks(html, nonce) {
+  return html.replace(/\[cmd=([^,]{1,200}),see=([^\]]{1,50}),nonce=(.{8})]/gi, (m, cmd, see, n) => {
+    if (!nonce || n !== nonce) return see;
+    const label = see.trim();
+    return label ? cmdButton(cmd.replace(/\$1/, see), label) : '';
+  });
 }
 
 function wrapChain(html, chain) {
@@ -62,6 +78,8 @@ function wrapChain(html, chain) {
     else if (w.tag === 'hh' || w.tag === 'hg') html = w.link
       ? '<button type="button" class="hs-link" data-hid="' + esc(w.link) + '">' + html + '</button>'
       : '<b class="hs-link-plain">' + html + '</b>';
+    // <hc> sends its own text, as in the terminal (manip.js); no cmd attribute here
+    else if (w.tag === 'hc' && w.act) html = cmdButton(w.act, html);
     else if (w.tag === 'hc' || w.tag === 'hs') html = '<b class="hs-cmd">' + html + '</b>';
   }
   return html;
@@ -139,7 +157,7 @@ export function render(raw, opts) {
     list = [];
   };
 
-  let lastWasFmt = false;
+  let lastWasFmt = false, prevBlank = false;
   for (let n = 0; n < lines.length; n++) {
     const line = lines[n], plain = linePlain(line);
 
@@ -148,6 +166,7 @@ export function render(raw, opts) {
     if (kind[n] === 'blank') {
       flushPara(); flushList(); lastWasFmt = false;
       if (byLine && out.length) out.push('<p class="hs-gap"></p>');
+      prevBlank = true;
       continue;
     }
 
@@ -167,7 +186,16 @@ export function render(raw, opts) {
     lastWasFmt = false;
 
     if (byLine) {
-      out.push('<p class="hs-line">' + lineHtml(line) + '</p>');
+      // The server wraps long text at ~80 columns. A line that opens in lower
+      // case continues the one above, so it joins it instead of starting a row.
+      const lead = plain.length - plain.replace(/^\s+/, '').length;
+      const prev = out.length ? out[out.length - 1] : '';
+      if (/^\s*\p{Ll}/u.test(plain) && prev.startsWith('<p class="hs-line">') && !prevBlank) {
+        out[out.length - 1] = prev.slice(0, -4) + ' ' + lineHtmlFrom(line, lead) + '</p>';
+      } else {
+        out.push('<p class="hs-line">' + lineHtml(line) + '</p>');
+      }
+      prevBlank = false;
       continue;
     }
 
@@ -180,5 +208,6 @@ export function render(raw, opts) {
     para.push(lineHtml(line));
   }
   flushPara(); flushList(); flushPre();
-  return out.join('\n');
+  while (out.length && out[out.length - 1] === '<p class="hs-gap"></p>') out.pop();
+  return cmdLinks(out.join('\n'), opts && opts.nonce);
 }
