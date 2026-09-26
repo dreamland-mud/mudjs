@@ -36,7 +36,7 @@ if (_dlSkin === 'runeforge') {
 }
 
 // Drop the boot overlay (index.html #dl-boot) once the skin's CSS has applied.
-// Before that, the static #hint-* modals flash as unstyled help text on white --
+// Before that, the static modals flash as unstyled text on white --
 // see the critical <style> in index.html. One rAF lets the app paint under the
 // fade; the timeout is a safety net so a hung import can never trap the player
 // behind the spinner.

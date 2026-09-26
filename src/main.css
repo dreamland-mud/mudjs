@@ -339,13 +339,6 @@ td.v-bottom {
 }
 
 /*
- * Pop-up windows with hints about various layout elements.
- */
-.hints .modal-content {
-  color: #ddd;
-}
-
-/*
  * Add some space around main screen on all media sizes.
  */
 .terminal-wrap {

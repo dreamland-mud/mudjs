@@ -1,5 +1,6 @@
 import React from 'react';
 import PanelItem from './panelItem';
+import { openWidgetHelp } from '../helpSheet/HelpSheet';
 import { t } from '../../i18n';
 
 // Plain tables (no MUI). Layout/colour lives in runeforge.css under .rf-tw: compact
@@ -54,11 +55,15 @@ const WeatherRow = ({ i, m }) => (
 /**
  * Render weather & time windowlet.
  */
+// help 'time': day and night, the date, the clock in the status line
+const TIME_HELP = 1029;
+
 export default function TimeWeatherItem(prompt) {
   const { time, date, w: weather } = prompt;
 
   return (
-    <PanelItem storageKey="timeWeather" title={t('tw.title', prompt.lang)}>
+    <PanelItem storageKey="timeWeather" title={t('tw.title', prompt.lang)}
+      onOpen={() => openWidgetHelp({ kind: 'article', id: TIME_HELP })}>
       <table className="rf-tw">
         <tbody>
           {time && time !== 'none' && <TimeRow {...time} />}

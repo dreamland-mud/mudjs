@@ -1,5 +1,6 @@
 import React from 'react'
 import PanelItem from './panelItem'
+import { openWidgetHelp } from '../helpSheet/HelpSheet'
 import { t } from '../../i18n';
 import './affects.css';
 
@@ -77,8 +78,9 @@ export default function AffectsItem(prompt) {
     });
 
     return (
-        <PanelItem storageKey="affects" title={t('aff.title', l)}>
-            <div id="player-affects-table" className="affects-flat" data-hint="hint-affects">
+        <PanelItem storageKey="affects" title={t('aff.title', l)}
+            onOpen={() => openWidgetHelp({ kind: 'cmd', what: 'affects' })}>
+            <div id="player-affects-table" className="affects-flat">
                 { chips }
             </div>
         </PanelItem>
