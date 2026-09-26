@@ -47,6 +47,13 @@ function keywordResolver(index) {
   };
 }
 
+// The Online widget sends names cut to 10 letters; whois opens with the full one.
+function fullName(title, req, text) {
+  if (req.what !== 'whois') return title;
+  const first = (text.replace(/<[^>]*>/g, '').trim().split(/\s/)[0] || '');
+  return first.toLowerCase().startsWith(String(req.arg).toLowerCase()) ? first : title;
+}
+
 function StatsLegend({ lang, onArticle }) {
   const row = (keys, text) => (
     <li>
@@ -160,7 +167,7 @@ export default function HelpSheet() {
         live && setView({ title, state: 'error', note: t('hs.noreply', lang).replace('%s', typed) });
       const onText = (e, k, text) => {
         if (k !== key || !live) return;
-        setView({ title, html: render(text, { lines: true }), state: 'ready' });
+        setView({ title: fullName(title, top, text), html: render(text, { lines: true }), state: 'ready' });
       };
 
       setView({ title, state: 'loading' });
