@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import $ from 'jquery';
 
-import { rpccmd } from '../../websock.js';
+import { rpccmd, send, ws } from '../../websock.js';
+import { echo } from '../../input.js';
 import { getLang, t } from '../../i18n';
 import { loadIndex, loadBodies, label } from '../windowletsPanel/helpSearch';
 import { render } from './helpMarkup';
@@ -167,7 +168,11 @@ export default function HelpSheet() {
         live && setView({ title, state: 'error', note: t('hs.noreply', lang).replace('%s', typed) });
       const onText = (e, k, text) => {
         if (k !== key || !live) return;
-        setView({ title: fullName(title, top, text), html: render(text, { lines: true }), state: 'ready' });
+        setView({
+          title: fullName(title, top, text),
+          html: render(text, { lines: true, nonce: ws && ws.nonce }),
+          state: 'ready',
+        });
       };
 
       setView({ title, state: 'loading' });
@@ -206,8 +211,19 @@ export default function HelpSheet() {
 
   const pushArticle = id => setStack(s => s.concat([{ kind: 'article', id }]));
 
-  // Links inside rendered markup are plain buttons carrying data-hid.
+  // Links inside rendered markup are plain buttons: data-hid opens an article
+  // here, data-action is a game command -- it goes to the game, the sheet closes
+  // so the player sees the answer in the terminal.
   const onBodyClick = e => {
+    const cmd = e.target.closest('[data-action]');
+    if (cmd) {
+      e.preventDefault();
+      const action = cmd.getAttribute('data-action');
+      echo(action);
+      send(action);
+      setOpen(false);
+      return;
+    }
     const link = e.target.closest('[data-hid]');
     if (!link) return;
     e.preventDefault();
