@@ -212,7 +212,7 @@ export default function Help() {
       <button className="close" type="button" data-toggle="collapse" data-target="#help-table">
         {' '}
       </button>
-      <div id="help-table" className="" data-hint="hint-help">
+      <div id="help-table" className="">
         <span className="fa fa-search form-control-feedback"></span>
         <input
           ref={inputRef}

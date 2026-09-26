@@ -174,3 +174,7 @@
   --edge: rgba(48, 63, 70, 0.85); --mid: #546e7a;
   --stroke: rgba(84, 110, 122, 0.5); --glow: rgba(84, 110, 122, 0.4);
 }
+
+/* each row opens that player's whois (helpSheet) */
+#who-table.who-grid .who-row { display: contents; }
+#who-table.who-grid .who-row:hover .who-name { text-decoration: underline; text-underline-offset: 2px; }

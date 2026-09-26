@@ -1,5 +1,6 @@
 import React from 'react'
 import PanelItem from "./panelItem"
+import { openWidgetHelp } from '../helpSheet/HelpSheet'
 import { raceName, clanName } from './windowletsConstants'
 import { t } from '../../i18n'
 import './who.css'
@@ -26,21 +27,23 @@ const ClanBadge = ({ cn, cc, lang }) => {
 // Each player contains fields: n - name, r - first 2 letters of race,
 // cn - first letter of clan name, cc - clan colour. lang is threaded in for the
 // localized race/clan names.
+// A row is display:contents, so its three cells stay in the grid and one click
+// anywhere on them opens that player's whois.
 const WhoPlayer = (person) => (
-    <>
+    <div className="who-row hs-opener" onClick={() => openWidgetHelp({ kind: 'cmd', what: 'whois', arg: person.n })}>
         <span className="who-name">{person.n}</span>
         <span className="who-race">{raceName(person.r, person.lang)}</span>
         <span className="who-clan">
             {person.cn && person.cn !== 'n' && <ClanBadge cn={person.cn} cc={person.cc} lang={person.lang} />}
         </span>
-    </>
+    </div>
 )
 
 export default function WhoItem(prompt) {
 
     return (
         <PanelItem storageKey="who" title={t('who.title', prompt.lang)}>
-            <div id="who-table" className="who-grid" data-hint="hint-who">
+            <div id="who-table" className="who-grid">
                 {prompt.who.p.map((person, i) => (
                     <WhoPlayer key={i} {...person} lang={prompt.lang} />
                 ))}

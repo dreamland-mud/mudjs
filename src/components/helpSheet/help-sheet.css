@@ -1,0 +1,248 @@
+/*
+ * Widget help sheet -- a parchment reading sheet on the right, wearing the
+ * Nirvana modular frame (dreamland_web site/css/theme.css .ds-frame, ported with
+ * the same geometry: 42px corner mask flipped four ways, 6px double side rules,
+ * 9px keystones). Frame colour = --parch-edge, as on the site's parchment.
+ *
+ * Reading type: Playfair titles, Alegreya Sans body. No monospace anywhere --
+ * command output keeps its line breaks and indents instead.
+ *
+ * Colour: the game markup's fg classes are re-inked for parchment, the same
+ * palette as the site's help articles (site/css/helpart.css). Bright terminal
+ * hues on cream fail contrast, and ~30% of players are low vision or blind.
+ *
+ * Imported by the component, so it loads under both skins: every token has a
+ * hex fallback (Runeforge has no parchment tokens).
+ */
+
+.hs-sheet {
+  --hs-edge: var(--parch-edge, #96793f);
+  --hs-ink: var(--ink, #2b2213);
+  --hs-ink-dim: var(--ink-dim, #665736);
+  --hs-link: #6a2fa6;
+  --hs-link-hi: #8f3fd6;
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1060;
+  width: min(460px, 100vw);
+  padding: 10px;
+  box-sizing: border-box;
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform .24s ease, visibility 0s linear .24s;
+  outline: none;
+}
+.hs-sheet-open {
+  transform: none;
+  visibility: visible;
+  transition: transform .24s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hs-sheet, .hs-sheet-open { transition: none; }
+}
+
+.hs-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1059;
+  background: rgba(8, 7, 12, .55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .24s ease;
+}
+.hs-scrim-open { opacity: 1; pointer-events: auto; }
+
+.hs-paper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 5px;
+  color: var(--hs-ink);
+  background: var(--noise, none), linear-gradient(172deg, var(--parchment, #e4d6b2), var(--parchment-2, #d5c398));
+  background-blend-mode: multiply, normal;
+  border: 1px solid var(--hs-edge);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .5), inset 0 0 60px rgba(120, 95, 50, .16);
+}
+
+/* ---- modular frame ------------------------------------------------------- */
+
+.hs-frame { position: absolute; inset: 0; pointer-events: none; }
+.hs-frame__c,
+.hs-frame__s,
+.hs-frame__k { position: absolute; pointer-events: none; }
+.hs-frame__c {
+  width: 42px;
+  height: 42px;
+  z-index: 2;
+  background: var(--hs-edge);
+  -webkit-mask: var(--hs-corner) center/contain no-repeat;
+  mask: var(--hs-corner) center/contain no-repeat;
+}
+.hs-frame__c.tl { top: 0; left: 0; }
+.hs-frame__c.tr { top: 0; right: 0; transform: scaleX(-1); }
+.hs-frame__c.bl { bottom: 0; left: 0; transform: scaleY(-1); }
+.hs-frame__c.br { bottom: 0; right: 0; transform: scale(-1, -1); }
+.hs-frame__s { z-index: 1; }
+.hs-frame__s.top,
+.hs-frame__s.bottom {
+  left: 34px; right: 34px; height: 6px;
+  background: linear-gradient(to bottom, var(--hs-edge) 0 1.5px, transparent 1.5px 4.5px, var(--hs-edge) 4.5px 6px);
+}
+.hs-frame__s.left,
+.hs-frame__s.right {
+  top: 34px; bottom: 34px; width: 6px;
+  background: linear-gradient(to right, var(--hs-edge) 0 1.5px, transparent 1.5px 4.5px, var(--hs-edge) 4.5px 6px);
+}
+.hs-frame__s.top { top: 6px; }
+.hs-frame__s.bottom { bottom: 6px; }
+.hs-frame__s.left { left: 6px; }
+.hs-frame__s.right { right: 6px; }
+.hs-frame__k {
+  z-index: 2; left: 50%; top: 4.5px; width: 9px; height: 9px; margin-left: -4.5px;
+  background: var(--hs-edge);
+  -webkit-mask: var(--hs-keystone) center/contain no-repeat;
+  mask: var(--hs-keystone) center/contain no-repeat;
+}
+.hs-frame__k.bottom { top: auto; bottom: 4.5px; }
+
+.hs-sheet {
+  --hs-corner: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='42'%20height='42'%20viewBox='0%200%2042%2042'%3E%3Cg%20fill='none'%20stroke='%23000'%20stroke-width='1.5'%3E%3Cpath%20d='M6.75%2042%20V20.25%20M6.75%2012.75%20V6.75%20H12.75%20M20.25%206.75%20H42'/%3E%3Cpath%20d='M11.25%2042%20V29.5%20M29.5%2011.25%20H42%20M6.75%2034%20L34%206.75'/%3E%3Cpath%20d='M6.75%2027.75%20L27.75%206.75'/%3E%3C/g%3E%3Cpath%20d='M6.75%203.75%20L9.75%206.75%20L6.75%209.75%20L3.75%206.75%20Z'%20fill='%23000'/%3E%3Cpath%20fill-rule='evenodd'%20fill='%23000'%20d='M6.75%2012%20L11.25%2016.5%20L6.75%2021%20L2.25%2016.5%20Z%20M6.75%2014.1%20L9.15%2016.5%20L6.75%2018.9%20L4.35%2016.5%20Z%20M16.5%202.25%20L21%206.75%20L16.5%2011.25%20L12%206.75%20Z%20M16.5%204.35%20L18.9%206.75%20L16.5%209.15%20L14.1%206.75%20Z'/%3E%3C/svg%3E");
+  --hs-keystone: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%209%209'%3E%3Cpath%20d='M4.5%200%20L9%204.5%20L4.5%209%20L0%204.5%20Z'/%3E%3C/svg%3E");
+}
+
+/* ---- head --------------------------------------------------------------- */
+
+.hs-head {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 22px;
+  padding: 26px 0 12px 6px;
+  border-bottom: 1px solid rgba(150, 120, 70, .3);
+}
+.hs-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-family: var(--display, 'Playfair Display', serif);
+  font-weight: 700;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  color: #241809;
+  overflow-wrap: anywhere;
+}
+.hs-back,
+.hs-close {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 5px;
+  border: 1px solid rgba(120, 90, 50, .45);
+  background: rgba(70, 50, 20, .08);
+  color: var(--hs-ink);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.hs-back { font-size: 22px; }
+.hs-back:hover,
+.hs-close:hover { background: rgba(70, 50, 20, .16); border-color: var(--hs-edge); }
+.hs-back:focus-visible,
+.hs-close:focus-visible,
+.hs-link:focus-visible { outline: 2px solid var(--hs-link); outline-offset: 2px; }
+
+/* ---- reading body ------------------------------------------------------- */
+
+.hs-body {
+  position: relative;
+  z-index: 3;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  /* the scroll box ends inside the frame, so text never slides over the rails */
+  margin: 0 14px 18px;
+  padding: 14px 14px 12px;
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--hs-ink);
+  scrollbar-color: rgba(120, 90, 50, .5) transparent;
+}
+.hs-body p { margin: 0 0 .8em; }
+.hs-body h3 {
+  margin: 1.1em 0 .45em;
+  font-family: var(--display, 'Playfair Display', serif);
+  font-size: 1.05rem;
+  color: #241809;
+}
+.hs-body h3:first-child { margin-top: 0; }
+.hs-body ul { margin: 0 0 .9em; padding-left: 1.2em; }
+.hs-body li { margin: 0 0 .35em; }
+.hs-body li::marker { color: var(--hs-edge); }
+.hs-body pre {
+  margin: 0 0 1em;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: .92em;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  color: #3a2f18;
+  background: rgba(70, 50, 20, .08);
+  border: 1px solid rgba(120, 90, 50, .22);
+  border-radius: 4px;
+}
+.hs-note { color: var(--hs-ink-dim); font-style: italic; }
+
+/* command output: one row per line, its own indents kept */
+.hs-out .hs-line { margin: 0; white-space: pre-wrap; font-variant-numeric: tabular-nums; }
+.hs-out .hs-gap { margin: 0; height: .7em; }
+
+.hs-fmt { margin: 0 0 .5em; }
+.hs-fmt-label { margin-right: 4px; color: var(--hs-ink-dim); font-weight: 700; }
+.hs-cmd { font-weight: 700; color: #5c4a1e; }
+
+.hs-link {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--hs-link);
+  border-bottom: 1px solid rgba(106, 47, 166, .38);
+  cursor: pointer;
+  text-align: inherit;
+}
+.hs-link:hover { color: var(--hs-link-hi); border-bottom-color: var(--hs-link-hi); }
+.hs-link .c-fgdx, .hs-link .c-fgdw, .hs-link [class^="c-"] { color: inherit; }
+.hs-link-plain { font-weight: 700; color: #241809; }
+.hs-more { font-weight: 700; }
+
+/* game colour classes, re-inked for parchment (site/css/helpart.css) */
+.hs-body .c-fgdx, .hs-body .c-fgdw { color: inherit; }
+.hs-body .c-fgbw, .hs-body .c-fgbx { color: #171104; font-weight: 600; }
+.hs-body .c-fgby { color: #8a6a10; font-weight: 600; } .hs-body .c-fgdy { color: #7a5f14; }
+.hs-body .c-fgbg { color: #3f6b1c; font-weight: 600; } .hs-body .c-fgdg { color: #4c6a24; }
+.hs-body .c-fgbr { color: #a3202c; font-weight: 600; } .hs-body .c-fgdr { color: #93242e; }
+.hs-body .c-fgbc { color: #17696e; font-weight: 600; } .hs-body .c-fgdc { color: #1c6468; }
+.hs-body .c-fgbb { color: #2a55a0; font-weight: 600; } .hs-body .c-fgdb { color: #2f5691; }
+.hs-body .c-fgbm { color: #7a3597; font-weight: 600; } .hs-body .c-fgdm { color: #6f4184; }
+.hs-body .c-fgbd { color: #6b6250; } .hs-body .c-fgdd { color: #5a5344; }
+
+/* phones: the sheet is the whole screen, the frame tucks in */
+@media (max-width: 599px) {
+  .hs-sheet { padding: 0; }
+  .hs-paper { border-radius: 0; }
+  .hs-head { margin: 0 18px; padding-top: 22px; }
+  .hs-body { margin: 0 12px 16px; padding: 12px 10px 10px; }
+}
+
+/* widget bodies that open the sheet */
+.hs-opener { cursor: pointer; }

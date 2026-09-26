@@ -1,5 +1,6 @@
 import React from 'react'
 import PanelItem from "./panelItem";
+import { openWidgetHelp } from '../helpSheet/HelpSheet';
 import { t } from '../../i18n';
 import './affects.css';
 
@@ -33,8 +34,9 @@ export default function PlayerParamsItem(prompt) {
     }
 
     return (
-        <PanelItem storageKey="params" title={t('par.title', prompt.lang)} collapsed={true}>
-            <div id="player-params-table" className="stats-chips" data-hint="hint-params">
+        <PanelItem storageKey="params" title={t('par.title', prompt.lang)} collapsed={true}
+            onOpen={() => openWidgetHelp({ kind: 'stats' })}>
+            <div id="player-params-table" className="stats-chips">
                 {chips}
             </div>
         </PanelItem>

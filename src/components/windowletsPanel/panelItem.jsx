@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 
+// onOpen: clicking the widget body opens its help sheet (helpSheet/HelpSheet.jsx).
+//
 // Persist each panel's collapsed/expanded state across sessions in localStorage, so players
 // don't have to re-collapse the same panels on every login. Keyed by an explicit storageKey
 // when the panel's title is dynamic (group/quest), otherwise by the stable string title.
@@ -35,7 +37,8 @@ export default function PanelItem(props) {
         <span onClick={toggle} className="dark-panel-title">{props.title}</span>
         <button onClick={toggle} className={collapsed ? 'close collapsed' : 'close'} type="button" aria-expanded={!collapsed} />
         <div className={collapsed ? 'rf-collapse is-collapsed' : 'rf-collapse'}>
-            <div className="rf-collapse-inner">{ props.children }</div>
+            <div className={props.onOpen ? 'rf-collapse-inner hs-opener' : 'rf-collapse-inner'}
+                onClick={props.onOpen}>{ props.children }</div>
         </div>
     </div>;
 };

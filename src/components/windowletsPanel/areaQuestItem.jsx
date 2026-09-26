@@ -1,5 +1,6 @@
 import React from 'react'
 import PanelItem from "./panelItem"
+import { openWidgetHelp } from '../helpSheet/HelpSheet'
 
 // prompt area quest info 'aq' fields: t - windowlet title ("Задание в зоне X"),
 // i - current step info, which the engine prefixes with the quoted quest title:
@@ -13,8 +14,9 @@ export default function AreaQuestItem(prompt) {
         : raw
 
     return (
-        <PanelItem storageKey="areaquest" title={<span>{prompt.aq.t}</span>}>
-            <div id="questor-table" data-hint="hint-questor">
+        <PanelItem storageKey="areaquest" title={<span>{prompt.aq.t}</span>}
+            onOpen={() => openWidgetHelp({ kind: 'cmd', what: 'quest' })}>
+            <div id="questor-table">
                 <p className="fgbw">{body}</p>
             </div>
         </PanelItem>
