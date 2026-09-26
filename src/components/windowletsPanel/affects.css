@@ -17,9 +17,6 @@
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 6px;
-  /* Clear the panel's title divider: flattening dropped the columns' own top
-     padding, so the first chip row would sit on the .dark-panel-title border. */
-  padding-top: 5px;
 }
 
 #player-affects-table.affects-flat .aff-chip {
@@ -64,7 +61,6 @@
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 6px;
-  padding-top: 5px;
 }
 #player-params-table.stats-chips .stat-chip {
   display: inline-flex;

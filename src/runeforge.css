@@ -15,6 +15,9 @@
   /* widget type scale, shared by the panel and the help search dropdown */
   --panel-title-size:14px;
   --panel-body-size:13px;
+  --panel-pad-x:6px;
+  --panel-pad-top:8px;
+  --panel-pad-bottom:4px;
   --rf-bg:#0f0e13;
   --rf-panel-lo:#17161d;
   --rf-panel-mid:#221f2b;
@@ -230,14 +233,13 @@ td.v-bottom{vertical-align:bottom}
   letter-spacing:.02em;text-shadow:0 0 10px rgba(187,134,252,.32),0 1px 0 #000;
   border-bottom:1px solid rgba(187,134,252,.14);
 }
-#player-params-table{padding-left:5px}
 #group-table td,#group-table th,#who-table td,#who-table th{padding-left:5px;padding-right:5px}
 #who-table th,#player-params-1 td:nth-child(odd),#player-params-2 td:nth-child(odd){color:var(--rf-text)}
 #player-location .fa{font-size:150%}
 #player-affects-table .flexcontainer-column{padding-left:5px;padding-right:5px;padding-bottom:5px;width:auto}
 #player-affects-table .aff-chip{text-transform:capitalize}
-#questor-table p{padding:4px 4px 0 4px;color:#c4a000}
-#commands-table{justify-content:space-evenly;margin:0 0 0 5px}
+#questor-table p{padding:0;margin:0;color:#c4a000}
+#commands-table{justify-content:space-evenly;margin:0}
 
 .btn-ctrl-panel{
   color:#161018;font-size:1.1em;width:100%;margin-top:3px;text-align:left;border-color:transparent;
@@ -262,7 +264,7 @@ td.v-bottom{vertical-align:bottom}
 #help input{
   width:stretch;width:-webkit-fill-available;width:-moz-available;
   background-color:var(--rf-well);color:#fff;border:1px solid var(--rf-brand-deep);
-  margin:.5rem .5rem .5rem .25rem;padding-left:2rem;font-size:1.1em;border-radius:5px;
+  margin:0;padding-left:2rem;font-size:1.1em;border-radius:5px;
 }
 #help input:focus{background-color:#000;outline:none;border-color:var(--rf-brand)}
 .form-control-feedback{position:absolute;z-index:2;display:block;width:2.375rem;height:2.375rem;line-height:2.375rem;text-align:center;pointer-events:none;color:var(--rf-text-dim)}
@@ -1030,7 +1032,7 @@ form#input input{flex:1 1 auto;min-width:0}
 /* time/weather widget (plain table, ex-MUI) */
 .rf-tw{border-collapse:collapse}
 .rf-tw td{padding:1px 0;border:0;font-size:11px}
-.rf-tw td.tw-ic{width:1.4em;padding-left:5px;padding-right:8px}
+.rf-tw td.tw-ic{width:1.4em;padding-left:0;padding-right:8px}
 .rf-tw .wi,.rf-tw .fa{font-size:16px;width:1.4em;display:inline-block;text-align:left;color:#bb86fc}
 
 
@@ -1098,6 +1100,17 @@ form#input input{flex:1 1 auto;min-width:0}
 #panel-wrap{font-size:13px}
 #panel-wrap .dark-panel-title{font-size:var(--panel-title-size)}
 .table-wrapper{padding:1px 5px 7px}
+
+/* widget body inset -- set once here, never per widget. Horizontal = title text
+   inset (title padding 6 + .table-wrapper 5), so body and title share one edge. */
+#panel-wrap .rf-collapse-inner > *,#help-table{padding:var(--panel-pad-top) var(--panel-pad-x) var(--panel-pad-bottom)}
+#panel-wrap .rf-collapse-inner > table{padding:0;margin:var(--panel-pad-top) var(--panel-pad-x) var(--panel-pad-bottom)}
+#group-table th:first-child,#group-table td:first-child{padding-left:0}
+#group-table th:last-child,#group-table td:last-child{padding-right:0}
+#group-table table{border-collapse:collapse}
+#commands-table .flexcontainer-column{padding-bottom:0}
+#commands-table .flexcontainer-column:last-child{margin-right:0}
+#commands-table .flexcontainer-column > :first-child{margin-top:0}
 #group-table td,#group-table th,#who-table td,#who-table th{padding:3px 6px}
 #player-params-1 td,#player-params-2 td{padding:2px 7px;font-size:12px}
 #questor-table p,#player-affects-table{font-size:var(--panel-body-size)}
