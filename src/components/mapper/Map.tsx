@@ -370,6 +370,18 @@ function cardinalArc(
   return `M${sxp},${syp} Q${ctrlX},${ctrlY} ${txp},${typ}`;
 }
 
+// Last zoom level the player chose; DEFAULT_ZOOM on first visit.
+const ZOOM_KEY = 'map-zoom';
+const DEFAULT_ZOOM = 0.25;
+function loadZoom(): number {
+  try {
+    const v = parseFloat(localStorage.getItem(ZOOM_KEY) ?? '');
+    return Number.isFinite(v) && v > 0 ? v : DEFAULT_ZOOM;
+  } catch {
+    return DEFAULT_ZOOM;
+  }
+}
+
 export const Map = memo(function Map({ layout, index, locale, currentVnum, selectedVnum, activeZ, onSelectRoom, onSetCurrent, onCrossArea, onChangeZ, zFilter, zoomApiRef }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const gRef = useRef<SVGGElement>(null);
@@ -457,7 +469,10 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
     const maxScale = Math.min(Math.max(0.6, maxByW), Math.max(0.6, maxByH), 1.5);
     const z = zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.12, maxScale])
-      .on('zoom', (ev) => setTransform({ k: ev.transform.k, x: ev.transform.x, y: ev.transform.y }));
+      .on('zoom', (ev) => setTransform({ k: ev.transform.k, x: ev.transform.x, y: ev.transform.y }))
+      .on('end', (ev) => {
+        try { localStorage.setItem(ZOOM_KEY, String(ev.transform.k)); } catch { /* storage blocked */ }
+      });
     zoomRef.current = z;
     svg.call(z);
     // Initial pan: center on midpoint of bounds.
@@ -465,8 +480,8 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
     const h = svgRef.current.clientHeight;
     const midSX = ((layout.bounds.maxX - layout.bounds.minX) / 2) * STEP_X;
     const midSY = ((layout.bounds.maxY - layout.bounds.minY) / 2) * STEP_Y;
-    // Default zoom 35% — also the reset level when the map remounts after toggling ASCII.
-    const k = 0.35;
+    // Restore the player's last zoom so login and zone changes don't snap back in.
+    const k = Math.min(maxScale, Math.max(0.12, loadZoom()));
     const tx = w / 2 - (midSX + TILE_W / 2) * k;
     const ty = h / 2 - (midSY + TILE_H / 2) * k;
     svg.call(z.transform, zoomIdentity.translate(tx, ty).scale(k));
