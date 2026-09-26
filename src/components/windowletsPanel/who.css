@@ -2,8 +2,8 @@
  * Who widget -- name / race / clan-badge rows (Figma DL_desktop node 1023-690).
  *
  * The card chrome (frame, header ornament, collapse button) is the shared
- * .table-wrapper; this file owns only the body. Paddings are the Figma card_body
- * insets (8 / 16 / 12 / 12) minus the .table-wrapper padding (1 / 5 / 7 / 5).
+ * .table-wrapper; this file owns only the body. The body inset is the shared
+ * --panel-pad-* set in the skins, same as every other widget.
  *
  * Clan badges carry every Figma paint and effect of the "Chip" frames:
  *   fills   -- 90deg edge->mid->edge gradient + a 20% white top-half sheen
@@ -25,7 +25,6 @@
   grid-template-columns: 1fr 1fr auto;
   align-items: center;
   row-gap: 12px;
-  padding: 8px 11px 5px 7px;
   font-family: var(--ui, inherit);
   font-size: 12px;
   line-height: 1.4;
