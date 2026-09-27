@@ -62,7 +62,11 @@ const CmdInput = () => {
           input.is(':focus') ||
           $('#help input').is(':focus') ||
           $('.dl-mapper-root .search-input').is(':focus') ||
-          $('.acc-overlay :focus').length !== 0
+          $('.acc-overlay :focus').length !== 0 ||
+          // Typing in the conversation panel stays there: it has its own input
+          // and its own Enter, and a keystroke dragged into the game's command
+          // line takes the focus with it mid-word.
+          $('.chat-sheet :focus').length !== 0
         )
           return;
 

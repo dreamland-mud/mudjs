@@ -1,0 +1,566 @@
+/*
+ * Conversation panel -- Nirvana tokens, dark ground.
+ *
+ * The skin in the /play build is Parchment, so everything here speaks its
+ * tokens: --stone-* for the surface, --gold-* for trim and lit text, --arcane
+ * for power and on-states, --display / --ui / --article for the three type
+ * roles. Parchment itself is for READING (articles, help) and never for game
+ * colour, so this sheet stays on the dark stone.
+ *
+ * Type roles, as the design system sets them:
+ *   --display  Playfair -- the panel's name, once, at the top;
+ *   --ui       Alegreya Sans -- labels, buttons, the footer;
+ *   --article  Fira Code, ligatures OFF -- the game's own words.
+ *
+ * The lines themselves are NOT recoloured: the frame carries the text the
+ * server already painted for this player, and the panel adds only a channel
+ * mark in the margin. Colour is never the only cue -- the mark is a bar with a
+ * position of its own, and the line names its channel in words anyway.
+ */
+
+.chat-sheet {
+  /* Fallbacks are the Parchment values, so the sheet holds its look if it ever
+     renders before the skin's stylesheet lands. */
+  --chat-surface: var(--stone-900, #131019);
+  --chat-surface-hi: var(--stone-850, #191521);
+  --chat-chrome: var(--stone-800, #201a2b);
+  --chat-well: var(--rf-well, #0c0a10);
+  --chat-edge: var(--gold-deep, #55411d);
+  --chat-hair: rgba(230, 205, 134, 0.09);
+  --chat-text: var(--text, #e3d8c0);
+  --chat-dim: var(--text-dim, #a49a84);
+  --chat-faint: var(--text-faint, #6f6857);
+  --chat-accent: var(--arcane, #bb86fc);
+  --chat-accent-soft: rgba(187, 134, 252, 0.15);
+
+  position: fixed;
+  top: var(--chat-top, 0px);
+  right: 0;
+  height: var(--chat-height, 100dvh);
+  z-index: 1400; /* over the game, under the settings sheet (2101) */
+  width: min(var(--chat-sheet-width, 460px), 100vw);
+  display: flex;
+  flex-direction: column;
+  /* A surface, not a hole: stone with the skin's grain, a gold hairline at the
+     seam and a lift at the top edge. Without them the panel merged into the
+     page's own darkness at the right edge. */
+  background: var(--noise, none),
+    linear-gradient(180deg, var(--chat-surface-hi), var(--chat-surface) 120px);
+  background-blend-mode: soft-light, normal;
+  border-left: 1px solid var(--chat-edge);
+  box-shadow: -18px 0 46px rgba(0, 0, 0, 0.55), inset 1px 0 0 rgba(230, 205, 134, 0.06);
+  transform: translateX(100%);
+  transition: transform 260ms cubic-bezier(0.32, 0.72, 0, 1);
+  pointer-events: none;
+  color: var(--chat-text);
+  font-family: var(--ui, 'Alegreya Sans', 'Segoe UI', sans-serif);
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+.chat-sheet-open {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+/* Pinned: no longer floating, so the drop shadow goes and the map -- and only
+   the map -- gives up the width. The tile is picked by what it contains, which
+   survives any re-split of the mosaic. */
+.chat-sheet-pinned.chat-sheet-open {
+  box-shadow: inset 1px 0 0 rgba(230, 205, 134, 0.06);
+}
+
+/* WHICH TILE IS THE MAP. Not by position -- the mosaic can be re-split -- but
+   by what it holds. Three names, because the client has carried three mappers:
+   #map-wrap is the old one, .dl-mapper-root the current, #areaName the label
+   both draw. The tile's inline `inset` sets its right edge; an !important
+   declaration overrides the shorthand's right component and leaves the rest. */
+body.chat-pinned .mosaic-tile:has(#map-wrap),
+body.chat-pinned .mosaic-tile:has(.dl-mapper-root),
+body.chat-pinned .mosaic-tile:has(#areaName) {
+  right: var(--chat-w, 460px) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-sheet {
+    transition: none;
+  }
+}
+
+/* ---- the drag handle ---------------------------------------------------- */
+
+.chat-grip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 14px;
+  margin-left: -7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ew-resize;
+  background: transparent;
+  border: none;
+  padding: 0;
+  z-index: 2;
+  touch-action: none;
+}
+
+.chat-grip::after {
+  content: '';
+  width: 4px;
+  height: 46px;
+  border-radius: 3px;
+  background: var(--gold-metal, #7e6127);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+  transition: background 120ms ease, height 120ms ease;
+}
+
+.chat-grip:hover::after,
+.chat-grip:focus-visible::after,
+body.chat-resizing .chat-grip::after {
+  background: var(--chat-accent);
+  height: 70px;
+}
+
+.chat-grip:focus-visible {
+  outline: none;
+}
+
+body.chat-resizing {
+  user-select: none;
+  cursor: ew-resize;
+}
+
+/* ---- header ------------------------------------------------------------- */
+
+/* THE SAME HEAD THE WIDGETS WEAR. The windowlet recipe, verbatim from the skin
+   (.table-wrapper): an arcane glow spilling from the top edge, the stone ground
+   under the grain, a gold hairline below -- and the meander band carved out of
+   gold along the very top, the tile the design system calls --chev-band. The
+   panel is a window of the game like any other, so it should not invent a
+   chrome of its own. */
+.chat-head {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  /* Symmetric: with padding on top only, the whole row of controls sat three
+     pixels below the middle of the header -- the eye catches that even where
+     a ruler barely does. */
+  padding: 6px 8px 6px 14px;
+  border-bottom: 1px solid var(--stone-900, #131019);
+  box-shadow: 0 1px 0 rgba(187, 134, 252, 0.25);
+  background:
+    radial-gradient(72% 16px at 50% 0%, rgba(187, 134, 252, 0.4) 0%, transparent 100%),
+    var(--noise, none),
+    radial-gradient(80% 66% at 48% -4%, rgba(187, 134, 252, 0.24) 0%, rgba(8, 7, 12, 0) 68%),
+    var(--stone-850, #191521);
+  background-blend-mode: screen, overlay, normal, normal;
+}
+
+/* The meander tile rides as a mask, so it takes the gold from the fill and
+   keeps its weight at any width. */
+.chat-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 14px;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--gold-bright, #e6cd86);
+  -webkit-mask: var(--chev-band) repeat-x left top / 30px 14px;
+  mask: var(--chev-band) repeat-x left top / 30px 14px;
+  mix-blend-mode: overlay;
+  opacity: 0.4;
+}
+
+.chat-head > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Carved heading, as on every widget title: Playfair, gilded, a dark ridge
+   under the letters and a faint gold halo. */
+.chat-title {
+  font-family: var(--display, 'Playfair Display', Georgia, serif);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--gold-bright, #e6cd86);
+  text-shadow: 0 1px 0 #2a1c00, 0 0 14px rgba(198, 162, 78, 0.22);
+}
+
+.chat-count {
+  font-size: 12px;
+  color: var(--chat-faint);
+}
+
+.chat-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Toggle chip: ghost when off, arcane when on -- the design system's rule for
+   a switch that is not choosing between peers. */
+/* THE HEAD'S CONTROLS ARE GOLD GEMS, like every other control in the client:
+   the same --gem-face and --gem-shadow the nav buttons and the command bar
+   point at, so the panel's chrome is not a dialect of its own. Arcane is kept
+   for the ON state -- gold chooses among peers, arcane means power is on. */
+.chat-chip {
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 7px 11px;
+  border-radius: var(--radius, 5px);
+  cursor: pointer;
+  border: 0;
+  color: #1c1206;
+  background: var(--gem-face, linear-gradient(180deg, #b8973f, #40300f));
+  box-shadow: var(--gem-shadow, 0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+.chat-chip:hover {
+  background: var(--gem-face-hover, radial-gradient(140% 140% at 50% 0%, #6c3aa8, #4c2a7a 60%, #24123f));
+  color: #fff;
+}
+
+/* ON is the arcane gem with white letters -- the client's own on-state, the
+   same one .rf-keypad-toggle.is-on wears: gold chooses among peers, arcane
+   says the power is on. Colour is not the only cue: the gem is lit and ringed,
+   and aria-pressed carries the state for a reader. */
+.chat-chip-on,
+.chat-chip-on:hover {
+  background: radial-gradient(140% 140% at 50% 0%, #6c3aa8, var(--arcane-deep, #4c2a7a) 60%, #24123f);
+  color: #fff;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 0 0 1px #2a1650,
+    0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+
+.chat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius, 5px);
+  color: #1c1206;
+  background: var(--gem-face, linear-gradient(180deg, #b8973f, #40300f));
+  box-shadow: var(--gem-shadow, 0 1px 2px rgba(0, 0, 0, 0.5));
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* The glyph sits on no baseline of its own: a font's line box would drop it a
+   pixel or two below the button's centre, and the row of controls would read
+   as ragged. */
+.chat-icon i {
+  display: block;
+  width: 1em;
+  line-height: 1;
+  text-align: center;
+}
+
+.chat-icon:hover {
+  background: var(--gem-face-hover, radial-gradient(140% 140% at 50% 0%, #6c3aa8, #4c2a7a 60%, #24123f));
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 10px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+
+/* Pressed: the arcane gem, white glyph -- as everywhere else in the client. */
+.chat-icon-on,
+.chat-icon-on:hover {
+  background: radial-gradient(140% 140% at 50% 0%, #6c3aa8, var(--arcane-deep, #4c2a7a) 60%, #24123f);
+  color: #fff;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 0 0 1px #2a1650,
+    0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+
+.chat-chip:focus-visible,
+.chat-icon:focus-visible,
+.chat-go:focus-visible,
+.chat-link:focus-visible {
+  outline: 2px solid var(--chat-accent);
+  outline-offset: 1px;
+}
+
+/* ---- the feed ----------------------------------------------------------- */
+
+.chat-feed {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 10px 12px 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--stone-700, #2b2338) transparent;
+}
+
+.chat-feed::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-feed::-webkit-scrollbar-thumb {
+  background: var(--stone-700, #2b2338);
+  border-radius: 4px;
+}
+
+.chat-feed::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-empty {
+  padding: 22px 6px;
+  color: var(--chat-faint);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.chat-day {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 2px 8px;
+  color: var(--chat-faint);
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.chat-day-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--chat-hair);
+}
+
+/* A line gets room to breathe: the mark, a gutter, the time, a gutter, the
+   words. Rows are separated by space rather than by rules -- an evening of
+   gossip drawn with hairlines reads as a spreadsheet. */
+.chat-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 3px 0;
+  padding: 7px 10px 7px 9px;
+  border-left: 3px solid var(--chat-mark, transparent);
+  border-radius: var(--radius, 5px);
+  cursor: pointer;
+  transition: background 110ms ease;
+}
+
+.chat-row:hover {
+  background: rgba(230, 205, 134, 0.05);
+}
+
+.chat-row-on {
+  background: var(--chat-accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(187, 134, 252, 0.28);
+}
+
+.chat-time {
+  flex: 0 0 auto;
+  padding-top: 2px;
+  font-family: var(--mono, 'Fira Code', monospace);
+  font-size: 11px;
+  color: var(--chat-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The game's own words, in the game's own face, with ligatures off -- an arrow
+   drawn from two characters would be a lie about what the server sent. */
+.chat-text {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--article, 'Fira Code', monospace);
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  font-variant-ligatures: none;
+}
+
+/* ---- channel marks ------------------------------------------------------
+   One hue per channel, taken from the game's own palette so the mark agrees
+   with the colour the words already carry. */
+
+.chat-ch-own {
+  --chat-mark: var(--arcane, #bb86fc);
+}
+.chat-ch-tell {
+  --chat-mark: var(--arcane, #bb86fc);
+}
+.chat-ch-say {
+  --chat-mark: var(--stone-600, #3a3049);
+}
+.chat-ch-gossip {
+  --chat-mark: #55a3f2;
+}
+.chat-ch-auction {
+  --chat-mark: #fdea56;
+}
+.chat-ch-clan {
+  --chat-mark: #2cf4eb;
+}
+.chat-ch-group {
+  --chat-mark: #8ee34f;
+}
+.chat-ch-yell {
+  --chat-mark: #ed2330;
+}
+.chat-ch-imm {
+  --chat-mark: var(--gold-bright, #e6cd86);
+}
+.chat-ch-mob {
+  --chat-mark: var(--gold, #c6a24e);
+}
+.chat-ch-other {
+  --chat-mark: var(--stone-600, #3a3049);
+}
+
+/* ---- the answer bar ----------------------------------------------------- */
+
+.chat-foot {
+  flex: 0 0 auto;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--chat-hair);
+  background: linear-gradient(180deg, var(--chat-surface), var(--chat-chrome));
+}
+
+.chat-aim {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--chat-faint);
+}
+
+.chat-cmd {
+  flex: 0 0 auto;
+  font-family: var(--mono, 'Fira Code', monospace);
+  font-size: 12px;
+  color: var(--chat-accent);
+}
+
+.chat-quote {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-link {
+  flex: 0 0 auto;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--chat-dim);
+  cursor: pointer;
+  text-decoration: underline dotted;
+}
+
+.chat-link:hover {
+  color: var(--gold-bright, #e6cd86);
+}
+
+.chat-send {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Dark well, gold-deep frame, light text -- the design system's text input. */
+.chat-input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: var(--radius, 5px);
+  background: var(--chat-well);
+  border: 1px solid var(--gold-deep, #55411d);
+  color: var(--chat-text);
+  font-family: var(--article, 'Fira Code', monospace);
+  font-size: 13px;
+  outline: none;
+}
+
+.chat-input::placeholder {
+  color: var(--chat-faint);
+}
+
+.chat-input:focus {
+  border-color: var(--arcane-lo, #8043ca);
+  box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.22);
+}
+
+/* The one gem recipe every gold control in the client points at. */
+.chat-go {
+  flex: 0 0 auto;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius, 5px);
+  border: none;
+  background: var(--gem-face, linear-gradient(180deg, #b8973f, #40300f));
+  box-shadow: var(--gem-shadow, 0 1px 2px rgba(0, 0, 0, 0.5));
+  color: #1c1405;
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.chat-go:hover {
+  background: var(--gem-face-hover, #6c3aa8);
+  color: #f2e7ff;
+}
+
+.chat-blocked {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--chat-dim);
+}
+
+/* ---- the nav button ----------------------------------------------------- */
+
+/* The count sits ON the icon, it does not replace it: the button keeps one
+   face, and the badge is the thing that appears and goes. */
+.chat-cell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-badge {
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: 9px;
+  background: var(--arcane, #bb86fc);
+  border: 1px solid var(--stone-950, #0d0b12);
+  color: #1a1024;
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 14px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}

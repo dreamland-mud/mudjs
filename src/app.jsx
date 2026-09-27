@@ -9,6 +9,7 @@ import 'bootstrap';
 
 import MainWindow from './components/mainwindow';
 import Panel from './components/windowletsPanel/panel';
+import ChatPanel from './components/chat/ChatPanel';
 import Stats from './components/stats';
 import Map from './components/map';
 import CmdInput from './components/cmdinput';
@@ -275,6 +276,7 @@ export default function App() {
       ) : (
         <MobileApp />
       )}
+      <ChatPanel />
       <AccountLogin />
     </Box>
   );
