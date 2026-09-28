@@ -6,6 +6,7 @@ import manip from '../../manip.js';
 import chatDb from '../../chatdb.js';
 import { rpccmd, send } from '../../websock.js';
 import { getLang, t } from '../../i18n.js';
+import { announceSheet, onOtherSheet } from '../../sheets.js';
 import './chat.css';
 
 // The conversation panel: every channel line, tell, yell and mob reply the
@@ -194,9 +195,10 @@ export default function ChatPanel() {
   // Read by event handlers that are registered once and must not close over a
   // stale render: jQuery keeps the first handler, React keeps handing out new
   // state.
-  const live = useRef({ open: false, who: null, glued: true });
+  const live = useRef({ open: false, pinned: false, who: null, glued: true });
 
   live.current.open = open;
+  live.current.pinned = pinned;
   live.current.who = who;
 
   const scrollDown = useCallback(() => {
@@ -349,6 +351,20 @@ export default function ChatPanel() {
 
   useEffect(() => {
     write(OPEN_KEY, open ? '1' : '0');
+  }, [open]);
+
+  // One sheet at a time, with one exception: pinned, the panel is a dock, not
+  // a sheet. It stays, and the other sheets draw over it (see chat.css).
+  useEffect(
+    () =>
+      onOtherSheet('chat', () => {
+        if (!live.current.pinned) setOpen(false);
+      }),
+    []
+  );
+
+  useEffect(() => {
+    if (open) announceSheet('chat');
   }, [open]);
 
   // THE PANEL IS AS TALL AS THE GAME AREA, NOT AS THE WINDOW. Below the mosaic

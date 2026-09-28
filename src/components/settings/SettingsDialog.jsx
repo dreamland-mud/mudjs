@@ -8,6 +8,7 @@ import SettingsPage from './SettingsPage.jsx';
 import ScriptPage from './ScriptPage.jsx';
 import AccountPage from './AccountPage.jsx';
 import { saveScript } from '../../settings.js';
+import { announceSheet, onOtherSheet } from '../../sheets.js';
 import {
   buildTree,
   filterTree,
@@ -117,6 +118,14 @@ export default function SettingsDialog() {
   // While the sheet is over the game: the page behind does not scroll, and what
   // is typed here is not dragged into the game's command line (cmdinput.jsx
   // stands aside for body.settings-open). Escape closes, as everywhere else.
+  // One sheet at a time: this one opening sends the others away, and it steps
+  // aside when another opens.
+  useEffect(() => onOtherSheet('settings', () => setOpen(false)), []);
+
+  useEffect(() => {
+    if (open) announceSheet('settings');
+  }, [open]);
+
   useEffect(() => {
     document.body.classList.toggle('settings-open', open);
     if (!open) return undefined;
