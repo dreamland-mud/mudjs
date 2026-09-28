@@ -33,12 +33,12 @@ const RACE_NAMES = {
 };
 
 const CLAN_NAMES = {
+    a: { en: 'Artificers', ru: 'Артель',  ua: 'Артіль' },
     b: { en: 'Fury',     ru: 'Ярости',     ua: 'Ярості' },
     c: { en: 'Chaos',    ru: 'Хаос',       ua: 'Хаос' },
     e: { en: 'Exiles',   ru: 'Изгои',      ua: 'Ізгої' },
     f: { en: 'Flowers',  ru: 'Цветы',      ua: 'Квіти' },
     g: { en: 'Ghosts',   ru: 'Призраки',   ua: 'Привиди' },
-    h: { en: 'Hunters',  ru: 'Охотники',   ua: 'Мисливці' },
     i: { en: 'Invaders', ru: 'Захватчики', ua: 'Загарбники' },
     k: { en: 'Knights',  ru: 'Рыцари',     ua: 'Лицарі' },
     l: { en: 'Lions',    ru: 'Львы',       ua: 'Леви' },
