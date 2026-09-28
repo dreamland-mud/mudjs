@@ -6,6 +6,7 @@ import { echo } from '../../input.js';
 import { getLang, t } from '../../i18n';
 import { loadIndex, loadBodies, label } from '../windowletsPanel/helpSearch';
 import { render } from './helpMarkup';
+import { announceSheet, onOtherSheet } from '../../sheets.js';
 import './help-sheet.css';
 
 // The widgets' help: a parchment sheet on the right, opened by clicking a widget.
@@ -190,6 +191,12 @@ export default function HelpSheet() {
     }
     return () => { live = false; };
   }, [open, top, lang]);
+
+  useEffect(() => onOtherSheet('help', () => setOpen(false)), []);
+
+  useEffect(() => {
+    if (open) announceSheet('help');
+  }, [open]);
 
   // Escape closes; focus goes into the sheet and back to what opened it.
   useEffect(() => {

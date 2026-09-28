@@ -68,6 +68,9 @@
    survives any re-split of the mosaic. */
 .chat-sheet-pinned.chat-sheet-open {
   box-shadow: inset 1px 0 0 rgba(230, 205, 134, 0.06);
+  /* A dock stays open under the other sheets: below the bootstrap modal
+     backdrop (1040), the help sheet (1059) and settings (2100). */
+  z-index: 1030;
 }
 
 /* WHICH TILE IS THE MAP. Not by position -- the mosaic can be re-split -- but
