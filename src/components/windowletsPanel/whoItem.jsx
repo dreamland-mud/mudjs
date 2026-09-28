@@ -6,7 +6,7 @@ import { t } from '../../i18n'
 import './who.css'
 
 // Clans with a badge in the Figma set; any other letter falls back to coloured text.
-const BADGE_CLANS = 'hlcrsbkifg'
+const BADGE_CLANS = 'alcrsbkifg'
 
 const ClanBadge = ({ cn, cc, lang }) => {
     const name = clanName(cn, lang)
