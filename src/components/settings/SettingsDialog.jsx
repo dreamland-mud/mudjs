@@ -501,7 +501,6 @@ export default function SettingsDialog() {
           }
         >
           {section.label}
-          <span className="ds-menu__count">{section.pages.length}</span>
           {/* Drawn in CSS and turned by aria-expanded. */}
           <span className="ds-menu__caret" aria-hidden="true" />
         </button>
@@ -520,9 +519,6 @@ export default function SettingsDialog() {
                 onClick={() => choose(one.key)}
               >
                 <span className="ds-menu__name">{one.label}</span>
-                {needle && one.options.length ? (
-                  <span className="ds-menu__meta">{one.options.length}</span>
-                ) : null}
               </button>
             ))
           : null}
@@ -686,7 +682,6 @@ export default function SettingsDialog() {
                     <div className="cfg-list-branch" key={section.key}>
                       <div className="ds-menu__cat cfg-list-head">
                         {section.label}
-                        <span className="ds-menu__count">{section.pages.length}</span>
                       </div>
                       <div className="cfg-list-card">
                         {section.pages.map(one => {

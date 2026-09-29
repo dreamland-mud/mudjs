@@ -5,9 +5,10 @@ import { t } from '../../i18n.js';
 import gemSvg from '../gem.svg?raw';
 
 // One setting: its name, what the game says about its current state, and the
-// control that changes it. The question mark opens the longer explanation and,
-// for anything that changes how the game looks, samples of the real output --
-// painted the way the terminal paints it.
+// control that changes it, on one row. The name itself is the link to the
+// longer explanation (a button with aria-expanded) and, for anything that
+// changes how the game looks, samples of the real output -- painted the way the
+// terminal paints it. The explanation slides open under the row.
 
 // Colour markup from the server is "<c c='fgby'>text</c>", the same as in the
 // terminal, and it arrives already escaped for the web -- so a '>' in the game
@@ -35,12 +36,13 @@ function Marked({ text, query }) {
   );
 }
 
-function Switch({ on, onChange }) {
+function Switch({ on, onChange, label }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={on}
+      aria-label={label}
       className={on ? 'cfg-switch cfg-switch-on' : 'cfg-switch'}
       onClick={() => onChange(!on)}
     >
@@ -313,6 +315,7 @@ export default function OptionRow({
     control = (
       <Switch
         on={!!value}
+        label={label}
         onChange={next =>
           // The server takes 'on' and 'off' in any language; the echo shows the
           // word the player would actually have typed in theirs.
@@ -385,33 +388,33 @@ export default function OptionRow({
     );
   }
 
+  const name = <Marked text={label} query={query} />;
+  const helpId = 'cfg-help-' + option.key;
+
   return (
     <div className="cfg-row">
       <div className="cfg-row-text">
-        <div className="cfg-row-name">
-          <span className="cfg-row-key">
-            <Marked text={label} query={query} />
-          </span>
-          {hasHelp ? (
-            <button
-              type="button"
-              className="cfg-help-badge"
-              aria-label={t('cfg.help', lang)}
-              aria-expanded={open}
-              onClick={() => setOpen(was => !was)}
-            >
-              ?
-            </button>
-          ) : null}
-        </div>
+        {hasHelp ? (
+          <button
+            type="button"
+            className="cfg-row-key cfg-row-link"
+            aria-expanded={open}
+            aria-controls={helpId}
+            onClick={() => setOpen(was => !was)}
+          >
+            {name}
+          </button>
+        ) : (
+          <span className="cfg-row-key">{name}</span>
+        )}
         {/* What the server says the option is, or -- until the next thing
             happens to it -- why the server would not have it. */}
         {refused ? (
-          <div className="cfg-row-desc cfg-row-refused">
+          <span className="cfg-row-desc cfg-row-refused">
             {typeof refused === 'string' ? refused : t('cfg.refused', lang)}
-          </div>
+          </span>
         ) : (
-          <div className="cfg-row-desc">{describe(option, value)}</div>
+          <span className="cfg-row-desc">{describe(option, value)}</span>
         )}
       </div>
 
@@ -430,21 +433,29 @@ export default function OptionRow({
         {control}
       </div>
 
-      {/* A line of its own under both: inside the text column the help would be
-          squeezed by the width of the switch, and the switch would drift down
-          to the middle of it instead of standing opposite the option. */}
-      {open ? (
-        <div className="cfg-help-body">
-          {help ? <p className="cfg-help-text">{help}</p> : null}
-          {examples.map((example, index) => (
-            <div className="cfg-help-example" key={index}>
-              <div className="cfg-help-example-label">{example.label}</div>
-              <div
-                className="cfg-help-example-text"
-                dangerouslySetInnerHTML={{ __html: paint(example.text) }}
-              />
+      {/* A line of its own under both, so the switch stays opposite the name.
+          It is always in the page and slides between closed and open; closed,
+          it is inert, so neither the Tab key nor a screen reader finds it. */}
+      {hasHelp ? (
+        <div
+          id={helpId}
+          className={open ? 'cfg-help-wrap is-open' : 'cfg-help-wrap'}
+          {...(open ? {} : { inert: '', 'aria-hidden': 'true' })}
+        >
+          <div className="cfg-help-inner">
+            <div className="cfg-help-body">
+              {help ? <p className="cfg-help-text">{help}</p> : null}
+              {examples.map((example, index) => (
+                <div className="cfg-help-example" key={index}>
+                  <div className="cfg-help-example-label">{example.label}</div>
+                  <div
+                    className="cfg-help-example-text"
+                    dangerouslySetInnerHTML={{ __html: paint(example.text) }}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       ) : null}
     </div>

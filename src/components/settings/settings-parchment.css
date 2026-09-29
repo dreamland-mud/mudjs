@@ -176,8 +176,6 @@
 /* Search-hit highlight: a gold wash, not the cyborg blue. */
 .cfg-mark { background: rgba(198, 162, 78, 0.30); }
 
-.cfg-help-badge { border-color: var(--gold-deep, #6f5a26); color: var(--text-dim, #b7ad95); }
-.cfg-help-badge:hover { border-color: var(--gold, #c6a24e); color: var(--gold-bright, #e6cd86); }
 .cfg-help-body {
   background: rgba(0, 0, 0, 0.28);
   border: 1px solid var(--gold-deep, #6f5a26);
