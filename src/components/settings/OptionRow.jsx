@@ -242,23 +242,31 @@ function Text({ value, placeholder, action, onChange, onAction, clearable }) {
 
   return (
     <div className="cfg-text">
-      <input
-        type="text"
-        value={draft}
-        placeholder={placeholder || ''}
-        onChange={e => setDraft(e.target.value)}
-        onBlur={commit}
-        onKeyDown={e => {
-          if (e.key === 'Enter') commit();
-        }}
-      />
-      {/* Nothing to clear when the box is already empty: a button that does
-          nothing still reads as a button that should. */}
-      {clearable ? (
-        <button type="button" className="cfg-button" onClick={onAction}>
-          {action}
-        </button>
-      ) : null}
+      <span className="cfg-text-field">
+        <input
+          type="text"
+          value={draft}
+          placeholder={placeholder || ''}
+          onChange={e => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={e => {
+            if (e.key === 'Enter') commit();
+          }}
+        />
+        {/* Nothing to clear when the box is already empty: a button that does
+            nothing still reads as a button that should. */}
+        {clearable ? (
+          <button
+            type="button"
+            className="cfg-text-clear"
+            aria-label={action}
+            title={action}
+            onClick={onAction}
+          >
+            ✕
+          </button>
+        ) : null}
+      </span>
     </div>
   );
 }

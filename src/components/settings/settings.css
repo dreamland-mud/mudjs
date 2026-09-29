@@ -390,7 +390,7 @@
 }
 
 .cfg-row-desc {
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.5;
   color: var(--cfg-dim);
 }
@@ -533,23 +533,27 @@
   background: #ffffff;
 }
 
+/* The same 26px height as a switch, so a row of either lines up. */
 .cfg-segments {
   display: flex;
-  gap: 3px;
-  padding: 3px;
+  gap: 2px;
+  height: 26px;
+  padding: 2px;
+  box-sizing: border-box;
   background: var(--cfg-sunk);
   border: 1px solid var(--cfg-line);
   border-radius: 9px;
 }
 
 .cfg-segment {
-  padding: 6px 12px;
+  padding: 0 10px;
   border: none;
   border-radius: 6px;
   background: none;
   color: var(--cfg-dim);
   font: inherit;
-  font-size: 12.5px;
+  font-size: 11.5px;
+  line-height: 20px;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -572,7 +576,7 @@
 .cfg-number-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
   width: 100%;
 }
 
@@ -625,9 +629,10 @@
   height: 100%;
 }
 
+/* Three digits wide: ch is the width of a digit in this field's own font. */
 .cfg-slider-input {
   flex: none;
-  width: 64px;
+  width: calc(3ch + 18px);
   padding: 7px 8px;
   font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   font-size: 13px;
@@ -653,11 +658,16 @@
   gap: 8px;
 }
 
+/* The field carries its clear button inside, at the right edge. */
+.cfg-text-field {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Nine digits wide (a Telegram id), plus room for the clear button. */
 .cfg-text input {
-  flex: 1 1 140px;
-  min-width: 120px;
-  max-width: 180px;
-  padding: 8px 10px;
+  width: calc(9ch + 40px);
+  padding: 8px 30px 8px 10px;
   font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   font-size: 12.5px;
   color: var(--cfg-bright);
@@ -665,6 +675,29 @@
   border: 1px solid #2a303a;
   border-radius: 8px;
   box-sizing: border-box;
+}
+
+.cfg-text-clear {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--cfg-dim);
+  font: inherit;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.cfg-text-clear:hover,
+.cfg-text-clear:focus-visible {
+  color: var(--cfg-bright);
 }
 
 .cfg-text input:focus,
@@ -1246,7 +1279,7 @@ body.cfg-resizing {
 }
 
 .ab-gate {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--cfg-dim);
 }
 
