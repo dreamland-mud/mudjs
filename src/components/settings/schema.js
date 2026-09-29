@@ -10,6 +10,7 @@ import { SUPPORT } from './useConfig.js';
 // dialog never has a special case for a missing server.
 
 export const SCRIPT_PAGE = 'script';
+export const AUTOBUFF_PAGE = 'autobuff';
 export const ACCOUNT_PAGE = 'account';
 export const MISSING_PAGE = 'server-unavailable';
 export const OFFLINE_PAGE = 'server-offline';
@@ -33,11 +34,28 @@ function accountSection(lang) {
   };
 }
 
-function scriptSection(lang) {
+// The autobuff page joins the script under Extensions only for a character it
+// means something to: more than one buff to sort, or lines of their own (on the
+// character or still in this browser). Its data comes from the autobuff_prefs
+// rpc, so a server without that rpc never shows it.
+function scriptSection(lang, autobuff) {
+  const autobuffPages = autobuff
+    ? [
+        {
+          key: AUTOBUFF_PAGE,
+          kind: 'autobuff',
+          label: t('cfg.page.autobuff', lang),
+          search: 'autobuff автобафф автобаф buff',
+          options: [],
+        },
+      ]
+    : [];
+
   return {
     key: 'ext',
     label: t('cfg.section.ext', lang),
     pages: [
+      ...autobuffPages,
       {
         key: SCRIPT_PAGE,
         kind: 'script',
@@ -77,7 +95,7 @@ function standInSection(support, lang) {
 }
 
 /** The whole tree: what the server offers, then what the client adds. */
-export function buildTree(schema, support, lang) {
+export function buildTree(schema, support, lang, autobuff) {
   const sections = (schema && schema.sections ? schema.sections : []).map(
     section => ({
       key: section.key,
@@ -104,7 +122,7 @@ export function buildTree(schema, support, lang) {
   // opens this window for without having to look for it. The script stays last,
   // where a tool belongs.
   sections.unshift(accountSection(lang));
-  sections.push(scriptSection(lang));
+  sections.push(scriptSection(lang, autobuff));
   return sections;
 }
 
