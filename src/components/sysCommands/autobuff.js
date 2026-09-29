@@ -89,9 +89,9 @@ export function setLegacyAutobuffLines(list) {
 // server-side lines) and again whenever the settings window opens.
 let server = null;
 let asked = false;
-// The seq of the last change sent and not yet answered. While one is out,
-// every other answer (to an earlier change, or to a plain 'list') is already
-// out of date and would drag the tab back to a state the player has left.
+// The seq of the last request (list or change) sent and not yet answered.
+// While one is out, every other answer is to an older request, already out of
+// date, and would drag the tab back to a state the player has left.
 let seq = 0;
 let awaiting = null;
 const watchers = new Set();
@@ -105,12 +105,13 @@ export function watchAutobuff(fn) {
   return () => watchers.delete(fn);
 }
 
-// A fresh list request means the player wants the truth: stop waiting for the
-// answer to a change that may have gone into a dead socket.
+// Tagged like a change, so a slow answer to an earlier request can't land on
+// top of this one. It also replaces a wait on a change that went into a dead
+// socket.
 export function requestAutobuffList() {
   asked = true;
-  awaiting = null;
-  rpccmd('autobuff_prefs', 'list');
+  const tag = String(++seq);
+  if (rpccmd('autobuff_prefs', 'list', tag)) awaiting = tag;
 }
 
 // Tabs and newlines are the wire format's separators; a command can't carry them.
