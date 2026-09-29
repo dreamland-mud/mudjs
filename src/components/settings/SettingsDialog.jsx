@@ -7,6 +7,13 @@ import useConfig from './useConfig.js';
 import SettingsPage from './SettingsPage.jsx';
 import ScriptPage from './ScriptPage.jsx';
 import AccountPage from './AccountPage.jsx';
+import AutobuffPage from './AutobuffPage.jsx';
+import {
+  autobuffServer,
+  watchAutobuff,
+  requestAutobuffList,
+  legacyAutobuffLines,
+} from '../sysCommands/autobuff.js';
 import { saveScript } from '../../settings.js';
 import { announceSheet, onOtherSheet } from '../../sheets.js';
 import {
@@ -17,6 +24,7 @@ import {
   spell,
   SCRIPT_PAGE,
   ACCOUNT_PAGE,
+  AUTOBUFF_PAGE,
 } from './schema.js';
 import './settings.css';
 import './settings-parchment.css';
@@ -76,6 +84,19 @@ export default function SettingsDialog() {
   const cfgSegRef = useRef(null);       // language segmented-control track
   const cfgSegIndRef = useRef(null);    // its sliding gold-gem indicator
   const { schema, values, support, set, pending, refused } = useConfig(open, lang);
+
+  // The character's autobuff list, asked for afresh every time the window
+  // opens: a level or a practice since last time changes what is on it.
+  const [autobuff, setAutobuff] = useState(() => autobuffServer());
+  useEffect(() => watchAutobuff(setAutobuff), []);
+  useEffect(() => {
+    if (open) requestAutobuffList();
+  }, [open]);
+  const autobuffShown =
+    !!autobuff &&
+    ((autobuff.spells || []).length > 1 ||
+      (autobuff.custom || []).length > 0 ||
+      legacyAutobuffLines().length > 0);
 
   // The gear over the terminal is the only way in; everything else here closes.
   useEffect(() => {
@@ -333,7 +354,10 @@ export default function SettingsDialog() {
   };
 
   const needle = query.trim().toLowerCase();
-  const tree = useMemo(() => buildTree(schema, support, lang), [schema, support, lang]);
+  const tree = useMemo(
+    () => buildTree(schema, support, lang, autobuffShown),
+    [schema, support, lang, autobuffShown]
+  );
   const shown = useMemo(() => filterTree(tree, needle), [tree, needle]);
 
   // The page in hand: the one chosen, as long as the search still has it.
@@ -348,6 +372,7 @@ export default function SettingsDialog() {
   const current = page || (narrow ? null : landing);
   const isScript = !!current && current.key === SCRIPT_PAGE;
   const isAccount = !!current && current.key === ACCOUNT_PAGE;
+  const isAutobuff = !!current && current.key === AUTOBUFF_PAGE;
   // The Download log used to sit in a footer strip of its own. It belongs to the
   // terminal page now (server key 'terminal' -- "Display and terminal"), where
   // the output buffer it saves is set. The id stays 'logs-button' so main.js's
@@ -512,7 +537,7 @@ export default function SettingsDialog() {
     <>
       {shown.length ? (
         <SettingsPage
-          page={isScript || isAccount ? null : current}
+          page={isScript || isAccount || isAutobuff ? null : current}
           values={values}
           lang={lang}
           query={needle}
@@ -530,6 +555,12 @@ export default function SettingsDialog() {
       {isAccount ? (
         <SettingsPage page={findPage(tree, ACCOUNT_PAGE)} values={values} lang={lang}>
           <AccountPage lang={lang} visible={isAccount && open} />
+        </SettingsPage>
+      ) : null}
+
+      {isAutobuff ? (
+        <SettingsPage page={findPage(tree, AUTOBUFF_PAGE)} values={values} lang={lang}>
+          <AutobuffPage lang={lang} data={autobuff} />
         </SettingsPage>
       ) : null}
 

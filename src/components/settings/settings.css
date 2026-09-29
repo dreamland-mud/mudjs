@@ -1213,3 +1213,129 @@ body.cfg-resizing {
   user-select: none;
   cursor: ew-resize;
 }
+
+/* --- the autobuff page (AutobuffPage.jsx) --- */
+.ab {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ab-intro {
+  max-width: 64ch;
+}
+
+.ab-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ab-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 4px 0;
+  border-top: 1px solid var(--cfg-line-soft);
+}
+
+.ab-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--cfg-text);
+  overflow-wrap: anywhere;
+}
+
+/* Switched off: still listed, so it can be switched back on in its place. */
+.ab-item-off .ab-name {
+  color: var(--cfg-dim);
+  text-decoration: line-through;
+}
+
+.ab-moves {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+
+.ab-move {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 4px 8px;
+}
+
+.ab-move:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.ab-h {
+  margin-top: 14px;
+  font-weight: 600;
+  color: var(--cfg-bright);
+}
+
+.ab-cmd {
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
+}
+
+.ab-gate {
+  font-size: 12px;
+  color: var(--cfg-dim);
+}
+
+.ab-gate-bad {
+  color: var(--cfg-warn, #c4674a);
+}
+
+.ab-add {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.ab-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ab-field-gate {
+  flex: 0 1 140px;
+}
+
+.ab-field-cmd {
+  flex: 1 1 200px;
+}
+
+.ab-field input {
+  width: 100%;
+  padding: 8px 10px;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
+  font-size: 12.5px;
+  color: var(--cfg-bright);
+  background: var(--cfg-sunk);
+  border: 1px solid var(--cfg-line);
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.ab-field input:focus {
+  border-color: var(--cfg-accent);
+  outline: none;
+}
+
+.ab-legacy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--cfg-line-soft);
+}
