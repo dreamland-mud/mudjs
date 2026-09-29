@@ -39,15 +39,12 @@
 }
 .cfg-head-title,
 .cfg-page-title,
-.cfg-branch-name,
 .cfg-list-item-title {
   font-family: var(--display, 'Playfair Display', serif);
   letter-spacing: 0.01em;
 }
 /* Counts, keys and the echo were pinned to 'Roboto Mono' one by one -- bring
    them back to the UI face (the tabular look is not worth a foreign font). */
-.cfg-branch-count,
-.cfg-leaf-count,
 .cfg-row-key {
   font-family: var(--ui, 'Alegreya Sans', sans-serif);
 }
@@ -89,27 +86,7 @@
 .cfg-search-clear { color: var(--gold, #c6a24e); }
 .cfg-search-clear:hover { color: var(--gold-bright, #e6cd86); }
 
-/* --- 5. the tree: gold-deep cards, arcane hover, gold active --------------- */
-.cfg-branch-head:hover,
-.cfg-leaf:hover {
-  color: var(--gold-bright, #e6cd86);
-  box-shadow: inset 0 0 0 1px var(--gold-deep, #6f5a26),
-    0 0 14px rgba(187, 134, 252, 0.14);
-}
-/* resting tree text: warm (base bakes cool #c6cdd6 / #a4acb8). These sit BEFORE
-   .cfg-leaf-on so the active page keeps its gold-bright, and :hover (higher
-   specificity) still wins -- leaf stays a shade quieter than the branch. */
-.cfg-branch-head { color: var(--text, #e8e2d2); }
-.cfg-leaf { border-radius: 6px; color: var(--text-dim, #b7ad95); }
-.cfg-leaf-on {
-  color: var(--gold-bright, #e6cd86);
-  background: rgba(198, 162, 78, 0.10);
-}
-.cfg-leaf-bar { background: var(--gold-deep, #6f5a26); }
-.cfg-leaf-on .cfg-leaf-bar { background: var(--gold, #c6a24e); }
-.cfg-caret { color: var(--gold, #c6a24e); }
-.cfg-branch-count,
-.cfg-leaf-count { color: var(--text-faint, #8a8168); }
+/* --- 5. the tree: the Nirvana .ds-menu (components/dsMenu.css) ------------ */
 
 /* --- 6. buttons: main = gold gradient, rest = dark gold-deep ghost --------- */
 .cfg-button {
@@ -277,8 +254,6 @@ body.cfg-resizing .cfg-grip::after {
    .cfg-button-main is excluded -- it owns the arcane gem hover (section 6). */
 .cfg-close:hover,
 .cfg-search-clear:hover,
-.cfg-branch-head:hover,
-.cfg-leaf:hover,
 .cfg-button:not(.cfg-button-main):hover,
 .cfg-list-item:hover { background: rgba(198, 162, 78, 0.10); }
 /* active toggle at rest -> a stronger gold wash (was cool slate #2f3946) */
@@ -296,7 +271,6 @@ body.cfg-resizing .cfg-grip::after {
   box-shadow: 0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.3));
 }
 /* cool dividers -> warm */
-.cfg-branch-body { border-left-color: var(--gold-deep, #6f5a26); }
 .cfg-list-item { border-top-color: var(--cfg-line-soft, rgba(198, 162, 78, 0.18)); }
 /* cool-grey meta text -> warm dim (NOT --text-faint: its live value #6f6857 is
    only ~3.45:1 on the chrome bg at 11.5px; --cfg-dim = --text-dim is ~6.86:1). */
@@ -379,26 +353,6 @@ body.cfg-resizing .cfg-grip::after {
   animation: pc-focus-orbit 2.6s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) { .cfg-search:focus { animation: none; } }
-
-/* left menu -> DS ds-menu grammar: gilded uppercase category eyebrows, and the active
-   page as the arcane power state with a glowing left accent bar (not gold). */
-.cfg-branch-name {
-  font-family: var(--ui, 'Alegreya Sans', sans-serif);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold-dim, #856632);
-}
-.cfg-leaf-on,
-.cfg-leaf-on:hover {
-  color: #fff;
-  background: color-mix(in srgb, var(--arcane-deep, #4c2a7a) 72%, transparent);
-}
-.cfg-leaf-on .cfg-leaf-bar {
-  background: var(--arcane, #bb86fc);
-  box-shadow: 0 0 8px var(--arcane-glow, rgba(187, 134, 252, 0.55));
-}
 
 /* --- 13. int slider -> the mana bar (dreamland.rocks/design vital bars) -------
    Track = the arcane glass tube from theme-parchment's .pbar; fill = the mana

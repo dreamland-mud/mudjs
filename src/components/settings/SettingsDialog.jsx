@@ -26,6 +26,7 @@ import {
   ACCOUNT_PAGE,
   AUTOBUFF_PAGE,
 } from './schema.js';
+import '../dsMenu.css';
 import './settings.css';
 import './settings-parchment.css';
 
@@ -470,19 +471,19 @@ export default function SettingsDialog() {
   const accountLeaf = accountSection ? accountSection.pages[0] : null;
 
   const accountTab = accountLeaf ? (
-    <div className="cfg-tree-head">
+    <div className="cfg-tree-head ds-menu">
       <button
         type="button"
         className={
           current && accountLeaf.key === current.key
-            ? 'cfg-leaf cfg-tab cfg-leaf-on'
-            : 'cfg-leaf cfg-tab'
+            ? 'ds-menu__item cfg-tab is-on'
+            : 'ds-menu__item cfg-tab'
         }
+        aria-current={current && accountLeaf.key === current.key ? 'page' : undefined}
         onClick={() => choose(accountLeaf.key)}
       >
-        <span className="cfg-leaf-bar" />
         <i className="fa fa-user-circle-o cfg-tab-ico" aria-hidden="true" />
-        <span className="cfg-leaf-title">{accountLeaf.label}</span>
+        <span className="ds-menu__name">{accountLeaf.label}</span>
       </button>
     </div>
   ) : null;
@@ -490,43 +491,41 @@ export default function SettingsDialog() {
   const treeNodes = shown.filter(section => section.key !== ACCOUNT_PAGE).map(section => {
     const isOpen = collapsed[section.key] !== true;
     return (
-      <div className="cfg-branch" key={section.key}>
+      <div className="ds-menu__group" key={section.key}>
         <button
           type="button"
-          className="cfg-branch-head"
+          className="ds-menu__cat"
           aria-expanded={isOpen}
           onClick={() =>
             setCollapsed(was => ({ ...was, [section.key]: isOpen }))
           }
         >
-          <span className="cfg-branch-name">{section.label}</span>
-          <span className="cfg-branch-count">{section.pages.length}</span>
-          {/* Drawn in CSS and rotated by aria-expanded -- the DS menu caret. */}
-          <span className="cfg-caret" aria-hidden="true" />
+          {section.label}
+          <span className="ds-menu__count">{section.pages.length}</span>
+          {/* Drawn in CSS and turned by aria-expanded. */}
+          <span className="ds-menu__caret" aria-hidden="true" />
         </button>
 
-        {isOpen ? (
-          <div className="cfg-branch-body">
-            {section.pages.map(one => (
+        {isOpen
+          ? section.pages.map(one => (
               <button
                 type="button"
                 key={one.key}
                 className={
                   current && one.key === current.key
-                    ? 'cfg-leaf cfg-leaf-on'
-                    : 'cfg-leaf'
+                    ? 'ds-menu__item is-on'
+                    : 'ds-menu__item'
                 }
+                aria-current={current && one.key === current.key ? 'page' : undefined}
                 onClick={() => choose(one.key)}
               >
-                <span className="cfg-leaf-bar" />
-                <span className="cfg-leaf-title">{one.label}</span>
+                <span className="ds-menu__name">{one.label}</span>
                 {needle && one.options.length ? (
-                  <span className="cfg-leaf-count">{one.options.length}</span>
+                  <span className="ds-menu__meta">{one.options.length}</span>
                 ) : null}
               </button>
-            ))}
-          </div>
-        ) : null}
+            ))
+          : null}
       </div>
     );
   });
@@ -685,9 +684,9 @@ export default function SettingsDialog() {
                   {search}
                   {shown.map(section => (
                     <div className="cfg-list-branch" key={section.key}>
-                      <div className="cfg-list-head">
-                        <span className="cfg-branch-name">{section.label}</span>
-                        <span className="cfg-branch-count">{section.pages.length}</span>
+                      <div className="ds-menu__cat cfg-list-head">
+                        {section.label}
+                        <span className="ds-menu__count">{section.pages.length}</span>
                       </div>
                       <div className="cfg-list-card">
                         {section.pages.map(one => {
@@ -731,7 +730,7 @@ export default function SettingsDialog() {
               <div className="cfg-tree">
                 <div className="cfg-search-box">{search}</div>
                 {accountTab}
-                <div className="cfg-tree-list">{treeNodes}</div>
+                <div className="cfg-tree-list ds-menu">{treeNodes}</div>
                 {/* Language pinned at the foot of the menu, below the sections. */}
                 <div className="cfg-tree-foot">{langRow}</div>
               </div>

@@ -1,0 +1,147 @@
+/*
+ * Nirvana .ds-menu -- the left navigation menu (categories + items, optional
+ * accordion). Ported 1:1 from dreamland_web static/design/design.css (the DS
+ * source of truth), at the size of the DS page's own rail. Client changes:
+ * - an accordion category is a <button aria-expanded> instead of a
+ *   <details><summary> (React owns the open state), so a group is a flex column;
+ * - items and eyebrows set line-height 1.6 themselves: the DS takes it from its
+ *   page body, and a button resets it to normal (rows came out 27px, not 32);
+ * - a long name wraps (min-width 0 + overflow-wrap), for translated page names;
+ * - every token carries a hex fallback, because the settings sheet also renders
+ *   under the Runeforge skin, whose :root has none of them.
+ *
+ * Active item = the arcane power state with a left accent bar (a non-colour cue
+ * for low vision). Hover = a quiet stone wash, never arcane.
+ */
+.ds-menu {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--ui, 'Alegreya Sans', 'Segoe UI', sans-serif);
+}
+
+/* category eyebrow -- the same gilded uppercase whether a static label or an
+   accordion head */
+.ds-menu__cat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 11px 6px;
+  background: none;
+  border: 0;
+  text-align: left;
+  font-family: inherit;
+  line-height: 1.6;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-dim, #856632);
+}
+.ds-menu__count {
+  margin-left: auto;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--text-faint, #6f6857);
+}
+
+/* accordion -- a group whose head is a button; the caret turns when it opens */
+.ds-menu__group {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--stone-800, #201a2b);
+}
+.ds-menu__group > .ds-menu__cat {
+  cursor: pointer;
+  outline: none;
+}
+.ds-menu__group > .ds-menu__cat:hover,
+.ds-menu__group > .ds-menu__cat[aria-expanded='true'] {
+  color: var(--gold-bright, #e6cd86);
+}
+.ds-menu__group > .ds-menu__cat:focus-visible {
+  color: var(--gold-bright, #e6cd86);
+  text-shadow: 0 0 10px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+/* the caret sits at the right; with a count present both take margin-left:auto,
+   so the count pushes right and the caret rides just after it */
+.ds-menu__caret {
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-2px) rotate(-45deg);
+  transition: transform 0.2s;
+  opacity: 0.7;
+}
+.ds-menu__cat[aria-expanded='true'] .ds-menu__caret {
+  transform: translateY(-1px) rotate(45deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-menu__caret { transition: none; }
+}
+.ds-menu__group > :last-child {
+  margin-bottom: 10px;
+}
+.ds-menu__group > .ds-menu__cat:last-child {
+  margin-bottom: 0;
+}
+
+/* item -- a link or a button; name + optional meta */
+.ds-menu__item {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  font-family: inherit;
+  line-height: 1.6;
+  font-size: 0.86rem;
+  color: var(--text-dim, #a49a84);
+  transition: background 0.15s, color 0.15s;
+}
+.ds-menu__item:hover {
+  background: var(--stone-850, #191521);
+  color: var(--text, #e3d8c0);
+}
+.ds-menu__item.is-on {
+  background: color-mix(in srgb, var(--arcane-deep, #4c2a7a) 72%, transparent);
+  color: #fff;
+}
+.ds-menu__item.is-on::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--arcane, #bb86fc);
+  box-shadow: 0 0 8px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+.ds-menu__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ds-menu__meta {
+  flex: none;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
+  font-size: 0.72rem;
+  color: var(--text-faint, #6f6857);
+}
+.ds-menu__item.is-on .ds-menu__meta {
+  color: #d9c7f5;
+}
