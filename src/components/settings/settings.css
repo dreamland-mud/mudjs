@@ -325,38 +325,61 @@
 }
 
 /* --- one setting --- */
+/* Wall to wall, like the autobuff list: the row steps out over the page's side
+   padding and takes it back inside, so the dividers reach both edges. */
 .cfg-row {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  /* Top, not centre: the control stands opposite the option's name and stays
-     there when the help opens underneath. */
-  align-items: flex-start;
-  gap: 10px 18px;
-  padding: 15px 0;
+  align-items: center;
+  /* no row gap: the closed help under every row would add it as dead space */
+  gap: 0 18px;
+  margin: 0 calc(-1 * var(--cfg-page-x, 26px));
+  padding: 8px var(--cfg-page-x, 26px);
+  min-height: 44px;
   border-top: 1px solid var(--cfg-line-soft);
+  box-sizing: border-box;
 }
 
-/* The text keeps its width and the control moves under it, rather than the
-   description being squeezed into a column of single words. */
+/* The last row of a page closes the list with a divider of its own. */
+.cfg-row:not(:has(~ .cfg-row)) {
+  border-bottom: 1px solid var(--cfg-line-soft);
+}
+
+/* The name and what it currently means on one line, the explanation smaller;
+   a long one wraps under the name rather than squeezing the control. */
 .cfg-row-text {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
   flex: 1 1 220px;
-  min-width: 200px;
-}
-
-.cfg-row-name {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  min-width: 0;
 }
 
 .cfg-row-key {
+  flex: none;
   font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
   font-size: 13px;
   color: var(--cfg-key);
+}
+
+/* The name as the link to the explanation: a dotted underline says it opens
+   something, and it goes solid while that is open. */
+.cfg-row-link {
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.cfg-row-link:hover,
+.cfg-row-link[aria-expanded='true'] {
+  text-decoration-style: solid;
 }
 
 .cfg-mark {
@@ -367,7 +390,7 @@
 }
 
 .cfg-row-desc {
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--cfg-dim);
 }
@@ -390,6 +413,11 @@
   justify-content: flex-start;
 }
 
+/* A switch or segments that wrapped under the name still stand at the right. */
+.cfg-row-control:not(.cfg-row-control-wide) {
+  margin-left: auto;
+}
+
 /* A change is in flight. The control stays exactly where it was -- the server
    has not agreed to anything yet -- and takes no second click until it answers
    or the wait runs out. */
@@ -404,30 +432,33 @@
   color: var(--cfg-warn, #c4674a);
 }
 
-/* --- the question mark and what it opens --- */
-.cfg-help-badge {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 1px solid #3b434f;
-  background: none;
-  color: var(--cfg-dim);
-  font: inherit;
-  font-size: 11px;
-  line-height: 1;
-  padding: 0;
-  cursor: pointer;
-  flex: none;
+/* --- what the name opens --- */
+/* Slides open: the wrapper's one grid row grows from 0fr to 1fr, which
+   animates to the content's real height without measuring it. */
+.cfg-help-wrap {
+  flex: 1 0 100%;
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.22s ease, opacity 0.22s ease;
 }
 
-.cfg-help-badge:hover {
-  color: var(--cfg-text);
-  border-color: var(--cfg-dim);
+.cfg-help-wrap.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.cfg-help-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cfg-help-wrap { transition: none; }
 }
 
 .cfg-help-body {
-  flex: 1 0 100%;
-  margin-top: 4px;
+  margin: 10px 0 4px;
   padding: 10px 12px;
   background: #0d1015;
   border: 1px solid var(--cfg-line);
@@ -719,10 +750,9 @@
    The shared footer strip these two used to sit in is gone. --- */
 
 /* Download log: set off from the last option at the foot of the terminal page. */
+/* No rule of its own: the last row's divider already closes the list above. */
 .cfg-page-tail {
   margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--cfg-line-soft);
 }
 
 .cfg-log-download {

@@ -135,22 +135,9 @@
 .acct-mini:hover:not(:disabled) { border-color: var(--cfg-accent); color: var(--cfg-bright); }
 .acct-mini:disabled { opacity: 0.5; cursor: default; }
 
-.acct-actions { display: flex; gap: 16px; flex-wrap: wrap; }
-.acct-link {
-  background: none; border: none; padding: 0;
-  color: var(--cfg-accent);
-  font-size: 12px; cursor: pointer; text-align: left;
-}
-.acct-link:hover { color: var(--cfg-bright); }
+.acct-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-/* Logout is the weightier action in the row -- pushed to the right edge and
-   given a border so it reads as a button, not another text link. */
+/* All three are plain buttons now; log out stands apart at the right edge. */
 .acct-logout {
   margin-left: auto;
-  padding: 5px 12px;
-  border: 1px solid var(--cfg-line);
-  border-radius: 6px;
-}
-.acct-logout:hover {
-  border-color: var(--cfg-accent);
 }

@@ -171,13 +171,13 @@ export default function AccountPage({ lang, visible }) {
       ) : null}
 
       <div className="acct-actions">
-        <button type="button" className="acct-link" onClick={listChars}>
+        <button type="button" className="cfg-button" onClick={listChars}>
           {t('acct.list', lang)}
         </button>
-        <button type="button" className="acct-link" onClick={fetchChars}>
+        <button type="button" className="cfg-button" onClick={fetchChars}>
           {t('acct.refresh', lang)}
         </button>
-        <button type="button" className="acct-link acct-logout" onClick={logout}>
+        <button type="button" className="cfg-button acct-logout" onClick={logout}>
           <i className="fa fa-sign-out" aria-hidden="true" /> {t('acct.logout', lang)}
         </button>
       </div>
