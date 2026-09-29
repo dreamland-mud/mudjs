@@ -103,24 +103,41 @@ function scrollParent(el) {
 const EDGE = 40;
 const EDGE_STEP = 12;
 
-// Drag a row by its grip. The list redraws in the dragged order while the
-// pointer moves, and is saved once, on release; a cancelled gesture puts the
-// row back. The move and release are heard on window, not on the grip: the
-// redraw moves the dragged row's DOM node, and the browser drops the pointer
-// capture of a node that leaves the document.
+// Drag a row by its grip. The row lifts off and follows the pointer, the rows
+// it passes slide aside to open the gap where it will land, and a slot marks
+// that gap. Nothing is reordered until the release, which saves once; a
+// cancelled gesture puts the row back. Rows move by transform only, so their
+// DOM order holds still under the pointer, and the move and release are heard
+// on window, which a pointer that wanders off the grip still reaches.
 function useRowDrag(onDrop) {
-  const [drag, setDrag] = useState(null); // { list, from, over }
+  // { list, from, over, dy, h, mids, tops }
+  //   mids/tops: each row's middle and top at the start, relative to the first
+  //   row; h: the dragged row's height, the distance its neighbours slide.
+  const [drag, setDrag] = useState(null);
   const rows = useRef({});
-  const live = useRef({ drag: null, onDrop, pane: null, pointer: null });
+  const live = useRef({ drag: null, onDrop, pane: null, pointer: null, y0: 0, scroll0: 0 });
   live.current.drag = drag;
   live.current.onDrop = onDrop;
 
   const start = (list, i) => e => {
     if (e.button !== undefined && e.button !== 0) return;
     e.preventDefault();
-    live.current.pane = scrollParent(e.currentTarget);
+    const els = (rows.current[list] || []).filter(Boolean);
+    if (!els[i]) return;
+    const top0 = els[0].getBoundingClientRect().top;
+    const mids = [];
+    const tops = [];
+    els.forEach(el => {
+      const r = el.getBoundingClientRect();
+      tops.push(r.top - top0);
+      mids.push(r.top - top0 + r.height / 2);
+    });
+    const pane = scrollParent(e.currentTarget);
+    live.current.pane = pane;
     live.current.pointer = e.pointerId;
-    setDrag({ list, from: i, over: i });
+    live.current.y0 = e.clientY;
+    live.current.scroll0 = pane ? pane.scrollTop : 0;
+    setDrag({ list, from: i, over: i, dy: 0, h: els[i].getBoundingClientRect().height, mids, tops });
   };
 
   const active = !!drag;
@@ -139,17 +156,16 @@ function useRowDrag(onDrop) {
         if (e.clientY < r.top + EDGE) pane.scrollTop -= EDGE_STEP;
         else if (e.clientY > r.bottom - EDGE) pane.scrollTop += EDGE_STEP;
       }
-      // Rows are measured as drawn, the dragged one already at d.over. Its new
-      // place is the number of the other rows whose middle the pointer is below.
-      const els = rows.current[d.list] || [];
+      // How far the row has travelled, the pane's own scroll included. Its new
+      // place is the number of the other rows whose middle its middle passed.
+      const scrolled = pane ? pane.scrollTop - live.current.scroll0 : 0;
+      const dy = e.clientY - live.current.y0 + scrolled;
+      const mid = d.mids[d.from] + dy;
       let over = 0;
-      for (let i = 0; i < els.length; i++) {
-        const el = els[i];
-        if (!el || i === d.over) continue;
-        const r = el.getBoundingClientRect();
-        if (e.clientY > r.top + r.height / 2) over++;
-      }
-      if (over !== d.over) setDrag({ ...d, over });
+      d.mids.forEach((m, k) => {
+        if (k !== d.from && m < mid) over++;
+      });
+      setDrag({ ...d, over, dy });
     };
 
     const up = e => {
@@ -173,22 +189,36 @@ function useRowDrag(onDrop) {
     };
   }, [active]);
 
-  // What a list looks like right now, the dragged row in its current place.
-  const shown = (list, items) =>
-    drag && drag.list === list && drag.from < items.length && drag.over < items.length
-      ? moveItem(items, drag.from, drag.over)
-      : items;
+  // A row's style while a drag is on: the dragged one follows the pointer, the
+  // ones between its old place and the gap slide one row towards its old place.
+  const rowStyle = (list, k) => {
+    if (!drag || drag.list !== list || k >= drag.mids.length) return undefined;
+    const { from, over, dy, h } = drag;
+    if (k === from) return { transform: 'translateY(' + dy + 'px)' };
+    if (from < over && k > from && k <= over) return { transform: 'translateY(' + -h + 'px)' };
+    if (over < from && k >= over && k < from) return { transform: 'translateY(' + h + 'px)' };
+    return { transform: 'translateY(0)' };
+  };
+
+  // Where the gap is, for the drop slot: the top of the row it replaces, less
+  // the dragged row's height when that row slid up out of it.
+  const slot = list => {
+    if (!drag || drag.list !== list) return null;
+    const { from, over, h, tops } = drag;
+    const top = over > from ? tops[over] + (drag.mids[over] - tops[over]) * 2 - h : tops[over];
+    return { top, height: h };
+  };
+
+  const lifted = (list, k) => !!drag && drag.list === list && drag.from === k;
 
   const rowRef = (list, i) => el => {
     if (!rows.current[list]) rows.current[list] = [];
     rows.current[list][i] = el;
   };
 
-  const dragging = (list, i) => !!drag && drag.list === list && drag.over === i;
-
   const cancel = () => setDrag(null);
 
-  return { start, shown, rowRef, dragging, cancel, active };
+  return { start, rowStyle, slot, lifted, rowRef, cancel, active };
 }
 
 function Grip({ label, hint, onPointerDown, onKeyDown, gripRef }) {
@@ -251,7 +281,6 @@ export default function AutobuffPage({ lang, data }) {
   const [refocus, setRefocus] = useState(null);
   const grips = useRef({});
   const cmdInput = useRef(null);
-  const gateInput = useRef(null);
   const picksList = useRef(null);
 
   useEffect(() => {
@@ -362,7 +391,7 @@ export default function AutobuffPage({ lang, data }) {
     setPicked(null);
     setPicks([]);
     setPick(-1);
-    if (gateInput.current) gateInput.current.focus();
+    if (cmdInput.current) cmdInput.current.focus();
   };
 
   // On a phone the keyboard covers the bottom of the pane, where the
@@ -436,8 +465,15 @@ export default function AutobuffPage({ lang, data }) {
     g === '*' ? t('ab.always', lang) : t('ab.unless', lang) + ' ' + affectName(g);
 
   const gripHint = t('ab.grip.hint', lang);
-  const shownSpells = drag.shown('spells', spells);
-  const shownCustom = drag.shown('custom', custom);
+  const rowClass = (list, i, base) => (drag.lifted(list, i) ? base + ' ab-item-lifted' : base);
+
+  // The drop slot of a list, under the lifted row.
+  const dropSlot = list => {
+    const at = drag.slot(list);
+    return at ? (
+      <li className="ab-slot" aria-hidden="true" style={{ top: at.top, height: at.height }} />
+    ) : null;
+  };
   const listId = 'ab-gate-list';
 
   return (
@@ -448,13 +484,18 @@ export default function AutobuffPage({ lang, data }) {
         {said}
       </div>
 
-      {shownSpells.length ? (
+      {spells.length ? (
         <ol className="ab-list" role="list" aria-label={t('ab.spells', lang)}>
-          {shownSpells.map((one, i) => {
-            let cls = one.on ? 'ab-item' : 'ab-item ab-item-off';
-            if (drag.dragging('spells', i)) cls += ' ab-item-drag';
+          {dropSlot('spells')}
+          {spells.map((one, i) => {
+            const cls = rowClass('spells', i, one.on ? 'ab-item' : 'ab-item ab-item-off');
             return (
-              <li key={one.sn} ref={drag.rowRef('spells', i)} className={cls}>
+              <li
+                key={one.sn}
+                ref={drag.rowRef('spells', i)}
+                className={cls}
+                style={drag.rowStyle('spells', i)}
+              >
                 <Grip
                   label={t('ab.grip', lang) + ': ' + one.name}
                   hint={gripHint}
@@ -468,7 +509,7 @@ export default function AutobuffPage({ lang, data }) {
                   lang={lang}
                   name={one.name}
                   first={i === 0}
-                  last={i === shownSpells.length - 1}
+                  last={i === spells.length - 1}
                   onMove={by => moveBy('spells', i, by)}
                 />
                 <span className="ab-name">{one.name}</span>
@@ -491,13 +532,15 @@ export default function AutobuffPage({ lang, data }) {
       <div className="ab-h">{t('ab.own', lang)}</div>
       <div className="cfg-row-desc">{t('ab.own.hint', lang)}</div>
 
-      {shownCustom.length ? (
+      {custom.length ? (
         <ol className="ab-list" role="list" aria-label={t('ab.own', lang)}>
-          {shownCustom.map((one, i) => (
+          {dropSlot('custom')}
+          {custom.map((one, i) => (
             <li
               key={one.id}
               ref={drag.rowRef('custom', i)}
-              className={drag.dragging('custom', i) ? 'ab-item ab-item-drag' : 'ab-item'}
+              className={rowClass('custom', i, 'ab-item')}
+              style={drag.rowStyle('custom', i)}
             >
               <Grip
                 label={t('ab.grip', lang) + ': ' + one.cmd}
@@ -512,11 +555,11 @@ export default function AutobuffPage({ lang, data }) {
                 lang={lang}
                 name={one.cmd}
                 first={i === 0}
-                last={i === shownCustom.length - 1}
+                last={i === custom.length - 1}
                 onMove={by => moveBy('custom', i, by)}
               />
               <span className="ab-name">
-                <span className="ab-cmd">{one.cmd}</span>
+                <span>{one.cmd}</span>
                 <span className={one.bad ? 'ab-gate ab-gate-bad' : 'ab-gate'}>
                   {one.bad ? t('ab.badgate', lang) + ' ' + one.gate : gateLabel(one.gate)}
                 </span>
@@ -543,6 +586,18 @@ export default function AutobuffPage({ lang, data }) {
 
       {custom.length < AUTOBUFF_MAX_LINES ? (
         <form className="ab-add" onSubmit={add}>
+          <label className="ab-field ab-field-cmd">
+            <span className="cfg-note">{t('ab.cmd', lang)}</span>
+            <input
+              ref={cmdInput}
+              type="text"
+              value={cmd}
+              maxLength={AUTOBUFF_MAX_CMD}
+              spellCheck={false}
+              placeholder="order rat c haste"
+              onChange={e => setCmd(e.target.value)}
+            />
+          </label>
           {/* A div, not a label: the listbox would otherwise be read as part
               of the box's name. */}
           <div className="ab-field ab-field-gate">
@@ -550,7 +605,6 @@ export default function AutobuffPage({ lang, data }) {
               {t('ab.gate', lang)}
             </span>
             <input
-              ref={gateInput}
               type="text"
               role="combobox"
               aria-labelledby="ab-gate-label"
@@ -590,18 +644,6 @@ export default function AutobuffPage({ lang, data }) {
               </ul>
             ) : null}
           </div>
-          <label className="ab-field ab-field-cmd">
-            <span className="cfg-note">{t('ab.cmd', lang)}</span>
-            <input
-              ref={cmdInput}
-              type="text"
-              value={cmd}
-              maxLength={AUTOBUFF_MAX_CMD}
-              spellCheck={false}
-              placeholder="order rat c haste"
-              onChange={e => setCmd(e.target.value)}
-            />
-          </label>
           <button type="submit" className="cfg-button cfg-button-main" disabled={!cmd.trim()}>
             {t('ab.add', lang)}
           </button>

@@ -232,143 +232,9 @@
   padding: 4px 8px 14px;
 }
 
-.cfg-branch {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  padding-bottom: 6px;
-  /* A hair-line between sections, DS menu style. */
-  border-bottom: 1px solid var(--cfg-line-soft);
-}
-.cfg-branch:last-child {
-  border-bottom: none;
-}
-
-.cfg-branch-head {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  width: 100%;
-  padding: 7px 8px;
-  border: none;
-  border-radius: 8px;
-  background: none;
-  color: #c6cdd6;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.cfg-branch-head:hover {
-  background: #1a1f26;
-}
-
-/* DS menu caret: a small chevron drawn from two borders, sitting at the right of
-   the row, that rotates a quarter-turn when its section is open. */
-.cfg-caret {
-  width: 8px;
-  height: 8px;
-  flex: none;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  color: #6b7381;
-  transform: translateY(-2px) rotate(-45deg);
-  transition: transform 0.2s;
-  opacity: 0.7;
-}
-.cfg-branch-head[aria-expanded='true'] .cfg-caret {
-  transform: translateY(-1px) rotate(45deg);
-}
-@media (prefers-reduced-motion: reduce) {
-  .cfg-caret { transition: none; }
-}
-
-.cfg-branch-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cfg-branch-count {
-  font-size: 11px;
-  color: var(--cfg-dimmer);
-  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
-  flex: none;
-}
-
-.cfg-branch-body {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  padding-left: 11px;
-  margin-left: 8px;
-  border-left: 1px solid #232932;
-}
-
-.cfg-leaf {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 7px 10px;
-  border: none;
-  border-radius: 8px;
-  background: none;
-  color: #a4acb8;
-  font: inherit;
-  font-size: 13px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.cfg-leaf:hover {
-  background: #1a1f26;
-  color: var(--cfg-text);
-}
-
-.cfg-leaf-on {
-  background: #232b36;
-  color: #eef2f7;
-  font-weight: 500;
-}
-
-.cfg-leaf-bar {
-  width: 3px;
-  height: 14px;
-  border-radius: 2px;
-  flex: none;
-}
-
-.cfg-leaf-on .cfg-leaf-bar {
-  background: var(--cfg-accent);
-}
-
-.cfg-leaf-title {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cfg-leaf-count {
-  font-size: 11px;
-  color: var(--cfg-dimmer);
-  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
-}
-
-/* The account tab is pinned flat at the foot of the tree rather than folded
-   into an accordion branch: it reuses .cfg-leaf, gains an icon, and sits below
-   a divider so it reads as a standalone side tab. cfg-tree is a flex column and
-   cfg-tree-list takes the slack, so the foot stays pinned at the bottom. */
-/* The account tab, pinned above the accordion. Same padding as the foot it used
-   to sit in; the rule that separates it from the settings below is under it now,
-   not over it. */
+/* The account tab, pinned above the accordion as a single .ds-menu item with an
+   icon. cfg-tree is a flex column and cfg-tree-list takes the slack, so the foot
+   stays pinned at the bottom. */
 .cfg-tree-head {
   flex: none;
   padding: 8px 8px 0;
@@ -380,7 +246,7 @@
   border-top: 1px solid var(--cfg-line);
 }
 .cfg-tab {
-  font-weight: 500;
+  align-items: center;
 }
 .cfg-tab-ico {
   flex: none;
@@ -424,9 +290,11 @@
 
 /* --- one page --- */
 .cfg-page {
+  /* the side padding, as a token so a list can run wall to wall across it */
+  --cfg-page-x: 26px;
   display: flex;
   flex-direction: column;
-  padding: 22px 26px 28px;
+  padding: 22px var(--cfg-page-x) 28px;
   box-sizing: border-box;
 }
 
@@ -944,18 +812,12 @@
   padding: 14px 0 6px;
 }
 
+/* The mobile list's section head is the .ds-menu eyebrow, with the list's own
+   spacing, one step brighter than the DS's gold-dim (3.5:1 at this size) since
+   on the phone it is a static label, never an open accordion head. */
 .cfg-list-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   padding: 0 4px 8px;
-}
-
-.cfg-list-head .cfg-branch-name {
-  font-size: 10.5px;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--cfg-dim);
+  color: var(--gold, #c6a24e);
 }
 
 .cfg-list-card {
@@ -1021,7 +883,8 @@
    is set from its measured width (SettingsDialog), so there is a single rule
    and the markup and the styling cannot disagree about it. */
 .cfg-narrow .cfg-page {
-  padding: 16px 16px 24px;
+  --cfg-page-x: 16px;
+  padding: 16px var(--cfg-page-x) 24px;
 }
 
 .cfg-narrow .cfg-page.cfg-page-script {
@@ -1225,19 +1088,28 @@ body.cfg-resizing {
   max-width: 64ch;
 }
 
+/* The list runs wall to wall: it steps out over the page's side padding and
+   every row takes that padding back inside, so the dividers reach both edges. */
 .ab-list {
+  position: relative;
   list-style: none;
-  margin: 0;
+  margin: 0 calc(-1 * var(--cfg-page-x, 26px));
   padding: 0;
 }
 
 .ab-item {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 12px;
   min-height: 44px;
-  padding: 4px 0;
+  padding: 4px var(--cfg-page-x, 26px);
   border-top: 1px solid var(--cfg-line-soft);
+}
+
+.ab-item:last-child {
+  border-bottom: 1px solid var(--cfg-line-soft);
 }
 
 .ab-name {
@@ -1256,63 +1128,40 @@ body.cfg-resizing {
   text-decoration: line-through;
 }
 
-/* The grip: drag a row by it, or focus it and press up/down. */
+/* The grip: drag a row by it, or focus it and press up/down. Three hairlines
+   in dark gold, the engraved grip of the switch knob turned on its side;
+   brighter under the pointer or the focus. */
 .ab-grip {
   flex: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
+  width: 28px;
   min-height: 36px;
+  margin-left: -6px;
   padding: 0;
   background: none;
   border: 0;
   border-radius: 6px;
-  color: var(--cfg-dim);
+  color: var(--gold-dim, #856632);
   cursor: grab;
   touch-action: none;
 }
 
+/* Its focus ring is the sheet's shared one (settings-parchment.css). */
 .ab-grip:hover,
 .ab-grip:focus-visible {
-  color: var(--cfg-bright);
-  background: var(--cfg-sunk);
+  color: var(--gold, #c6a24e);
 }
 
-.ab-grip:focus-visible {
-  outline: 2px solid var(--cfg-accent);
-  outline-offset: 1px;
-}
-
-/* Three lines in the text colour. */
 .ab-grip-lines {
-  position: relative;
-  width: 16px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 1px;
+  width: 14px;
+  height: 9px;
+  background: repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px 4px);
 }
 
-.ab-grip-lines::before,
-.ab-grip-lines::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  width: 16px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 1px;
-}
-
-.ab-grip-lines::before {
-  top: -5px;
-}
-
-.ab-grip-lines::after {
-  top: 5px;
-}
-
-/* While a row is dragged: nothing gets selected, the cursor stays a fist. */
+/* While a row is dragged: nothing gets selected, the cursor stays a fist, and
+   the rows it passes slide aside to open its gap. */
 .ab-dragging {
   user-select: none;
   cursor: grabbing;
@@ -1322,20 +1171,48 @@ body.cfg-resizing {
   cursor: grabbing;
 }
 
-.ab-item-drag {
-  background: var(--cfg-sunk);
+.ab-dragging .ab-item {
+  transition: transform 0.15s ease;
+}
+
+/* The lifted row floats over the others, following the pointer. */
+.ab-dragging .ab-item.ab-item-lifted {
+  z-index: 3;
+  transition: none;
+  background: var(--stone-800, #201a2b);
+  border-color: transparent;
+  box-shadow:
+    0 0 0 1px var(--gold-deep, #6f5a26),
+    0 10px 28px rgba(0, 0, 0, 0.55);
+}
+
+.ab-item-lifted .ab-grip {
+  color: var(--gold-bright, #e6cd86);
+}
+
+/* Where the lifted row will land. */
+.ab-slot {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  z-index: 0;
+  border: 1px dashed color-mix(in srgb, var(--arcane, #bb86fc) 70%, transparent);
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  background: color-mix(in srgb, var(--arcane-deep, #4c2a7a) 30%, transparent);
+  box-shadow: inset 0 0 14px var(--arcane-glow, rgba(187, 134, 252, 0.35));
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ab-dragging .ab-item {
+    transition: none;
+  }
 }
 
 .ab-h {
   margin-top: 14px;
   font-weight: 600;
   color: var(--cfg-bright);
-}
-
-.ab-cmd {
-  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
 }
 
 .ab-gate {
@@ -1347,11 +1224,16 @@ body.cfg-resizing {
   color: var(--cfg-warn, #c4674a);
 }
 
+/* The add form: command, then the affect gate, both the full width; the Add
+   button under them at the right. */
 .ab-add {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 8px;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ab-add > .cfg-button {
+  align-self: flex-end;
 }
 
 .ab-field {
@@ -1362,7 +1244,6 @@ body.cfg-resizing {
 
 .ab-field-gate {
   position: relative;
-  flex: 0 1 180px;
 }
 
 /* The gate lookup: affects matching what was typed. */
@@ -1401,10 +1282,6 @@ body.cfg-resizing {
 .ab-pick-sn {
   font-size: 12px;
   color: var(--cfg-dim);
-}
-
-.ab-field-cmd {
-  flex: 1 1 200px;
 }
 
 .ab-field input {
