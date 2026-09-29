@@ -1256,21 +1256,76 @@ body.cfg-resizing {
   text-decoration: line-through;
 }
 
-.ab-moves {
-  display: flex;
-  gap: 4px;
+/* The grip: drag a row by it, or focus it and press up/down. */
+.ab-grip {
   flex: none;
-}
-
-.ab-move {
-  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
   min-height: 36px;
-  padding: 4px 8px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  color: var(--cfg-dim);
+  cursor: grab;
+  touch-action: none;
 }
 
-.ab-move:disabled {
-  opacity: 0.35;
-  cursor: default;
+.ab-grip:hover,
+.ab-grip:focus-visible {
+  color: var(--cfg-bright);
+  background: var(--cfg-sunk);
+}
+
+.ab-grip:focus-visible {
+  outline: 2px solid var(--cfg-accent);
+  outline-offset: 1px;
+}
+
+/* Three lines in the text colour. */
+.ab-grip-lines {
+  position: relative;
+  width: 16px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.ab-grip-lines::before,
+.ab-grip-lines::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 16px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+}
+
+.ab-grip-lines::before {
+  top: -5px;
+}
+
+.ab-grip-lines::after {
+  top: 5px;
+}
+
+/* While a row is dragged: nothing gets selected, the cursor stays a fist. */
+.ab-dragging {
+  user-select: none;
+  cursor: grabbing;
+}
+
+.ab-dragging .ab-grip {
+  cursor: grabbing;
+}
+
+.ab-item-drag {
+  background: var(--cfg-sunk);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
 .ab-h {
@@ -1306,7 +1361,46 @@ body.cfg-resizing {
 }
 
 .ab-field-gate {
-  flex: 0 1 140px;
+  position: relative;
+  flex: 0 1 180px;
+}
+
+/* The gate lookup: affects matching what was typed. */
+.ab-picks {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  min-width: 100%;
+  max-width: 280px;
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--cfg-sunk);
+  border: 1px solid var(--cfg-line);
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.ab-pick {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: var(--cfg-text);
+  cursor: pointer;
+}
+
+.ab-pick:hover,
+.ab-pick-on {
+  color: var(--cfg-bright);
+  background: var(--cfg-line-soft);
+}
+
+.ab-pick-sn {
+  font-size: 12px;
+  color: var(--cfg-dim);
 }
 
 .ab-field-cmd {
