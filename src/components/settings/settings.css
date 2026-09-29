@@ -1339,3 +1339,16 @@ body.cfg-resizing {
   padding-top: 12px;
   border-top: 1px solid var(--cfg-line-soft);
 }
+
+/* Read by screen readers only: where a moved buff landed. */
+.ab-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

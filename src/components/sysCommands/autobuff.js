@@ -89,6 +89,11 @@ export function setLegacyAutobuffLines(list) {
 // server-side lines) and again whenever the settings window opens.
 let server = null;
 let asked = false;
+// The seq of the last change sent and not yet answered. While one is out,
+// every other answer (to an earlier change, or to a plain 'list') is already
+// out of date and would drag the tab back to a state the player has left.
+let seq = 0;
+let awaiting = null;
 const watchers = new Set();
 
 export function autobuffServer() {
@@ -108,34 +113,58 @@ export function requestAutobuffList() {
 // Tabs and newlines are the wire format's separators; a command can't carry them.
 const flat = s => String(s || '').replace(/[\t\r\n]+/g, ' ').trim();
 
+// The server's limits (setPrefs in utils/autobuff): a line past them is dropped.
+export const AUTOBUFF_MAX_LINES = 20;
+export const AUTOBUFF_MAX_GATE = 40;
+export const AUTOBUFF_MAX_CMD = 200;
+
+export function autobuffLineFits(line) {
+  const gate = flat(line.gate);
+  const cmd = flat(line.cmd);
+  return !!gate && !!cmd && gate.length <= AUTOBUFF_MAX_GATE && cmd.length <= AUTOBUFF_MAX_CMD;
+}
+
 // Send the whole state; the server validates it and answers with the list it
-// actually stored.
+// actually stored, tagged with this change's seq.
 export function saveAutobuffPrefs(spells, custom) {
   const order = spells.map(one => one.sn).join(',');
   const off = spells.filter(one => !one.on).map(one => one.sn).join(',');
   const own = custom
     .map(one => flat(one.gate) + '\t' + flat(one.cmd))
     .join('\n');
-  return rpccmd('autobuff_prefs', 'set', order, off, own);
+  const tag = String(++seq);
+  if (!rpccmd('autobuff_prefs', 'set', order, off, own, tag)) return false;
+  awaiting = tag;
+  return true;
 }
 
-$(document).on('rpc-autobuff_list', (e, b) => {
-  server = b && typeof b === 'object' ? b : null;
-  watchers.forEach(fn => fn(server));
-});
+const notify = () => watchers.forEach(fn => fn(server));
 
-// First prompt of a character: ask, so the panel button can show for a
-// non-caster whose lines live on the server.
-$(document).on('rpc-prompt', () => {
-  if (!asked) requestAutobuffList();
-});
+$(function () {
+  $('#rpc-events').on('rpc-autobuff_list', (e, b) => {
+    const body = b && typeof b === 'object' ? b : null;
+    if (awaiting !== null) {
+      if (!body || body.seq !== awaiting) return;
+      awaiting = null;
+    }
+    server = body;
+    notify();
+  });
 
-// Entering or leaving the world (a character switch included): what is in hand
-// belongs to somebody else.
-$(document).on('rpc-config_state', () => {
-  server = null;
-  asked = false;
-  watchers.forEach(fn => fn(server));
+  // First prompt of a character: ask, so the panel button can show for a
+  // non-caster whose lines live on the server.
+  $('#rpc-events').on('rpc-prompt', () => {
+    if (!asked) requestAutobuffList();
+  });
+
+  // Entering or leaving the world (a character switch included): what is in
+  // hand belongs to somebody else.
+  $('#rpc-events').on('rpc-config_state', () => {
+    server = null;
+    asked = false;
+    awaiting = null;
+    notify();
+  });
 });
 
 function listEntries() {

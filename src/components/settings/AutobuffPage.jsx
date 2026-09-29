@@ -1,9 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { t } from '../../i18n.js';
 import {
   saveAutobuffPrefs,
   legacyAutobuffLines,
   setLegacyAutobuffLines,
+  autobuffLineFits,
+  AUTOBUFF_MAX_LINES,
+  AUTOBUFF_MAX_GATE,
+  AUTOBUFF_MAX_CMD,
 } from '../sysCommands/autobuff.js';
 
 // The autobuff tab: which of the character's buffs the button casts, in what
@@ -11,16 +15,17 @@ import {
 // character (server-side), so it follows the player to any device and to the
 // typed 'buff' command.
 //
-// Every change is sent at once as the whole state, and the server answers with
-// the whole list it stored. The screen moves on the click, but while a change
-// is in flight a stale answer to an earlier one is not allowed to drag it back:
-// only the answer to the LAST change is taken.
+// Every change is sent at once as the whole state, and the screen moves on the
+// click. The server answers with the whole list it stored; answers that are
+// already out of date (to an earlier change, or to a plain list request) are
+// filtered out in sysCommands/autobuff.js by seq, so what arrives here is
+// always the answer to the latest change.
 //
 // Reordering is by buttons, not drag: a screen reader can't drag, and a good
-// share of the players use one.
+// share of the players use one. After a move the focus follows the moved buff
+// and a live region says where it landed.
 
-const MAX_CUSTOM = 20;
-const MAX_CMD = 200;
+const lineKey = one => one.gate + '\t' + one.cmd;
 
 export default function AutobuffPage({ lang, data }) {
   const [spells, setSpells] = useState([]);
@@ -28,23 +33,33 @@ export default function AutobuffPage({ lang, data }) {
   const [gate, setGate] = useState('*');
   const [cmd, setCmd] = useState('');
   const [legacy, setLegacy] = useState(() => legacyAutobuffLines());
-  const inFlight = useRef(0);
+  const [said, setSaid] = useState('');
+  const [refocus, setRefocus] = useState(null);
+  const buttons = useRef({});
   const cmdInput = useRef(null);
 
-  // The server's word replaces ours, unless a newer change of ours is still on
-  // its way -- then this answer is to an older one and already out of date.
   useEffect(() => {
     if (!data) return;
-    if (inFlight.current > 0) inFlight.current -= 1;
-    if (inFlight.current > 0) return;
     setSpells(Array.isArray(data.spells) ? data.spells : []);
     setCustom(Array.isArray(data.custom) ? data.custom : []);
   }, [data]);
 
+  // Keep the focus on the buff that just moved: on the same arrow while it can
+  // still go that way, on the other one once it hit the end (a disabled button
+  // would drop the focus to the page).
+  useLayoutEffect(() => {
+    if (!refocus) return;
+    const same = buttons.current[refocus.sn + ':' + refocus.dir];
+    const other = buttons.current[refocus.sn + ':' + (refocus.dir === 'up' ? 'down' : 'up')];
+    const target = same && !same.disabled ? same : other;
+    if (target) target.focus();
+    setRefocus(null);
+  }, [refocus]);
+
   const commit = (nextSpells, nextCustom) => {
     setSpells(nextSpells);
     setCustom(nextCustom);
-    if (saveAutobuffPrefs(nextSpells, nextCustom)) inFlight.current += 1;
+    saveAutobuffPrefs(nextSpells, nextCustom);
   };
 
   const toggle = i =>
@@ -59,31 +74,47 @@ export default function AutobuffPage({ lang, data }) {
     const next = spells.slice();
     [next[i], next[j]] = [next[j], next[i]];
     commit(next, custom);
+    setRefocus({ sn: spells[i].sn, dir: by < 0 ? 'up' : 'down' });
+    setSaid(
+      t('ab.moved', lang)
+        .replace('%s', spells[i].name)
+        .replace('%d', String(j + 1))
+        .replace('%t', String(spells.length))
+    );
   };
 
   const remove = i => commit(spells, custom.filter((one, j) => j !== i));
 
   const add = e => {
     e.preventDefault();
-    const g = gate.trim() || '*';
-    const c = cmd.trim();
-    if (!c || custom.length >= MAX_CUSTOM) return;
-    commit(spells, custom.concat([{ gate: g, cmd: c, bad: 0 }]));
+    const line = { gate: gate.trim() || '*', cmd: cmd.trim(), bad: 0 };
+    if (!line.cmd || custom.length >= AUTOBUFF_MAX_LINES) return;
+    commit(spells, custom.concat([line]));
     setCmd('');
     setGate('*');
     if (cmdInput.current) cmdInput.current.focus();
   };
 
-  // The old browser-only lines move onto the character, after the ones already
-  // there, and leave the browser -- so they stop firing twice. Whatever does not
-  // fit under the cap stays in the browser rather than being lost.
+  // The old browser-only lines move onto the character after the ones already
+  // there and leave the browser, so they stop firing twice. A line the
+  // character already has (imported from another browser) is not added again.
+  // Whatever doesn't fit -- the line cap, or the server's length limits --
+  // stays in the browser rather than being lost.
   const importLegacy = () => {
-    const room = Math.max(MAX_CUSTOM - custom.length, 0);
-    const moved = legacy
-      .slice(0, room)
-      .map(one => ({ gate: one.gate || '*', cmd: one.cmd, bad: 0 }));
-    const rest = legacy.slice(room);
-    commit(spells, custom.concat(moved));
+    const have = new Set(custom.map(lineKey));
+    const moved = [];
+    const rest = [];
+    legacy.forEach(one => {
+      const line = { gate: String(one.gate || '*').trim(), cmd: String(one.cmd || '').trim(), bad: 0 };
+      if (have.has(lineKey(line))) return;
+      if (!autobuffLineFits(line) || custom.length + moved.length >= AUTOBUFF_MAX_LINES) {
+        rest.push(one);
+        return;
+      }
+      have.add(lineKey(line));
+      moved.push(line);
+    });
+    if (moved.length) commit(spells, custom.concat(moved));
     setLegacyAutobuffLines(rest);
     setLegacy(rest);
   };
@@ -94,8 +125,12 @@ export default function AutobuffPage({ lang, data }) {
     <div className="ab">
       <div className="cfg-row-desc ab-intro">{t('ab.intro', lang)}</div>
 
+      <div className="ab-sr" aria-live="polite">
+        {said}
+      </div>
+
       {spells.length ? (
-        <ol className="ab-list" aria-label={t('ab.spells', lang)}>
+        <ol className="ab-list" role="list" aria-label={t('ab.spells', lang)}>
           {spells.map((one, i) => (
             <li key={one.sn} className={one.on ? 'ab-item' : 'ab-item ab-item-off'}>
               <button
@@ -112,6 +147,9 @@ export default function AutobuffPage({ lang, data }) {
               <span className="ab-moves">
                 <button
                   type="button"
+                  ref={el => {
+                    buttons.current[one.sn + ':up'] = el;
+                  }}
                   className="cfg-button ab-move"
                   aria-label={t('ab.up', lang) + ': ' + one.name}
                   title={t('ab.up', lang)}
@@ -122,6 +160,9 @@ export default function AutobuffPage({ lang, data }) {
                 </button>
                 <button
                   type="button"
+                  ref={el => {
+                    buttons.current[one.sn + ':down'] = el;
+                  }}
                   className="cfg-button ab-move"
                   aria-label={t('ab.down', lang) + ': ' + one.name}
                   title={t('ab.down', lang)}
@@ -140,9 +181,9 @@ export default function AutobuffPage({ lang, data }) {
       <div className="cfg-row-desc">{t('ab.own.hint', lang)}</div>
 
       {custom.length ? (
-        <ol className="ab-list" aria-label={t('ab.own', lang)}>
+        <ol className="ab-list" role="list" aria-label={t('ab.own', lang)}>
           {custom.map((one, i) => (
-            <li key={i + ':' + one.gate + ':' + one.cmd} className="ab-item">
+            <li key={i + ':' + lineKey(one)} className="ab-item">
               <span className="ab-name">
                 <span className="ab-cmd">{one.cmd}</span>
                 <span className={one.bad ? 'ab-gate ab-gate-bad' : 'ab-gate'}>
@@ -163,14 +204,14 @@ export default function AutobuffPage({ lang, data }) {
         </ol>
       ) : null}
 
-      {custom.length < MAX_CUSTOM ? (
+      {custom.length < AUTOBUFF_MAX_LINES ? (
         <form className="ab-add" onSubmit={add}>
           <label className="ab-field ab-field-gate">
             <span className="cfg-note">{t('ab.gate', lang)}</span>
             <input
               type="text"
               value={gate}
-              maxLength={40}
+              maxLength={AUTOBUFF_MAX_GATE}
               spellCheck={false}
               onChange={e => setGate(e.target.value)}
             />
@@ -181,7 +222,7 @@ export default function AutobuffPage({ lang, data }) {
               ref={cmdInput}
               type="text"
               value={cmd}
-              maxLength={MAX_CMD}
+              maxLength={AUTOBUFF_MAX_CMD}
               spellCheck={false}
               placeholder="order rat c haste"
               onChange={e => setCmd(e.target.value)}
