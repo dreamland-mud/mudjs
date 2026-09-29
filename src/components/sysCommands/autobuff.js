@@ -105,8 +105,11 @@ export function watchAutobuff(fn) {
   return () => watchers.delete(fn);
 }
 
+// A fresh list request means the player wants the truth: stop waiting for the
+// answer to a change that may have gone into a dead socket.
 export function requestAutobuffList() {
   asked = true;
+  awaiting = null;
   rpccmd('autobuff_prefs', 'list');
 }
 
