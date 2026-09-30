@@ -11,8 +11,8 @@
  * palette as the site's help articles (site/css/helpart.css). Bright terminal
  * hues on cream fail contrast, and ~30% of players are low vision or blind.
  *
- * Imported by the component, so it loads under both skins: every token has a
- * hex fallback (Runeforge has no parchment tokens).
+ * Imported by the component; every token has a hex fallback in case the skin
+ * :root drops one.
  */
 
 .hs-sheet {

@@ -7,8 +7,7 @@
  * - items and eyebrows set line-height 1.6 themselves: the DS takes it from its
  *   page body, and a button resets it to normal (rows came out 27px, not 32);
  * - a long name wraps (min-width 0 + overflow-wrap), for translated page names;
- * - every token carries a hex fallback, because the settings sheet also renders
- *   under the Runeforge skin, whose :root has none of them.
+ * - every token carries a hex fallback, in case the skin :root drops one.
  *
  * Active item = the arcane power state with a left accent bar (a non-colour cue
  * for low vision). Hover = a quiet stone wash, never arcane.

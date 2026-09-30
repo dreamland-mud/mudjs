@@ -14,26 +14,14 @@ import './langsync';
 import './textedit';
 import './cs';
 
-// The /newui build ships Parchment as its default skin (aged grimoire: gold and
-// parchment on obsidian). Runeforge -- the earlier dark forged-metal skin -- is
-// archived but kept in the bundle: visit #runeforge to load it, #parchment to
-// return. The choice sticks in localStorage, so the hash is only needed once.
-let _dlSkin = 'parchment';
+// The one skin: Parchment (aged grimoire: gold and parchment on obsidian).
+// Loaded async so the boot overlay below can wait for it to apply.
 try {
-  const h = (window.location.hash || '').toLowerCase();
-  if (h.includes('runeforge')) localStorage.setItem('dlSkin', 'runeforge');
-  else if (h.includes('parchment')) localStorage.setItem('dlSkin', 'parchment');
-  if (localStorage.getItem('dlSkin') === 'runeforge') _dlSkin = 'runeforge';
+  localStorage.removeItem('dlSkin'); // the retired Runeforge skin switch
 } catch (e) {
-  /* private-mode localStorage can throw on read/write; fall back to Parchment */
+  /* private-mode localStorage can throw */
 }
-let _skinReady;
-if (_dlSkin === 'runeforge') {
-  _skinReady = import('./runeforge.css');
-} else {
-  document.documentElement.setAttribute('data-skin', 'parchment');
-  _skinReady = import('./theme-parchment.css');
-}
+const _skinReady = import('./theme-parchment.css');
 
 // Drop the boot overlay (index.html #dl-boot) once the skin's CSS has applied.
 // Before that, the static modals flash as unstyled text on white --

@@ -1280,6 +1280,17 @@ header.MuiPaper-root.MuiAppBar-root{ /* the widget-card top fill: stone-850 + ar
 .dl-mapper-root .search-input:focus,.dl-mapper-root .select:focus-visible{
   border-color:var(--gold) !important;box-shadow:inset 0 1px 5px rgba(0,0,0,.6) !important;
 }
+/* map room search reads like the help search box: same magnifier, same field type,
+   same placeholder. 32px = the gem buttons' visual height (30px box + the 1px outer
+   ring in --gem-shadow), so the fields line up with # + - instead of sitting short.
+   Same specificity as mapper.css's 30px rule, so !important (see the zoom-btn note). */
+.dl-mapper-root .dl-mapper-topbar .select--small{height:32px !important}
+.dl-mapper-root .dl-mapper-topbar .search-input{
+  height:32px !important;font-family:var(--ui);font-size:14.3px;letter-spacing:normal;
+  color:#f2ead6 !important;padding-left:30px;
+}
+.dl-mapper-root .search-input::placeholder{color:#757575;font-family:var(--ui);font-size:14.3px;letter-spacing:normal}
+.dl-mapper-root .dl-mapper-search-icon{font-size:13px;color:var(--gold-dim);left:10px}
 .dl-mapper-root .search-results{background:var(--stone-900) !important;border:1px solid var(--gold-deep) !important;border-radius:6px !important;box-shadow:0 10px 28px rgba(0,0,0,.6) !important}
 
 /* --- map detail drawer (room info + run-here subpanel) --- */

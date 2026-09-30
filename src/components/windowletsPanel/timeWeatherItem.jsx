@@ -3,7 +3,7 @@ import PanelItem from './panelItem';
 import { openWidgetHelp } from '../helpSheet/HelpSheet';
 import { t } from '../../i18n';
 
-// Plain tables (no MUI). Layout/colour lives in runeforge.css under .rf-tw: compact
+// Plain tables (no MUI). Layout/colour lives in theme-parchment.css under .rf-tw: compact
 // rows, one uniform icon box aligned left with a gap to the text, tinted client purple.
 
 /**
