@@ -94,7 +94,19 @@
   border: 1px solid var(--cfg-line);
   border-radius: 4px; padding: 3px 7px; white-space: nowrap;
 }
-.acct-badge-here { color: var(--cfg-accent); border-color: var(--cfg-accent); }
+/* "online" = the DS data-chip, same shape and green as the affects "buff" chip
+   (affects.css .aff-chip): full pill, flat, border tinted onto the bronze edge. */
+.acct-badge-here {
+  --chip-accent: #8ee34f;
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-size: 12px; line-height: 1.4;
+  text-transform: none; letter-spacing: 0;
+  color: var(--chip-accent);
+  background: var(--ink-panel, #131019);
+  border: 1px solid color-mix(in srgb, var(--chip-accent) 50%, var(--gold-metal-lo, #40300f));
+  border-radius: 200px; padding: 0 6px;
+  box-shadow: 0 1px 2px rgba(8, 7, 12, 0.25);
+}
 
 /* ---- no-account note ------------------------------------------------------ */
 .acct-none {
