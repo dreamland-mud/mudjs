@@ -11,7 +11,7 @@ import { store } from './store.js';
 
 import './main.js'; // legacy JS
 
-// Runeforge dark theme -- feeds the MUI components (Box grounds, map AppBar,
+// Dark MUI theme -- feeds the MUI components (Box grounds, map AppBar,
 // panel Table cells, Collapse) so they inherit the skin instead of Material defaults.
 const theme = createTheme({
   palette: {

@@ -359,9 +359,8 @@
 }
 .acc-input:focus {
   border-color: var(--arcane, #bb86fc);
-  /* Static ring as the base focus indicator so a skin without the keyframe (Runeforge
-     has no pc-focus-orbit) still shows focus. Parchment layers the arcane orbit glow on
-     top (theme-parchment pc-focus-orbit), so the field pulses like every other input. */
+  /* Static ring as the base focus indicator: it stays when reduced motion drops the
+     arcane orbit glow (theme-parchment pc-focus-orbit) layered on top. */
   box-shadow: 0 0 0 3px var(--arcane-glow, rgba(187, 134, 252, 0.35));
   animation: pc-focus-orbit 2.6s linear infinite;
 }
@@ -551,8 +550,7 @@
   border-radius: 4px;
   z-index: 0;
   pointer-events: none;
-  /* gem fallbacks so the indicator survives the archived Runeforge skin, which defines
-     neither --gem-face nor --gem-shadow (else the active language went invisible). */
+  /* gem fallbacks: without --gem-face/--gem-shadow the active language goes invisible. */
   background: var(--gem-face, radial-gradient(140% 140% at 50% 0%, #b8973f, #7e6127 55%, #40300f));
   box-shadow: var(--gem-shadow, inset 0 1px 1px rgba(255,255,255,.6), 0 1px 2px rgba(0,0,0,.5), 0 0 0 1px #6f5a26);
   transform: translateX(3px);
