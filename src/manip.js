@@ -78,6 +78,11 @@ var SAFE_HC_COMMANDS = [
   // scoped -- account_switch refuses any char not on the clicker's own account,
   // so a forged one a player clicks is simply refused. Login names are alpha-only.
   /^account switch [A-Za-z]{1,20}$/,
+  // craft blueprint lists (tome pages, search, bare `craft`): the name sends
+  // 'craft show <recipe vnum>' (read-only card), the product 'craft <recipe
+  // vnum>' (starts the clicker's own craft, refused unless they carry that
+  // blueprint, the tools and the ingredients). Self-scoped, nothing leaves them.
+  /^craft (show )?\d{1,7}$/,
 ];
 
 function safeExplicitAction(value) {
