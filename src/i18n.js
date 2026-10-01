@@ -183,6 +183,7 @@ const STRINGS = {
     'echo.help': 'help',
     'echo.glist': 'glist',
     'echo.run': 'run',
+    'confirm.craft': 'Start crafting? The ingredients are used up, and a failure can break them.',
     // settings window
     'cfg.title': 'Settings',
     'cfg.lang': 'Language',
@@ -359,6 +360,7 @@ const STRINGS = {
     'echo.help': 'помощь',
     'echo.glist': 'группаумений',
     'echo.run': 'бежать',
+    'confirm.craft': 'Начать мастерить? Ингредиенты расходуются, а при неудаче могут сломаться.',
     // settings window
     'cfg.title': 'Настройки',
     'cfg.lang': 'Язык',
@@ -535,6 +537,7 @@ const STRINGS = {
     'echo.help': 'допомога',
     'echo.glist': 'групавмінь',
     'echo.run': 'бігти',
+    'confirm.craft': 'Почати майструвати? Інгредієнти витрачаються, а при невдачі можуть зламатися.',
     // settings window
     'cfg.title': 'Налаштування',
     'cfg.lang': 'Мова',

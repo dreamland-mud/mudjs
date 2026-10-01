@@ -24,6 +24,9 @@ $(document).ready(function () {
   // e. g. 'read sign' or 'walk trap'.
   $('body').on('click', '.manip-cmd', function (e) {
     var cmd = $(e.currentTarget);
+    // The product link in a blueprint list starts a craft that uses up the
+    // ingredients; it sits next to the read-only name link, so ask once.
+    if (/^craft \d+$/.test(cmd.attr('data-action') || '') && !window.confirm(t('confirm.craft'))) return;
     echo(cmd.attr('data-echo'));
     send(cmd.attr('data-action'));
   });
