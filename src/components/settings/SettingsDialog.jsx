@@ -14,7 +14,7 @@ import {
   requestAutobuffList,
   legacyAutobuffLines,
 } from '../sysCommands/autobuff.js';
-import { saveScript } from '../../settings.js';
+import { saveScript, getScriptSync, watchScriptSync } from '../../settings.js';
 import { announceSheet, onOtherSheet } from '../../sheets.js';
 import {
   buildTree,
@@ -72,6 +72,9 @@ export default function SettingsDialog() {
   const [collapsed, setCollapsed] = useState({});
   const [inPage, setInPage] = useState(false);
   const [scriptSeen, setScriptSeen] = useState(false);
+  // Where the script is kept: the account, this browser only, or a failed copy.
+  const [scriptSync, setScriptSync] = useState(getScriptSync);
+  useEffect(() => watchScriptSync(setScriptSync), []);
   const [narrow, setNarrow] = useState(false);
   const [width, setWidth] = useState(storedWidth);
   // Dragging the edge belongs to a mouse and a window that has room to spare;
@@ -372,6 +375,17 @@ export default function SettingsDialog() {
   const page = findPage(shown, pageKey) || (needle ? landing : findPage(tree, pageKey));
   const current = page || (narrow ? null : landing);
   const isScript = !!current && current.key === SCRIPT_PAGE;
+  const syncText = {
+    saving: t('cfg.script.saving', lang),
+    saved: t('cfg.script.saved', lang),
+    restored: t('cfg.script.restored', lang),
+    pending: t('cfg.script.pending', lang),
+    local: t('cfg.script.local', lang),
+    error:
+      scriptSync.reason === 'too_big'
+        ? t('cfg.script.too_big', lang)
+        : t('cfg.script.error', lang),
+  }[scriptSync.state];
   const isAccount = !!current && current.key === ACCOUNT_PAGE;
   const isAutobuff = !!current && current.key === AUTOBUFF_PAGE;
   // The Download log used to sit in a footer strip of its own. It belongs to the
@@ -566,7 +580,20 @@ export default function SettingsDialog() {
             {/* The script's Close/Save were in the shared footer that is gone
                 now; they live at the foot of the editor's own page instead. */}
             <div className="cfg-script-actions">
-              <span className="cfg-foot-note">{t('cfg.save.note', lang)}</span>
+              <span className="cfg-foot-note">
+                {t('cfg.save.note', lang)}
+                {syncText ? (
+                  <span
+                    className={
+                      'cfg-script-sync' + (scriptSync.state === 'error' ? ' cfg-script-sync-error' : '')
+                    }
+                    role="status"
+                    aria-live="polite"
+                  >
+                    {syncText}
+                  </span>
+                ) : null}
+              </span>
               <div className="cfg-foot-buttons">
                 <button
                   type="button"

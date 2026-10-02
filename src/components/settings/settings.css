@@ -824,6 +824,16 @@
   color: #7b838f;
 }
 
+/* Where the script is kept, under the "applied after saving" note. */
+.cfg-script-sync {
+  display: block;
+  margin-top: 2px;
+}
+
+.cfg-script-sync-error {
+  color: #d9822b;
+}
+
 .cfg-foot-buttons {
   display: flex;
   gap: 8px;
