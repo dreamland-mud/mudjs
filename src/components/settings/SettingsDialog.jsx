@@ -52,13 +52,17 @@ const NARROW = 560;
 // with min(..., 100vw) so a stored width larger than today's window simply does
 // not apply -- and still stands when the window grows back.
 const MIN_WIDTH = 380;
+// Never wider than this either: on a wide monitor a stretched sheet spreads a
+// row's toggle and its sliders so far apart the eye loses the row.
+const MAX_WIDTH = 760;
 const DEFAULT_WIDTH = 620;
+const clampWidth = w => Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, w));
 const WIDTH_KEY = 'mudjs.settings.width';
 
 function storedWidth() {
   try {
     const saved = parseInt(localStorage.getItem(WIDTH_KEY), 10);
-    return Number.isFinite(saved) ? Math.max(saved, MIN_WIDTH) : DEFAULT_WIDTH;
+    return Number.isFinite(saved) ? clampWidth(saved) : DEFAULT_WIDTH;
   } catch (e) {
     return DEFAULT_WIDTH; // storage disabled -- the default is no worse
   }
@@ -285,7 +289,7 @@ export default function SettingsDialog() {
 
     const move = e => {
       const from = e.touches ? e.touches[0].clientX : e.clientX;
-      setWidth(Math.max(MIN_WIDTH, Math.round(window.innerWidth - from)));
+      setWidth(clampWidth(Math.round(window.innerWidth - from)));
     };
 
     const stop = () => {
@@ -318,8 +322,7 @@ export default function SettingsDialog() {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault();
       setWidth(was => {
-        const next = Math.max(
-          MIN_WIDTH,
+        const next = clampWidth(
           was + (event.key === 'ArrowLeft' ? step : -step)
         );
         try {
