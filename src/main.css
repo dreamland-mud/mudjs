@@ -2002,7 +2002,7 @@ body.mud-fighting form#input {
   /* The player's own width, capped at the window: a width saved on a wide
      screen must not leave the sheet hanging off a narrow one, and it comes back
      in full when the window grows again. */
-  width: min(var(--cfg-sheet-width, 620px), 100vw);
+  width: min(var(--cfg-sheet-width, 620px), 100vw, 760px);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
