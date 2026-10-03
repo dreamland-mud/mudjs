@@ -65,7 +65,12 @@ async function postJson(path, body) {
   try {
     resp = await fetch(ACCOUNT_API + path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // 'X-Requested-With' forces the browser to treat this as a non-simple
+      // request, so cross-site HTML forms/images can't trigger it: a CORS
+      // preflight is required, and same-origin-only responses make it fail
+      // for any origin but our own. This is the lightweight CSRF defense for
+      // same-origin JSON APIs that have no separate anti-CSRF token.
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
       credentials: 'same-origin',
       body: JSON.stringify(body || {}),
     });
