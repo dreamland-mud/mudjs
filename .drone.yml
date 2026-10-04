@@ -14,7 +14,11 @@ steps:
   # Ubuntu 18.04 (glibc 2.27) ships node 16; vite 6 needs node 18+.
   # node 22 (glibc-217 unofficial build) lives at ~/.nodejs/current — prepend so node+npm resolve to it.
   - export PATH=/home/dreamland/.nodejs/current/bin:$PATH
-  - eval `ssh-agent -s`
+  # Not `eval `ssh-agent -s``: drone traces each command with echo "...", which ran the
+  # backticks a second time and leaked one agent per deploy.
+  - ssh-agent -s > /tmp/drone-agent-mudjs.env
+  - . /tmp/drone-agent-mudjs.env
+  - trap 'kill $SSH_AGENT_PID 2>/dev/null || true' EXIT
   - ssh-add /home/dreamland/.ssh/drone
   - cd /var/www/mudjs
   # self-healing: snap the deploy tree to origin/dreamland from any state (fixes detached HEAD)
