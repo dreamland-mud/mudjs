@@ -1,4 +1,4 @@
-import { store, onConnected, onDisconnected } from './store.js';
+import { store, onConnected, onDisconnected, onResumeDone, RESUME_KEY } from './store.js';
 import $ from 'jquery';
 import Telnet from './telnet';
 
@@ -123,7 +123,6 @@ $(document).ready(function () {
  * sessionStorage, not localStorage: the token stands in for a password while
  * it lives, so it dies with the tab instead of sitting on disk.
  */
-const RESUME_KEY = 'mudjs.resume';
 const RECONNECT_MAX = 15000;
 let reconnectTimer = null;
 let reconnectDelay = 0;
@@ -396,7 +395,7 @@ function connect() {
   // say what it would have said (prompt gone, line down) and drop its probe.
   if (ws) {
     cancelProbe();
-    store.dispatch(onDisconnected());
+    store.dispatch(onDisconnected(!!resumeToken()));
   }
 
   const sock = new WebSocket(wsUrl, ['binary']);
@@ -449,7 +448,7 @@ function connect() {
 
     cancelProbe();
     ws = null;
-    store.dispatch(onDisconnected());
+    store.dispatch(onDisconnected(!!resumeToken()));
 
     /* A deliberate cycle (language switch at the nanny): no banner, reconnect
      * straight away with the fresh language already saved. */
@@ -492,6 +491,7 @@ $(document).ready(function () {
   $('#rpc-events')
     .on('rpc-prompt', function (e, b) {
       inWorld = true;
+      store.dispatch(onResumeDone());
       loginRetries = 0;
       // In the world: an entry frame still waiting (a tap during a resume) must
       // never go out later.
@@ -541,6 +541,8 @@ $(document).ready(function () {
       resumeRetries = 0;
       pending = [];
       setResumeToken(null);
+      // The character is gone: now the login door may come up.
+      store.dispatch(onResumeDone());
       answerFreshSocket();
     });
 
