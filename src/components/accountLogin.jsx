@@ -531,6 +531,33 @@ export default function AccountLogin() {
     later(() => setPhase('hidden'), REVEAL_MS);
   };
 
+  const goHome = () => {
+    setBstep('idle');
+    setIdleView('welcome');
+    setCrError('');
+    setBerror('');
+  };
+
+  // The dragon covers its eyes while a password is being typed. Blur waits a tick
+  // so moving between the two password fields does not drop and re-raise the paw.
+  const coverTimer = useRef(null);
+  const pwFocus = () => {
+    clearTimeout(coverTimer.current);
+    if (dragonRef.current) dragonRef.current.cover(true);
+  };
+  const pwBlur = () => {
+    clearTimeout(coverTimer.current);
+    coverTimer.current = setTimeout(() => {
+      if (dragonRef.current) dragonRef.current.cover(false);
+    }, 60);
+  };
+  useEffect(() => () => clearTimeout(coverTimer.current), []);
+  // A focused field that unmounts (step change, busy line) never fires blur.
+  useEffect(() => {
+    clearTimeout(coverTimer.current);
+    if (dragonRef.current) dragonRef.current.cover(false);
+  }, [bstep, idleView, busy, checking]);
+
   const pickLang = l => {
     if (l === lang) return;
     setLang(l);
@@ -807,6 +834,8 @@ export default function AccountLogin() {
     else if (curDepth < prevDepthRef.current) stageDir = 'back';
   }
 
+  const canGoHome = !statusLine && bstep !== 'idle' && bstep !== 'roster';
+
   return (
     <div
       className={'acc-overlay' + (phase === 'revealing' ? ' is-opening' : '')}
@@ -839,7 +868,16 @@ export default function AccountLogin() {
           <span className="ds-frame__k" /><span className="ds-frame__k bottom" />
         </div>
         <div className="acc-seam" aria-hidden="true" />
-        <h1 className="acc-logo" role="img" aria-label="Dreamland" />
+        {/* The wordmark doubles as Home: inside any subflow it takes you back to the
+            welcome face (it replaces the create form's Back button). */}
+        {canGoHome ? (
+          <h1 className="acc-logo-h">
+            <button type="button" className="acc-logo acc-logo-home"
+              aria-label={at('home', lang)} onClick={goHome} />
+          </h1>
+        ) : (
+          <h1 className="acc-logo" role="img" aria-label="Dreamland" />
+        )}
 
         <div className="acc-langs">
           <div className="acc-seg" role="tablist" aria-label={at('lang', lang)} ref={segRef}>
@@ -892,6 +930,8 @@ export default function AccountLogin() {
                   id="cr-pass"
                   className="acc-input"
                   type="password"
+                  onFocus={pwFocus}
+                  onBlur={pwBlur}
                   autoComplete="new-password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
@@ -903,13 +943,14 @@ export default function AccountLogin() {
                   id="cr-pass2"
                   className="acc-input"
                   type="password"
+                  onFocus={pwFocus}
+                  onBlur={pwBlur}
                   autoComplete="new-password"
                   value={password2}
                   onChange={e => setPassword2(e.target.value)}
                 />
               </div>
             </div>
-            <div className="acc-fieldhint acc-fieldhint-row">{at('cr_pw_hint', lang)}</div>
 
             {/* screen-reader support -- the DS toggle switch (aria-pressed drives its skin) */}
             <div className="acc-switch-row">
@@ -927,8 +968,6 @@ export default function AccountLogin() {
 
             <button type="submit" className="btn btn-primary acc-cta acc-cta-lg">{at('cr_create', lang)}</button>
             <div className="acc-error" role="alert">{crError}</div>
-            <button type="button" className="acc-newhero"
-              onClick={() => { setBstep('idle'); setCrError(''); }}>{at('back', lang)}</button>
           </form>
         ) : (
           <>
@@ -979,6 +1018,8 @@ export default function AccountLogin() {
                       id="acc-pass"
                       className="acc-input"
                       type="password"
+                      onFocus={pwFocus}
+                      onBlur={pwBlur}
                       autoComplete="current-password"
                       value={password}
                       onChange={e => setPassword(e.target.value)}

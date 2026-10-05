@@ -284,6 +284,21 @@
   mask: url('./dreamland-logo.png') center / contain no-repeat;
   filter: drop-shadow(0 0 26px var(--arcane-glow, rgba(187, 134, 252, 0.5)));
 }
+/* Inside a subflow the wordmark is the Home button: same mask, plus a hover/focus lift. */
+.acc-logo-h { margin: 0; text-align: center; }
+.acc-logo-home {
+  display: block;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  transition: filter 0.2s ease-out, transform 0.2s ease-out;
+}
+.acc-logo-home:hover,
+.acc-logo-home:focus-visible {
+  filter: drop-shadow(0 0 30px var(--arcane-glow, rgba(187, 134, 252, 0.8))) brightness(1.2);
+  transform: scale(1.03);
+}
+.acc-logo-home:focus-visible { outline: 1px solid var(--gold, #c6a24e); outline-offset: 4px; }
 /* The step region (methods / a subflow / roster / the busy line). It is remounted
    on each step, so this enter-animation replays every time. Direction comes from
    data-dir: forward slides in from the right, back from the left, same-depth just

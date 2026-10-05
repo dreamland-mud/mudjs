@@ -26,12 +26,27 @@ const ORB_PULSE_S = 2.6;                 // orb glow period -- matches the login
 const WINGS = ['Bone_028', 'Bone_029', 'Bone_030', 'Bone_031']; // the upper-back pair + tips
 const HEAD_BONE = 'Bone_032';
 const ORB_BLUE = 'vec3(0.36,0.52,1.0)';  // orb glow colour in the shader (blends toward cyan)
+// Covering the eyes on a password field: CCD IK swings the raised open paw (upper arm +
+// forearm) so the wrist lands beside the muzzle, then the wrist turns the fingers across
+// the eyes. The head dips and the eye glow dims. The orb paw is the other arm, never moves.
+const PAW_ARM = ['Bone_042', 'Bone_041'];  // upper arm, forearm
+const PAW_WRIST = 'Bone_040';
+const PAW_PALM = 'Bone_039';             // its children are the four finger roots
+const EYE = [0, 0.02, 0];                // midpoint between the eyes, in head-bone space (dialled with markers)
+const PAW_FWD = 0.08;                    // the paw rides this far in front of the eyes, on the camera ray
+const WRIST_SIDE = 0.05;                 // wrist sits this far to the paw's side of the eyes
+const FINGER_DROP = 0.05;                // fingers point across the face, tilted down this much
+const COVER_TAU = 0.15;                  // seconds; time constant of the approach to the cover pose (~0.45 s to settle)
+const COVER_DIP = 0.22;                  // head pitch down while covered
 
 const LoginDragon = forwardRef(function LoginDragon(props, ref) {
   const hostRef = useRef(null);
   const posterRef = useRef(null);
-  const api = useRef({ shake() {} });          // set once the scene is live
-  useImperativeHandle(ref, () => ({ shake: () => api.current.shake() }), []);
+  const api = useRef({ shake() {}, cover() {} });   // set once the scene is live
+  useImperativeHandle(ref, () => ({
+    shake: () => api.current.shake(),
+    cover: on => api.current.cover(on),
+  }), []);
 
   useEffect(() => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // poster stays, no WebGL
@@ -78,6 +93,7 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
       let orbLight = null, orbSprite = null, orbBase = 0;   // set once the orb is built; pulsed in animate()
       const rest = new WeakMap();
       const flapBones = {};
+      let paw = null, wrist = null, palm = null;   // the eye-covering paw
 
       // same-origin PNG textures (never depend on the GLB's blob: URLs)
       const texLoader = new THREE.TextureLoader();
@@ -106,11 +122,12 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
                 sh.uniforms.uOrbEmit = { value: ORB_EMIT };
                 sh.uniforms.uOrbPos = { value: ORB.clone() };
                 sh.uniforms.uOrbR = { value: ORB_R };
+                sh.uniforms.uEyeOpen = { value: 1.0 };
                 sh.vertexShader = sh.vertexShader
                   .replace('#include <common>', '#include <common>\nvarying vec3 vObjPos;')
                   .replace('#include <begin_vertex>', '#include <begin_vertex>\n  vObjPos = position;');
                 sh.fragmentShader = sh.fragmentShader
-                  .replace('#include <common>', '#include <common>\nvarying vec3 vObjPos;\nuniform float uOrbEmit;\nuniform vec3 uOrbPos;\nuniform float uOrbR;')
+                  .replace('#include <common>', '#include <common>\nvarying vec3 vObjPos;\nuniform float uOrbEmit;\nuniform vec3 uOrbPos;\nuniform float uOrbR;\nuniform float uEyeOpen;')
                   .replace('#include <emissivemap_fragment>',
                     // gate emissive to strong-cyan texels (eyes/cracks), dark body stays dark.
                     // MUST stay inside USE_EMISSIVEMAP so a map-less material can't break the compile.
@@ -121,6 +138,7 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
                     '  totalEmissiveRadiance *= _em.rgb*_gate;\n' +
                     '  float _eye=smoothstep(0.62,0.85,_cy);\n' +          // eyes = hottest cyan -> pinned full, ignores FEAT
                     '  totalEmissiveRadiance=mix(totalEmissiveRadiance, vec3(0.0,1.0,1.0)*2.4, _eye);\n' +
+                    '  totalEmissiveRadiance*=mix(1.0, uEyeOpen*uEyeOpen, _eye);\n' +          // eyes shut: the eye texels go dark
                     '#endif\n' +
                     '  float _rim=pow(1.0-clamp(dot(normalize(vNormal),normalize(vViewPosition)),0.0,1.0),4.0);\n' +
                     '  totalEmissiveRadiance+=vec3(0.0,0.85,1.0)*_rim*0.45;\n' +
@@ -152,6 +170,13 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
 
           head = model.getObjectByName(HEAD_BONE);
           if (head) rest.set(head, head.quaternion.clone());
+
+          const chain = PAW_ARM.concat([PAW_WRIST]).map(n => model.getObjectByName(n));
+          palm = model.getObjectByName(PAW_PALM);
+          if (palm && palm.children.length && chain.every(Boolean)) {
+            paw = chain.map(b => ({ obj: b, rest: b.quaternion.clone(), solved: b.quaternion.clone() }));
+            wrist = paw[paw.length - 1].obj;
+          }
 
           const wpos = new THREE.Vector3();
           for (const n of WINGS) {
@@ -194,8 +219,10 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
 
       // interaction: cursor tracking + click flap + head-raise; shake() driven from the parent
       let px = 0, py = 0, tx = 0, ty = 0, clickAt = -999, shakeAt = -999;
+      let coverOn = 0, coverK = 0, lastT = 0;
       const clock = new THREE.Clock();
       api.current.shake = () => { shakeAt = clock.getElapsedTime(); };
+      api.current.cover = on => { coverOn = on ? 1 : 0; };
       const onMove = e => { px = (e.clientX / innerWidth) * 2 - 1; py = (e.clientY / innerHeight) * 2 - 1; };
       const onDown = () => { clickAt = clock.getElapsedTime(); };
       addEventListener('pointermove', onMove);
@@ -220,14 +247,72 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
         fb.obj.quaternion.copy(_q);
       }
 
+      // Cover pose, solved from the rest pose every frame and blended in by k, so the paw
+      // eases between rest and cover and never drifts.
+      const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _v1 = new THREE.Vector3(),
+        _v2 = new THREE.Vector3(), _bq = new THREE.Quaternion(), _sw = new THREE.Quaternion(),
+        _eye = new THREE.Vector3(), _cam = new THREE.Vector3(), _tgt = new THREE.Vector3(),
+        _side = new THREE.Vector3(), _UP = new THREE.Vector3(0, 1, 0);
+      // rotate bone b (in world space) so the direction from..to turns toward dir
+      function swing(b, from, to, dir) {
+        _v1.copy(to).sub(from).normalize();
+        _sw.setFromUnitVectors(_v1, dir);
+        b.getWorldQuaternion(_bq);
+        b.parent.getWorldQuaternion(_pw);
+        b.quaternion.copy(_pw.invert().multiply(_sw).multiply(_bq));
+        b.updateWorldMatrix(false, true);
+      }
+      function fingerCentroid(out) {
+        out.set(0, 0, 0);
+        for (const f of palm.children) out.add(f.getWorldPosition(_b));
+        return out.multiplyScalar(1 / palm.children.length);
+      }
+      function coverPaw(k) {
+        if (!paw) return;
+        for (const b of paw) b.obj.quaternion.copy(b.rest);
+        if (k <= 0.001) return;
+        // On the camera ray through the eyes, so the paw covers them from the viewer's
+        // side at any head tilt.
+        head.updateWorldMatrix(true, false);
+        head.localToWorld(_eye.set(EYE[0], EYE[1], EYE[2]));
+        _cam.copy(camera.position).sub(_eye).normalize();
+        _side.crossVectors(_UP, _cam).normalize();       // screen right = the paw's side
+        _eye.addScaledVector(_cam, PAW_FWD);
+        _tgt.copy(_eye).addScaledVector(_side, WRIST_SIDE);
+        paw[0].obj.updateWorldMatrix(true, true);
+        // CCD on the arm: bring the wrist beside the eyes
+        for (let it = 0; it < 8; it++) {
+          for (let i = PAW_ARM.length - 1; i >= 0; i--) {
+            const b = paw[i].obj;
+            wrist.getWorldPosition(_a);
+            b.getWorldPosition(_v2);
+            swing(b, _v2, _a, _b.copy(_tgt).sub(_v2).normalize());
+          }
+        }
+        // wrist: lay the fingers across the eyes, toward the far side, tipped down a touch
+        wrist.getWorldPosition(_a);
+        fingerCentroid(_tgt);
+        swing(wrist, _a, _tgt, _v2.copy(_side).negate().addScaledVector(_UP, -FINGER_DROP).normalize());
+        for (const b of paw) {
+          b.solved.copy(b.obj.quaternion);
+          b.obj.quaternion.copy(b.rest).slerp(b.solved, k);
+        }
+      }
+
       function animate(t) {
         tx += (px - tx) * 0.06; ty += (py - ty) * 0.06;
+        const dt = Math.min(t - lastT, 0.1); lastT = t;   // time-based, so slow GPUs ease at the same pace
+        coverK += (coverOn - coverK) * (1 - Math.exp(-dt / COVER_TAU));
+        const ease = coverK * coverK * (3 - 2 * coverK);   // smoothstep for the pose blend
         const ct = t - clickAt, st = t - shakeAt;
         const wp = (ct >= 0 && ct < 0.45) ? Math.sin(ct / 0.45 * Math.PI) * 0.85 : 0;   // one fast wing flap (eased)
         const hr = (ct >= 0 && ct < 0.5) ? Math.sin(ct / 0.5 * Math.PI) * 0.32 : 0;      // head-raise with the flap
         const sh = (st >= 0 && st < 0.8) ? Math.sin(st * 18.0) * 0.6 * (1 - st / 0.8) : 0; // "no" head-shake
-        root.rotation.y = -tx * 0.10;
-        aimHead(tx * 0.5 + sh, ty * 0.30 + Math.sin(t * 1.3) * 0.05 - hr);
+        root.rotation.y = -tx * 0.10 * (1 - ease);
+        // covered: stop following the cursor and dip the head into the paw
+        const follow = 1 - ease;
+        aimHead(tx * 0.5 * follow + sh, ty * 0.30 * follow + Math.sin(t * 1.3) * 0.05 - hr + COVER_DIP * ease);
+        coverPaw(ease);
         const wingAng = FLAP * Math.sin(t * 2.2) + wp;
         for (const n in flapBones) {
           const fb = flapBones[n];
@@ -240,7 +325,10 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
         const breathe = FEAT * (1 + Math.sin(t * 1.4) * 0.12);
         for (const m of meshMats) {
           m.emissiveIntensity = breathe;
-          if (m.userData.shader) m.userData.shader.uniforms.uOrbEmit.value = orbEmit;
+          if (m.userData.shader) {
+            m.userData.shader.uniforms.uOrbEmit.value = orbEmit;
+            m.userData.shader.uniforms.uEyeOpen.value = 1 - ease;
+          }
         }
         if (orbLight) orbLight.intensity = orbEmit;
         if (orbSprite) { const s = orbBase * (0.9 + 0.2 * orbPulse); orbSprite.scale.set(s, s, s); }
