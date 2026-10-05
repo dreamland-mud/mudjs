@@ -6,7 +6,7 @@ import { send, rpccmd, reconnect, ensureOpen, isOpen, rpcWhenOpen, cancelFirstFr
 import { at, LANGS } from '../accountStrings';
 import { getLang, setLang } from '../i18n';
 import { classIconFor } from '../classIcons';
-import PropertiesStorage from '../properties';
+import PropertiesStorage, { NEWCOMER_KEY } from '../properties';
 import LoginDragon from './LoginDragon';
 import '../account-login.css';
 
@@ -126,10 +126,16 @@ export default function AccountLogin() {
   // The panel is laid over the widgets + map (the mosaic's non-terminal region), so its
   // left edge meets the terminal split -- same maths as App.getResponsiveLayout. Clamped
   // so the form never shrinks below a usable width on mid-size screens. Full-screen on mobile.
+  // A first-time visitor gets the whole screen instead: no terminal until they have
+  // a character, then the slabs part over the full width. Read once per door, so
+  // clearing the flag mid-login never jumps the layout.
   const bigScreen = useMediaQuery('(min-width:600px)');
   const hugeScreen = useMediaQuery('(min-width:1280px)');
+  const [fullDoor, setFullDoor] = useState(() => {
+    try { return localStorage.getItem(NEWCOMER_KEY) === '1'; } catch (e) { return false; }
+  });
   let accLeft = '0';
-  if (bigScreen) {
+  if (bigScreen && !fullDoor) {
     const tW = PropertiesStorage['terminalLayoutWidth'];
     const pW = PropertiesStorage['panelLayoutWidth'];
     const mW = PropertiesStorage['mapLayoutWidth'];
@@ -205,6 +211,18 @@ export default function AccountLogin() {
   useEffect(() => {
     if (!connected) nannyStepRef.current = null;
   }, [connected]);
+
+  // In the world, or holding a live account session: no longer a newcomer.
+  useEffect(() => {
+    if (prompt || bstep === 'roster') {
+      try { localStorage.removeItem(NEWCOMER_KEY); } catch (e) { /* private mode */ }
+    }
+  }, [prompt, bstep]);
+
+  // Once the door is gone, the next one (quit/disconnect) uses the regular layout.
+  useEffect(() => {
+    if (phase === 'hidden') setFullDoor(false);
+  }, [phase]);
 
   // Drive the reveal off the login-state signal: prompt null -> in world.
   useEffect(() => {
