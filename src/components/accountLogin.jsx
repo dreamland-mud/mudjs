@@ -96,7 +96,12 @@ const TelegramIcon = () => (
 export default function AccountLogin() {
   const prompt = useSelector(s => s.prompt);
   const connected = useSelector(s => s.connection.connected);
-  const [phase, setPhase] = useState(prompt ? 'hidden' : 'login'); // login | revealing | hidden
+  // A dropped socket with the character still in the world is not a logout: a
+  // silent resume is bringing it back, so the door stays down until the server
+  // says the character is gone (store.js `resuming`).
+  const resuming = useSelector(s => s.connection.resuming);
+  const away = !prompt && !resuming;
+  const [phase, setPhase] = useState(away ? 'login' : 'hidden'); // login | revealing | hidden
   const [lang, setLangState] = useState(getLang());
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
@@ -111,7 +116,7 @@ export default function AccountLogin() {
   // True while the mount/return /session probe is in flight. Starts on when the panel
   // is the front door, so a returning player with a live cookie session never sees the
   // name/password form flash before the roster loads -- they just land on their chars.
-  const [checking, setChecking] = useState(!prompt);
+  const [checking, setChecking] = useState(away);
   // Web character-creation form (bstep === 'create').
   const [password2, setPassword2] = useState('');      // repeat password
   const [screenreader, setScreenreader] = useState(false);
@@ -232,13 +237,18 @@ export default function AccountLogin() {
       setBusy('');
       setPhase('revealing');
       later(() => setPhase('hidden'), REVEAL_MS);
-    } else if (!prompt && phaseRef.current === 'hidden') {
+    } else if (resuming && !prompt && phaseRef.current === 'login') {
+      clearTimers();               // still in the world: drop the door at once, no reveal
+      enterPending.current = false;
+      setBusy('');
+      setPhase('hidden');
+    } else if (away && phaseRef.current === 'hidden') {
       setPhase('login');           // quit / disconnect brings the door back
       setBusy('');
       setBstep('idle');
       setChecking(true);           // re-probe: a live cookie session lands back on the roster
     }
-  }, [prompt]);
+  }, [prompt, resuming]);
 
   // Focus the name field wherever one is mounted (existing login or the create form),
   // so a face switch lands focus on the first input instead of dropping it to <body>.
