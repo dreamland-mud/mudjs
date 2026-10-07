@@ -6,8 +6,12 @@ const sessionId = getSessionId();
 //window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 
 // Stubs for IE/Edge
+// Ids start at 1 like IndexedDB's autoIncrement: the terminal reads a falsy
+// startId as "from the end", so an id 0 could never be loaded past. A load with
+// no startId starts at the newest record (reverse) or the oldest (forward) --
+// it used to return nothing going backwards, which left the terminal blank.
 function initStubHistoryDb() {
-  var lastIndex = -1,
+  var lastIndex = 0,
     database = [];
 
   return {
@@ -21,13 +25,10 @@ function initStubHistoryDb() {
         loaded = 0,
         id;
 
-      startId = startId || 0;
+      if (startId) id = startId + step;
+      else id = reverse ? lastIndex : 1;
 
-      for (
-        id = startId + step;
-        id >= 0 && id < database.length && loaded < limit;
-        id += step
-      ) {
+      for (; id >= 1 && id <= lastIndex && loaded < limit; id += step) {
         var v = database[id];
         f(id, v);
         loaded += v.length;
@@ -186,6 +187,10 @@ function initIndexedHistoryDb() {
     });
 }
 
-var historyDb = window.indexedDB ? initIndexedHistoryDb() : initStubHistoryDb();
+// Always a promise: every caller does historyDb.then(...). Without IndexedDB the
+// bare stub object used to be exported, and the first .then() threw.
+var historyDb = window.indexedDB
+  ? initIndexedHistoryDb()
+  : Promise.resolve(initStubHistoryDb());
 
 export default historyDb;

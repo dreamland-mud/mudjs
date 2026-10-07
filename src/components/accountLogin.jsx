@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import $ from 'jquery';
 import { useSelector } from 'react-redux';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { send, rpccmd, reconnect, ensureOpen, isOpen, rpcWhenOpen, cancelFirstFrame } from '../websock';
+import { send, rpccmd, reconnect, ensureOpen, isOpen, rpcWhenOpen, cancelFirstFrame, replaceSocket, framesReceived, sendNow } from '../websock';
 import { at, LANGS } from '../accountStrings';
 import { getLang, setLang } from '../i18n';
 import { classIconFor } from '../classIcons';
@@ -19,6 +19,9 @@ const REVEAL_MS = 950;      // slab curtain + settle before we unmount
 const LOGIN_TIMEOUT_MS = 4500;
 // The same wait when the socket had died first: reconnect + nanny greeting + the entry.
 const RECONNECT_WAIT_MS = 12000;
+// A login that drew no answer at all is a line problem, not a wrong password: go
+// again this many times over a fresh socket before saying the game is unreachable.
+const LOGIN_RELINKS = 1;
 const DRIVE_TIMEOUT_MS = 4000;   // no nanny_step after submit -> server is not in v2 mode
 
 // How deep each path-B step sits, so a step change can slide the new panel in from
@@ -172,6 +175,8 @@ export default function AccountLogin() {
   // Both ride the nanny's `name` step signal, which the V2 plain front emits
   // (.tmp.nanny.v2). With V2 off they wait out the backstop instead.
   const pendingLogin = useRef(null);    // path A typed over a dead socket: {name, password} for the fresh nanny
+  const credsRx = useRef(null);         // framesReceived() when the password went out; null = not sent yet
+  const loginInFlight = useRef(false);  // a path-A login of ours is waiting for its outcome
   const pendingCheck = useRef(null);    // a check_name still waiting for its answer
 
   const later = (fn, ms) => {
@@ -182,6 +187,9 @@ export default function AccountLogin() {
   const clearTimers = () => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
+    // A login attempt lives on these timers; once they are gone it is over, and
+    // the nanny's take-over question must go back to the player.
+    loginInFlight.current = false;
   };
 
   // Arm (or re-arm) the creation-drive watchdog. Re-armed on every step so a stall
@@ -345,13 +353,23 @@ export default function AccountLogin() {
     const onStep = (e, step) => {
       nannyStepRef.current = step;
 
+      // The character is already in the world on a live-looking descriptor
+      // (often this player's own dead phone socket) and the nanny asks whether
+      // to take the body over. Only after the password checked out, and a login
+      // from this form is exactly that request: say yes. Gated on a login of
+      // ours being in flight, so a player typing in the raw terminal still
+      // answers for themselves.
+      if (step === 'reconnect_confirm') {
+        if (loginInFlight.current) sendNow('yes');
+        return;
+      }
+
       // A fresh socket's nanny has reached the name: finish what the dead one
       // could not carry.
       if (step === 'name' && pendingLogin.current) {
         const p = pendingLogin.current;
         pendingLogin.current = null;
-        send(p.name);
-        later(() => send(p.password), 180);
+        sendCreds(p.name, p.password);
         return;
       }
       if (step === 'name' && pendingCheck.current) {
@@ -393,8 +411,9 @@ export default function AccountLogin() {
       stepsSent.current[step] = true;
       if (step === 'name') send(a.name);
       else if (step === 'name_confirm') send('yes');
-      else if (step === 'password') send(a.password);
-      else if (step === 'password_confirm') send(a.password);
+      // Never held for replay: see sendNow in websock.js.
+      else if (step === 'password') sendNow(a.password);
+      else if (step === 'password_confirm') sendNow(a.password);
       else if (step === 'screenreader') send(a.sr);
       // The engine offers a mid-creation account link (taskAccount). The web form has
       // no account field yet, so decline it -- the player links later from the account
@@ -581,31 +600,72 @@ export default function AccountLogin() {
   };
 
   // ---- path A: real character login (drives the server nanny) --------------
+  // Name, then password a beat later (the nanny reads them as two lines). This
+  // nanny's name step is spent the moment the name goes out: a resubmit after a
+  // wrong password must not type the name into the password prompt it is now on.
+  // Both go out now or not at all (sendNow): a credential held for replay could
+  // land later in some other prompt. A line that cannot take them leaves
+  // credsRx null, which the attempt's timeout reads as "never answered" ->
+  // relink, so nothing is lost.
+  const sendCreds = (n, p) => {
+    nannyStepRef.current = null;
+    if (!sendNow(n)) return;
+    later(() => {
+      const rx = framesReceived();
+      if (sendNow(p)) credsRx.current = rx;
+    }, 180);
+  };
+
+  // One login attempt. Goes out now only over a socket whose nanny is waiting for
+  // a name (or a server too old to say which step it is on); anything else gets a
+  // fresh socket, and its nanny's name step delivers the credentials (onStep).
+  // Without the V2 front (mudjs.nannyv2 = '0', for a server rolled back to the
+  // old nanny) no step is ever signalled, so the name goes out blind as it
+  // always did. With it, never before the nanny has asked: autofill plus Enter
+  // on a fresh socket would otherwise type the name into the language menu.
+  const attemptLogin = (n, p, relinks, fresh) => {
+    credsRx.current = null;
+    loginInFlight.current = true;
+    const open = isOpen();
+    const now = !fresh && open && (nannyStepRef.current === 'name' || !NANNY_V2);
+    if (now) {
+      sendCreds(n, p);
+    } else {
+      pendingLogin.current = { name: n, password: p };
+      if (open || fresh) replaceSocket();
+      else ensureOpen();
+    }
+    later(() => {
+      if (phaseRef.current !== 'login') { loginInFlight.current = false; return; }   // in the world
+      const sent = pendingLogin.current === null;
+      pendingLogin.current = null;
+      // The server said something after the password went in, and still no
+      // prompt: it judged the credentials. Silence is the line, not the password
+      // -- a socket that died idle at this door used to read as a wrong password.
+      if (sent && credsRx.current !== null && framesReceived() > credsRx.current) {
+        loginInFlight.current = false;
+        setBusy('');
+        setError(at('fail', lang));
+        if (dragonRef.current) dragonRef.current.shake();   // wrong password -> the dragon says no
+        return;
+      }
+      if (relinks > 0) {
+        setBusy(at('relink', lang));
+        attemptLogin(n, p, relinks - 1, true);
+        return;
+      }
+      loginInFlight.current = false;
+      setBusy('');
+      setError(at('offline', lang));
+    }, now ? LOGIN_TIMEOUT_MS : RECONNECT_WAIT_MS);
+  };
+
   const submitChar = e => {
     e.preventDefault();
     if (!name.trim() || !password) return;
     setError('');
     setBusy(at('entering', lang));
-    const open = isOpen();
-    if (open) {
-      send(name.trim());
-      later(() => send(password), 180);
-    } else {
-      // Typed at a dead line: bring it back and answer the fresh nanny's name step.
-      pendingLogin.current = { name: name.trim(), password };
-      ensureOpen();
-    }
-    // If the prompt never arrives, the credentials were wrong -- re-show the form.
-    later(() => {
-      // Still waiting on a line that never came back: say so, not "wrong password".
-      const lineDown = pendingLogin.current !== null;
-      pendingLogin.current = null;
-      if (phaseRef.current === 'login') {
-        setBusy('');
-        setError(at(lineDown ? 'offline' : 'fail', lang));
-        if (!lineDown && dragonRef.current) dragonRef.current.shake();   // wrong password -> the dragon says no
-      }
-    }, open ? LOGIN_TIMEOUT_MS : RECONNECT_WAIT_MS);
+    attemptLogin(name.trim(), password, LOGIN_RELINKS, false);
   };
 
   // ---- character creation (nanny V2 web front) -----------------------------

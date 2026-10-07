@@ -215,6 +215,52 @@ const PENDING_MAX = 20;
 let probeTimer = null;
 let hiddenAt = 0;
 let pending = [];
+// Frames received over any socket, ever. The login form compares two readings to
+// tell "the server answered" from "nothing came back" (see framesReceived).
+let framesIn = 0;
+
+/* Keepalive while in the world.
+ *
+ * The drops are on the client's side of the line: a phone suspending the tab,
+ * a home router or carrier NAT forgetting a connection that carried nothing
+ * for a while. (Our nginx holds a quiet websocket for a day.) The server's
+ * resume token also only moved on prompts, so a player idle past its TTL came
+ * back to a body already quit out. A ping every KEEPALIVE_MS keeps NAT state
+ * warm, and any frame from the playing socket refreshes the token
+ * server-side.
+ *
+ * Silence for KEEPALIVE_WAIT means the line is dead whatever readyState says,
+ * and closing it starts the silent resume while the token is still good. The
+ * wait is generous so a server busy for a few seconds (a save, a plugin
+ * reload) is not mistaken for a dead line. Deliberately NOT a probeSocket():
+ * the keepalive must neither hold typed lines back (socketProven) nor occupy
+ * the probe slot the fast return-from-background check needs. */
+const KEEPALIVE_MS = 25000;
+const KEEPALIVE_WAIT = 15000;
+let keepaliveTimer = null;
+
+function cancelKeepalive() {
+  if (keepaliveTimer) {
+    clearTimeout(keepaliveTimer);
+    keepaliveTimer = null;
+  }
+}
+
+function keepalive() {
+  if (!inWorld || keepaliveTimer) return;
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+  const pinged = ws;
+  if (!rpccmd('ping')) return;
+
+  keepaliveTimer = setTimeout(function () {
+    keepaliveTimer = null;
+    if (ws !== pinged || !wsAlive()) return;
+    // Same pause as a failed probe: let the server let go of the body first.
+    reconnectDelay = 500;
+    ws.close();
+  }, KEEPALIVE_WAIT);
+}
 
 /** True when the socket is not merely open but known to be carrying traffic. */
 function socketProven() {
@@ -330,6 +376,40 @@ function reconnect() {
   }
 }
 
+/** Drop the current socket, whatever state it is in, and open a new one now.
+ *  For the login form: a socket that swallowed a login attempt cannot be
+ *  trusted to carry the next one, and a CLOSING zombie can take a minute to
+ *  report its close -- the replacement does not wait for it (its late onclose
+ *  is ignored, see the guard there). Quiet, like the login screen's other
+ *  retries: the form says what is going on. */
+function replaceSocket() {
+  loginRetries = 0;
+  reconnectDelay = 0;
+  if (ws) {
+    try {
+      ws.close();
+    } catch (e) {
+      /* already closing */
+    }
+  }
+  silentRetry = true;
+  connect();
+}
+
+/** How many frames have arrived so far. Two readings bracket a request: if the
+ *  count did not move, the server never answered it. */
+function framesReceived() {
+  return framesIn;
+}
+
+/** Send a line that must go now or not at all -- a login name or password.
+ *  Never through send(): a line held for replay (holdLine) could be flushed
+ *  later as console_in into whatever prompt is current, and a password typed
+ *  at a name prompt is echoed back. False when the socket cannot take it. */
+function sendNow(text) {
+  return rpccmd('console_in', text + '\n');
+}
+
 function isOpen() {
   return !!ws && ws.readyState === WebSocket.OPEN;
 }
@@ -393,6 +473,7 @@ function connect() {
 
   // Replacing a socket that is still closing: its onclose will be ignored, so
   // say what it would have said (prompt gone, line down) and drop its probe.
+  cancelKeepalive();
   if (ws) {
     cancelProbe();
     store.dispatch(onDisconnected(!!resumeToken()));
@@ -404,6 +485,9 @@ function connect() {
   ws.binaryType = 'arraybuffer';
 
   ws.onmessage = function (e) {
+    framesIn++;
+    // Any frame answers the keepalive: the line carries traffic.
+    cancelKeepalive();
     // Traffic in this direction is the proof a probe was after; the reply need
     // not be the pong itself, and on an older server it will not be. The
     // socket was fine all along, so anything held back can go now.
@@ -447,6 +531,7 @@ function connect() {
     const wasInWorld = inWorld;
 
     cancelProbe();
+    cancelKeepalive();
     ws = null;
     store.dispatch(onDisconnected(!!resumeToken()));
 
@@ -513,9 +598,15 @@ $(document).ready(function () {
       skippedCodepage = false;
       send('1');
     })
-    .on('rpc-resume_ok', function () {
+    .on('rpc-resume_ok', function (e, token) {
       // Straight back into the character: no banner, no login, and the
       // scrollback in this tab is still the one the player left.
+      // The token we presented is spent. The server hands the next one over
+      // here because a quiet resume sends no prompt to carry it; without it
+      // (and without the keepalive, which waits for inWorld) the next drop
+      // found no token and the body was quit out at once.
+      if (token) setResumeToken(token);
+      inWorld = true;
       resumeRetries = 0;
       reconnectDelay = 0;
       firstFrame = null;
@@ -558,6 +649,8 @@ $(document).ready(function () {
   });
 
   window.addEventListener('online', verifyConnection);
+
+  setInterval(keepalive, KEEPALIVE_MS);
 });
 
 export {
@@ -569,5 +662,8 @@ export {
   isOpen,
   rpcWhenOpen,
   cancelFirstFrame,
+  replaceSocket,
+  framesReceived,
+  sendNow,
   ws,
 };

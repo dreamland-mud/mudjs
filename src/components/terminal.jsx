@@ -17,6 +17,8 @@ var firstChunkId = -1; // id of the first chunk in history (only set when scroll
 var lastChunkId = -1; // id of the last chunk sent to the terminal
 var scrolling = false;
 var autoScrollEnabled = true;
+var liveId = -1; // highest chunk id appended as live output -- what a screen reader has already announced
+const FOLLOW_MAX_PASSES = 20; // followBottom never chains more loads than this
 
 const loadChunks = (startId, direction, maxlen) => {
   const chunks = [];
@@ -28,9 +30,10 @@ const loadChunks = (startId, direction, maxlen) => {
       )
     )
     .then(() => {
-      // direction is backward, we start from the very bottom => the first returned record has the last chunk id
+      // direction is backward, we start from the very bottom => the first returned record has the last chunk id.
+      // Never backwards: output that landed while this load was reading is newer than its first record.
       if (!startId && direction && chunks.length > 0)
-        lastChunkId = chunks[0].id;
+        lastChunkId = Math.max(lastChunkId, chunks[0].id);
 
       // direction is backward, we have initial key and no records returned => initial key is the first one in the database
       if (startId && direction && chunks.length === 0) firstChunkId = startId;
@@ -44,12 +47,35 @@ const loadChunks = (startId, direction, maxlen) => {
 function terminalInit(wrap) {
   const terminal = wrap.find('.terminal');
 
+  /* Cut the DOM back to maxBytesOnScreen from one end, in one batch. Removing
+   * a chunk at a time and re-serializing the whole terminal after each one is
+   * quadratic: a big load into a full screen froze the tab for seconds. Sizes
+   * are measured once; the newest (fromTop) or oldest (bottom) chunk always
+   * stays. */
+  const trim = fromTop => {
+    const kids = terminal.children().get();
+    const sizes = kids.map(k => k.outerHTML.length);
+    let total = sizes.reduce((a, b) => a + b, 0);
+    if (total <= maxBytesOnScreen) return;
+
+    const cut = [];
+    if (fromTop) {
+      for (let i = 0; i < kids.length - 1 && total > maxBytesOnScreen; i++) {
+        total -= sizes[i];
+        cut.push(kids[i]);
+      }
+    } else {
+      for (let i = kids.length - 1; i > 0 && total > maxBytesOnScreen; i--) {
+        total -= sizes[i];
+        cut.push(kids[i]);
+      }
+    }
+    $(cut).remove();
+  };
+
   const append = $chunk => {
     $chunk.appendTo(terminal);
-
-    while (terminal.html().length > maxBytesOnScreen)
-      terminal.children(':first').remove();
-
+    trim(true);
     wrap.scrollTop(terminal.height());
   };
   const atBottom = () => {
@@ -73,12 +99,64 @@ function terminalInit(wrap) {
     );
   };
 
-  const loadBottom = (startId, len) => {
+  // hideUpTo: chunks up to this id go in aria-hidden (see followBottom).
+  const loadBottom = (startId, len, hideUpTo) => {
     scrolling = true;
 
     return loadChunks(startId, false, len).then(chunks =>
-      chunks.forEach(chunk => terminal.append(chunk))
+      chunks.forEach(chunk => {
+        if (hideUpTo !== undefined && parseInt(chunk.attr('data-chunk-id')) <= hideUpTo)
+          chunk.attr('aria-hidden', 'true');
+        terminal.append(chunk);
+      })
     );
+  };
+
+  /* id of the newest chunk in the DOM, -1 when the terminal is empty. */
+  const lastShownId = () => {
+    const $lst = terminal.children('div[data-chunk-id]').last();
+    return $lst.length ? parseInt($lst.attr('data-chunk-id')) : -1;
+  };
+
+  /* Bring the DOM's tail up to lastChunkId without leaving a hole.
+   *
+   * Live output may only be glued on directly after the chunk that preceded it.
+   * Scrolling up trims chunks off the bottom (loadTop below), and a click or a
+   * keypress turns autoscroll back on without reloading them -- so appending the
+   * next line there joined it onto a chunk from long ago and the trimmed stretch
+   * vanished from the scrollback: newer output, then a jump back in time. The
+   * same happened when output landed while a database load was still running.
+   * Instead, read whatever is missing from the history database (which already
+   * holds the new chunk) in order, then stick to the bottom.
+   *
+   * The terminal is a live region, so the refill would be read out again in
+   * full. Chunks the player already heard live (id <= liveId -- the stretch
+   * the scroll-up trimmed) go in aria-hidden; only output newer than that is
+   * announced.
+   *
+   * Termination: every pass must move the DOM tail forward, at most
+   * FOLLOW_MAX_PASSES passes chain, and a call made by scrollToBottom never
+   * calls scrollToBottom back (on a history store that returns nothing, the
+   * two used to bounce between each other in microtasks and froze the tab). */
+  const followBottom = (fromReload, pass) => {
+    pass = pass || 0;
+    // The load that is running finishes by calling this again.
+    if (scrolling || pass >= FOLLOW_MAX_PASSES) return Promise.resolve();
+
+    const lastShown = lastShownId();
+    if (lastShown === lastChunkId) return Promise.resolve();
+    if (lastShown === -1)
+      return fromReload ? Promise.resolve() : scrollToBottom();
+
+    return loadBottom(lastShown, maxBytesOnScreen, liveId).then(() => {
+      trim(true);
+      wrap.scrollTop(terminal.height());
+      scrolling = false;
+      // Nothing new came back: stop rather than ask the database for ever.
+      if (lastShownId() === lastShown) return;
+      // More output arrived meanwhile, or the hole was bigger than one load.
+      return followBottom(fromReload, pass + 1);
+    });
   };
 
   const scrollToBottom = () => {
@@ -88,6 +166,8 @@ function terminalInit(wrap) {
     return loadTop(null, maxBytesOnScreen).then(() => {
       wrap.scrollTop(terminal.height());
       scrolling = false;
+      // Output that arrived during the load was not appended (see output-html).
+      return followBottom(true);
     }); // scroll to the bottom
   };
 
@@ -116,14 +196,21 @@ function terminalInit(wrap) {
         $chunk.find('.manip-cmd').each(function () {
           $(this).attr('role', 'link').attr('tabindex', 0);
         });
-        // only append a DOM node if we're at the bottom
-        if (autoScrollEnabled) {
+        // Only straight after the chunk that came before it, and never into a
+        // database load that is still filling the DOM: anything else leaves a
+        // hole in the scrollback (see followBottom).
+        const contiguous = !scrolling && lastShownId() === lastChunkId;
+
+        lastChunkId = Math.max(lastChunkId, id);
+
+        if (autoScrollEnabled && contiguous) {
           append($chunk);
+          liveId = Math.max(liveId, id);
+        } else if (autoScrollEnabled) {
+          followBottom();
         } else {
           wrap.trigger('bump-unread', []);
         }
-
-        lastChunkId = id;
 
         // Transform output into clean text and call user-defined triggers.
         const $chunkCopy = $chunk.clone();
@@ -164,11 +251,12 @@ function terminalInit(wrap) {
       }
 
       loadTop(fstId, bytesToLoad).then(() => {
-        while (terminal.html().length > maxBytesOnScreen)
-          terminal.children(':last').remove();
+        trim(false);
 
         wrap.scrollTop(wrap.scrollTop() + $fst.offset().top - off);
         scrolling = false;
+        // Output that landed during the load was held back (see output-html).
+        if (autoScrollEnabled) followBottom();
       });
 
       return;
@@ -199,11 +287,12 @@ function terminalInit(wrap) {
       }
 
       loadBottom(lstId, bytesToLoad).then(() => {
-        while (terminal.html().length > maxBytesOnScreen)
-          terminal.children(':first').remove();
+        trim(true);
 
         wrap.scrollTop(wrap.scrollTop() + $lst.offset().top - off);
         scrolling = false;
+        // Output that landed during the load was held back (see output-html).
+        if (autoScrollEnabled) followBottom();
       });
 
       return;
