@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import $ from 'jquery';
 import { useSelector } from 'react-redux';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { send, rpccmd, reconnect, ensureOpen, isOpen, rpcWhenOpen, cancelFirstFrame } from '../websock';
+import { send, rpccmd, reconnect, ensureOpen, isOpen, rpcWhenOpen, cancelFirstFrame, replaceSocket, framesReceived } from '../websock';
 import { at, LANGS } from '../accountStrings';
 import { getLang, setLang } from '../i18n';
 import { classIconFor } from '../classIcons';
@@ -19,6 +19,9 @@ const REVEAL_MS = 950;      // slab curtain + settle before we unmount
 const LOGIN_TIMEOUT_MS = 4500;
 // The same wait when the socket had died first: reconnect + nanny greeting + the entry.
 const RECONNECT_WAIT_MS = 12000;
+// A login that drew no answer at all is a line problem, not a wrong password: go
+// again this many times over a fresh socket before saying the game is unreachable.
+const LOGIN_RELINKS = 1;
 const DRIVE_TIMEOUT_MS = 4000;   // no nanny_step after submit -> server is not in v2 mode
 
 // How deep each path-B step sits, so a step change can slide the new panel in from
@@ -172,6 +175,8 @@ export default function AccountLogin() {
   // Both ride the nanny's `name` step signal, which the V2 plain front emits
   // (.tmp.nanny.v2). With V2 off they wait out the backstop instead.
   const pendingLogin = useRef(null);    // path A typed over a dead socket: {name, password} for the fresh nanny
+  const stepSeen = useRef(false);       // this socket's nanny has signalled at least one step (V2 server)
+  const credsRx = useRef(null);         // framesReceived() when the password went out; null = not sent yet
   const pendingCheck = useRef(null);    // a check_name still waiting for its answer
 
   const later = (fn, ms) => {
@@ -214,7 +219,7 @@ export default function AccountLogin() {
   // A step signalled by a socket that has since died belongs to a nanny that is
   // gone. The fresh socket's nanny signals its own.
   useEffect(() => {
-    if (!connected) nannyStepRef.current = null;
+    if (!connected) { nannyStepRef.current = null; stepSeen.current = false; }
   }, [connected]);
 
   // In the world, or holding a live account session: no longer a newcomer.
@@ -344,14 +349,14 @@ export default function AccountLogin() {
   useEffect(() => {
     const onStep = (e, step) => {
       nannyStepRef.current = step;
+      stepSeen.current = true;
 
       // A fresh socket's nanny has reached the name: finish what the dead one
       // could not carry.
       if (step === 'name' && pendingLogin.current) {
         const p = pendingLogin.current;
         pendingLogin.current = null;
-        send(p.name);
-        later(() => send(p.password), 180);
+        sendCreds(p.name, p.password);
         return;
       }
       if (step === 'name' && pendingCheck.current) {
@@ -417,7 +422,7 @@ export default function AccountLogin() {
 
     // A new socket (version comes first on every one) has a nanny that has not
     // asked anything yet; a step from the previous socket must not be trusted.
-    const onVersion = () => { nannyStepRef.current = null; };
+    const onVersion = () => { nannyStepRef.current = null; stepSeen.current = false; };
 
     $('#rpc-events').on('rpc-nanny_step', onStep);
     $('#rpc-events').on('rpc-check_name_result', onCheck);
@@ -581,31 +586,61 @@ export default function AccountLogin() {
   };
 
   // ---- path A: real character login (drives the server nanny) --------------
+  // Name, then password a beat later (the nanny reads them as two lines). This
+  // nanny's name step is spent the moment the name goes out: a resubmit after a
+  // wrong password must not type the name into the password prompt it is now on.
+  const sendCreds = (n, p) => {
+    nannyStepRef.current = null;
+    send(n);
+    later(() => {
+      credsRx.current = framesReceived();
+      send(p);
+    }, 180);
+  };
+
+  // One login attempt. Goes out now only over a socket whose nanny is waiting for
+  // a name (or a server too old to say which step it is on); anything else gets a
+  // fresh socket, and its nanny's name step delivers the credentials (onStep).
+  const attemptLogin = (n, p, relinks, fresh) => {
+    credsRx.current = null;
+    const open = isOpen();
+    const now = !fresh && open && (nannyStepRef.current === 'name' || !stepSeen.current);
+    if (now) {
+      sendCreds(n, p);
+    } else {
+      pendingLogin.current = { name: n, password: p };
+      if (open || fresh) replaceSocket();
+      else ensureOpen();
+    }
+    later(() => {
+      if (phaseRef.current !== 'login') return;   // the prompt came: in the world
+      const sent = pendingLogin.current === null;
+      pendingLogin.current = null;
+      // The server said something after the password went in, and still no
+      // prompt: it judged the credentials. Silence is the line, not the password
+      // -- a socket that died idle at this door used to read as a wrong password.
+      if (sent && credsRx.current !== null && framesReceived() > credsRx.current) {
+        setBusy('');
+        setError(at('fail', lang));
+        if (dragonRef.current) dragonRef.current.shake();   // wrong password -> the dragon says no
+        return;
+      }
+      if (relinks > 0) {
+        setBusy(at('relink', lang));
+        attemptLogin(n, p, relinks - 1, true);
+        return;
+      }
+      setBusy('');
+      setError(at('offline', lang));
+    }, now ? LOGIN_TIMEOUT_MS : RECONNECT_WAIT_MS);
+  };
+
   const submitChar = e => {
     e.preventDefault();
     if (!name.trim() || !password) return;
     setError('');
     setBusy(at('entering', lang));
-    const open = isOpen();
-    if (open) {
-      send(name.trim());
-      later(() => send(password), 180);
-    } else {
-      // Typed at a dead line: bring it back and answer the fresh nanny's name step.
-      pendingLogin.current = { name: name.trim(), password };
-      ensureOpen();
-    }
-    // If the prompt never arrives, the credentials were wrong -- re-show the form.
-    later(() => {
-      // Still waiting on a line that never came back: say so, not "wrong password".
-      const lineDown = pendingLogin.current !== null;
-      pendingLogin.current = null;
-      if (phaseRef.current === 'login') {
-        setBusy('');
-        setError(at(lineDown ? 'offline' : 'fail', lang));
-        if (!lineDown && dragonRef.current) dragonRef.current.shake();   // wrong password -> the dragon says no
-      }
-    }, open ? LOGIN_TIMEOUT_MS : RECONNECT_WAIT_MS);
+    attemptLogin(name.trim(), password, LOGIN_RELINKS, false);
   };
 
   // ---- character creation (nanny V2 web front) -----------------------------

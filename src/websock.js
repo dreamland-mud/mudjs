@@ -215,6 +215,24 @@ const PENDING_MAX = 20;
 let probeTimer = null;
 let hiddenAt = 0;
 let pending = [];
+// Frames received over any socket, ever. The login form compares two readings to
+// tell "the server answered" from "nothing came back" (see framesReceived).
+let framesIn = 0;
+
+/* Keepalive while in the world.
+ *
+ * An idle player's socket carries nothing for minutes, and an idle proxied
+ * websocket is exactly what a reverse proxy times out (nginx closes it after
+ * proxy_read_timeout of upstream silence, 60s by default). The server's resume
+ * token also only moved on prompts, so a player idle past its TTL came back to
+ * a body already quit out. A ping every KEEPALIVE_MS makes the server answer
+ * (pong resets the proxy's read timer) and refreshes the token server-side.
+ * It goes out as a probe: silence for KEEPALIVE_WAIT means the line is dead
+ * whatever readyState says, and closing it starts the silent resume while the
+ * token is still good. The wait is generous so a server busy for a few seconds
+ * (a save, a plugin reload) is not mistaken for a dead line. */
+const KEEPALIVE_MS = 25000;
+const KEEPALIVE_WAIT = 15000;
 
 /** True when the socket is not merely open but known to be carrying traffic. */
 function socketProven() {
@@ -330,6 +348,32 @@ function reconnect() {
   }
 }
 
+/** Drop the current socket, whatever state it is in, and open a new one now.
+ *  For the login form: a socket that swallowed a login attempt cannot be
+ *  trusted to carry the next one, and a CLOSING zombie can take a minute to
+ *  report its close -- the replacement does not wait for it (its late onclose
+ *  is ignored, see the guard there). Quiet, like the login screen's other
+ *  retries: the form says what is going on. */
+function replaceSocket() {
+  loginRetries = 0;
+  reconnectDelay = 0;
+  if (ws) {
+    try {
+      ws.close();
+    } catch (e) {
+      /* already closing */
+    }
+  }
+  silentRetry = true;
+  connect();
+}
+
+/** How many frames have arrived so far. Two readings bracket a request: if the
+ *  count did not move, the server never answered it. */
+function framesReceived() {
+  return framesIn;
+}
+
 function isOpen() {
   return !!ws && ws.readyState === WebSocket.OPEN;
 }
@@ -404,6 +448,7 @@ function connect() {
   ws.binaryType = 'arraybuffer';
 
   ws.onmessage = function (e) {
+    framesIn++;
     // Traffic in this direction is the proof a probe was after; the reply need
     // not be the pong itself, and on an older server it will not be. The
     // socket was fine all along, so anything held back can go now.
@@ -558,6 +603,10 @@ $(document).ready(function () {
   });
 
   window.addEventListener('online', verifyConnection);
+
+  setInterval(function () {
+    if (inWorld) probeSocket(KEEPALIVE_WAIT);
+  }, KEEPALIVE_MS);
 });
 
 export {
@@ -569,5 +618,7 @@ export {
   isOpen,
   rpcWhenOpen,
   cancelFirstFrame,
+  replaceSocket,
+  framesReceived,
   ws,
 };
