@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import $ from 'jquery';
 import { useSelector } from 'react-redux';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { send, rpccmd, reconnect, ensureOpen, isOpen, rpcWhenOpen, cancelFirstFrame, replaceSocket, framesReceived } from '../websock';
+import { send, rpccmd, reconnect, ensureOpen, isOpen, rpcWhenOpen, cancelFirstFrame, replaceSocket, framesReceived, sendNow } from '../websock';
 import { at, LANGS } from '../accountStrings';
 import { getLang, setLang } from '../i18n';
 import { classIconFor } from '../classIcons';
@@ -175,8 +175,8 @@ export default function AccountLogin() {
   // Both ride the nanny's `name` step signal, which the V2 plain front emits
   // (.tmp.nanny.v2). With V2 off they wait out the backstop instead.
   const pendingLogin = useRef(null);    // path A typed over a dead socket: {name, password} for the fresh nanny
-  const stepSeen = useRef(false);       // this socket's nanny has signalled at least one step (V2 server)
   const credsRx = useRef(null);         // framesReceived() when the password went out; null = not sent yet
+  const loginInFlight = useRef(false);  // a path-A login of ours is waiting for its outcome
   const pendingCheck = useRef(null);    // a check_name still waiting for its answer
 
   const later = (fn, ms) => {
@@ -187,6 +187,9 @@ export default function AccountLogin() {
   const clearTimers = () => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
+    // A login attempt lives on these timers; once they are gone it is over, and
+    // the nanny's take-over question must go back to the player.
+    loginInFlight.current = false;
   };
 
   // Arm (or re-arm) the creation-drive watchdog. Re-armed on every step so a stall
@@ -219,7 +222,7 @@ export default function AccountLogin() {
   // A step signalled by a socket that has since died belongs to a nanny that is
   // gone. The fresh socket's nanny signals its own.
   useEffect(() => {
-    if (!connected) { nannyStepRef.current = null; stepSeen.current = false; }
+    if (!connected) nannyStepRef.current = null;
   }, [connected]);
 
   // In the world, or holding a live account session: no longer a newcomer.
@@ -349,7 +352,17 @@ export default function AccountLogin() {
   useEffect(() => {
     const onStep = (e, step) => {
       nannyStepRef.current = step;
-      stepSeen.current = true;
+
+      // The character is already in the world on a live-looking descriptor
+      // (often this player's own dead phone socket) and the nanny asks whether
+      // to take the body over. Only after the password checked out, and a login
+      // from this form is exactly that request: say yes. Gated on a login of
+      // ours being in flight, so a player typing in the raw terminal still
+      // answers for themselves.
+      if (step === 'reconnect_confirm') {
+        if (loginInFlight.current) sendNow('yes');
+        return;
+      }
 
       // A fresh socket's nanny has reached the name: finish what the dead one
       // could not carry.
@@ -398,8 +411,9 @@ export default function AccountLogin() {
       stepsSent.current[step] = true;
       if (step === 'name') send(a.name);
       else if (step === 'name_confirm') send('yes');
-      else if (step === 'password') send(a.password);
-      else if (step === 'password_confirm') send(a.password);
+      // Never held for replay: see sendNow in websock.js.
+      else if (step === 'password') sendNow(a.password);
+      else if (step === 'password_confirm') sendNow(a.password);
       else if (step === 'screenreader') send(a.sr);
       // The engine offers a mid-creation account link (taskAccount). The web form has
       // no account field yet, so decline it -- the player links later from the account
@@ -422,7 +436,7 @@ export default function AccountLogin() {
 
     // A new socket (version comes first on every one) has a nanny that has not
     // asked anything yet; a step from the previous socket must not be trusted.
-    const onVersion = () => { nannyStepRef.current = null; stepSeen.current = false; };
+    const onVersion = () => { nannyStepRef.current = null; };
 
     $('#rpc-events').on('rpc-nanny_step', onStep);
     $('#rpc-events').on('rpc-check_name_result', onCheck);
@@ -589,22 +603,31 @@ export default function AccountLogin() {
   // Name, then password a beat later (the nanny reads them as two lines). This
   // nanny's name step is spent the moment the name goes out: a resubmit after a
   // wrong password must not type the name into the password prompt it is now on.
+  // Both go out now or not at all (sendNow): a credential held for replay could
+  // land later in some other prompt. A line that cannot take them leaves
+  // credsRx null, which the attempt's timeout reads as "never answered" ->
+  // relink, so nothing is lost.
   const sendCreds = (n, p) => {
     nannyStepRef.current = null;
-    send(n);
+    if (!sendNow(n)) return;
     later(() => {
-      credsRx.current = framesReceived();
-      send(p);
+      const rx = framesReceived();
+      if (sendNow(p)) credsRx.current = rx;
     }, 180);
   };
 
   // One login attempt. Goes out now only over a socket whose nanny is waiting for
   // a name (or a server too old to say which step it is on); anything else gets a
   // fresh socket, and its nanny's name step delivers the credentials (onStep).
+  // Without the V2 front (mudjs.nannyv2 = '0', for a server rolled back to the
+  // old nanny) no step is ever signalled, so the name goes out blind as it
+  // always did. With it, never before the nanny has asked: autofill plus Enter
+  // on a fresh socket would otherwise type the name into the language menu.
   const attemptLogin = (n, p, relinks, fresh) => {
     credsRx.current = null;
+    loginInFlight.current = true;
     const open = isOpen();
-    const now = !fresh && open && (nannyStepRef.current === 'name' || !stepSeen.current);
+    const now = !fresh && open && (nannyStepRef.current === 'name' || !NANNY_V2);
     if (now) {
       sendCreds(n, p);
     } else {
@@ -613,13 +636,14 @@ export default function AccountLogin() {
       else ensureOpen();
     }
     later(() => {
-      if (phaseRef.current !== 'login') return;   // the prompt came: in the world
+      if (phaseRef.current !== 'login') { loginInFlight.current = false; return; }   // in the world
       const sent = pendingLogin.current === null;
       pendingLogin.current = null;
       // The server said something after the password went in, and still no
       // prompt: it judged the credentials. Silence is the line, not the password
       // -- a socket that died idle at this door used to read as a wrong password.
       if (sent && credsRx.current !== null && framesReceived() > credsRx.current) {
+        loginInFlight.current = false;
         setBusy('');
         setError(at('fail', lang));
         if (dragonRef.current) dragonRef.current.shake();   // wrong password -> the dragon says no
@@ -630,6 +654,7 @@ export default function AccountLogin() {
         attemptLogin(n, p, relinks - 1, true);
         return;
       }
+      loginInFlight.current = false;
       setBusy('');
       setError(at('offline', lang));
     }, now ? LOGIN_TIMEOUT_MS : RECONNECT_WAIT_MS);
