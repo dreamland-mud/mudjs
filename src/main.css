@@ -669,7 +669,7 @@ td.v-bottom {
   /* Heavier line, set a bit lower. Skip-ink only breaks the line where a
      descender crosses it, so the offset must stay above the descender tip;
      the gaps scale with the line weight. */
-  text-decoration-thickness: 2px;
+  text-decoration-thickness: 1.5px;
   text-underline-offset: 0.125em;
   text-decoration-skip-ink: auto;
   cursor: pointer;
