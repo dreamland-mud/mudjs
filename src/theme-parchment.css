@@ -670,7 +670,7 @@ td.v-bottom{vertical-align:bottom}
      descender crosses it, so the offset must stay above the descender tip;
      the gaps scale with the line weight. */
   text-decoration-thickness: 2px;
-  text-underline-offset: 0.15em;
+  text-underline-offset: 0.125em;
   text-decoration-skip-ink: auto;
   cursor: pointer;
 }
