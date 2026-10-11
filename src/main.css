@@ -680,11 +680,11 @@ td.v-bottom {
 }
 
 .manip-speedwalk,
-.manip-speedwalk span {
+.manip-speedwalk:not(.manip-keepcolor) span {
   color: #c4a000;
 }
 .manip-speedwalk:hover,
-.manip-speedwalk:hover span {
+.manip-speedwalk:not(.manip-keepcolor):hover span {
   color: #fdea56;
 }
 

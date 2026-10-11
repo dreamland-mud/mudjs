@@ -247,6 +247,9 @@ function manipParseAndReplace(span) {
       // than cloning its colours keeps the two in step if either is restyled.
       // The rule this leans on lives with SAFE_HC_COMMANDS, not here.
       if (explicitAction) result.addClass('manip-speedwalk');
+      // Blueprint lists colour names by item tier: keep the server's colours
+      // inside the link instead of painting every span speedwalk gold.
+      if (explicitAction && /^craft /.test(explicitAction)) result.addClass('manip-keepcolor');
       return result;
     });
   });
