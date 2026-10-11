@@ -666,10 +666,11 @@ td.v-bottom{vertical-align:bottom}
 .manip-link {
   text-decoration: underline;
   text-decoration-color: rgba(255, 255, 255, 0.35);
-  /* Heavier line, set lower: skip-ink gaps around descenders scale with the
-     line's weight, so they read clearly at this thickness. */
+  /* Heavier line, set a bit lower. Skip-ink only breaks the line where a
+     descender crosses it, so the offset must stay above the descender tip;
+     the gaps scale with the line weight. */
   text-decoration-thickness: 2px;
-  text-underline-offset: 0.25em;
+  text-underline-offset: 0.15em;
   text-decoration-skip-ink: auto;
   cursor: pointer;
 }
