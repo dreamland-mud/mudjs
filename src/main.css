@@ -665,7 +665,7 @@ td.v-bottom {
 .manip-cmd,
 .manip-link {
   text-decoration: underline;
-  text-decoration-color: #fff;
+  text-decoration-color: rgba(255, 255, 255, 0.35);
   cursor: pointer;
 }
 
