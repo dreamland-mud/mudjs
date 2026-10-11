@@ -86,6 +86,9 @@ var SAFE_HC_COMMANDS = [
   // vnum>' (starts the clicker's own craft, refused unless they carry that
   // blueprint, the tools and the ingredients). Self-scoped, nothing leaves them.
   /^craft (show )?\d{1,7}$/,
+  // craft list footer: 'craft filter <type>' hides or shows one craft in the
+  // clicker's own blueprint lists. A display preference, nothing else moves.
+  /^craft filter [a-z]{1,12}$/,
 ];
 
 function safeExplicitAction(value) {
