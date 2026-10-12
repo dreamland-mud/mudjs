@@ -19,7 +19,7 @@ import $ from 'jquery';
 // fade, hide (+ hit/max_hit). Colour is never the only signal -- the affects panel
 // and the game messages carry the real state for screen readers; ambient flavour.
 //   neardeath -> dark crimson, heavy throb (<=25% HP; beats faster the lower you go)
-//   blind     -> white, heavy pulse (any AFF_BLIND: blindness spell, dirt kick...)
+//   blind     -> white, slow deep breathe (any AFF_BLIND: blindness spell, dirt kick...)
 //   mind      -> purple (charmed / magically asleep / stunned)
 //   fight     -> red heartbeat   (rage -> heavier red heartbeat)
 //   faerie    -> pink (faerie fire -- you're lit up, easier to hit)
