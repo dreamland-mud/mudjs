@@ -5,7 +5,7 @@ import $ from 'jquery';
 // (matters most for players with fightspam off, where a quiet round prints little).
 //
 // The terminal vignette shows ONE state at a time -- the most urgent wins (see the
-// priority list below) and lands on body[data-glow]; main.css draws the colour.
+// priority list below) and lands on body[data-glow]; theme-parchment.css draws the colour.
 // The red combat input stroke and the red command buttons are a separate combat
 // signal driven by body.mud-fighting, kept as-is.
 //
@@ -44,7 +44,7 @@ $(function () {
     body.classList.toggle('mud-rage', raging);
 
     // Heartbeat rate tracks HP: the fight/rage/near-death pulse quickens as you
-    // bleed out, from 1.15s at full health toward ~0.55s near death (main.css reads
+    // bleed out, from 1.15s at full health toward ~0.55s near death (theme-parchment.css reads
     // var(--beat)). nearDeath at or below a quarter HP flips the vignette to a heavy
     // dark-crimson throb that owns the view.
     const maxHit = p.max_hit;

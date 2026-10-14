@@ -349,7 +349,19 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
         removeEventListener('pointermove', onMove);
         removeEventListener('resize', onResize);
         host.removeEventListener('pointerdown', onDown);
-        try { renderer.dispose(); } catch (e) { /* ignore */ }
+        // renderer.dispose() leaves the scene's GPU buffers behind: free them,
+        // then drop the WebGL context itself.
+        try {
+          scene.traverse(o => {
+            if (o.geometry) o.geometry.dispose();
+            const mats = o.material ? [].concat(o.material) : [];
+            for (const m of mats) {
+              for (const k in m) if (m[k] && m[k].isTexture) m[k].dispose();
+              m.dispose();
+            }
+          });
+        } catch (e) { /* ignore */ }
+        try { renderer.dispose(); renderer.forceContextLoss(); } catch (e) { /* ignore */ }
         if (renderer && renderer.domElement && renderer.domElement.parentNode)
           renderer.domElement.parentNode.removeChild(renderer.domElement);
       };

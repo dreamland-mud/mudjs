@@ -11,7 +11,9 @@ import { t } from '../i18n';
 // TODO: the following parameters should be replaced with two numbers - viewport size (in pixels) and the threshold (in pixels)
 const bytesToLoad = 100000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
 const scrollThreshold = 1000; // when to start loading more data (px)
-const maxBytesOnScreen = 1000000;
+// Caps the DOM, and with it the tab's memory: older output stays in historyDb
+// and loads back on scroll-up.
+const maxBytesOnScreen = 300000;
 
 var firstChunkId = -1; // id of the first chunk in history (only set when scrolled to the very top)
 var lastChunkId = -1; // id of the last chunk sent to the terminal
@@ -51,10 +53,20 @@ function terminalInit(wrap) {
    * a chunk at a time and re-serializing the whole terminal after each one is
    * quadratic: a big load into a full screen froze the tab for seconds. Sizes
    * are measured once; the newest (fromTop) or oldest (bottom) chunk always
-   * stays. */
+   * stays. A chunk's size is cached on first measure: serializing every chunk
+   * on every line of output churned megabytes of garbage per second in combat. */
+  const sizeCache = new WeakMap();
+  const sizeOf = k => {
+    let n = sizeCache.get(k);
+    if (n === undefined) {
+      n = k.outerHTML.length;
+      sizeCache.set(k, n);
+    }
+    return n;
+  };
   const trim = fromTop => {
     const kids = terminal.children().get();
-    const sizes = kids.map(k => k.outerHTML.length);
+    const sizes = kids.map(sizeOf);
     let total = sizes.reduce((a, b) => a + b, 0);
     if (total <= maxBytesOnScreen) return;
 
@@ -76,20 +88,17 @@ function terminalInit(wrap) {
   const append = $chunk => {
     $chunk.appendTo(terminal);
     trim(true);
-    wrap.scrollTop(terminal.height());
+    stickBottom();
   };
-  const atBottom = () => {
-    const lastMessage = terminal.children().last();
-    if (lastMessage.length === 0) return true;
-
-    const lastMessageBottom =
-      lastMessage.offset().top + lastMessage.outerHeight();
-    const wrapBottom = wrap.offset().top + wrap.outerHeight();
-
-    const isAtBottom = lastMessageBottom <= wrapBottom;
-
-    return isAtBottom;
+  /* Native scroll metrics, not jQuery .height()/.offset(): those go through
+   * getComputedStyle and forced a layout of the whole terminal on every line of
+   * output (each append scrolls, and each scroll runs atBottom). The slack
+   * covers the wrap's bottom padding. */
+  const w = wrap[0];
+  const stickBottom = () => {
+    w.scrollTop = w.scrollHeight;
   };
+  const atBottom = () => w.scrollHeight - w.scrollTop - w.clientHeight <= 12;
 
   const loadTop = (startId, len) => {
     scrolling = true;
@@ -114,8 +123,12 @@ function terminalInit(wrap) {
 
   /* id of the newest chunk in the DOM, -1 when the terminal is empty. */
   const lastShownId = () => {
-    const $lst = terminal.children('div[data-chunk-id]').last();
-    return $lst.length ? parseInt($lst.attr('data-chunk-id')) : -1;
+    // Native walk from the end: a jQuery selector over every chunk ran on each
+    // line of output.
+    for (let el = terminal[0].lastElementChild; el; el = el.previousElementSibling)
+      if (el.tagName === 'DIV' && el.hasAttribute('data-chunk-id'))
+        return parseInt(el.getAttribute('data-chunk-id'));
+    return -1;
   };
 
   /* Bring the DOM's tail up to lastChunkId without leaving a hole.
@@ -150,7 +163,7 @@ function terminalInit(wrap) {
 
     return loadBottom(lastShown, maxBytesOnScreen, liveId).then(() => {
       trim(true);
-      wrap.scrollTop(terminal.height());
+      stickBottom();
       scrolling = false;
       // Nothing new came back: stop rather than ask the database for ever.
       if (lastShownId() === lastShown) return;
@@ -164,7 +177,7 @@ function terminalInit(wrap) {
     terminal.empty();
 
     return loadTop(null, maxBytesOnScreen).then(() => {
-      wrap.scrollTop(terminal.height());
+      stickBottom();
       scrolling = false;
       // Output that arrived during the load was not appended (see output-html).
       return followBottom(true);
@@ -216,9 +229,10 @@ function terminalInit(wrap) {
         const $chunkCopy = $chunk.clone();
         $chunkCopy.find('.no-triggers').remove();
         const lines = $chunkCopy.text().replace(/\xa0/g, ' ').split('\n');
+        const $triggers = $('.trigger'); // one document query per chunk, not per line
         lines.forEach(line => {
           processTriggers(line);
-          $('.trigger').trigger('text', ['' + line]);
+          $triggers.trigger('text', ['' + line]);
         });
         // lines.forEach(line => $('.trigger').trigger('text', [''+line]));
       });
@@ -264,8 +278,8 @@ function terminalInit(wrap) {
 
     // Load bottom chunks while scrolling down.
     if (
-      wrap.scrollTop() >
-      terminal.height() - wrap.height() - scrollThreshold
+      w.scrollTop >
+      w.scrollHeight - w.clientHeight - scrollThreshold
     ) {
       let $lst = terminal.find('div[data-chunk-id]:last-child');
 
@@ -360,13 +374,19 @@ export default forwardRef(({ bumpUnread, resetUnread }, ref) => {
     [wrap]
   );
 
+  // .terminal-glow sits behind the wrap and draws the state vignette
+  // (theme-parchment.css): outside the scroller, so pulsing it never repaints
+  // the text.
   return (
-    <div className="terminal-wrap" ref={wrap}>
-      <div
-        className="terminal"
-        aria-live="polite"
-        aria-relevant="additions"
-      ></div>
-    </div>
+    <>
+      <div className="terminal-glow" aria-hidden="true"></div>
+      <div className="terminal-wrap" ref={wrap}>
+        <div
+          className="terminal"
+          aria-live="polite"
+          aria-relevant="additions"
+        ></div>
+      </div>
+    </>
   );
 });
