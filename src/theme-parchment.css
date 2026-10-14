@@ -286,7 +286,8 @@ body.modal-open{overflow:hidden}
 .terminal-wrap{
   overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch;
   position:absolute;height:100%;width:100%;
-  background-color:#0c0b11;
+  /* transparent: the well colour and the state glow live on .terminal-glow behind */
+  background-color:transparent;
   padding:5px 10px 10px 10px;
 }
 .terminal{
@@ -299,6 +300,7 @@ body.modal-open{overflow:hidden}
 /* ===================== command input ===================== */
 #input input{width:100%;box-sizing:border-box;font-family:var(--article);font-variant-ligatures:none;font-size:1.3em}
 @media only screen and (min-width:768px){
+  .terminal-glow{border-radius:var(--radius)}
   .terminal-wrap{
     border:1px solid var(--gold-deep);border-radius:var(--radius);
     box-shadow:inset 0 1px 8px rgba(0,0,0,.5);
@@ -781,192 +783,115 @@ header.MuiPaper-root.MuiAppBar-root {
 /* --- State UI accent (combat data-glow vignette) ---------------------------
  * src/combatui.js resolves the player's most urgent state to body[data-glow] and
  * toggles body.mud-fighting for the red input stroke. One coloured inner vignette
- * per state on .terminal-wrap; colour is never the only signal (the affects panel
- * + game messages carry the real state for screen readers). Verbatim from
- * runeforge.css. */
-.terminal-wrap,
-form#input {
-  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+ * per state; colour is never the only signal (the affects panel + game messages
+ * carry the real state for screen readers).
+ *
+ * The vignette lives on .terminal-glow, a layer behind the (transparent)
+ * .terminal-wrap that also carries the well's background. Each state sets two
+ * static shadows, --glow-base (resting) and --glow-peak (top of the beat), and
+ * the pulse cross-fades ::before and ::after by OPACITY only. Animating
+ * box-shadow itself repainted the whole terminal with a 1000px blur on every
+ * frame and made the client crawl; opacity runs on the compositor. */
+.terminal-glow{
+  position:absolute;inset:0;pointer-events:none;
+  background-color:#0c0b11;
 }
-@keyframes combat-heartbeat {
-  0% {
-    box-shadow:
-      inset 0 0 95px 0 rgba(204, 0, 0, 0.13),
-      inset 0 0 190px 0 rgba(204, 0, 0, 0.06);
-    animation-timing-function: linear;
-  }
-  14% {
-    box-shadow:
-      inset 0 0 165px 0 rgba(204, 0, 0, 0.24),
-      inset 0 0 330px 0 rgba(204, 0, 0, 0.12);
-    animation-timing-function: ease-out;
-  }
-  100% {
-    box-shadow:
-      inset 0 0 95px 0 rgba(204, 0, 0, 0.13),
-      inset 0 0 190px 0 rgba(204, 0, 0, 0.06);
-  }
+.terminal-glow::before,
+.terminal-glow::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  opacity:0;transition:opacity .35s ease;
 }
-body[data-glow="fight"] .terminal-wrap {
-  animation: combat-heartbeat var(--beat, 1.15s) infinite;
+.terminal-glow::before{box-shadow:var(--glow-base,none)}
+.terminal-glow::after{box-shadow:var(--glow-peak,none)}
+body[data-glow] .terminal-glow::before{opacity:1}
+body[data-glow] .terminal-glow::after{will-change:opacity}
+form#input{transition:border-color .35s ease}
+
+/* Heartbeat: a fast snap outward (linear, ~14% of the cycle) then a slow eased
+   collapse. --beat (set by combatui.js from HP) quickens it as you bleed out. */
+@keyframes glow-beat-peak{
+  0%{opacity:0;animation-timing-function:linear}
+  14%{opacity:1;animation-timing-function:ease-out}
+  100%{opacity:0}
 }
-@keyframes combat-heartbeat-rage {
-  0% {
-    box-shadow:
-      inset 0 0 330px 0 rgba(204, 0, 0, 0.45),
-      inset 0 0 660px 0 rgba(204, 0, 0, 0.21);
-    animation-timing-function: linear;
-  }
-  14% {
-    box-shadow:
-      inset 0 0 575px 0 rgba(204, 0, 0, 0.84),
-      inset 0 0 1150px 0 rgba(204, 0, 0, 0.42);
-    animation-timing-function: ease-out;
-  }
-  100% {
-    box-shadow:
-      inset 0 0 330px 0 rgba(204, 0, 0, 0.45),
-      inset 0 0 660px 0 rgba(204, 0, 0, 0.21);
-  }
+@keyframes glow-beat-base{
+  0%{opacity:1;animation-timing-function:linear}
+  14%{opacity:0;animation-timing-function:ease-out}
+  100%{opacity:1}
 }
-body[data-glow="rage"] .terminal-wrap {
-  animation: combat-heartbeat-rage var(--beat, 1.15s) infinite;
+/* Breathe: slow ease-in-out swell, for the afflictions that aren't combat. */
+@keyframes glow-breathe-peak{0%,100%{opacity:0}50%{opacity:1}}
+@keyframes glow-breathe-base{0%,100%{opacity:1}50%{opacity:0}}
+
+/* fight -> red heartbeat */
+body[data-glow="fight"] .terminal-glow{
+  --glow-base:inset 0 0 95px 0 rgba(204,0,0,.13),inset 0 0 190px 0 rgba(204,0,0,.06);
+  --glow-peak:inset 0 0 165px 0 rgba(204,0,0,.24),inset 0 0 330px 0 rgba(204,0,0,.12);
 }
-@keyframes glow-neardeath {
-  0% {
-    box-shadow:
-      inset 0 0 300px 0 rgba(110, 0, 15, 0.44),
-      inset 0 0 600px 0 rgba(110, 0, 15, 0.22);
-    animation-timing-function: linear;
-  }
-  14% {
-    box-shadow:
-      inset 0 0 540px 0 rgba(110, 0, 15, 0.74),
-      inset 0 0 1080px 0 rgba(110, 0, 15, 0.40);
-    animation-timing-function: ease-out;
-  }
-  100% {
-    box-shadow:
-      inset 0 0 300px 0 rgba(110, 0, 15, 0.44),
-      inset 0 0 600px 0 rgba(110, 0, 15, 0.22);
-  }
+/* rage (berserk / frenzy) -> the same beat, ~3.5x reach and alpha */
+body[data-glow="rage"] .terminal-glow{
+  --glow-base:inset 0 0 330px 0 rgba(204,0,0,.45),inset 0 0 660px 0 rgba(204,0,0,.21);
+  --glow-peak:inset 0 0 575px 0 rgba(204,0,0,.84),inset 0 0 1150px 0 rgba(204,0,0,.42);
 }
-body[data-glow="neardeath"] .terminal-wrap {
-  animation: glow-neardeath var(--beat, 1.15s) infinite;
+/* neardeath (<=25% HP) -> heavy dark-crimson throb that never fully recedes */
+body[data-glow="neardeath"] .terminal-glow{
+  --glow-base:inset 0 0 300px 0 rgba(110,0,15,.44),inset 0 0 600px 0 rgba(110,0,15,.22);
+  --glow-peak:inset 0 0 540px 0 rgba(110,0,15,.74),inset 0 0 1080px 0 rgba(110,0,15,.40);
 }
-@keyframes glow-blind {
-  0%, 100% {
-    box-shadow:
-      inset 0 0 360px 0 rgba(255, 255, 255, 0.42),
-      inset 0 0 720px 0 rgba(255, 255, 255, 0.20);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 500px 0 rgba(255, 255, 255, 0.60),
-      inset 0 0 1000px 0 rgba(255, 255, 255, 0.30);
-  }
+body[data-glow="fight"] .terminal-glow::before,
+body[data-glow="rage"] .terminal-glow::before,
+body[data-glow="neardeath"] .terminal-glow::before{animation:glow-beat-base var(--beat,1.15s) infinite}
+body[data-glow="fight"] .terminal-glow::after,
+body[data-glow="rage"] .terminal-glow::after,
+body[data-glow="neardeath"] .terminal-glow::after{animation:glow-beat-peak var(--beat,1.15s) infinite}
+
+/* blind -> white wash, slow deep breathe (a fast strobe read as a disco -- Kerrad) */
+body[data-glow="blind"] .terminal-glow{
+  --glow-base:inset 0 0 360px 0 rgba(255,255,255,.42),inset 0 0 720px 0 rgba(255,255,255,.20);
+  --glow-peak:inset 0 0 500px 0 rgba(255,255,255,.60),inset 0 0 1000px 0 rgba(255,255,255,.30);
+  --glow-dur:3.2s;
 }
-body[data-glow="blind"] .terminal-wrap {
-  animation: glow-blind 3.2s ease-in-out infinite;
+/* mind (charmed / asleep / stunned) -> woozy purple sway */
+body[data-glow="mind"] .terminal-glow{
+  --glow-base:inset 0 0 120px 0 rgba(150,70,205,.13),inset 0 0 240px 0 rgba(150,70,205,.07);
+  --glow-peak:inset 0 0 175px 0 rgba(150,70,205,.26),inset 0 0 350px 0 rgba(150,70,205,.13);
+  --glow-dur:2.6s;
 }
-@keyframes glow-mind {
-  0%, 100% {
-    box-shadow:
-      inset 0 0 120px 0 rgba(150, 70, 205, 0.13),
-      inset 0 0 240px 0 rgba(150, 70, 205, 0.07);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 175px 0 rgba(150, 70, 205, 0.26),
-      inset 0 0 350px 0 rgba(150, 70, 205, 0.13);
-  }
+/* poison -> sickly green, nausea rising and falling */
+body[data-glow="poison"] .terminal-glow{
+  --glow-base:inset 0 0 110px 0 rgba(70,190,80,.12),inset 0 0 220px 0 rgba(70,190,80,.06);
+  --glow-peak:inset 0 0 160px 0 rgba(70,190,80,.22),inset 0 0 320px 0 rgba(70,190,80,.11);
+  --glow-dur:2.8s;
 }
-body[data-glow="mind"] .terminal-wrap {
-  animation: glow-mind 2.6s ease-in-out infinite;
+/* faerie fire -> rosy shimmer, deliberately apart from the mind purple */
+body[data-glow="faerie"] .terminal-glow{
+  --glow-base:inset 0 0 115px 0 rgba(235,110,185,.12),inset 0 0 230px 0 rgba(235,110,185,.06);
+  --glow-peak:inset 0 0 165px 0 rgba(235,110,185,.23),inset 0 0 330px 0 rgba(235,110,185,.115);
+  --glow-dur:2.7s;
 }
-@keyframes glow-poison {
-  0%, 100% {
-    box-shadow:
-      inset 0 0 110px 0 rgba(70, 190, 80, 0.12),
-      inset 0 0 220px 0 rgba(70, 190, 80, 0.06);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 160px 0 rgba(70, 190, 80, 0.22),
-      inset 0 0 320px 0 rgba(70, 190, 80, 0.11);
-  }
+body[data-glow="blind"] .terminal-glow::before,
+body[data-glow="mind"] .terminal-glow::before,
+body[data-glow="poison"] .terminal-glow::before,
+body[data-glow="faerie"] .terminal-glow::before{animation:glow-breathe-base var(--glow-dur) ease-in-out infinite}
+body[data-glow="blind"] .terminal-glow::after,
+body[data-glow="mind"] .terminal-glow::after,
+body[data-glow="poison"] .terminal-glow::after,
+body[data-glow="faerie"] .terminal-glow::after{animation:glow-breathe-peak var(--glow-dur) ease-in-out infinite}
+
+/* Concealment: steady grey, no pulse. fade is the heavier one, hide a light hint. */
+body[data-glow="fade"] .terminal-glow{
+  --glow-base:inset 0 0 150px 0 rgba(150,155,165,.20),inset 0 0 300px 0 rgba(150,155,165,.10);
 }
-body[data-glow="poison"] .terminal-wrap {
-  animation: glow-poison 2.8s ease-in-out infinite;
+body[data-glow="hide"] .terminal-glow{
+  --glow-base:inset 0 0 110px 0 rgba(150,155,165,.10),inset 0 0 220px 0 rgba(150,155,165,.05);
 }
-@keyframes glow-faerie {
-  0%, 100% {
-    box-shadow:
-      inset 0 0 115px 0 rgba(235, 110, 185, 0.12),
-      inset 0 0 230px 0 rgba(235, 110, 185, 0.06);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 165px 0 rgba(235, 110, 185, 0.23),
-      inset 0 0 330px 0 rgba(235, 110, 185, 0.115);
-  }
-}
-body[data-glow="faerie"] .terminal-wrap {
-  animation: glow-faerie 2.7s ease-in-out infinite;
-}
-body[data-glow="fade"] .terminal-wrap {
-  box-shadow:
-    inset 0 0 150px 0 rgba(150, 155, 165, 0.20),
-    inset 0 0 300px 0 rgba(150, 155, 165, 0.10);
-}
-body[data-glow="hide"] .terminal-wrap {
-  box-shadow:
-    inset 0 0 110px 0 rgba(150, 155, 165, 0.10),
-    inset 0 0 220px 0 rgba(150, 155, 165, 0.05);
-}
-@media (prefers-reduced-motion: reduce) {
-  body[data-glow="fight"] .terminal-wrap {
-    animation: none;
-    box-shadow:
-      inset 0 0 150px 0 rgba(204, 0, 0, 0.2),
-      inset 0 0 300px 0 rgba(204, 0, 0, 0.1);
-  }
-  body[data-glow="rage"] .terminal-wrap {
-    animation: none;
-    box-shadow:
-      inset 0 0 525px 0 rgba(204, 0, 0, 0.7),
-      inset 0 0 1050px 0 rgba(204, 0, 0, 0.35);
-  }
-  body[data-glow="neardeath"] .terminal-wrap {
-    animation: none;
-    box-shadow:
-      inset 0 0 500px 0 rgba(110, 0, 15, 0.62),
-      inset 0 0 1000px 0 rgba(110, 0, 15, 0.33);
-  }
-  body[data-glow="blind"] .terminal-wrap {
-    animation: none;
-    box-shadow:
-      inset 0 0 520px 0 rgba(255, 255, 255, 0.6),
-      inset 0 0 1040px 0 rgba(255, 255, 255, 0.3);
-  }
-  body[data-glow="mind"] .terminal-wrap {
-    animation: none;
-    box-shadow:
-      inset 0 0 175px 0 rgba(150, 70, 205, 0.24),
-      inset 0 0 350px 0 rgba(150, 70, 205, 0.12);
-  }
-  body[data-glow="poison"] .terminal-wrap {
-    animation: none;
-    box-shadow:
-      inset 0 0 160px 0 rgba(70, 190, 80, 0.2),
-      inset 0 0 320px 0 rgba(70, 190, 80, 0.1);
-  }
-  body[data-glow="faerie"] .terminal-wrap {
-    animation: none;
-    box-shadow:
-      inset 0 0 165px 0 rgba(235, 110, 185, 0.21),
-      inset 0 0 330px 0 rgba(235, 110, 185, 0.10);
-  }
+
+/* Reduced motion: no pulse, both layers held half-way, which lands on the
+   mid-strength glow of each state. */
+@media (prefers-reduced-motion: reduce){
+  body[data-glow] .terminal-glow::before,
+  body[data-glow] .terminal-glow::after{animation:none}
+  body[data-glow] .terminal-glow::after{opacity:.5;will-change:auto}
 }
 body.mud-fighting form#input {
   border-color: #cc0000;
