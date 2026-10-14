@@ -1,12 +1,12 @@
 /*
  * Settings-window styles for the /newui (Parchment) build.
  *
- * Copied verbatim from src/main.css (Georgiy Garnov, PR #165) because the newui
- * build does not load main.css (it dropped the Bootstrap/Cyborg skin for its
- * own). This file carries the layout + structure of the settings side-sheet
- * (slide-in, page tree, drill-down, edge-resize) and Georgiy's default palette.
+ * Originally copied from the old src/main.css (Georgiy Garnov, PR #165), which
+ * the client never loads and which is now deleted: this file is the source.
+ * It carries the layout + structure of the settings side-sheet (slide-in, page
+ * tree, drill-down, edge-resize) and Georgiy's default palette.
  * settings-parchment.css re-points the --cfg-* tokens to the Parchment palette
- * on top of this; keep this copy in sync with main.css if Georgiy changes it.
+ * on top of this.
  */
 
 .cfg-dialog {
