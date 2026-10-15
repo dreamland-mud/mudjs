@@ -1,12 +1,13 @@
 import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands'
 import { send } from '../../websock';
+import { getTriggers, setTriggerList, fromAction, legacyActionMap, setLegacyActionMap } from '../../triggers';
 
 export const actionHelp = {
     title: `Создать пользовательский триггер, подробнее ${clickableLink('#help action')}`,
     description: `Команда ${clickableLink('#action')} позволяет создавать/удалять/изменять пользовательские триггеры для событий в игре.
 Синтаксис:
 #action -- список всех триггеров
-#action {trigger} {action} {priority} -- создать пользовательский триггер с действием {action} для события {trigger} с приоритетом {priority}. {priority} может быть от 0 до 9 (необязательный параметр, по умолчанию 5)
+#action {trigger} {action} -- создать пользовательский триггер с действием {action} для события {trigger}. Триггер хранится на персонаже и работает с любого устройства
 #action string -- вывести список триггеров совпадающих со строкой 'string'
 #action string delete|удалить -- удалить все триггеры совпадающие со строкой 'string'
 #action {trigger} delete|удалить -- удалить указанный триггер
@@ -15,81 +16,120 @@ export const actionHelp = {
 
 Примеры использования:
 #action {%1 пришел с севера} {say hello %1}
+
+Звук, подсветку и общие для всего аккаунта триггеры настраивай в Настройки -> Расширения -> Триггеры.
 #action {^Ты умираешь от голода|^Ты умираешь от жажды} {взять бочон сумка|пить боч|пить боч|пить боч|положить боч сумка}
 `
 }
 
+// #action edits the character's trigger list on the server (triggers.js), the
+// same list the settings tab edits. Its pattern keeps the old meaning: a regex
+// where %1..%9 each take one word, numbered in the order they appear.
+//
+// Until the server has handed the lists over -- the first seconds after login,
+// or for good on a server without the triggers rpc -- #action works on the old
+// browser-only store in localStorage.actions, exactly as it used to. Whatever
+// is there moves onto the server list the moment that list arrives.
+
+const onServer = () => getTriggers().known
+const shown = trig => trig.act || trig.pattern
+const showOne = trig => '    {' + shown(trig) + '} : {' + trig.cmd + '}' + (trig.on === false ? ' (выкл)' : '') + '\n'
+const sameTrigger = (trig, typed) => trig.act === typed || trig.pattern === typed || trig.pattern === fromAction(typed, '').pattern
+
 const actionAdd = actionArr => {
-    const actionsStorage = localStorage.actions ? JSON.parse(localStorage.actions) : {};
     const trigger = actionArr[0].slice(1,-1)
     const action = actionArr[1].slice(1,-1)
-    const rePrior = /{\d{1}}/gm;
-    let priority = 5
-    if (actionArr[2]) {
-        if (!actionArr[2].match(rePrior)) return echoHtml(`Приоритет должен быть числом от 0 до 9. Набери ${clickableLink('#help action')} для справки.\n`)
-        priority = parseInt(actionArr[2].slice(1,-1))
-    } 
-    actionsStorage[trigger] = {
-        'action': action,
-        'priority': priority
+    if (!onServer()) {
+        const stored = legacyActionMap()
+        stored[trigger] = { action, priority: 5 }
+        setLegacyActionMap(stored)
+        return echoHtml(` {${trigger}} добавлен в список триггеров.\n`)
     }
-    localStorage.actions = JSON.stringify(actionsStorage)
-    echoHtml(` {${trigger}} добавлен в список триггеров. \n`)
+    const list = getTriggers().char
+    const old = list.find(x => sameTrigger(x, trigger))
+    const trig = fromAction(trigger, action)
+    if (old) {
+        // A new command for an existing trigger keeps its highlight and sound.
+        setTriggerList('char', list.map(x => (x === old ? { ...old, cmd: trig.cmd, act: trigger } : x)))
+    } else {
+        setTriggerList('char', list.concat([trig]))
+    }
+    echoHtml(` {${trigger}} добавлен в список триггеров. Звук и подсветка: Настройки -> Расширения -> Триггеры.\n`)
 }
 
 const actionsListShow = string => {
-    const actionsStorage = localStorage.actions ? JSON.parse(localStorage.actions) : {};
-    if (Object.keys(actionsStorage).length === 0) return echoHtml(`Список действий пуст. Набери ${clickableLink('#help action')} для справки.\n`)
-    let actionsList = 'Список действий: \n'
-    if (!string) {
-        for (let i in actionsStorage) {
-            actionsList += '    {' + i + '} : {' +  actionsStorage[i]['action'] + '} {' + actionsStorage[i]['priority'] + '}\n'
-        }
-        return echoHtml(actionsList + '\n')
+    let list
+    if (onServer()) {
+        list = getTriggers().char.concat(getTriggers().acct)
+    } else {
+        const stored = legacyActionMap()
+        list = Object.keys(stored).map(k => ({ pattern: k, cmd: stored[k].action }))
     }
-    const re = new RegExp(string, "g")
-    for (let i in actionsStorage) {
-        if (i.match(re)){
-            actionsList += '    {' + i + '} : {' +  actionsStorage[i]['action'] + '} {' + actionsStorage[i]['priority'] + '}\n'
-        }
+    if (string) {
+        let re
+        try { re = new RegExp(string) } catch (e) { return echoHtml(`Некорректный шаблон поиска.\n`) }
+        list = list.filter(x => re.test(shown(x)))
     }
-    return echoHtml(actionsList + '\n')
+    if (list.length === 0) return echoHtml(`Список триггеров пуст. Набери ${clickableLink('#help action')} для справки.\n`)
+    return echoHtml('Список триггеров: \n' + list.map(showOne).join('') + '\n')
 }
 
-const actionShow = trigger => {
-    const actionsStorage = localStorage.actions ? JSON.parse(localStorage.actions) : {};
-    if (!actionsStorage[trigger.slice(1,-1)]) return echoHtml(`Триггер не найден. Для просмотра всех сохраненых действий введи ${clickableLink('#action')}.\n`)
-    echoHtml(`    ${trigger.slice(1,-1)} : ${actionsStorage[trigger.slice(1,-1)]} \n`)
+const actionShow = value => {
+    const typed = value.slice(1,-1)
+    let trig
+    if (onServer()) {
+        trig = getTriggers().char.concat(getTriggers().acct).find(x => sameTrigger(x, typed))
+    } else {
+        const stored = legacyActionMap()
+        if (stored[typed]) trig = { pattern: typed, cmd: stored[typed].action }
+    }
+    if (!trig) return echoHtml(`Триггер не найден. Для просмотра всех триггеров введи ${clickableLink('#action')}.\n`)
+    echoHtml(showOne(trig))
 }
 
 const actionDelete = value => {
-    const actionsStorage = localStorage.actions ? JSON.parse(localStorage.actions) : {};
-    const trigger = value.slice(1,-1)
-    if (actionsStorage[trigger]){
-        delete actionsStorage[trigger]
-        localStorage.actions = JSON.stringify(actionsStorage)
-        echoHtml(` {${trigger}} удален из списка.\n`)
-        return
+    const typed = value.slice(1,-1)
+    if (!onServer()) {
+        const stored = legacyActionMap()
+        if (!stored[typed]) return echoHtml(`Такой триггер не задан.\n`)
+        delete stored[typed]
+        setLegacyActionMap(stored)
+        return echoHtml(` {${typed}} удален из списка.\n`)
     }
-    return echoHtml(`Такой триггер не задан.\n`)
+    let found = false
+    for (const scope of ['char', 'acct']) {
+        const list = getTriggers()[scope]
+        if (list.some(x => sameTrigger(x, typed))) {
+            found = true
+            setTriggerList(scope, list.filter(x => !sameTrigger(x, typed)))
+        }
+    }
+    if (!found) return echoHtml(`Такой триггер не задан.\n`)
+    echoHtml(` {${typed}} удален из списка.\n`)
 }
 
 const actionDeleteOnMask = value => {
-    const actionsStorage = localStorage.actions ? JSON.parse(localStorage.actions) : {};
-    const deleteIndex = value.lastIndexOf(" ")
-    const trigger = value.substring(0, deleteIndex);
-    const re = new RegExp(trigger,'g')
-    let i = 0
-    for (let key in actionsStorage) {
-        if (key.match(re)){
-            delete actionsStorage[key]
-            localStorage.actions = JSON.stringify(actionsStorage)
-            echoHtml(` {${key}} удален из списка.\n`)
-            i++
+    const mask = value.substring(0, value.lastIndexOf(" "))
+    let re
+    try { re = new RegExp(mask) } catch (e) { return echoHtml(`Некорректный шаблон.\n`) }
+    let gone = []
+    if (!onServer()) {
+        const stored = legacyActionMap()
+        gone = Object.keys(stored).filter(k => re.test(k))
+        gone.forEach(k => delete stored[k])
+        setLegacyActionMap(stored)
+        gone = gone.map(k => ({ pattern: k }))
+    } else {
+        for (const scope of ['char', 'acct']) {
+            const list = getTriggers()[scope]
+            const hit = list.filter(x => re.test(shown(x)))
+            if (hit.length) setTriggerList(scope, list.filter(x => !re.test(shown(x))))
+            gone = gone.concat(hit)
         }
     }
-    if (i > 0) return echoHtml(`Все совпавшие триггеры удалены.\n`)
-    return echoHtml(`Совпавших триггеров не найдено.\n`)
+    if (gone.length === 0) return echoHtml(`Совпавших триггеров не найдено.\n`)
+    gone.forEach(x => echoHtml(` {${shown(x)}} удален из списка.\n`))
+    return echoHtml(`Все совпавшие триггеры удалены.\n`)
 }
 
 const actionCmd = value => {
@@ -134,7 +174,8 @@ const sortByPriorities = (a, b) => {
 }
 
 export function processTriggers(line) {
-    const actionsStorage = localStorage.actions ? JSON.parse(localStorage.actions) : {};
+    if (!localStorage.actions) return; // moved to the server, or never had any
+    const actionsStorage = legacyActionMap();
     const regexpActionShow = /^\s*{|^\s*#\b/gm; 
     const regexpVariable = /%\d{1}\b/gm;
     const actionArray = []

@@ -7,6 +7,8 @@ import ansi2html from '../ansi2html';
 import manip from '../manip';
 import { processTriggers } from './sysCommands/action';
 import { t } from '../i18n';
+import { applyTriggers } from '../triggers';
+import { handleMspLine, mspEnabled } from '../sound';
 
 // TODO: the following parameters should be replaced with two numbers - viewport size (in pixels) and the threshold (in pixels)
 const bytesToLoad = 100000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
@@ -21,6 +23,7 @@ var scrolling = false;
 var autoScrollEnabled = true;
 var liveId = -1; // highest chunk id appended as live output -- what a screen reader has already announced
 const FOLLOW_MAX_PASSES = 20; // followBottom never chains more loads than this
+const MSP_LINE = /^!!(?:SOUND|MUSIC)\([^)\n]*\)[ \t]*\r?(?:\n|$)/gm;
 
 const loadChunks = (startId, direction, maxlen) => {
   const chunks = [];
@@ -187,11 +190,20 @@ function terminalInit(wrap) {
   wrap.on('scroll-to-bottom', e => scrollToBottom());
 
   terminal.on('output', function (e, txt) {
+    // MSP sound triggers sit on a line of their own (msp.htm): once the server
+    // has switched MSP on, play them and keep them out of the scrollback.
+    // Callers sometimes echo an Error or a number; ansi2html took any of them.
+    if (typeof txt !== 'string') txt = String(txt);
+    if (mspEnabled()) txt = txt.replace(MSP_LINE, line => (handleMspLine(line.trim()) ? '' : line));
+    if (!txt) return;
+
     const span = $('<span/>');
     span.html(ansi2html(txt));
 
     manip.colorParseAndReplace(span);
     manip.manipParseAndReplace(span);
+    // Server output only: highlights go into the HTML, so history keeps them.
+    applyTriggers(span[0]);
 
     terminal.trigger('output-html', [span.html()]);
   });

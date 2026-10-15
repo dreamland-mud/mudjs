@@ -1,0 +1,256 @@
+{
+ "sounds": [
+  {
+   "name": "alert/bell",
+   "type": "alert",
+   "file": "alert/bell.mp3",
+   "label": {
+    "en": "Bell",
+    "ru": "Колокольчик",
+    "ua": "Дзвіночок"
+   },
+   "title": "bell1.wav",
+   "author": "creeeeak",
+   "source": "https://freesound.org/people/creeeeak/sounds/531020/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "alert/blind",
+   "type": "alert",
+   "file": "alert/blind.mp3",
+   "label": {
+    "en": "Ringing ears (blind)",
+    "ru": "Звон в ушах (слепота)",
+    "ua": "Дзвін у вухах (сліпота)"
+   },
+   "title": "Ear Ringing | Pain [High frequency warning]",
+   "author": "GammaGool",
+   "source": "https://freesound.org/people/GammaGool/sounds/758149/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "alert/lowhp",
+   "type": "alert",
+   "file": "alert/lowhp.mp3",
+   "label": {
+    "en": "Heartbeat (low health)",
+    "ru": "Сердцебиение (мало здоровья)",
+    "ua": "Серцебиття (мало здоровʼя)"
+   },
+   "title": "heartbeat.wav",
+   "author": "PollyannaMedia",
+   "source": "https://freesound.org/people/PollyannaMedia/sounds/541434/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "alert/poison",
+   "type": "alert",
+   "file": "alert/poison.mp3",
+   "label": {
+    "en": "Bubbling (poison)",
+    "ru": "Бульканье (яд)",
+    "ua": "Булькання (отрута)"
+   },
+   "title": "FX_006",
+   "author": "ANARKYA",
+   "source": "https://freesound.org/people/ANARKYA/sounds/459568/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "alert/quest",
+   "type": "alert",
+   "file": "alert/quest.mp3",
+   "label": {
+    "en": "Success",
+    "ru": "Успех",
+    "ua": "Успіх"
+   },
+   "title": "Funny Cheering Shout (3)",
+   "author": "Kastenfrosch",
+   "source": "https://freesound.org/people/Kastenfrosch/sounds/521962/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/fire",
+   "type": "ambient",
+   "file": "ambient/fire.mp3",
+   "label": {
+    "en": "Campfire",
+    "ru": "Костер",
+    "ua": "Багаття"
+   },
+   "title": "Fireplace",
+   "author": "myLoop",
+   "source": "https://freesound.org/people/myLoop/sounds/852107/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/rain",
+   "type": "ambient",
+   "file": "ambient/rain.mp3",
+   "label": {
+    "en": "Rain",
+    "ru": "Дождь",
+    "ua": "Дощ"
+   },
+   "title": "forest heavy rain loop.wav",
+   "author": "Victormaa",
+   "source": "https://freesound.org/people/Victormaa/sounds/671409/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/wind",
+   "type": "ambient",
+   "file": "ambient/wind.mp3",
+   "label": {
+    "en": "Wind",
+    "ru": "Ветер",
+    "ua": "Вітер"
+   },
+   "title": "Mount Horeb",
+   "author": "InChristAlone",
+   "source": "https://freesound.org/people/InChristAlone/sounds/615440/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "chat/channel",
+   "type": "chat",
+   "file": "chat/channel.mp3",
+   "label": {
+    "en": "Channel chime",
+    "ru": "Сигнал канала",
+    "ua": "Сигнал каналу"
+   },
+   "title": "Computer Chimes - Notification.aif",
+   "author": "marlonnnnnn",
+   "source": "https://freesound.org/people/marlonnnnnn/sounds/351879/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "chat/say",
+   "type": "chat",
+   "file": "chat/say.mp3",
+   "label": {
+    "en": "Soft pop",
+    "ru": "Тихий щелчок",
+    "ua": "Тихе клацання"
+   },
+   "title": "pop out, bubble, soft bursting",
+   "author": "chaferwitt",
+   "source": "https://freesound.org/people/chaferwitt/sounds/776443/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "chat/tell",
+   "type": "chat",
+   "file": "chat/tell.mp3",
+   "label": {
+    "en": "Private message",
+    "ru": "Личное сообщение",
+    "ua": "Особисте повідомлення"
+   },
+   "title": "Quiz Gameshow Correct Ding 02.mp3",
+   "author": "craigscottuk",
+   "source": "https://freesound.org/people/craigscottuk/sounds/644944/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/flee",
+   "type": "combat",
+   "file": "combat/flee.mp3",
+   "label": {
+    "en": "Running away",
+    "ru": "Бегство",
+    "ua": "Втеча"
+   },
+   "title": "Boots Gravel Feet Slide  1_7",
+   "author": "Joao_Janz",
+   "source": "https://freesound.org/people/Joao_Janz/sounds/504381/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/hit",
+   "type": "combat",
+   "file": "combat/hit.mp3",
+   "label": {
+    "en": "Sword hit",
+    "ru": "Удар меча",
+    "ua": "Удар меча"
+   },
+   "title": "Sword_Clash (53).wav",
+   "author": "JohnBuhr",
+   "source": "https://freesound.org/people/JohnBuhr/sounds/326861/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/miss",
+   "type": "combat",
+   "file": "combat/miss.mp3",
+   "label": {
+    "en": "Swing and miss",
+    "ru": "Взмах мимо",
+    "ua": "Змах повз"
+   },
+   "title": "Woosh 1",
+   "author": "mateusboga",
+   "source": "https://freesound.org/people/mateusboga/sounds/614084/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/parry",
+   "type": "combat",
+   "file": "combat/parry.mp3",
+   "label": {
+    "en": "Blades clash",
+    "ru": "Звон клинков",
+    "ua": "Дзвін клинків"
+   },
+   "title": "Sword_Clash (2).wav",
+   "author": "JohnBuhr",
+   "source": "https://freesound.org/people/JohnBuhr/sounds/326841/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ui/click",
+   "type": "ui",
+   "file": "ui/click.mp3",
+   "label": {
+    "en": "Click",
+    "ru": "Щелчок",
+    "ua": "Клац"
+   },
+   "title": "UI Click",
+   "author": "TommyListens",
+   "source": "https://freesound.org/people/TommyListens/sounds/839832/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ui/error",
+   "type": "ui",
+   "file": "ui/error.mp3",
+   "label": {
+    "en": "Error buzz",
+    "ru": "Ошибка",
+    "ua": "Помилка"
+   },
+   "title": "acess denied buzz",
+   "author": "Jacco18",
+   "source": "https://freesound.org/people/Jacco18/sounds/419023/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ui/notify",
+   "type": "ui",
+   "file": "ui/notify.mp3",
+   "label": {
+    "en": "Ping",
+    "ru": "Сигнал",
+    "ua": "Сигнал"
+   },
+   "title": "up2.ogg",
+   "author": "stwime",
+   "source": "https://freesound.org/people/stwime/sounds/545370/",
+   "license": "CC0 1.0"
+  }
+ ]
+}

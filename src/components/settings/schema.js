@@ -11,6 +11,8 @@ import { SUPPORT } from './useConfig.js';
 
 export const SCRIPT_PAGE = 'script';
 export const AUTOBUFF_PAGE = 'autobuff';
+export const TRIGGERS_PAGE = 'triggers';
+export const SOUND_PAGE = 'sound';
 export const ACCOUNT_PAGE = 'account';
 export const MISSING_PAGE = 'server-unavailable';
 export const OFFLINE_PAGE = 'server-offline';
@@ -56,6 +58,22 @@ function scriptSection(lang, autobuff) {
     label: t('cfg.section.ext', lang),
     pages: [
       ...autobuffPages,
+      // Triggers and sound are the client's own, for every character: the
+      // trigger lists come from the triggers_* rpc, sound volume is per device.
+      {
+        key: TRIGGERS_PAGE,
+        kind: 'triggers',
+        label: t('cfg.page.triggers', lang),
+        search: 'triggers trigger action тригери триггеры триггер тригер action',
+        options: [],
+      },
+      {
+        key: SOUND_PAGE,
+        kind: 'sound',
+        label: t('cfg.page.sound', lang),
+        search: 'sound volume mute msp звук гучність громкость',
+        options: [],
+      },
       {
         key: SCRIPT_PAGE,
         kind: 'script',
