@@ -40,8 +40,14 @@ const actionAdd = actionArr => {
     const trigger = actionArr[0].slice(1,-1)
     const action = actionArr[1].slice(1,-1)
     if (!onServer()) {
+        // The old store sorts by priority 0-9, given as an optional third {N}.
+        let priority = 5
+        if (actionArr[2]) {
+            if (!/^{\d}$/.test(actionArr[2])) return echoHtml(`Приоритет должен быть числом от 0 до 9. Набери ${clickableLink('#help action')} для справки.\n`)
+            priority = parseInt(actionArr[2].slice(1,-1))
+        }
         const stored = legacyActionMap()
-        stored[trigger] = { action, priority: 5 }
+        stored[trigger] = { action, priority }
         setLegacyActionMap(stored)
         return echoHtml(` {${trigger}} добавлен в список триггеров.\n`)
     }
@@ -50,7 +56,10 @@ const actionAdd = actionArr => {
     const trig = fromAction(trigger, action)
     if (old) {
         // A new command for an existing trigger keeps its highlight and sound.
-        setTriggerList('char', list.map(x => (x === old ? { ...old, cmd: trig.cmd, act: trigger } : x)))
+        // A plain-mode trigger renumbers %N itself at match time, so it takes
+        // the command as typed, not the one fromAction renumbered for a regex.
+        const cmd = old.regex ? trig.cmd : action
+        setTriggerList('char', list.map(x => (x === old ? { ...old, cmd, act: trigger } : x)))
     } else {
         setTriggerList('char', list.concat([trig]))
     }

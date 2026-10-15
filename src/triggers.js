@@ -245,8 +245,22 @@ export function compileTrigger(trig) {
   }
 }
 
-/** True when a regex backtracks catastrophically. Probes grow two characters
- *  at a time and stop at the first one over 25 ms, so a runaway pattern costs
+/** Probe strings: a few common letters plus the pattern's own literal
+ *  characters, so a blow-up on, say, Cyrillic о is not missed. */
+function probeUnits(source) {
+  const units = ['a', 'а', ' ', '1', 'a '];
+  const own = [];
+  const plain = source.replace(/\\./g, '').replace(/\[[^\]]*\]|\{[^}]*\}/g, '');
+  for (const ch of plain) {
+    if (/[\s^$.*+?()|\/]/.test(ch) || units.includes(ch) || own.includes(ch)) continue;
+    own.push(ch);
+    if (own.length === 3) break;
+  }
+  return units.concat(own, own.length > 1 ? [own.join('')] : []);
+}
+
+/** True when a regex backtracks catastrophically. Probes grow from four
+ *  characters and stop at the first one over 25 ms, so a runaway pattern costs
  *  about 100 ms here once (results are cached) instead of freezing the tab on
  *  a long line of game text. */
 const slowCache = new Map();
@@ -254,8 +268,10 @@ export function regexTooSlow(re) {
   const key = re.source + '/' + re.flags;
   if (slowCache.has(key)) return slowCache.get(key);
   let slowRe = false;
-  outer: for (const unit of ['a', 'а', ' ', '1', 'a ']) {
-    for (let n = 8; n <= 30; n += 2) {
+  outer: for (const unit of probeUnits(re.source)) {
+    // One step at a time while short: a pattern already explosive at eight
+    // characters has to show it at five or six, before it runs away.
+    for (let n = 4; n <= 30; n += n < 10 ? 1 : 2) {
       const probe = unit.repeat(n) + '!';
       const start = performance.now();
       re.exec(probe);
