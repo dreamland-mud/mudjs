@@ -1305,8 +1305,42 @@ body.cfg-resizing {
   gap: 10px;
 }
 
-.ab-add > .cfg-button {
-  align-self: flex-end;
+/* Add, or Cancel and Save while a line is edited. */
+.ab-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Edit mode: which line the form holds, and that line marked in the list. */
+.ab-editing {
+  font-weight: 600;
+  color: var(--cfg-bright);
+}
+
+.ab-item-editing {
+  box-shadow: inset 3px 0 0 var(--cfg-accent);
+}
+
+/* Edit on an own line: a quiet text button, the switch stays the loud one. */
+.ab-edit {
+  flex: none;
+  min-height: 36px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--cfg-dim);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.ab-edit:hover,
+.ab-edit:focus-visible,
+.ab-edit[aria-pressed='true'] {
+  color: var(--cfg-bright);
+  border-color: var(--cfg-line-soft);
 }
 
 .ab-field {

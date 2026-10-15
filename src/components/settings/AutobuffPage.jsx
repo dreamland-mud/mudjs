@@ -29,6 +29,7 @@ import {
 // browse mode or on a phone, where no arrow key reaches the grip.
 //
 // An own line has no off state on the server: switching it off deletes it.
+// Its Edit button loads it into the add form, which then saves it in place.
 
 const lineKey = one => one.gate + '\t' + one.cmd;
 
@@ -279,6 +280,7 @@ export default function AutobuffPage({ lang, data }) {
   const [legacy, setLegacy] = useState(() => legacyAutobuffLines());
   const [said, setSaid] = useState('');
   const [refocus, setRefocus] = useState(null);
+  const [editing, setEditing] = useState(null); // id of the own line in the form
   const grips = useRef({});
   const cmdInput = useRef(null);
   const picksList = useRef(null);
@@ -299,6 +301,21 @@ export default function AutobuffPage({ lang, data }) {
     else if (cmdInput.current) cmdInput.current.focus();
     setRefocus(null);
   }, [refocus]);
+
+  const clearForm = () => {
+    setEditing(null);
+    setCmd('');
+    setGate('');
+    setPicked(null);
+    setPicks([]);
+    setPick(-1);
+  };
+
+  // The line being edited is gone (deleted here, or by a save from another
+  // device): the form goes back to adding.
+  useEffect(() => {
+    if (editing !== null && !custom.some(one => one.id === editing)) clearForm();
+  }, [custom, editing]);
 
   const commit = (nextSpells, nextCustom) => {
     setSpells(nextSpells);
@@ -378,20 +395,55 @@ export default function AutobuffPage({ lang, data }) {
     setSaid(t('ab.removed', lang).replace('%s', gone.cmd));
   };
 
+  // Adds a line, or in edit mode saves the edited one in its place. After a
+  // save the focus goes back to that line's Edit button.
   const add = e => {
     e.preventDefault();
     // Localized names can repeat (two UA skills are both "стійкість"), so a
     // picked suggestion is saved by its own sysname, not looked up by name.
     const sn = picked && picked.name === gate ? picked.sn : resolveGate(affects, gate);
     const line = { gate: sn, cmd: cmd.trim(), bad: 0 };
-    if (!line.cmd || custom.length >= AUTOBUFF_MAX_LINES) return;
+    if (!line.cmd) return;
+    if (editing !== null) {
+      const id = editing;
+      commit(spells, custom.map(one => (one.id === id ? { ...line, id } : one)));
+      clearForm();
+      setRefocus('e:' + id);
+      setSaid(t('ab.saved', lang).replace('%s', line.cmd));
+      return;
+    }
+    if (custom.length >= AUTOBUFF_MAX_LINES) return;
     commit(spells, custom.concat([{ ...line, id: nextId++ }]));
-    setCmd('');
-    setGate('');
-    setPicked(null);
+    clearForm();
+    if (cmdInput.current) cmdInput.current.focus();
+  };
+
+  // Load an own line into the form. A known gate shows as its affect, already
+  // picked, so a gate whose name another affect shares keeps its sysname.
+  const edit = one => {
+    const hit = affects.find(a => a.sn === one.gate);
+    setEditing(one.id);
+    setCmd(one.cmd);
+    setGate(one.gate === '*' ? '' : hit ? hit.name : one.gate);
+    setPicked(hit || null);
     setPicks([]);
     setPick(-1);
-    if (cmdInput.current) cmdInput.current.focus();
+    // After the render: with the list full the form only appears now.
+    setRefocus('cmd');
+  };
+
+  const cancelEdit = () => {
+    const id = editing;
+    clearForm();
+    setRefocus('e:' + id);
+  };
+
+  // Escape leaves edit mode, unless the gate's suggestions took it first.
+  const formKeys = e => {
+    if (e.key !== 'Escape' || editing === null || e.defaultPrevented) return;
+    e.preventDefault();
+    e.nativeEvent.stopPropagation();
+    cancelEdit();
   };
 
   // On a phone the keyboard covers the bottom of the pane, where the
@@ -539,7 +591,7 @@ export default function AutobuffPage({ lang, data }) {
             <li
               key={one.id}
               ref={drag.rowRef('custom', i)}
-              className={rowClass('custom', i, 'ab-item')}
+              className={rowClass('custom', i, one.id === editing ? 'ab-item ab-item-editing' : 'ab-item')}
               style={drag.rowStyle('custom', i)}
             >
               <Grip
@@ -566,6 +618,18 @@ export default function AutobuffPage({ lang, data }) {
               </span>
               <button
                 type="button"
+                className="ab-edit"
+                ref={el => {
+                  grips.current['e:' + one.id] = el;
+                }}
+                aria-label={t('ab.edit', lang) + ': ' + one.cmd}
+                aria-pressed={one.id === editing}
+                onClick={() => edit(one)}
+              >
+                {t('ab.edit', lang)}
+              </button>
+              <button
+                type="button"
                 role="switch"
                 aria-checked="true"
                 ref={el => {
@@ -584,8 +648,16 @@ export default function AutobuffPage({ lang, data }) {
         </ol>
       ) : null}
 
-      {custom.length < AUTOBUFF_MAX_LINES ? (
-        <form className="ab-add" onSubmit={add}>
+      {custom.length < AUTOBUFF_MAX_LINES || editing !== null ? (
+        <form className="ab-add" onSubmit={add} onKeyDown={formKeys}>
+          {editing !== null ? (
+            <div className="ab-editing" id="ab-editing">
+              {t('ab.editing', lang).replace(
+                '%d',
+                String(custom.findIndex(one => one.id === editing) + 1)
+              )}
+            </div>
+          ) : null}
           <label className="ab-field ab-field-cmd">
             <span className="cfg-note">{t('ab.cmd', lang)}</span>
             <input
@@ -594,7 +666,8 @@ export default function AutobuffPage({ lang, data }) {
               value={cmd}
               maxLength={AUTOBUFF_MAX_CMD}
               spellCheck={false}
-              placeholder="order rat c haste"
+              placeholder="order $pet c haste"
+              aria-describedby={editing !== null ? 'ab-editing' : undefined}
               onChange={e => setCmd(e.target.value)}
             />
           </label>
@@ -644,9 +717,16 @@ export default function AutobuffPage({ lang, data }) {
               </ul>
             ) : null}
           </div>
-          <button type="submit" className="cfg-button cfg-button-main" disabled={!cmd.trim()}>
-            {t('ab.add', lang)}
-          </button>
+          <div className="ab-actions">
+            {editing !== null ? (
+              <button type="button" className="cfg-button" onClick={cancelEdit}>
+                {t('ab.cancel', lang)}
+              </button>
+            ) : null}
+            <button type="submit" className="cfg-button cfg-button-main" disabled={!cmd.trim()}>
+              {t(editing !== null ? 'ab.save' : 'ab.add', lang)}
+            </button>
+          </div>
         </form>
       ) : (
         <div className="cfg-note">{t('ab.full', lang)}</div>
