@@ -1,5 +1,6 @@
 import { echo } from '../../input';
 import { send } from '../../websock';
+import { expandAliases } from '../../aliases.js';
 import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands';
 import { parseUserVars } from './var';
 import keycode from './keycode';
@@ -174,7 +175,7 @@ export function sendHotKeyCmd(e) {
     e.preventDefault();
     const parsedCmd = parseUserVars(cmd);
     echo(parsedCmd);
-    send(parsedCmd);
+    send(expandAliases(parsedCmd));
     return true;
   }
 
