@@ -29,6 +29,20 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "alert/gquest",
+   "type": "alert",
+   "file": "alert/gquest.mp3",
+   "label": {
+    "en": "Global quest begins",
+    "ru": "Начало глобального квеста",
+    "ua": "Початок глобального квесту"
+   },
+   "title": "Clean Trumpet Fanfare .mp3",
+   "author": "joepayne",
+   "source": "https://freesound.org/people/joepayne/sounds/413201/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "alert/lowhp",
    "type": "alert",
    "file": "alert/lowhp.mp3",
@@ -68,6 +82,20 @@
    "title": "Funny Cheering Shout (3)",
    "author": "Kastenfrosch",
    "source": "https://freesound.org/people/Kastenfrosch/sounds/521962/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "alert/raid",
+   "type": "alert",
+   "file": "alert/raid.mp3",
+   "label": {
+    "en": "Clan raid",
+    "ru": "Набег на клан",
+    "ua": "Напад на клан"
+   },
+   "title": "air horn",
+   "author": "the_mred",
+   "source": "https://freesound.org/people/the_mred/sounds/741817/",
    "license": "CC0 1.0"
   },
   {
@@ -155,6 +183,34 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "combat/crit",
+   "type": "combat",
+   "file": "combat/crit.mp3",
+   "label": {
+    "en": "Your heavy blow",
+    "ru": "Твой сильный удар",
+    "ua": "Твій сильний удар"
+   },
+   "title": "Slash1.ogg",
+   "author": "Wenpire",
+   "source": "https://freesound.org/people/Wenpire/sounds/574821/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/disarm",
+   "type": "combat",
+   "file": "combat/disarm.mp3",
+   "label": {
+    "en": "Disarmed",
+    "ru": "Обезоружен",
+    "ua": "Роззброєно"
+   },
+   "title": "weapon drop.wav",
+   "author": "Empiremonkey",
+   "source": "https://freesound.org/people/Empiremonkey/sounds/616504/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "combat/flee",
    "type": "combat",
    "file": "combat/flee.mp3",
@@ -183,6 +239,20 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "combat/hurt",
+   "type": "combat",
+   "file": "combat/hurt.mp3",
+   "label": {
+    "en": "Heavy blow taken",
+    "ru": "Сильный удар по тебе",
+    "ua": "Сильний удар по тобі"
+   },
+   "title": "Voice_AdultMale_PainGrunts_07.wav",
+   "author": "MrFossy",
+   "source": "https://freesound.org/people/MrFossy/sounds/547205/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "combat/miss",
    "type": "combat",
    "file": "combat/miss.mp3",
@@ -208,6 +278,34 @@
    "title": "Sword_Clash (2).wav",
    "author": "JohnBuhr",
    "source": "https://freesound.org/people/JohnBuhr/sounds/326841/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/shield",
+   "type": "combat",
+   "file": "combat/shield.mp3",
+   "label": {
+    "en": "Shield knocked away",
+    "ru": "Щит выбит",
+    "ua": "Щит вибито"
+   },
+   "title": "small-metal-hit-07.wav",
+   "author": "newagesoup",
+   "source": "https://freesound.org/people/newagesoup/sounds/337868/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/start",
+   "type": "combat",
+   "file": "combat/start.mp3",
+   "label": {
+    "en": "Fight begins",
+    "ru": "Начало боя",
+    "ua": "Початок бою"
+   },
+   "title": "Middle Ages War Cry 2.wav",
+   "author": "joelcarrsound",
+   "source": "https://freesound.org/people/joelcarrsound/sounds/521832/",
    "license": "CC0 1.0"
   },
   {
