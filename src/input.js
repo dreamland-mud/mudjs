@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import { send } from './websock.js';
+import { expandAliases } from './aliases.js';
 
 function echo(txt) {
   if (!txt) return;
@@ -18,7 +19,7 @@ function echo(txt) {
 
 $(document).ready(function () {
   $('#triggers').on('input', function (e, text) {
-    send(text);
+    send(expandAliases(text));
   });
 });
 

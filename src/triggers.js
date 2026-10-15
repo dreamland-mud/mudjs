@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { send, rpccmd } from './websock.js';
 import { utf8ToB64, b64ToUtf8 } from './b64utf8.js';
 import { playSound } from './sound.js';
+import { expandAliases } from './aliases.js';
 import { t } from './i18n.js';
 
 // Player triggers: a pattern, and up to three things that happen when a line
@@ -315,7 +316,7 @@ function sendFromTrigger(cmd) {
     return;
   }
   floodTimes.push(now);
-  send(cmd);
+  send(expandAliases(cmd));
 }
 
 /** Text nodes under root, with each one's offset in the joined text. */

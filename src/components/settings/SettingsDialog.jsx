@@ -10,6 +10,7 @@ import AccountPage from './AccountPage.jsx';
 import AutobuffPage from './AutobuffPage.jsx';
 import TriggersPage from './TriggersPage.jsx';
 import SoundPage from './SoundPage.jsx';
+import AliasesPage from './AliasesPage.jsx';
 import {
   autobuffServer,
   watchAutobuff,
@@ -29,6 +30,7 @@ import {
   AUTOBUFF_PAGE,
   TRIGGERS_PAGE,
   SOUND_PAGE,
+  ALIASES_PAGE,
 } from './schema.js';
 import '../dsMenu.css';
 import './settings.css';
@@ -397,6 +399,7 @@ export default function SettingsDialog() {
   const isAutobuff = !!current && current.key === AUTOBUFF_PAGE;
   const isTriggers = !!current && current.key === TRIGGERS_PAGE;
   const isSound = !!current && current.key === SOUND_PAGE;
+  const isAliases = !!current && current.key === ALIASES_PAGE;
   // The Download log used to sit in a footer strip of its own. It belongs to the
   // terminal page now (server key 'terminal' -- "Display and terminal"), where
   // the output buffer it saves is set. The id stays 'logs-button' so main.js's
@@ -555,7 +558,7 @@ export default function SettingsDialog() {
     <>
       {shown.length ? (
         <SettingsPage
-          page={isScript || isAccount || isAutobuff || isTriggers || isSound ? null : current}
+          page={isScript || isAccount || isAutobuff || isTriggers || isSound || isAliases ? null : current}
           values={values}
           lang={lang}
           query={needle}
@@ -585,6 +588,12 @@ export default function SettingsDialog() {
       {isTriggers ? (
         <SettingsPage page={findPage(tree, TRIGGERS_PAGE)} values={values} lang={lang}>
           <TriggersPage lang={lang} />
+        </SettingsPage>
+      ) : null}
+
+      {isAliases ? (
+        <SettingsPage page={findPage(tree, ALIASES_PAGE)} values={values} lang={lang}>
+          <AliasesPage lang={lang} />
         </SettingsPage>
       ) : null}
 

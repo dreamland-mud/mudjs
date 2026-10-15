@@ -13,6 +13,7 @@ export const SCRIPT_PAGE = 'script';
 export const AUTOBUFF_PAGE = 'autobuff';
 export const TRIGGERS_PAGE = 'triggers';
 export const SOUND_PAGE = 'sound';
+export const ALIASES_PAGE = 'aliases';
 export const ACCOUNT_PAGE = 'account';
 export const MISSING_PAGE = 'server-unavailable';
 export const OFFLINE_PAGE = 'server-offline';
@@ -65,6 +66,15 @@ function scriptSection(lang, autobuff) {
         kind: 'triggers',
         label: t('cfg.page.triggers', lang),
         search: 'triggers trigger action тригери триггеры триггер тригер action',
+        options: [],
+      },
+      // Aliases: the character's are the game's own alias command, the
+      // account's the client's (aliases_* rpc).
+      {
+        key: ALIASES_PAGE,
+        kind: 'aliases',
+        label: t('cfg.page.aliases', lang),
+        search: 'aliases alias синонимы синоним синоніми синонім алиас аліас',
         options: [],
       },
       {
