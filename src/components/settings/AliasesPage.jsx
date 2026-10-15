@@ -11,6 +11,8 @@ import {
   MAX_ACCT,
   MAX_LINE,
 } from '../../aliases.js';
+import { getMacros, watchMacros } from '../../macros.js';
+import { MacroDialog, noKeyboard } from './MacrosPage.jsx';
 
 // The aliases tab: the character's in-game aliases (the game's `alias`
 // command) and the account's, which the client expands (aliases.js).
@@ -26,13 +28,18 @@ export default function AliasesPage({ lang }) {
   const [form, setForm] = useState(null);
   const [formKey, setFormKey] = useState(0);
   const [said, setSaid] = useState('');
+  const [macros, setMacros] = useState(getMacros);
+  // Alias -> macro: the dialog of the Macros page, with this alias's commands.
+  const [toMacro, setToMacro] = useState(null);
   const nameInput = useRef(null);
+  const addButton = useRef(null);
   const open = next => {
     setForm(next);
     setFormKey(k => k + 1);
   };
 
   useEffect(() => watchAliases(setData), []);
+  useEffect(() => watchMacros(setMacros), []);
   useEffect(() => {
     if (formKey && nameInput.current) nameInput.current.focus();
   }, [formKey]);
@@ -81,6 +88,11 @@ export default function AliasesPage({ lang }) {
     else setAcctAliases(data.acct.filter(x => x.name !== form.origName));
     setSaid(t('al.removed', lang));
     open(null);
+  };
+
+  const startMacro = () => {
+    const scope = macros.known ? (form.origScope === 'acct' && macros.account ? 'acct' : 'char') : 'local';
+    setToMacro({ start: { key: '', cmd: form.body.trim(), scope, origScope: null, origKey: null }, from: form });
   };
 
   const statusText = () => {
@@ -204,6 +216,11 @@ export default function AliasesPage({ lang }) {
                 {t('tr.delete', lang)}
               </button>
             ) : null}
+            {form.origName && (macros.known || macros.unsupported) && !noKeyboard() ? (
+              <button type="button" className="cfg-button" onClick={startMacro}>
+                {t('al.tomacro', lang)}
+              </button>
+            ) : null}
             <button type="button" className="cfg-button" onClick={() => open(null)}>
               {t('tr.cancel', lang)}
             </button>
@@ -215,6 +232,7 @@ export default function AliasesPage({ lang }) {
       ) : (
         <div>
           <button
+            ref={addButton}
             type="button"
             className="cfg-button cfg-button-main"
             disabled={full('char') && (!data.account || full('acct'))}
@@ -227,6 +245,26 @@ export default function AliasesPage({ lang }) {
 
       {list('char')}
       {list('acct')}
+
+      {toMacro ? (
+        <MacroDialog
+          lang={lang}
+          start={toMacro.start}
+          onSaved={() => {
+            const from = toMacro.from;
+            if (from.origScope === 'char') removeCharAlias(from.origName);
+            else setAcctAliases(data.acct.filter(x => x.name !== from.origName));
+            open(null);
+          }}
+          onDone={saved => {
+            setToMacro(null);
+            if (!saved) return;
+            setSaid(t('al.madeMacro', lang));
+            // The Edit form that opened the dialog is gone: land on Add.
+            setTimeout(() => addButton.current && addButton.current.focus());
+          }}
+        />
+      ) : null}
     </div>
   );
 }

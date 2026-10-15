@@ -14,6 +14,7 @@ export const AUTOBUFF_PAGE = 'autobuff';
 export const TRIGGERS_PAGE = 'triggers';
 export const SOUND_PAGE = 'sound';
 export const ALIASES_PAGE = 'aliases';
+export const MACROS_PAGE = 'macros';
 export const ACCOUNT_PAGE = 'account';
 export const MISSING_PAGE = 'server-unavailable';
 export const OFFLINE_PAGE = 'server-offline';
@@ -75,6 +76,15 @@ function scriptSection(lang, autobuff) {
         kind: 'aliases',
         label: t('cfg.page.aliases', lang),
         search: 'aliases alias синонимы синоним синоніми синонім алиас аліас',
+        options: [],
+      },
+      // Macros: a key combination -> commands, character or account
+      // (macros_* rpc), this browser's #hotkey list until the server has one.
+      {
+        key: MACROS_PAGE,
+        kind: 'macros',
+        label: t('cfg.page.macros', lang),
+        search: 'macros macro hotkey hotkeys keys keyboard макросы макрос горячие клавиши макроси гарячі клавіші',
         options: [],
       },
       {
