@@ -1545,3 +1545,104 @@ body.cfg-resizing {
   padding-inline: 0;
   border-bottom: 1px solid var(--cfg-line-soft);
 }
+
+/* --- macros: the key-capture dialog and key caps --- */
+
+.mc-caps {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.mc-cap {
+  min-width: 22px;
+  padding: 1px 7px;
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
+  font-size: 12px;
+  text-align: center;
+  color: var(--cfg-bright);
+  background: var(--cfg-sunk);
+  border: 1px solid var(--cfg-line);
+  border-bottom-width: 3px;
+  border-radius: 5px;
+}
+
+.mc-plus {
+  font-size: 11px;
+  color: var(--cfg-dim);
+}
+
+/* Over the whole sheet: the sheet is position:fixed, so this covers it. */
+.mc-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 72px 16px 16px;
+  background: rgba(4, 5, 8, 0.6);
+}
+
+.mc-dialog {
+  width: min(460px, 100%);
+  max-height: calc(100% - 88px);
+  overflow-y: auto;
+  padding: 18px 20px 20px;
+  background: var(--cfg-bg);
+  border: 1px solid var(--cfg-line);
+  border-radius: 10px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+}
+
+.mc-keyrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 6px;
+}
+
+.mc-capture {
+  flex: 1 1 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 10px;
+  background: var(--cfg-sunk);
+  border: 1px dashed var(--cfg-line);
+  border-radius: 8px;
+}
+
+.mc-capture:focus {
+  outline: none;
+  border-color: var(--cfg-accent);
+  border-style: solid;
+}
+
+.mc-captured {
+  border-style: solid;
+}
+
+.mc-capture .mc-cap {
+  font-size: 15px;
+  padding: 3px 10px;
+}
+
+.mc-wait {
+  font-size: 13px;
+  color: var(--cfg-dim);
+}
+
+.mc-warn {
+  color: var(--cfg-warn);
+}
+
+.mc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}

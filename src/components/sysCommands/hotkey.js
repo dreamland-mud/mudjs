@@ -4,6 +4,7 @@ import { expandAliases } from '../../aliases.js';
 import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands';
 import { parseUserVars } from './var';
 import keycode from './keycode';
+import { macroFor, allMacros, putMacro, deleteMacro, defaultScope, macrosOnServer } from '../../macros.js';
 
 // TODO: List all accepted key codes, after testing all combinations.
 export const hotkeyHelp = {
@@ -20,10 +21,11 @@ export const hotkeyHelp = {
 #hotkey key delete - удалить горячую клавишу
 
 В качестве action могут использоваться любые игровые команды, в том числе перечисленные через разделитель команд |. 
+Удобнее всего задавать клавиши в настройках: шестеренка вверху экрана, Расширения, Макросы. Там же их видно для персонажа и для всего аккаунта.
 Если нужно задать более сложные реакции на нажатую клавишу с использованием JavaScript, используйте функцию keydown в редакторе настроек (шестеренка вверху экрана).
 
 В качестве key можно использовать маленькие буквы, цифры, знаки препинания, функциональные клавиши f1-f12, клавиши кейпада kp0-kp9, kp*, kp-, kp+, kp., kp/, стрелки up down left right, клавиши ins del home end pgup pgdown.
-Доступны комбинации с участием ctrl, alt, shift. Например: ctrl+a, alt+9. Далеко не все клавиши и комбинации удобны к использованию в браузере.
+Доступны комбинации с участием ctrl, alt, shift, в том числе нескольких сразу. Например: ctrl+a, alt+9, ctrl+shift+f1. Далеко не все клавиши и комбинации удобны к использованию в браузере.
 
 Пример для стрелки "вниз" на кейпаде: просто стрелка -- идти на юг, alt+стрелка -- бежать до упора на юг, shift+стрелка -- пристально смотреть на юг.
 #hotkey kp2 ю
@@ -38,64 +40,35 @@ export const hotkeyHelp = {
 
 const errHotkey = `Набери ${clickableLink('#help hotkey')} для справки.\n`;
 
-// Normalize any key spelling to the canonical name a keypress produces
-// (keycode.names[keycode(...)]), so "#hotkey я" and "#hotkey z" -- and their
-// ctrl/alt/shift combos -- all resolve to the same stored key. Falls back to the
-// raw (lowercased) string when the key can't be resolved, which keeps prefix
-// lookups like "#hotkey kp" working.
-const canonicalKey = rawKey => {
-  const key = String(rawKey).toLowerCase().replace(/\s/g, '');
-  const combo = key.match(/^(ctrl|alt|shift)\+(.+)$/);
-  if (combo) {
-    const name = keycode.names[keycode(combo[2])];
-    return name ? `${combo[1]}+${name}` : key;
-  }
-  const name = keycode.names[keycode(key)];
-  return name || key;
-};
+const SCOPE_NAMES = { char: 'персонаж', acct: 'аккаунт', local: 'этот браузер' };
+const listLine = m => `    ${m.key} : ${m.cmd}` + (macrosOnServer() ? ` (${SCOPE_NAMES[m.scope]})` : '') + '\n';
+
+// Any key spelling resolves to the name a key press produces, so "#hotkey я"
+// and "#hotkey z" bind the same key. A string that names no key stays as typed
+// (lowercased), which keeps prefix lookups like "#hotkey kp" working.
+const canonicalKey = rawKey => keycode.canonical(rawKey) || String(rawKey).toLowerCase().replace(/\s/g, '');
 
 const checkKey = rawKey => {
-  let key = canonicalKey(rawKey);
-  let err = '';
-
-  let combos = key.match(/^(ctrl|alt|shift)\+(.+)$/);
-  if (combos && combos.length > 2) {
-    if (!keycode(combos[2]))
-      err = `Код клавиши ${combos[2]} не найден. ${errHotkey}\n`;
-  } else if (!keycode(key)) {
-    if (key.match(/^[a-z]+\+./))
-      err = `В комбинации клавиш можно использовать только ctrl, alt или shift.\n`;
-    else err = `Код клавиши ${key} не найден. ${errHotkey}\n`;
-  }
-
-  return { key, err };
+  const key = keycode.canonical(rawKey);
+  if (key) return { key, err: '' };
+  const raw = String(rawKey).toLowerCase().replace(/\s/g, '');
+  if (/^[^+]+\+./.test(raw) && !raw.split('+').slice(0, -1).every(p => keycode.MODIFIERS.includes(p)))
+    return { key: raw, err: `В комбинации клавиш можно использовать только ctrl, alt и shift.\n` };
+  return { key: raw, err: `Код клавиши ${raw} не найден. ${errHotkey}\n` };
 };
 
 const hotkeyCmdDelete = rawKey => {
   const key = canonicalKey(rawKey);
-  const hotkeyStorage = localStorage.hotkey
-    ? JSON.parse(localStorage.hotkey)
-    : {};
-  if (hotkeyStorage[key]) {
-    delete hotkeyStorage[key];
-    localStorage.hotkey = JSON.stringify(hotkeyStorage);
-    echoHtml(`Горячая клавиша ${key} удалена из списка.\n`);
-    return;
-  }
-
+  if (deleteMacro(key)) return echoHtml(`Горячая клавиша ${key} удалена из списка.\n`);
   return echoHtml(`Такая горячая клавиша не задана.\n`);
 };
 
 const hotkeyCmdShow = rawKey => {
   const key = canonicalKey(rawKey);
-  const hotkeyStorage = localStorage.hotkey
-    ? JSON.parse(localStorage.hotkey)
-    : {};
-
-  let buf = '';
-  for (let k in hotkeyStorage) {
-    if (k.startsWith(key)) buf += `    ${k} : ${hotkeyStorage[k]}\n`;
-  }
+  const buf = allMacros()
+    .filter(m => m.key.startsWith(key))
+    .map(listLine)
+    .join('');
 
   if (buf.length > 0) {
     echoHtml(
@@ -112,16 +85,12 @@ const hotkeyCmdShow = rawKey => {
 };
 
 const hotkeyCmdAdd = stringCmd => {
-  const hotkeyStorage = localStorage.hotkey
-    ? JSON.parse(localStorage.hotkey)
-    : {};
   const { key, err } = checkKey(stringCmd[0]);
-
   if (err) return echoHtml(err);
 
-  if (!hotkeyStorage[key]) {
-    hotkeyStorage[key] = stringCmd.slice(1).join(' ');
-    localStorage.hotkey = JSON.stringify(hotkeyStorage);
+  if (macroFor(key) === undefined) {
+    if (!putMacro(defaultScope(), key, stringCmd.slice(1).join(' ')))
+      return echoHtml('Список горячих клавиш уже полон.\n');
     echoHtml('Команда для ' + key + ' добавлена.\n');
     return;
   }
@@ -132,20 +101,14 @@ const hotkeyCmdAdd = stringCmd => {
 };
 
 const hotkeyCmdList = () => {
-  const hotkeyStorage = localStorage.hotkey
-    ? JSON.parse(localStorage.hotkey)
-    : {};
-  if (Object.keys(hotkeyStorage).length === 0)
+  const all = allMacros();
+  if (all.length === 0)
     return echoHtml(
       `Список горячих клавиш пуст. Набери ${clickableLink(
         '#help hotkey'
       )} для справки`
     );
-  let hotkeyList = 'Список горячих клавиш: \n';
-  for (let i in hotkeyStorage) {
-    hotkeyList += '    ' + i + ' : ' + hotkeyStorage[i] + '\n';
-  }
-  echoHtml(hotkeyList + '\n');
+  echoHtml('Список горячих клавиш: \n' + all.map(listLine).join('') + '\n');
 };
 
 const hotkeyCmd = value => {
@@ -161,15 +124,14 @@ const hotkeyCmd = value => {
   return hotkeyCmdAdd(stringCmd);
 };
 
-// Translate keyboard event into a symbolic name for a hotkey and run it, if defined in the storage.
+// Translate keyboard event into a symbolic name for a hotkey and run it, if defined.
 export function sendHotKeyCmd(e) {
   const hotkey = keycode.hotkey(e);
-  const hotkeyStorage = localStorage.hotkey
-    ? JSON.parse(localStorage.hotkey)
-    : {};
   if (!hotkey) return false;
 
-  const cmd = hotkeyStorage[hotkey];
+  let cmd = macroFor(hotkey);
+  const fallback = keycode.hotkeyFallback(e);
+  if (!cmd && fallback) cmd = macroFor(fallback);
   if (cmd) {
     e.stopPropagation();
     e.preventDefault();
