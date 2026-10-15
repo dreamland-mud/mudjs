@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import loader from '@monaco-editor/loader';
 import { send, rpccmd } from './websock.js';
+import { utf8ToB64, b64ToUtf8 } from './b64utf8.js';
 import notify from './notify.js';
 import { runAutobuff } from './components/sysCommands/autobuff';
 
@@ -135,21 +136,6 @@ export function getScriptSync() {
 export function watchScriptSync(fn) {
   syncWatchers.add(fn);
   return () => syncWatchers.delete(fn);
-}
-
-function utf8ToB64(text) {
-  const bytes = new TextEncoder().encode(text);
-  let bin = '';
-  for (let i = 0; i < bytes.length; i += 0x8000)
-    bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-  return { b64: btoa(bin), size: bytes.length };
-}
-
-function b64ToUtf8(b64) {
-  const bin = atob(b64);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
 }
 
 function isStock(text) {

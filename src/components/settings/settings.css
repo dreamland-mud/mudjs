@@ -1396,3 +1396,152 @@ body.cfg-resizing {
   white-space: nowrap;
   border: 0;
 }
+
+/* --- the triggers and sound pages (TriggersPage.jsx, SoundPage.jsx) --- */
+.trig-pattern {
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
+  font-size: 12.5px;
+  color: var(--cfg-bright);
+}
+
+.trig-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--cfg-dim);
+}
+
+.trig-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border: 1px solid var(--cfg-line-soft);
+  border-radius: 4px;
+}
+
+.trig-chip-cmd {
+  font-family: var(--mono, 'Fira Code', ui-monospace, monospace);
+}
+
+.trig-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.trig-form {
+  padding: 12px 0 16px;
+  border-bottom: 1px solid var(--cfg-line-soft);
+}
+
+.trig-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--cfg-text);
+}
+
+.trig-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.trig-group legend {
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+.trig select,
+.trig-group input[type='color'] {
+  padding: 6px 8px;
+  color: var(--cfg-bright);
+  background: var(--cfg-sunk);
+  border: 1px solid var(--cfg-line);
+  border-radius: 8px;
+}
+
+.trig-group input[type='color'] {
+  width: 36px;
+  height: 28px;
+  padding: 2px;
+}
+
+.trig-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.trig-swatch-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--cfg-line);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.trig-swatch-on {
+  box-shadow: 0 0 0 2px var(--cfg-bg), 0 0 0 4px var(--cfg-accent);
+}
+
+.trig-volume,
+.trig-slider {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--cfg-text);
+}
+
+.trig-slider label {
+  min-width: 150px;
+}
+
+.trig-slider input[type='range'] {
+  flex: 1 1 140px;
+  min-width: 0;
+  accent-color: var(--cfg-accent);
+}
+
+.trig-slider-val {
+  min-width: 3.5em;
+  font-variant-numeric: tabular-nums;
+  color: var(--cfg-dim);
+}
+
+.trig-ok {
+  color: var(--cfg-yes);
+}
+
+.trig-bad {
+  color: var(--cfg-warn, #c4674a);
+}
+
+.trig-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.trig-delete {
+  margin-right: auto;
+  color: var(--cfg-warn, #c4674a);
+}
+
+.trig-mute {
+  margin: 0;
+  padding-inline: 0;
+  border-bottom: 1px solid var(--cfg-line-soft);
+}

@@ -1256,3 +1256,8 @@ form#input input:focus,.form-control:focus,#help input:focus,
 }
 /* fighting owns the input border (red); drop the purple orbit while it holds */
 body.mud-fighting form#input:focus-within{border-color:#cc0000;animation:none;filter:none}
+
+/* Trigger highlights in the terminal (triggers.js). The colour itself is the
+   player's, set inline; this only shapes the line band. */
+.trig-line{border-radius:2px}
+.trig-note{color:#c4674a}
