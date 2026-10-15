@@ -31,7 +31,7 @@ const varAdd = (stringCmd) => {
 }
 
 const varDelete = key => {
-    const varsStorage = localStorage.hotkey ? JSON.parse(localStorage.vars) : {};
+    const varsStorage = localStorage.vars ? JSON.parse(localStorage.vars) : {};
     if (varsStorage[key]){
         delete varsStorage[key]
         localStorage.vars = JSON.stringify(varsStorage)

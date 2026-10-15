@@ -32,6 +32,7 @@ export default function AliasesPage({ lang }) {
   // Alias -> macro: the dialog of the Macros page, with this alias's commands.
   const [toMacro, setToMacro] = useState(null);
   const nameInput = useRef(null);
+  const addButton = useRef(null);
   const open = next => {
     setForm(next);
     setFormKey(k => k + 1);
@@ -231,6 +232,7 @@ export default function AliasesPage({ lang }) {
       ) : (
         <div>
           <button
+            ref={addButton}
             type="button"
             className="cfg-button cfg-button-main"
             disabled={full('char') && (!data.account || full('acct'))}
@@ -256,7 +258,10 @@ export default function AliasesPage({ lang }) {
           }}
           onDone={saved => {
             setToMacro(null);
-            if (saved) setSaid(t('al.madeMacro', lang));
+            if (!saved) return;
+            setSaid(t('al.madeMacro', lang));
+            // The Edit form that opened the dialog is gone: land on Add.
+            setTimeout(() => addButton.current && addButton.current.focus());
           }}
         />
       ) : null}

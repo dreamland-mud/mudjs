@@ -53,7 +53,8 @@ export function keyCaps(key) {
 export function KeyCaps({ value }) {
   const caps = keyCaps(value);
   return (
-    <span className="mc-caps" aria-label={caps.join(' + ')}>
+    // role img: an aria-label on a role-less span is not read out.
+    <span className="mc-caps" role="img" aria-label={caps.join(' + ')}>
       {caps.map((c, i) => (
         <React.Fragment key={i}>
           {i ? <span className="mc-plus" aria-hidden="true">+</span> : null}
@@ -135,7 +136,7 @@ export function MacroDialog({ lang, start, onDone, onSaved }) {
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [listening, aliasWord, form.key]);
+  }, [listening, aliasWord, form.key, onDone]);
 
   const onCaptureKey = e => {
     if (e.key === 'Tab' || e.key === 'Escape') return;
@@ -427,7 +428,7 @@ export default function MacrosPage({ lang }) {
   if (!data.known && !data.unsupported) return <div className="cfg-note">{t('mc.loading', lang)}</div>;
 
   const scopes = data.known ? ['char', 'acct'] : ['local'];
-  const firstScope = data.known ? (data.char.length < MAX_PER_LIST ? 'char' : 'acct') : 'local';
+  const firstScope = data.known ? (data.char.length >= MAX_PER_LIST && data.account ? 'acct' : 'char') : 'local';
 
   return (
     <div className="ab trig">

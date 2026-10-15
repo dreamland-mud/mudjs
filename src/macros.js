@@ -140,15 +140,21 @@ function importLegacy() {
 
   // A key this list already has keeps the server's command: the server copy
   // is the one every other device sees.
-  const added = moving
-    .map(k => ({ key: keycode.canonical(k) || k, cmd: String(stored[k] || '') }))
-    .filter(x => x.cmd && !have.has(x.key));
-  setMacroList(scope, state.lists[scope].concat(added));
+  // Keys stored before they were canonical ("я" and "z") collapse into one.
+  const added = [];
+  for (const k of moving) {
+    const one = { key: keycode.canonical(k) || k, cmd: String(stored[k] || '') };
+    if (!one.cmd || have.has(one.key)) continue;
+    have.add(one.key);
+    added.push(one);
+  }
+  if (added.length) setMacroList(scope, state.lists[scope].concat(added));
   moving.forEach(k => delete stored[k]);
   saveLegacyStorage(stored);
+  if (!added.length) return;
 
   $('.terminal').trigger('output-html', [
-    '<span class="trig-note">' + t(scope === 'acct' ? 'mc.moved.acct' : 'mc.moved.char').replace('%d', String(moving.length)) + '</span>\n',
+    '<span class="trig-note">' + t(scope === 'acct' ? 'mc.moved.acct' : 'mc.moved.char').replace('%d', String(added.length)) + '</span>\n',
   ]);
 }
 
@@ -184,7 +190,8 @@ export function defaultScope() {
   return state.account ? 'acct' : 'char';
 }
 
-/** Add or replace a key's command in one list. False when that list is full. */
+/** Add or replace a key's command in one list. False when it cannot be
+ *  saved there: the list is full, or it is the account's and there is none. */
 export function putMacro(scope, key, cmd) {
   if (scope === 'local') {
     const stored = legacyStorage();
@@ -192,6 +199,7 @@ export function putMacro(scope, key, cmd) {
     saveLegacyStorage(stored);
     return true;
   }
+  if (!SCOPES.includes(scope) || !state.known || (scope === 'acct' && !state.account)) return false;
   const list = state.lists[scope];
   const at = list.findIndex(x => x.key === key);
   if (at < 0 && list.length >= MAX_PER_LIST) return false;
@@ -213,7 +221,14 @@ export function removeMacro(scope, key) {
 /** Save an edited or new macro, moving it out of where it was when its list
  *  or its key changed. False when the target list is full. */
 export function saveMacro(origScope, origKey, scope, key, cmd) {
-  if (origScope && (origScope !== scope || origKey !== key)) removeMacro(origScope, origKey);
+  // Into another list: in first, so a refusal there loses nothing here.
+  if (origScope && origScope !== scope) {
+    if (!putMacro(scope, key, cmd)) return false;
+    removeMacro(origScope, origKey);
+    return true;
+  }
+  // Within one list the old entry goes first, which also makes room for the new.
+  if (origScope && origKey !== key) removeMacro(origScope, origKey);
   return putMacro(scope, key, cmd);
 }
 
