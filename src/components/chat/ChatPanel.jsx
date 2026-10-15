@@ -34,6 +34,8 @@ const PIN_KEY = 'mudjs.chat.pinned';
 // how the player has arranged the window, and a reload that silently drops it
 // looks like a fault.
 const OPEN_KEY = 'mudjs.chat.open';
+// And the "only mine" filter, for the same reason.
+const MINE_KEY = 'mudjs.chat.onlymine';
 
 // Near enough to the bottom to count as reading the newest: a line that arrives
 // now should scroll into view instead of raising the unread count.
@@ -185,7 +187,7 @@ export default function ChatPanel() {
   const [lines, setLines] = useState([]);
   const [target, setTarget] = useState(null);
   const [draft, setDraft] = useState('');
-  const [onlyMine, setOnlyMine] = useState(false);
+  const [onlyMine, setOnlyMine] = useState(readFlag(MINE_KEY));
   const [unread, setUnread] = useState(0);
   const [more, setMore] = useState(true);
 
@@ -557,7 +559,12 @@ export default function ChatPanel() {
           <button
             type="button"
             className={'chat-chip' + (onlyMine ? ' chat-chip-on' : '')}
-            onClick={() => setOnlyMine(was => !was)}
+            onClick={() =>
+              setOnlyMine(was => {
+                write(MINE_KEY, was ? '0' : '1');
+                return !was;
+              })
+            }
             title={t('chat.onlymine.help', lang)}
           >
             {t('chat.onlymine', lang)}
