@@ -195,9 +195,10 @@ export default function ChatPanel() {
   // Read by event handlers that are registered once and must not close over a
   // stale render: jQuery keeps the first handler, React keeps handing out new
   // state.
-  const live = useRef({ open: false, pinned: false, who: null, glued: true });
+  const live = useRef({ open: false, pinned: false, who: null, glued: true, onlyMine: false });
 
   live.current.open = open;
+  live.current.onlyMine = onlyMine;
   live.current.pinned = pinned;
   live.current.who = who;
 
@@ -292,6 +293,8 @@ export default function ChatPanel() {
             const next = was.concat(dress(saved));
             return next.length > WINDOW + PAGE ? next.slice(-WINDOW) : next;
           });
+          // A line the filter hides is not news: it must not move the badge.
+          if (live.current.onlyMine && row.kind !== 'personal') return;
           if (live.current.glued && live.current.open) {
             window.requestAnimationFrame(scrollDown);
           } else {
