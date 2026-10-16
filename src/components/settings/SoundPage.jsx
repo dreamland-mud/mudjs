@@ -42,13 +42,14 @@ export default function SoundPage({ lang }) {
       <div className="cfg-row-desc ab-intro">{t('snd.intro', lang)}</div>
 
       <div className="ab-item trig-mute">
-        <span className="ab-name">{t('snd.mute', lang)}</span>
+        <span className="ab-name">{t('snd.on', lang)}</span>
+        {/* A positive switch: on = sound plays. Stored as `mute`, inverted here. */}
         <button
           type="button"
           role="switch"
-          aria-checked={prefs.mute}
-          aria-label={t('snd.mute', lang)}
-          className={prefs.mute ? 'cfg-switch cfg-switch-on' : 'cfg-switch'}
+          aria-checked={!prefs.mute}
+          aria-label={t('snd.on', lang)}
+          className={prefs.mute ? 'cfg-switch' : 'cfg-switch cfg-switch-on'}
           onClick={() => update({ mute: !prefs.mute })}
         >
           <span className="cfg-switch-knob" />
