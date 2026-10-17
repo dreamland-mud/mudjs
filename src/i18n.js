@@ -29,15 +29,26 @@ function readSavedLang() {
 
 let currentLang = readSavedLang() || 'en';
 
+// The tab title and <html lang> follow the display language too, so a screen
+// reader pronounces the page in the right language. 'ua' is the game's code;
+// the BCP 47 tag is 'uk'.
+function applyDocumentLang() {
+  document.title = t('doc.title');
+  document.documentElement.lang = currentLang === 'ua' ? 'uk' : currentLang;
+}
+
 $(function () {
+  applyDocumentLang();
   $('#rpc-events').on('rpc-prompt', function (e, b) {
     if (b && b.lang != null) {
+      const changed = b.lang !== currentLang;
       currentLang = b.lang;
       try {
         localStorage.setItem('mudjs.lang', b.lang);
       } catch (e2) {
         /* ignore: private mode / storage disabled */
       }
+      if (changed) applyDocumentLang();
     }
   });
 });
@@ -53,6 +64,8 @@ export function setLang(lang) {
 
 const STRINGS = {
   en: {
+    // browser tab title
+    'doc.title': 'Play DreamLand — a free fantasy world made of text',
     // affects panel (title + column headers)
     'aff.title': 'Affects on you',
     'aff.pro': 'Prot',
@@ -394,6 +407,7 @@ const STRINGS = {
     'cfg.script.error': 'Could not save to your account, kept in this browser',
   },
   ru: {
+    'doc.title': 'Играть в DreamLand — бесплатный фэнтези-мир из одних только слов',
     'aff.title': 'Воздействия на тебе',
     'aff.pro': 'Защита',
     'aff.det': 'Обнар',
@@ -713,6 +727,7 @@ const STRINGS = {
     'cfg.script.error': 'Не получилось сохранить в аккаунт, сохранено в браузере',
   },
   ua: {
+    'doc.title': 'Грати в DreamLand — безкоштовний фентезі-світ із самих лише слів',
     'aff.title': 'Впливи на тебе',
     'aff.pro': 'Захист',
     'aff.det': 'Виявл',
