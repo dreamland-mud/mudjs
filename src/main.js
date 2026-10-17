@@ -10,6 +10,7 @@ import './input';
 import './settings';
 import './prompt';
 import './combatui';
+import './bossflash';
 import './langsync';
 import './textedit';
 import './cs';
