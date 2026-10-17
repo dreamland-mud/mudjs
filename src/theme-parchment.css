@@ -893,6 +893,34 @@ body[data-glow="hide"] .terminal-glow{
   body[data-glow] .terminal-glow::after{animation:none}
   body[data-glow] .terminal-glow::after{opacity:.5;will-change:auto}
 }
+
+/* --- Boss phase flash (src/bossflash.js) ------------------------------------
+ * One burst when a champion, boss or legend changes phase: a fast snap in, a
+ * slow fade out, on its own layer above the state vignette. control = cold
+ * violet (the boss turns calculating), panic = deep blood red. Strength by
+ * tier through --flash-peak. Opacity only, so it stays on the compositor. */
+.terminal-flash{
+  position:absolute;inset:0;pointer-events:none;opacity:0;
+}
+@media only screen and (min-width:768px){ .terminal-flash{border-radius:var(--radius)} }
+body[data-flash="control"] .terminal-flash{
+  box-shadow:inset 0 0 220px 0 rgba(125,85,255,.55),inset 0 0 440px 0 rgba(125,85,255,.28);
+}
+body[data-flash="panic"] .terminal-flash{
+  box-shadow:inset 0 0 260px 0 rgba(200,0,25,.65),inset 0 0 520px 0 rgba(200,0,25,.32);
+}
+body[data-flash] .terminal-flash{--flash-peak:.85;animation:boss-flash 1.5s forwards}
+body[data-flash-tier="champion"] .terminal-flash{--flash-peak:.55}
+body[data-flash-tier="legend"] .terminal-flash{--flash-peak:1}
+@keyframes boss-flash{
+  0%{opacity:0;animation-timing-function:linear}
+  10%{opacity:var(--flash-peak);animation-timing-function:ease-out}
+  100%{opacity:0}
+}
+/* Reduced motion: no burst, a steady tint for the same 1.5 s. */
+@media (prefers-reduced-motion: reduce){
+  body[data-flash] .terminal-flash{animation:none;opacity:calc(var(--flash-peak) * .5)}
+}
 body.mud-fighting form#input {
   border-color: #cc0000;
 }

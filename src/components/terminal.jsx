@@ -388,10 +388,12 @@ export default forwardRef(({ bumpUnread, resetUnread }, ref) => {
 
   // .terminal-glow sits behind the wrap and draws the state vignette
   // (theme-parchment.css): outside the scroller, so pulsing it never repaints
-  // the text.
+  // the text. .terminal-flash above it carries the one-shot boss phase flash
+  // (bossflash.js).
   return (
     <>
       <div className="terminal-glow" aria-hidden="true"></div>
+      <div className="terminal-flash" aria-hidden="true"></div>
       <div className="terminal-wrap" ref={wrap}>
         <div
           className="terminal"
