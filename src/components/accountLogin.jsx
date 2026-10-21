@@ -8,6 +8,7 @@ import { getLang, setLang } from '../i18n';
 import { classIconFor } from '../classIcons';
 import PropertiesStorage, { NEWCOMER_KEY } from '../properties';
 import LoginDragon from './LoginDragon';
+import FocusOrbit from './FocusOrbit';
 import '../account-login.css';
 
 // The front-door account panel for /newui. Two obsidian slabs meet at a gold seam;
@@ -919,15 +920,19 @@ export default function AccountLogin() {
       {/* The living arcane glow behind the card -- a wormhole that pulses unevenly
           and lights the gold rim from behind. Sits below .acc-controls (z 2 vs 3).
           See .acc-portal in account-login.css. */}
-      <div className="acc-portal" aria-hidden="true" />
+      <div className="acc-portal" aria-hidden="true"><div className="acc-portal-glow" /></div>
 
       <div className="acc-stack">
       {/* The dragon guards the gate: it perches while you are still getting in,
           and is gone once you are (the roster is the character-select screen --
           you are already authenticated, nothing left to halt). Dropping it lets
           the stack re-centre the card on its own. */}
-      {bstep !== 'roster' ? <LoginDragon ref={dragonRef} /> : null}
+      {/* While the session probe runs (checking) only the poster shows: most returning
+          players land on the roster, and a WebGL boot torn down a moment later is a
+          jank spike on every quit. */}
+      {bstep !== 'roster' ? <LoginDragon ref={dragonRef} live={!checking} /> : null}
       <div className="acc-controls">
+        <span className="acc-rim-peak" aria-hidden="true" />
         {/* the DS "big inset" modular inner frame (ds-frame): corners + double-stroke
             sides + keystones, a fine engraved rule a step inside the gold rail */}
         <div className="acc-inner-frame ds-frame" aria-hidden="true">
@@ -976,16 +981,19 @@ export default function AccountLogin() {
 
             <div className="acc-field">
               <label htmlFor="cr-name">{at('name', lang)}</label>
-              <input
-                id="cr-name"
-                ref={nameRef}
-                className="acc-input"
-                type="text"
-                autoComplete="off"
-                spellCheck="false"
-                value={name}
-                onChange={e => onCreateName(e.target.value)}
-              />
+              <div className="acc-input-wrap">
+                <input
+                  id="cr-name"
+                  ref={nameRef}
+                  className="acc-input"
+                  type="text"
+                  autoComplete="off"
+                  spellCheck="false"
+                  value={name}
+                  onChange={e => onCreateName(e.target.value)}
+                />
+                <FocusOrbit behind />
+              </div>
               {nameStatus && (
                 <div className={'acc-namestatus is-' + nameStatus} role="status">
                   {at('nm_' + nameStatus, lang)}
@@ -996,29 +1004,35 @@ export default function AccountLogin() {
             <div className="acc-field-row">
               <div className="acc-field">
                 <label htmlFor="cr-pass">{at('password', lang)}</label>
-                <input
-                  id="cr-pass"
-                  className="acc-input"
-                  type="password"
-                  onFocus={pwFocus}
-                  onBlur={pwBlur}
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                />
+                <div className="acc-input-wrap">
+                  <input
+                    id="cr-pass"
+                    className="acc-input"
+                    type="password"
+                    onFocus={pwFocus}
+                    onBlur={pwBlur}
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                  />
+                  <FocusOrbit behind />
+                </div>
               </div>
               <div className="acc-field">
                 <label htmlFor="cr-pass2">{at('cr_pass2', lang)}</label>
-                <input
-                  id="cr-pass2"
-                  className="acc-input"
-                  type="password"
-                  onFocus={pwFocus}
-                  onBlur={pwBlur}
-                  autoComplete="new-password"
-                  value={password2}
-                  onChange={e => setPassword2(e.target.value)}
-                />
+                <div className="acc-input-wrap">
+                  <input
+                    id="cr-pass2"
+                    className="acc-input"
+                    type="password"
+                    onFocus={pwFocus}
+                    onBlur={pwBlur}
+                    autoComplete="new-password"
+                    value={password2}
+                    onChange={e => setPassword2(e.target.value)}
+                  />
+                  <FocusOrbit behind />
+                </div>
               </div>
             </div>
 
@@ -1072,28 +1086,34 @@ export default function AccountLogin() {
                 <div className="acc-field-row">
                   <div className="acc-field">
                     <label htmlFor="acc-name">{at('name', lang)}</label>
-                    <input
-                      id="acc-name"
-                      ref={nameRef}
-                      className="acc-input"
-                      type="text"
-                      autoComplete="username"
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                    />
+                    <div className="acc-input-wrap">
+                      <input
+                        id="acc-name"
+                        ref={nameRef}
+                        className="acc-input"
+                        type="text"
+                        autoComplete="username"
+                        value={name}
+                        onChange={e => setName(e.target.value)}
+                      />
+                      <FocusOrbit behind />
+                    </div>
                   </div>
                   <div className="acc-field">
                     <label htmlFor="acc-pass">{at('password', lang)}</label>
-                    <input
-                      id="acc-pass"
-                      className="acc-input"
-                      type="password"
-                      onFocus={pwFocus}
-                      onBlur={pwBlur}
-                      autoComplete="current-password"
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                    />
+                    <div className="acc-input-wrap">
+                      <input
+                        id="acc-pass"
+                        className="acc-input"
+                        type="password"
+                        onFocus={pwFocus}
+                        onBlur={pwBlur}
+                        autoComplete="current-password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                      />
+                      <FocusOrbit behind />
+                    </div>
                   </div>
                 </div>
                 <button type="submit" className="btn acc-cta">{at('enter', lang)}</button>
@@ -1129,15 +1149,18 @@ export default function AccountLogin() {
                 <form onSubmit={sendEmailCode}>
                   <div className="acc-field">
                     <label htmlFor="acc-email">{at('via_email', lang)}</label>
-                    <input
-                      id="acc-email"
-                      className="acc-input"
-                      type="email"
-                      autoComplete="email"
-                      placeholder={at('email_ph', lang)}
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                    />
+                    <div className="acc-input-wrap">
+                      <input
+                        id="acc-email"
+                        className="acc-input"
+                        type="email"
+                        autoComplete="email"
+                        placeholder={at('email_ph', lang)}
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                      />
+                      <FocusOrbit behind />
+                    </div>
                   </div>
                   <button type="submit" className="btn acc-cta">{at('send_code', lang)}</button>
                   <button type="button" className="acc-newhero"
@@ -1150,16 +1173,19 @@ export default function AccountLogin() {
                   <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 8 }}>{at('sent_hint', lang)}</div>
                   <div className="acc-field">
                     <label htmlFor="acc-code">{at('code_ph', lang)}</label>
-                    <input
-                      id="acc-code"
-                      className="acc-input"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      placeholder={at('code_ph', lang)}
-                      value={code}
-                      onChange={e => setCode(e.target.value)}
-                    />
+                    <div className="acc-input-wrap">
+                      <input
+                        id="acc-code"
+                        className="acc-input"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        placeholder={at('code_ph', lang)}
+                        value={code}
+                        onChange={e => setCode(e.target.value)}
+                      />
+                      <FocusOrbit behind />
+                    </div>
                   </div>
                   <button type="submit" className="btn acc-cta">{at('verify', lang)}</button>
                   <button type="button" className="acc-newhero"

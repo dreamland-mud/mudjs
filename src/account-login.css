@@ -87,36 +87,55 @@
     linear-gradient(180deg, var(--stone-850, #191521), var(--stone-950, #0d0b12) 60%, var(--obsidian, #08070c));
   background-clip: padding-box;
   background-blend-mode: overlay, normal, normal;
-  /* the border-box clip would cut a box-shadow, so the outer shadow + arcane
-     bloom ride on a drop-shadow filter, which follows the octagon silhouette. */
-  filter:
-    drop-shadow(0 20px 46px rgba(0, 0, 0, 0.7))
-    drop-shadow(0 0 32px var(--arcane-glow, rgba(187, 134, 252, 0.35)));
+  /* the cast shadow and the rim light are layers below */
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), inset 0 0 44px rgba(0, 0, 0, 0.5);
   transition: opacity 0.22s ease-out, transform 0.28s ease-out;
-  /* The rim halo (the arcane drop-shadow of the base filter above) is taken over
-     by acc-rim-lit and breathed on the SAME 9.3s period as the portal's swell, so
-     the gold frame reads as lit from behind by the same light. Only the arcane
-     shadow moves; the black cast shadow is held. */
+}
+/* The cast shadow + arcane rim halo. No filter on the card: a filter re-runs
+   whenever anything inside repaints (a caret blink, a typed letter), and an animated
+   one every frame. Static layers just outside the rail instead; a transparent box
+   only casts its box-shadow outside itself, so they never cover the card. The
+   octagon's corner notches are 5px, invisible under the blur. box-shadow blur =
+   2 sigma, drop-shadow blur = 1 sigma, so every old radius doubles. Paint order
+   (all z -1, DOM order) matches the old filter chain, glow under the cast shadow:
+   ::before the resting halo, .acc-rim-peak the peak bloom, ::after the black cast.
+   The two glows cross-fade by opacity (acc-rim-rest / acc-rim-lit) on the SAME 9.3s
+   period as the portal's swell, so the gold frame reads as lit from behind by the
+   same light. */
+.acc-controls::before,
+.acc-controls::after,
+.acc-rim-peak {
+  content: '';
+  position: absolute;
+  inset: -5.6px;             /* the border box: the rail's outer edge */
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: -1;
+}
+.acc-controls::before {
+  /* second shadow: the old chained filter also lit the black cast shadow from behind */
+  box-shadow: 0 0 48px rgba(187, 134, 252, 0.26), 0 20px 104px rgba(187, 134, 252, 0.12);
+  will-change: opacity;
+  animation: acc-rim-rest 9.3s ease-in-out infinite;
+}
+.acc-controls::after { box-shadow: 0 20px 92px rgba(0, 0, 0, 0.7); }
+.acc-rim-peak {
+  box-shadow: 0 0 96px rgba(206, 158, 255, 0.62), 0 20px 132px rgba(206, 158, 255, 0.26);
+  opacity: 0;
+  will-change: opacity;
   animation: acc-rim-lit 9.3s ease-in-out infinite;
 }
+@keyframes acc-rim-rest {
+  0%   { opacity: 1; }
+  37%  { opacity: 0; }
+  61%  { opacity: 1; }
+  100% { opacity: 1; }
+}
 @keyframes acc-rim-lit {
-  0% {
-    filter: drop-shadow(0 20px 46px rgba(0, 0, 0, 0.7))
-            drop-shadow(0 0 24px rgba(187, 134, 252, 0.26));
-  }
-  37% {
-    filter: drop-shadow(0 20px 46px rgba(0, 0, 0, 0.7))
-            drop-shadow(0 0 48px rgba(206, 158, 255, 0.62));
-  }
-  61% {
-    filter: drop-shadow(0 20px 46px rgba(0, 0, 0, 0.7))
-            drop-shadow(0 0 32px rgba(187, 134, 252, 0.36));
-  }
-  100% {
-    filter: drop-shadow(0 20px 46px rgba(0, 0, 0, 0.7))
-            drop-shadow(0 0 24px rgba(187, 134, 252, 0.26));
-  }
+  0%   { opacity: 0; }
+  37%  { opacity: 1; }
+  61%  { opacity: 0.2; }
+  100% { opacity: 0; }
 }
 
 /* ---- the portal: a living arcane glow behind the login card ----------------
@@ -135,40 +154,56 @@
   transform: translate(-50%, -50%);
   z-index: 2;
   pointer-events: none;
+}
+/* Compositor-only: every layer animates just opacity + transform. The soft edges
+   are baked into the gradients (they used to be blur() filters, and the swell a
+   brightness + hue-rotate filter over both blurred layers, re-filtered per frame).
+   The swell is now an opacity breathe on .acc-portal-glow with the gradient alphas
+   pre-scaled by its old 1.2 peak brightness: 0.8 / 0.92 / 1.2 -> 0.67 / 0.77 / 1. */
+.acc-portal-glow {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;        /* the core screens over the haze only, as before */
+  will-change: opacity;
   animation: acc-portal-swell 9.3s ease-in-out infinite;
 }
-.acc-portal::before,
-.acc-portal::after {
+.acc-portal-glow::before,
+.acc-portal-glow::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 50%;
+  will-change: transform, opacity;
 }
 /* outer haze: broad, cool violet, drifts + turns like a slow vortex */
-.acc-portal::before {
-  background: radial-gradient(58% 46% at 50% 50%,
-    rgba(150, 96, 240, 0.55) 0%,
-    rgba(123, 70, 210, 0.30) 34%,
-    rgba(80, 40, 150, 0) 72%);
-  filter: blur(30px);
+.acc-portal-glow::before {
+  background: radial-gradient(64% 52% at 50% 50%,
+    rgba(150, 96, 240, 0.62) 0%,
+    rgba(138, 84, 228, 0.52) 14%,
+    rgba(123, 70, 210, 0.34) 32%,
+    rgba(102, 55, 180, 0.15) 50%,
+    rgba(80, 40, 150, 0.04) 64%,
+    rgba(80, 40, 150, 0) 74%);
   animation: acc-portal-outer 11.1s ease-in-out infinite;
 }
 /* inner eye: tighter, hotter lilac, faster + offset; screened over the haze so
    the overlap flares toward white -- the incandescent core of the wormhole */
-.acc-portal::after {
-  background: radial-gradient(40% 32% at 50% 46%,
-    rgba(214, 178, 255, 0.78) 0%,
-    rgba(187, 134, 252, 0.42) 40%,
-    rgba(150, 96, 240, 0) 74%);
-  filter: blur(16px);
+.acc-portal-glow::after {
+  background: radial-gradient(43% 35% at 50% 46%,
+    rgba(214, 178, 255, 0.86) 0%,
+    rgba(200, 156, 254, 0.70) 18%,
+    rgba(187, 134, 252, 0.46) 38%,
+    rgba(165, 112, 245, 0.18) 58%,
+    rgba(150, 96, 240, 0.03) 72%,
+    rgba(150, 96, 240, 0) 78%);
   mix-blend-mode: screen;
   animation: acc-portal-core 7.3s ease-in-out infinite;
 }
 @keyframes acc-portal-swell {
-  0%   { filter: brightness(0.80) hue-rotate(-6deg); }
-  37%  { filter: brightness(1.20) hue-rotate(8deg); }
-  61%  { filter: brightness(0.92) hue-rotate(-3deg); }
-  100% { filter: brightness(0.80) hue-rotate(-6deg); }
+  0%   { opacity: 0.67; }
+  37%  { opacity: 1; }
+  61%  { opacity: 0.77; }
+  100% { opacity: 0.67; }
 }
 @keyframes acc-portal-outer {
   0%   { opacity: 0.50; transform: rotate(0deg)   scale(1.02) translate(-1%, 1%); }
@@ -375,13 +410,16 @@
 .acc-input:focus {
   border-color: var(--arcane, #bb86fc);
   /* Static ring as the base focus indicator: it stays when reduced motion drops the
-     arcane orbit glow (theme-parchment pc-focus-orbit) layered on top. */
+     arcane orbit (FocusOrbit) layered under it. */
   box-shadow: 0 0 0 3px var(--arcane-glow, rgba(187, 134, 252, 0.35));
-  animation: pc-focus-orbit 2.6s linear infinite;
+  /* the arcane wash the old drop-shadow orbit left under the see-through body
+     (the orbit itself now stays outside, see FocusOrbit) */
+  background: linear-gradient(rgba(187, 134, 252, 0.23), rgba(187, 134, 252, 0.23)), rgba(0, 0, 0, 0.35);
 }
-@media (prefers-reduced-motion: reduce) {
-  .acc-input:focus { animation: none; }   /* the static ring above remains the indicator */
-}
+/* Host for the arcane orbit (FocusOrbit behind the input; it stops under reduced
+   motion, and the static ring above stays the indicator). isolate keeps the
+   orbit's z-index -1 above the card body. */
+.acc-input-wrap { position: relative; isolation: isolate; }
 
 /* Buttons reuse the app's .btn set (theme-parchment.css) so the login matches
    everywhere else; these rules only add the panel's layout -- full width, stacked,
@@ -606,10 +644,15 @@
 @media (prefers-reduced-motion: reduce) {
   .acc-slab, .acc-controls { transition: none !important; }
   .acc-stage { animation: none !important; }
-  .acc-controls,
-  .acc-portal,
-  .acc-portal::before,
-  .acc-portal::after { animation: none !important; }
+  .acc-controls::before,
+  .acc-rim-peak,
+  .acc-portal-glow,
+  .acc-portal-glow::before,
+  .acc-portal-glow::after { animation: none !important; }
+  .acc-rim-peak { opacity: 0.3; }   /* the old static 32px bloom: rest + a touch of peak */
+  .acc-portal-glow { opacity: 0.83; }      /* old unswelled brightness 1 / 1.2 */
+  .acc-input-wrap .focus-orbit { display: none; }   /* the static focus ring carries it */
+  .acc-input:focus { background: rgba(0, 0, 0, 0.35); }   /* no orbit, no wash: as before */
 }
 
 /* Telegram Login Widget (path B). Telegram renders its own iframe button inside the

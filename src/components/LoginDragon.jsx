@@ -19,7 +19,8 @@ const ORB_EMIT = 2.2;                    // orb glow strength
 const FLAP = 0.12;                       // idle wing amplitude
 const WINGSPAN = 1.45;                    // >1 grows the wings; scaled onto the wing-root bones
 const PERCH = 0.61, ZOOM = 0.70;         // framing
-const HALO = 0.20;                       // outer cyan glow (canvas drop-shadow + bottom pool)
+const IDLE_FPS = 30;                     // at rest only slow sines move: half rate is indistinguishable
+const ACTIVE_S = 1.5;                    // full rate this long after a pointer move (head easing settles)
 const ORB = new THREE.Vector3(0.29, 1.02, 0.52); // orb centre (object space)
 const ORB_R = 0.15;
 const ORB_PULSE_S = 2.6;                 // orb glow period -- matches the login input focus orbit
@@ -39,7 +40,10 @@ const FINGER_DROP = 0.05;                // fingers point across the face, tilte
 const COVER_TAU = 0.15;                  // seconds; time constant of the approach to the cover pose (~0.45 s to settle)
 const COVER_DIP = 0.22;                  // head pitch down while covered
 
-const LoginDragon = forwardRef(function LoginDragon(props, ref) {
+// `live` false = poster only, no WebGL. The overlay passes it off during the session
+// probe, so a player bound for the roster never pays for a GLB load + shader compile
+// that is torn down a moment later.
+const LoginDragon = forwardRef(function LoginDragon({ live = true }, ref) {
   const hostRef = useRef(null);
   const posterRef = useRef(null);
   const api = useRef({ shake() {}, cover() {} });   // set once the scene is live
@@ -49,6 +53,7 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
   }), []);
 
   useEffect(() => {
+    if (!live) return;
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return; // poster stays, no WebGL
     const host = hostRef.current;
     if (!host) return;
@@ -62,8 +67,9 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.2;
       renderer.setClearColor(0x000000, 0);      // transparent -> no box around the dragon
-      renderer.domElement.style.filter =        // baked outer cyan halo
-        `drop-shadow(0 0 ${14 * HALO}px rgba(57,214,255,${0.5 * HALO})) drop-shadow(0 0 ${6 * HALO}px rgba(57,214,255,${0.6 * HALO}))`;
+      // No CSS filter on the canvas: a filter over a canvas that changes every frame is
+      // re-run every frame and starves the terminal beside the overlay. The cyan glow
+      // is the static .ld-glow pool plus the shader rim light.
       host.appendChild(renderer.domElement);
 
       const scene = new THREE.Scene();
@@ -223,7 +229,11 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
       const clock = new THREE.Clock();
       api.current.shake = () => { shakeAt = clock.getElapsedTime(); };
       api.current.cover = on => { coverOn = on ? 1 : 0; };
-      const onMove = e => { px = (e.clientX / innerWidth) * 2 - 1; py = (e.clientY / innerHeight) * 2 - 1; };
+      let activeAt = -999;                       // last pointer move / resize
+      const onMove = e => {
+        px = (e.clientX / innerWidth) * 2 - 1; py = (e.clientY / innerHeight) * 2 - 1;
+        activeAt = clock.getElapsedTime();
+      };
       const onDown = () => { clickAt = clock.getElapsedTime(); };
       addEventListener('pointermove', onMove);
       host.addEventListener('pointerdown', onDown);
@@ -333,14 +343,29 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
         if (orbLight) orbLight.intensity = orbEmit;
         if (orbSprite) { const s = orbBase * (0.9 + 0.2 * orbPulse); orbSprite.scale.set(s, s, s); }
       }
+      // Full rate only while something is in motion (cursor easing, a flap, a shake,
+      // the paw covering/uncovering); at rest the idle breathing runs at IDLE_FPS.
+      // The per-frame easing in animate() is tuned for full rate, so it only ever
+      // runs at full rate while it matters.
+      let lastDraw = -1;
+      function busy(t) {
+        return t - activeAt < ACTIVE_S || t - clickAt < 0.5 || t - shakeAt < 0.8 ||
+          Math.abs(coverOn - coverK) > 0.002;
+      }
       function tick() {
         raf = requestAnimationFrame(tick);
-        try { animate(clock.getElapsedTime()); } catch (e) { /* a bad frame must not blank the login */ }
-        renderer.render(scene, camera);        // always render
+        const t = clock.getElapsedTime();
+        if (!busy(t) && t - lastDraw < 1 / IDLE_FPS - 0.004) return;
+        lastDraw = t;
+        try { animate(t); } catch (e) { /* a bad frame must not blank the login */ }
+        renderer.render(scene, camera);
       }
       tick();
 
-      const onResize = () => { W = host.clientWidth; H = host.clientHeight; renderer.setSize(W, H); fitView(); };
+      const onResize = () => {
+        W = host.clientWidth; H = host.clientHeight; renderer.setSize(W, H); fitView();
+        activeAt = clock.getElapsedTime();
+      };
       addEventListener('resize', onResize);
 
       return () => {
@@ -364,13 +389,14 @@ const LoginDragon = forwardRef(function LoginDragon(props, ref) {
         try { renderer.dispose(); renderer.forceContextLoss(); } catch (e) { /* ignore */ }
         if (renderer && renderer.domElement && renderer.domElement.parentNode)
           renderer.domElement.parentNode.removeChild(renderer.domElement);
+        if (posterRef.current) posterRef.current.style.display = '';
       };
     } catch (e) {
       // WebGL unavailable / init failed: the poster carries the login
       if (renderer) { try { renderer.dispose(); } catch (_) { /* ignore */ } }
       return () => { disposed = true; if (raf) cancelAnimationFrame(raf); };
     }
-  }, []);
+  }, [live]);
 
   return (
     <div className="login-dragon" aria-hidden="true">

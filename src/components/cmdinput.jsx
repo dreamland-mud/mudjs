@@ -5,6 +5,7 @@ import { echo } from '../input';
 import { send, connect } from '../websock';
 import { getKeydown } from '../settings';
 import { t } from '../i18n';
+import FocusOrbit from './FocusOrbit';
 
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -231,6 +232,7 @@ const CmdInput = () => {
           type="text"
           autoComplete="off"
         />
+        <FocusOrbit />
       </form>
       {!big && (
         <div className="rf-cmdactions">

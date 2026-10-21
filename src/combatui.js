@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import { store } from './store.js';
 
 // State UI accent: paint the client with a coloured inner glow that reflects the
 // player's current state, so it's obvious at a glance without reading every line
@@ -28,7 +29,35 @@ import $ from 'jquery';
 //   hide      -> grey (concealment, steady)
 //
 // Imported after ./prompt in main.js so window.mudprompt is already updated here.
+
+// The state flags this file reads off window.mudprompt (missing = off). hit/max_hit
+// stay: user scripts read them too.
+const STATE_KEYS = ['fight', 'rage', 'blind', 'mind', 'faerie', 'poison', 'fade', 'hide'];
+
+// Out of the world (quit, disconnect) no prompt comes to switch the accent off, so a
+// red fight vignette or a combat input stroke would sit over the login and the
+// roster. Drop it, and drop the stale flags from window.mudprompt so the next
+// session's first (partial) prompt can't bring them back.
+function clearState() {
+  const body = document.body;
+  body.classList.remove('mud-fighting', 'mud-rage');
+  delete body.dataset.glow;
+  body.style.removeProperty('--beat');
+  if (window.mudprompt)
+    for (const k of STATE_KEYS) delete window.mudprompt[k];
+}
+
 $(function () {
+  // rpc-config_state fires on entering the world and on quit; the store prompt goes
+  // null on a socket drop.
+  $('#rpc-events').on('rpc-config_state', clearState);
+  let hadPrompt = !!store.getState().prompt;
+  store.subscribe(() => {
+    const has = !!store.getState().prompt;
+    if (hadPrompt && !has) clearState();
+    hadPrompt = has;
+  });
+
   $('#rpc-events').on('rpc-prompt', function () {
     const p = window.mudprompt || {};
     const body = document.body;
