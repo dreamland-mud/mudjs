@@ -4,7 +4,8 @@
  * The affects panel used to split into six named columns; it is now ONE wrapping
  * block of pill chips. Each chip is a flat dark pill with a thin bronze edge; the
  * TEXT keeps the game's ANSI colour convention (red maladiction / green buff /
- * cyan permanent / yellow about-to-expire -- see affColor() in affectsItem.jsx),
+ * magenta cooldown / cyan permanent / yellow about-to-expire -- see affColor() in
+ * affectsItem.jsx),
  * which is exactly the palette the Figma was drawn from.
  *
  * Scoped #player-affects-table.affects-flat so these win over the skin's older
@@ -49,6 +50,7 @@
 #player-affects-table.affects-flat .aff-chip.fg-ansi-bright-color-1 { --chip-accent: #ed2330; } /* maladiction / debuff */
 #player-affects-table.affects-flat .aff-chip.fg-ansi-bright-color-2 { --chip-accent: #8ee34f; } /* buff */
 #player-affects-table.affects-flat .aff-chip.fg-ansi-bright-color-3 { --chip-accent: #fdea56; } /* about to expire */
+#player-affects-table.affects-flat .aff-chip.fg-ansi-bright-color-5 { --chip-accent: #d384cb; } /* cooldown (7.1:1 on the chip) */
 #player-affects-table.affects-flat .aff-chip.fg-ansi-bright-color-6 { --chip-accent: #2cf4eb; } /* permanent / set-bound */
 
 /*

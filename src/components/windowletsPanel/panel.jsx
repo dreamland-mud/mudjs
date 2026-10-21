@@ -36,7 +36,8 @@ export default function Panel() {
         (!prompt.enh || prompt.enh === "none") &&
         (!prompt.pro || prompt.pro === "none") &&
         (!prompt.mal || prompt.mal === "none") &&
-        (!prompt.cln || prompt.cln === "none")) return false
+        (!prompt.cln || prompt.cln === "none") &&
+        (!prompt.cd || prompt.cd === "none")) return false
         return true
     }
 
