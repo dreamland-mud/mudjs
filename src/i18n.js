@@ -74,6 +74,7 @@ const STRINGS = {
     'aff.enh': 'Boost',
     'aff.mal': 'Curse',
     'aff.cln': 'Clan',
+    'aff.cd': 'cooldown',
     // time & weather panel
     'tw.title': 'Weather & time',
     // group panel
@@ -415,6 +416,7 @@ const STRINGS = {
     'aff.enh': 'Усилен',
     'aff.mal': 'Отриц',
     'aff.cln': 'Клан',
+    'aff.cd': 'перезарядка',
     'tw.title': 'Погода и время',
     'grp.title': 'Группа',
     'grp.name': 'Имя',
@@ -735,6 +737,7 @@ const STRINGS = {
     'aff.enh': 'Підсил',
     'aff.mal': 'Негат',
     'aff.cln': 'Клан',
+    'aff.cd': 'перезарядка',
     'tw.title': 'Погода і час',
     'grp.title': 'Група',
     'grp.name': 'Імʼя',
