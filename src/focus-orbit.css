@@ -1,0 +1,91 @@
+/*
+ * Focus orbit (FocusOrbit.jsx): the arcane glow that circles a focused field.
+ * It used to be a filter: drop-shadow() keyframe animation (pc-focus-orbit), which
+ * re-ran the filter on every frame and, on the always-focused command line, ate
+ * frame time while the terminal scrolled. Now each shadow is a static soft-edged
+ * slab (a solid fill whose edges fade through an intersected mask = a blurred
+ * rectangle, rendered once) and the animation moves it with transform only.
+ * Same path as before: a diamond through top / right / bottom / left offsets,
+ * linear, 2.6 s, the two colours on opposite sides.
+ */
+.focus-orbit {
+  --orbit-pad: 28px;          /* room around the field for the glow */
+  --orbit-k: 1;               /* strength: 1 for an opaque field */
+  position: absolute;
+  inset: calc(-1 * var(--orbit-pad));
+  display: none;
+  pointer-events: none;
+  /* outside only: the field itself is never painted over */
+  clip-path: polygon(evenodd,
+    0 0, 100% 0, 100% 100%, 0 100%, 0 0,
+    var(--orbit-pad) var(--orbit-pad),
+    var(--orbit-pad) calc(100% - var(--orbit-pad)),
+    calc(100% - var(--orbit-pad)) calc(100% - var(--orbit-pad)),
+    calc(100% - var(--orbit-pad)) var(--orbit-pad),
+    var(--orbit-pad) var(--orbit-pad));
+}
+:focus-within > .focus-orbit { display: block; }
+
+/* field with its own outer focus ring: sit under it (the host isolates, so
+   z-index -1 stays above the host's own backdrop) so the ring stays crisp on top.
+   The old drop-shadow was cast by a see-through body with an opaque border + ring,
+   hence the lower strength (matched against screenshots). */
+.focus-orbit--behind {
+  --orbit-k: 0.8;
+  z-index: -1;
+}
+
+.focus-orbit__a,
+.focus-orbit__b {
+  position: absolute;
+  /* --blur is the old drop-shadow radius, which is one sigma: the slab reaches
+     2 sigma past the field and fades over 4 sigma (a linear stand-in for erf) */
+  inset: calc(var(--orbit-pad) - 2 * var(--blur));
+  border-radius: 5px;
+  will-change: transform;
+  /* a blurred rectangle: edges ramp 0 -> 1 over 4 x blur, both axes intersected */
+  -webkit-mask:
+    linear-gradient(to right, transparent, #000 calc(4 * var(--blur)), #000 calc(100% - 4 * var(--blur)), transparent),
+    linear-gradient(to bottom, transparent, #000 calc(4 * var(--blur)), #000 calc(100% - 4 * var(--blur)), transparent);
+  -webkit-mask-composite: source-in;
+  mask:
+    linear-gradient(to right, transparent, #000 calc(4 * var(--blur)), #000 calc(100% - 4 * var(--blur)), transparent),
+    linear-gradient(to bottom, transparent, #000 calc(4 * var(--blur)), #000 calc(100% - 4 * var(--blur)), transparent);
+  mask-composite: intersect;
+  animation: focus-orbit-a 2.6s linear infinite;
+}
+/* was drop-shadow(0 -5px 7px rgba(187,134,252,.75)) */
+.focus-orbit__a {
+  --blur: 7px;
+  background: rgb(187, 134, 252);
+  opacity: calc(0.75 * var(--orbit-k));
+}
+/* was drop-shadow(0 5px 6px rgba(128,67,202,.42)), always opposite the first */
+.focus-orbit__b {
+  --blur: 6px;
+  background: rgb(128, 67, 202);
+  opacity: calc(0.42 * var(--orbit-k));
+  animation-name: focus-orbit-b;
+}
+@keyframes focus-orbit-a {
+  0%   { transform: translate(0, -5px); }
+  25%  { transform: translate(6px, 0); }
+  50%  { transform: translate(0, 5px); }
+  75%  { transform: translate(-6px, 0); }
+  100% { transform: translate(0, -5px); }
+}
+@keyframes focus-orbit-b {
+  0%   { transform: translate(0, 5px); }
+  25%  { transform: translate(-6px, 0); }
+  50%  { transform: translate(0, -5px); }
+  75%  { transform: translate(6px, 0); }
+  100% { transform: translate(0, 5px); }
+}
+
+/* Reduced motion: no orbit, one steady even glow (was drop-shadow(0 0 7px .6)). */
+@media (prefers-reduced-motion: reduce) {
+  .focus-orbit__a,
+  .focus-orbit__b { animation: none; transform: none; }
+  .focus-orbit__a { opacity: calc(0.6 * var(--orbit-k)); }
+  .focus-orbit__b { display: none; }
+}

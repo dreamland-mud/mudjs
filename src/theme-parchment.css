@@ -1261,11 +1261,14 @@ header.MuiPaper-root.MuiAppBar-root{ /* the widget-card top fill: stone-850 + ar
     0 0 0 1px #2a1650,0 0 22px var(--arcane-glow) !important;
 }
 
-/* --- one field, one focus glow: the arcane purple orbit, as Runeforge had --- */
+/* --- one field, one focus glow: the arcane purple orbit, as Runeforge had ---
+   The command line and the login inputs draw it with FocusOrbit (compositor-only
+   layers, focus-orbit.css); the rarer fields below keep the filter keyframes. */
+form#input{position:relative}
 form#input input:focus,.form-control:focus,#help input:focus,
 .dl-mapper-root .search-input:focus,.dl-mapper-root .select:focus,
 .dl-mapper-root .select:focus-visible{outline:none}
-.form-control:focus,#help input:focus,form#input:focus-within,
+.form-control:focus,#help input:focus,
 .dl-mapper-root .search-input:focus,.dl-mapper-root .select:focus-visible{
   animation:pc-focus-orbit 2.6s linear infinite;
 }
@@ -1277,13 +1280,14 @@ form#input input:focus,.form-control:focus,#help input:focus,
   100%  {filter:drop-shadow(0 -5px 7px rgba(187,134,252,.75)) drop-shadow(0 5px 6px rgba(128,67,202,.42));}
 }
 @media (prefers-reduced-motion:reduce){
-  .form-control:focus,#help input:focus,form#input:focus-within,
+  .form-control:focus,#help input:focus,
   .dl-mapper-root .search-input:focus,.dl-mapper-root .select:focus-visible{
     animation:none;filter:drop-shadow(0 0 7px rgba(187,134,252,.6));
   }
 }
 /* fighting owns the input border (red); drop the purple orbit while it holds */
-body.mud-fighting form#input:focus-within{border-color:#cc0000;animation:none;filter:none}
+body.mud-fighting form#input:focus-within{border-color:#cc0000}
+body.mud-fighting form#input .focus-orbit{display:none}
 
 /* Trigger highlights in the terminal (triggers.js). The colour itself is the
    player's, set inline; this only shapes the line band. */
