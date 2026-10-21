@@ -443,7 +443,30 @@ function cancelFirstFrame() {
 }
 
 /** A new socket's opening words when there is no resume to ask for. */
+/* The ?src= label of the link the visitor came by, for the newcomer reports.
+ * The first label ever seen wins and is kept in localStorage, which the site
+ * pages on the same origin also write, so a visitor who lands on the homepage
+ * with ?src= and clicks Play still carries it. Storage can be blocked: then
+ * only a label in this page's own URL counts. */
+const SRC_KEY = 'dl.src';
+const landingSource = (() => {
+  let src = '';
+  try {
+    src = new URLSearchParams(window.location.search).get('src') || '';
+  } catch (e) {}
+  try {
+    const kept = localStorage.getItem(SRC_KEY);
+    if (kept) return kept;
+    if (src) localStorage.setItem(SRC_KEY, src);
+  } catch (e) {}
+  return src;
+})();
+
 function answerFreshSocket() {
+  // Before the nanny starts, so the label is on the socket by the time a
+  // character is created on it.
+  if (landingSource) rpccmd('client_src', landingSource);
+
   const f = firstFrame;
   firstFrame = null;
   if (f && rpccmd(f.cmd, ...f.args)) {
