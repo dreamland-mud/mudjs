@@ -19,7 +19,7 @@ const RoomRow = ({room}) => {
 }
 
 // Draw a single exit letter or a dot if no such exit exists.
-const ExitCell = ({ex_ru, ex_en, ex_hidden, ex_visible, lang}) => {
+const ExitCell = ({ex_ru, ex_ua, ex_en, ex_hidden, ex_visible, lang}) => {
     let exit = ex_en.toLowerCase();
 
     // See if this exit letter is among hidden exits.
@@ -30,7 +30,7 @@ const ExitCell = ({ex_ru, ex_en, ex_hidden, ex_visible, lang}) => {
     // If found anywhere, draw a letter of selected language, otherwise a dot.
     let letter;
     if (hidden || visible) {
-        letter = (lang === 'r' ? ex_ru : ex_en);
+        letter = (lang === 'r' ? ex_ru : lang === 'u' ? ex_ua : ex_en);
     } else {
         letter = '\u00B7';
     }
@@ -38,21 +38,24 @@ const ExitCell = ({ex_ru, ex_en, ex_hidden, ex_visible, lang}) => {
     // Mark hidden exits with default color, other exits with bright blue.
     let color = (hidden ? '' : 'fg-ansi-bright-color-6');
 
-    return <span className={`${color}`}>{letter}</span> 
+    // UA letters come in pairs (Пн, Пд...), so they need a gap to stay apart.
+    const style = (lang === 'u' ? { marginRight: '0.4em' } : undefined);
+
+    return <span className={`${color}`} style={style}>{letter}</span>
 };
 
-// Prompt exits field: e - open exits, h - closed exits, l - exit-letter language (r, e).
+// Prompt exits field: e - open exits, h - closed exits, l - exit-letter language (r, u, e).
 // uilang is the UI display language (en/ru/ua) for the "exits:" label, kept separate.
 const ExitsRow = ({e, h, l, uilang}) => {
     return <tr>
         <td className="v-top">&nbsp;<i className="fa">&#xf277;</i></td>
         <td className="v-bottom">{t('loc.exits', uilang)}&nbsp;
-            <ExitCell ex_ru='С' ex_en='N' ex_hidden={h} ex_visible={e} lang={l} />
-            <ExitCell ex_ru='В' ex_en='E' ex_hidden={h} ex_visible={e} lang={l} />
-            <ExitCell ex_ru='Ю' ex_en='S' ex_hidden={h} ex_visible={e} lang={l} />
-            <ExitCell ex_ru='З' ex_en='W' ex_hidden={h} ex_visible={e} lang={l} />
-            <ExitCell ex_ru='О' ex_en='D' ex_hidden={h} ex_visible={e} lang={l} />
-            <ExitCell ex_ru='П' ex_en='U' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='С' ex_ua='Пн' ex_en='N' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='В' ex_ua='Сх' ex_en='E' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='Ю' ex_ua='Пд' ex_en='S' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='З' ex_ua='Зх' ex_en='W' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='О' ex_ua='Вн' ex_en='D' ex_hidden={h} ex_visible={e} lang={l} />
+            <ExitCell ex_ru='П' ex_ua='Вг' ex_en='U' ex_hidden={h} ex_visible={e} lang={l} />
         </td>
     </tr>;
 };
