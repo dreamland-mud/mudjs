@@ -159,7 +159,7 @@ export default function AccountPage({ lang, visible }) {
                       {c.profile.hidden
                         ? t('acct.profile_hidden', lang)
                         : c.profile.blocker
-                          ? t('acct.profile_locked', lang).replace('{a}', c.profile.blocker)
+                          ? t('acct.profile_locked', lang).replace('{a}', () => c.profile.blocker)
                           : t('acct.profile_shown', lang)}
                     </span>
                   ) : null}
