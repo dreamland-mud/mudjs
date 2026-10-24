@@ -755,16 +755,16 @@
    stage > cols > col > roster) needs min-height: 0 on every link or the list
    grows instead of scrolling. */
 .acc-stack.is-sheet {
-  top: 0;
-  bottom: 0;
   left: auto;
-  right: 0;
-  transform: none;
   width: min(440px, 100%);
+  padding: 0;
+  overflow: hidden;           /* the list scrolls, not the sheet */
   align-items: stretch;
   animation: acc-sheet-in 0.32s cubic-bezier(0.32, 0.72, 0, 1) backwards;
 }
 .acc-stack.is-sheet > .acc-controls {
+  width: auto;
+  margin: 0;
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
