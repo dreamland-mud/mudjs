@@ -10,7 +10,7 @@ import './AccountPage.css';
 // with an 'account_chars' rpc carrying
 //   { current, account, title,
 //     identities: [ { type, display }, ... ],
-//     chars:      [ { name }, ... ] }
+//     chars:      [ { name, class, profile: { hidden, blocker } }, ... ] }
 // account is false (and the arrays empty) for a character not on an account, or
 // before the rpc ships (pre-reboot) -- in which case the manual switch field
 // below, which works today, is the way through. Clicking a character sends the
@@ -70,6 +70,16 @@ export default function AccountPage({ lang, visible }) {
     if (!NAME_RE.test(clean)) return;
     send('account switch ' + clean);
     close();
+  };
+
+  // Public profile switch: the same `account profile hide|show <name>` that
+  // works at the keyboard (the server refuses a character that alone brings an
+  // achievement), then ask for the roster again to show the new state.
+  const setHidden = (name, hide) => {
+    const clean = String(name || '').trim();
+    if (!NAME_RE.test(clean)) return;
+    send('account profile ' + (hide ? 'hide ' : 'show ') + clean);
+    setTimeout(fetchChars, 300);
   };
 
   const listChars = () => {
@@ -144,7 +154,26 @@ export default function AccountPage({ lang, visible }) {
                   : <span className="acct-sigil" aria-hidden="true">{c.name[0]}</span>}
                 <span className="acct-card-main">
                   <span className="acct-card-name">{c.name}</span>
+                  {c.profile ? (
+                    <span className="acct-card-profile">
+                      {c.profile.hidden
+                        ? t('acct.profile_hidden', lang)
+                        : c.profile.blocker
+                          ? t('acct.profile_locked', lang).replace('{a}', c.profile.blocker)
+                          : t('acct.profile_shown', lang)}
+                    </span>
+                  ) : null}
                 </span>
+                {c.profile && (c.profile.hidden || !c.profile.blocker) ? (
+                  <button
+                    type="button"
+                    className="acct-mini acct-mini-ghost"
+                    aria-label={(c.profile.hidden ? t('acct.profile_show', lang) : t('acct.profile_hide', lang)) + ' ' + c.name}
+                    onClick={() => setHidden(c.name, !c.profile.hidden)}
+                  >
+                    {c.profile.hidden ? t('acct.profile_show', lang) : t('acct.profile_hide', lang)}
+                  </button>
+                ) : null}
                 {isCurrent(c) ? (
                   <span className="acct-badge acct-badge-here">{t('acct.current', lang)}</span>
                 ) : (

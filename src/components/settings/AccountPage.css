@@ -146,6 +146,8 @@
 }
 .acct-mini:hover:not(:disabled) { border-color: var(--cfg-accent); color: var(--cfg-bright); }
 .acct-mini:disabled { opacity: 0.5; cursor: default; }
+.acct-mini-ghost { background: transparent; font-weight: 400; }
+.acct-card-profile { font-size: 11px; color: var(--cfg-dim); overflow-wrap: anywhere; }
 
 .acct-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
