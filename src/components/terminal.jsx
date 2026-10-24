@@ -215,8 +215,7 @@ function terminalInit(wrap) {
       .then(id => {
         const $chunk = $('<div>')
           .append(html)
-          .attr('data-chunk-id', id)
-          .attr('aria-live', 'alert');
+          .attr('data-chunk-id', id);
 
         $chunk.find('.manip-cmd').each(function () {
           $(this).attr('role', 'link').attr('tabindex', 0);
