@@ -8,30 +8,41 @@
  */
 .acc-stack {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
   z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: min(440px, 90%);
+  padding: 16px 0;
+  /* The stack is a scroller over the whole panel, not a box centred by translate:
+     a translate-centred box taller than the screen runs off both ends with no way
+     to reach them (the create form under the dragon on a short laptop). Auto margins
+     on the first/last child centre the column while it fits and pin it to the top
+     once it doesn't -- the "safe" centring justify-content: center lacks. Full width
+     so the card's rim glow isn't clipped at its sides. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
-/* the card goes static + full width inside the stack (was absolute-centred on its own) */
+.acc-stack > :first-child { margin-top: auto; }
+.acc-stack > :last-child { margin-bottom: auto; }
+/* the card goes static inside the stack (was absolute-centred on its own) */
 .acc-stack > .acc-controls {
   position: relative;
   top: auto;
   left: auto;
   transform: none;
-  margin: 0;
-  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  width: min(440px, 90%);
+  flex: none;
   z-index: 3;
 }
 
 .login-dragon {
   position: relative;
   z-index: 1;                 /* below the card (3), above the portal (2) */
-  width: 100%;
+  width: min(440px, 90%);
+  flex: none;
   height: 300px;
   margin-bottom: -52px;       /* tuck the feet behind the card's top edge */
   pointer-events: none;
@@ -72,7 +83,7 @@
    absolute-centring opening transform so it doesn't jump while stacked */
 .acc-overlay.is-opening .acc-stack {
   opacity: 0;
-  transform: translate(-50%, -54%) scale(0.985);
+  transform: translateY(-4%) scale(0.985);
   transition: opacity 0.35s ease-out, transform 0.35s ease-out;
 }
 .acc-overlay.is-opening .acc-stack > .acc-controls {
