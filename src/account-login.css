@@ -744,3 +744,67 @@
 @media (prefers-reduced-motion: reduce) {
   .ds-switch, .ds-switch__knob { transition: none; }
 }
+
+/* ---- roster side sheet ------------------------------------------------------
+   On the roster step the centred card becomes a full-height sheet pinned to the
+   panel's right edge: logo, languages and the lead line stay put at the top,
+   Logout at the foot, and only the character list scrolls. A centred card has no
+   height cap, so a long roster used to run off both ends of a short screen. The
+   sheet is the .acc-stack wrapper (it owns the centring, see login-dragon.css;
+   the dragon is already gone on the roster). The flex chain (stack > controls >
+   stage > cols > col > roster) needs min-height: 0 on every link or the list
+   grows instead of scrolling. */
+.acc-stack.is-sheet {
+  top: 0;
+  bottom: 0;
+  left: auto;
+  right: 0;
+  transform: none;
+  width: min(440px, 100%);
+  align-items: stretch;
+  animation: acc-sheet-in 0.32s cubic-bezier(0.32, 0.72, 0, 1) backwards;
+}
+.acc-stack.is-sheet > .acc-controls {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
+}
+.acc-stack.is-sheet .acc-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.acc-stack.is-sheet .acc-cols,
+.acc-stack.is-sheet .acc-col {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.acc-stack.is-sheet .acc-roster {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* a scroll box clips both axes: leave room for the class diamond (it pokes
+     4px past each card's left edge), its drop shadow and the press nudge */
+  padding: 6px 4px 6px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-deep, #6f5a26) transparent;
+}
+.acc-stack.is-sheet .acc-roster::-webkit-scrollbar { width: 8px; }
+.acc-stack.is-sheet .acc-roster::-webkit-scrollbar-thumb {
+  background: var(--gold-deep, #6f5a26);
+  border-radius: 4px;
+}
+.acc-stack.is-sheet .acc-card { flex: none; }
+/* on the reveal the sheet slides back out the way it came */
+.acc-overlay.is-opening .acc-stack.is-sheet { transform: translateX(100%); }
+@keyframes acc-sheet-in {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .acc-stack.is-sheet { animation: none; }
+}

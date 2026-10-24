@@ -922,7 +922,9 @@ export default function AccountLogin() {
           See .acc-portal in account-login.css. */}
       <div className="acc-portal" aria-hidden="true"><div className="acc-portal-glow" /></div>
 
-      <div className="acc-stack">
+      {/* On the roster the stack turns into a full-height side sheet so a long
+          character list scrolls instead of running off the screen. */}
+      <div className={'acc-stack' + (bstep === 'roster' ? ' is-sheet' : '')}>
       {/* The dragon guards the gate: it perches while you are still getting in,
           and is gone once you are (the roster is the character-select screen --
           you are already authenticated, nothing left to halt). Dropping it lets
