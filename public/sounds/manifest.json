@@ -1,6 +1,20 @@
 {
  "sounds": [
   {
+   "name": "alert/achievement",
+   "type": "alert",
+   "file": "alert/achievement.mp3",
+   "label": {
+    "en": "Achievement unlocked",
+    "ru": "Получено достижение",
+    "ua": "Отримано досягнення"
+   },
+   "title": "80s Achievement Unlocked",
+   "author": "Jerimee",
+   "source": "https://freesound.org/people/Jerimee/sounds/571129/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "alert/bell",
    "type": "alert",
    "file": "alert/bell.mp3",
