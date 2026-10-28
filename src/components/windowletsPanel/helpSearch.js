@@ -195,10 +195,35 @@ export function excerpt(txt, q) {
 
 export const normQuery = q => squash(q).toLowerCase();
 
+/* A leading facet word narrows the search like `help spell fire` in game
+   (plug-ins/comm/help.cpp help_facet_labels); the site's help.js keeps the
+   same table. "skill" takes spells too, as in game. Only a word with more
+   query after it counts: a bare "race" still searches for the article. */
+const has = (a, l) => ((a && a.labels) || []).includes(l);
+const FACET_WORDS = [
+  { words: ['skill', 'skills', 'умение', 'умения', 'вміння'], test: a => has(a, 'skill') || has(a, 'spell') },
+  { words: ['spell', 'spells', 'заклинание', 'заклинания', 'закляття'], test: a => has(a, 'spell') },
+  { words: ['class', 'класс', 'клас'], test: a => has(a, 'class') },
+  { words: ['race', 'раса'], test: a => has(a, 'race') || has(a, 'raceaptitude') },
+  { words: ['command', 'cmd', 'команда'], test: a => has(a, 'cmd') },
+  { words: ['area', 'zone', 'зона'], test: a => has(a, 'area') },
+  { words: ['religion', 'религия', 'релігія'], test: a => has(a, 'religion') },
+  { words: ['clan', 'клан'], test: a => has(a, 'clan') || has(a, 'clanskill') },
+];
+
+// q from normQuery; returns { q, test } with the facet word cut off
+export function parseQuery(q) {
+  const sp = q.indexOf(' ');
+  if (sp < 0) return { q, test: null };
+  const f = FACET_WORDS.find(f => f.words.includes(q.slice(0, sp)));
+  return f ? { q: q.slice(sp + 1), test: f.test } : { q, test: null };
+}
+
 /* Exact keyword, then title substring or keyword prefix, then article text
    (word-start hits before mid-word ones)
-   -- 3+ characters, prose only. textFor is null until the bodies are in. */
-export function search(index, q, lang, textFor, limit = 24) {
+   -- 3+ characters, prose only. textFor is null until the bodies are in;
+   test, when given, keeps only the articles it accepts. */
+export function search(index, q, lang, textFor, limit = 24, test = null) {
   if (!q) return [];
   const exact = [];
   const partial = [];
@@ -206,6 +231,7 @@ export function search(index, q, lang, textFor, limit = 24) {
   const inPart = [];
   for (let i = 0; i < index.length && exact.length + partial.length < limit; i++) {
     const a = index[i];
+    if (test && !test(a)) continue;
     const kws = (a.kwList || []).map(k => k.toLowerCase());
     const title = label(a, lang).toLowerCase();
     if (kws.includes(q)) exact.push(a);
