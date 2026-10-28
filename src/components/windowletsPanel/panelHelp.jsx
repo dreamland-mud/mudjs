@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { send } from '../../websock';
 import { usePrompt } from '../../react-hooks';
 import { t, getLang } from '../../i18n';
-import { loadIndex, loadBodies, makeTextCache, search, normQuery, label, kind, excerpt } from './helpSearch';
+import { loadIndex, loadBodies, makeTextCache, search, normQuery, parseQuery, label, kind, excerpt } from './helpSearch';
 
 const echo = txt => {
   $('.terminal').trigger('output', [txt]);
@@ -68,8 +68,10 @@ export default function Help() {
 
   const { index, error, textFor } = useHelpData(wanted, lang);
 
-  const q = normQuery(query);
-  const hits = useMemo(() => (index ? search(index, q, lang, textFor) : []), [index, q, lang, textFor]);
+  const full = normQuery(query);
+  // `spell fire`: the facet word filters, the rest is what gets matched and marked
+  const { q, test } = useMemo(() => parseQuery(full), [full]);
+  const hits = useMemo(() => (index ? search(index, q, lang, textFor, 24, test) : []), [index, q, lang, textFor, test]);
   const showList = open && q !== '' && index !== null;
 
   useEffect(() => setActive(0), [q]);
