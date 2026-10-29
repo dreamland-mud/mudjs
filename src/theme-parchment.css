@@ -431,6 +431,8 @@ td.v-bottom{vertical-align:bottom}
 #help input:focus{background-color:#000;outline:none;border-color:var(--gold)}
 /* search box + book button (help contents) on one row */
 #help-table.help-row{display:flex;align-items:center;gap:6px}
+/* the id selector above outranks .collapse:not(.show), so the minus button needs its own hide */
+#help-table.help-row.collapse:not(.show){display:none}
 #help-table.help-row input{flex:1 1 auto;min-width:0;width:auto}
 .help-book{flex:none;width:2.375rem;height:2.375rem;padding:0;background:var(--rf-well);color:var(--gold-dim);border:1px solid var(--gold-deep);border-radius:5px;font-size:1.1em}
 .help-book:hover,.help-book:focus{color:var(--gold);border-color:var(--gold);outline:none}
