@@ -429,6 +429,11 @@ td.v-bottom{vertical-align:bottom}
   margin:0;padding-left:2rem;font-size:1.1em;border-radius:5px;
 }
 #help input:focus{background-color:#000;outline:none;border-color:var(--gold)}
+/* search box + book button (help contents) on one row */
+#help-table.help-row{display:flex;align-items:center;gap:6px}
+#help-table.help-row input{flex:1 1 auto;min-width:0;width:auto}
+.help-book{flex:none;width:2.375rem;height:2.375rem;padding:0;background:var(--rf-well);color:var(--gold-dim);border:1px solid var(--gold-deep);border-radius:5px;font-size:1.1em}
+.help-book:hover,.help-book:focus{color:var(--gold);border-color:var(--gold);outline:none}
 .form-control-feedback{position:absolute;z-index:2;display:block;width:2.375rem;height:2.375rem;line-height:2.375rem;text-align:center;pointer-events:none;color:var(--gold-dim)}
 
 /* help search results (panelHelp.jsx): a portal on <body> pinned under the
