@@ -198,10 +198,258 @@
         return exact.concat(partial, inWord, inPart).slice(0, limit);
     }
 
+    // ---- suggestions on a miss -------------------------------------------
+    /* A port of the game's FuzzySearch (dreamland_code plug-ins/comm/help.cpp):
+       the query typed in the wrong keyboard layout, then per-word fuzzy
+       matching against keyword words only. Same weights and cut-offs, so the
+       site, the client and the MCP server suggest what `help` suggests in game.
+       Run it only when search() found nothing. */
+    var WORD_EXACT = 100, WORD_PREFIX = 90, WORD_FUZZY = 80, WORD_STEM = 70, WORD_WEAK = 1;
+    var FUZZY_STEP = 15, DF_BONUS = 50, MULTI_MIN_WORDS = 2, MAX_RESULTS = 5;
+    var PREFIX_MIN = 3, STEM_MIN_PREFIX = 5, STEM_ABBR_PREFIX = 4;
+    var FUZZY_MIN_LEN = 5, SHORT_TYPO_LEN = 4, FLIP_MIN_LEN = 3, MAX_WORDS = 8;
+
+    function fuzzyCutoff(n) {
+        if (n < FUZZY_MIN_LEN) return 0;
+        if (n <= 5) return 1;
+        if (n <= 8) return 2;
+        return 3;
+    }
+
+    // git's Damerau-Levenshtein with weights: w swap, s substitution, a insertion, d deletion
+    function levenshtein(s1, s2, w, s, a, d) {
+        var len1 = s1.length, len2 = s2.length, i, j, t;
+        var row0 = [], row1 = [], row2 = [];
+        for (j = 0; j <= len2; j++) { row0.push(0); row1.push(j * a); row2.push(0); }
+        for (i = 0; i < len1; i++) {
+            row2[0] = (i + 1) * d;
+            for (j = 0; j < len2; j++) {
+                row2[j + 1] = row1[j] + s * (s1.charAt(i) !== s2.charAt(j) ? 1 : 0);
+                if (i > 0 && j > 0 && s1.charAt(i - 1) === s2.charAt(j) && s1.charAt(i) === s2.charAt(j - 1)
+                        && row2[j + 1] > row0[j - 1] + w)
+                    row2[j + 1] = row0[j - 1] + w;
+                if (row2[j + 1] > row1[j + 1] + d) row2[j + 1] = row1[j + 1] + d;
+                if (row2[j + 1] > row2[j] + a) row2[j + 1] = row2[j] + a;
+            }
+            t = row0; row0 = row1; row1 = row2; row2 = t;
+        }
+        return row1[len2];
+    }
+
+    function commonPrefix(a, b) {
+        var n = 0, limit = Math.min(a.length, b.length);
+        while (n < limit && a.charAt(n) === b.charAt(n)) n++;
+        return n;
+    }
+
+    /* The common prefix when it counts as the same stem, else 0. A shorter one
+       passes only for an abbreviation with at most one trailing letter wrong
+       (invey -> inventory). */
+    function stemLen(q, k) {
+        var p = commonPrefix(q, k);
+        if (p >= STEM_MIN_PREFIX) return p;
+        if (p >= STEM_ABBR_PREFIX && q.length <= p + 1 && k.length >= q.length) return p;
+        return 0;
+    }
+
+    /* One query word against one keyword word, 0 for no match. A glued pair
+       (fire ball -> fireball) gets neither the stem rule nor the weak
+       substitution: that would be a guess on a guess. */
+    function wordScore(q, k, glued) {
+        if (q === k) return WORD_EXACT;
+        if (q.length >= PREFIX_MIN && k.length > q.length && k.indexOf(q) === 0) return WORD_PREFIX;
+
+        var best = 0, cut = fuzzyCutoff(q.length);
+        if (cut > 0) {
+            if (Math.abs(q.length - k.length) <= cut) {
+                var dist = levenshtein(q, k, 1, 1, 1, 1);
+                if (dist <= cut) best = WORD_FUZZY - FUZZY_STEP * dist;
+            }
+        } else if (q.length === SHORT_TYPO_LEN) {
+            // a swap (bsah) or a plural letter (мечи) at four letters; one
+            // substituted letter (шлем/шлеп) only breaks ties
+            if (k.length === SHORT_TYPO_LEN && levenshtein(q, k, 1, 2, 2, 2) === 1)
+                best = WORD_FUZZY - FUZZY_STEP;
+            else if (k.length + 1 === q.length && q.indexOf(k) === 0)
+                best = WORD_FUZZY - FUZZY_STEP;
+            else if (!glued && k.length === SHORT_TYPO_LEN && levenshtein(q, k, 1, 1, 1, 1) === 1)
+                best = WORD_WEAK;
+        }
+
+        var p = glued ? 0 : stemLen(q, k);
+        if (p > 0) {
+            var sc = Math.max(WORD_STEM - (Math.max(q.length, k.length) - p), WORD_WEAK + 1);
+            if (sc > best) best = sc;
+        }
+        return best;
+    }
+
+    // lowercase words of a query or a keyword, quotes dropped (split_words)
+    function splitWords(text) {
+        return String(text || '').replace(/['"]/g, '').toLowerCase().split(/\s+/).filter(Boolean);
+    }
+    function keywordWords(a) {
+        var out = [];
+        (a.kwList || []).forEach(function (k) { out.push.apply(out, splitWords(k)); });
+        return out;
+    }
+
+    // keyboard layout flip, plug-ins/interpret/translit.cpp
+    var EN_KEYS = "qwertyuiop[{]}asdfghjkl;:'\"zxcvbnm,<.>/?`~";
+    var RU_KEYS = 'йцукенгшщзххъъфывапролджжээячсмитьббюю..ёё';
+    var UA_KEYS = 'йцукенгшщзххїїфівапролджжєєячсмитьббюю..ґґ';
+    function translit(lang, s) {
+        var to = lang === 'ua' ? UA_KEYS : RU_KEYS, out = '';
+        for (var i = 0; i < s.length; i++) {
+            var c = s.charAt(i).toLowerCase(), at = EN_KEYS.indexOf(c);
+            if (at >= 0) { out += to.charAt(at); continue; }
+            at = RU_KEYS.indexOf(c);
+            if (at < 0) at = UA_KEYS.indexOf(c);
+            // Cyrillic back to the key; '.' is both '/' and the ю key, keep it
+            out += (at >= 0 && c !== '.') ? EN_KEYS.charAt(at) : c;
+        }
+        return out;
+    }
+
+    /* is_name(): every query word starts some keyword word, or the whole query
+       starts a whole keyword. What HelpFinder matches with in game. */
+    function prefixMatch(a, words, q) {
+        var kws = (a.kwList || []).map(function (k) { return k.replace(/['"]/g, '').toLowerCase(); });
+        if (kws.some(function (k) { return k.indexOf(q) === 0; })) return true;
+        var kw = keywordWords(a);
+        return words.every(function (w) { return kw.some(function (k) { return k.indexOf(w) === 0; }); });
+    }
+
+    function searchFlipped(index, query, words, lang, test, facetWord) {
+        for (var i = 0; i < words.length; i++)
+            if (words[i].length < FLIP_MIN_LEN) return [];
+        var langs = lang === 'ua' ? ['ua', 'ru'] : ['ru', 'ua'], tried = '';
+        for (var li = 0; li < 2; li++) {
+            var flipped = translit(langs[li], query);
+            if (flipped === query || flipped === tried) continue;
+            tried = flipped;
+            // the facet word was typed right, only the rest is flipped
+            var p = parseQuery(normQuery(facetWord ? facetWord + ' ' + flipped : flipped));
+            var fw = splitWords(p.q), hits = [];
+            for (var j = 0; j < index.length && hits.length < MAX_RESULTS; j++) {
+                var a = index[j];
+                if ((p.test && !p.test(a)) || (test && !test(a))) continue;
+                if (fw.length && prefixMatch(a, fw, fw.join(' ')))
+                    hits.push({ article: a, hint: flipped, kind: 'flip' });
+            }
+            if (hits.length) return hits;
+        }
+        return [];
+    }
+
+    /* Articles matching every word win; otherwise the most words, a rare word
+       outranking a common one. Glued neighbours count for both words. */
+    function searchWords(index, words, test) {
+        var n = words.length, pairs = [], cands = [], i, j;
+        for (i = 0; i + 1 < n; i++) pairs.push(words[i] + words[i + 1]);
+
+        index.forEach(function (a) {
+            if (test && !test(a)) return;
+            var kw = keywordWords(a), best = [], hint = [], any = false;
+            for (i = 0; i < n; i++) {
+                best.push(0); hint.push('');
+                for (j = 0; j < kw.length; j++) {
+                    var sc = wordScore(words[i], kw[j], false);
+                    if (sc > best[i]) { best[i] = sc; hint[i] = kw[j]; if (sc === WORD_EXACT) break; }
+                }
+                if (best[i] > 0) any = true;
+            }
+            for (i = 0; i < pairs.length; i++) {
+                var pb = 0, ph = '';
+                for (j = 0; j < kw.length; j++) {
+                    var ps = wordScore(pairs[i], kw[j], true);
+                    if (ps > pb) { pb = ps; ph = kw[j]; if (ps === WORD_EXACT) break; }
+                }
+                if (pb <= 0) continue;
+                any = true;
+                for (var w = i; w <= i + 1; w++)
+                    if (pb > best[w]) { best[w] = pb; hint[w] = ph; }
+            }
+            if (any) cands.push({ article: a, best: best, hint: hint });
+        });
+        if (!cands.length) return [];
+
+        // weak matches stay out of the count, so they cannot make a word look rare
+        var df = [];
+        for (i = 0; i < n; i++) df.push(0);
+        cands.forEach(function (c) { for (var k = 0; k < n; k++) if (c.best[k] > WORD_WEAK) df[k]++; });
+
+        var need = n >= 3 ? MULTI_MIN_WORDS : 1, full = false, anyStrong = false;
+        var ranked = cands.map(function (c) {
+            var r = { strong: 0, weak: 0, score: 0, c: c, hintWord: 0 }, bestWord = -1;
+            for (var k = 0; k < n; k++) {
+                var b = c.best[k], sc = 0;
+                if (b <= 0) continue;
+                if (b > WORD_WEAK) { sc = b + Math.floor(DF_BONUS / df[k]); r.strong++; r.score += sc; }
+                else r.weak++;
+                if (sc > bestWord) { bestWord = sc; r.hintWord = k; }
+            }
+            if (r.strong === n) full = true;
+            if (r.strong > 0 && r.strong + r.weak >= need) anyStrong = true;
+            return r;
+        });
+        ranked.sort(function (x, y) {
+            return (y.strong - x.strong) || (y.score - x.score) || (y.weak - x.weak) || (x.c.article.id - y.c.article.id);
+        });
+
+        var hits = [];
+        for (i = 0; i < ranked.length && hits.length < MAX_RESULTS; i++) {
+            var r = ranked[i];
+            if (full ? r.strong < n : (r.strong + r.weak < need || (anyStrong && r.strong === 0))) continue;
+            hits.push({ article: r.c.article, hint: r.c.hint[r.hintWord], kind: 'text' });
+        }
+        return hits;
+    }
+
+    function fuzzyPass(index, query, lang, test, facetWord) {
+        var words = splitWords(query).slice(0, MAX_WORDS);
+        if (!words.length) return [];
+        var hits = searchFlipped(index, words.join(' '), words, lang, test, facetWord);
+        return hits.length ? hits : searchWords(index, words, test);
+    }
+
+    /* Up to five { article, hint, kind: 'flip' | 'text' } for a query search()
+       missed. hint is the flipped query, or the keyword word that matched.
+       test, when given, keeps only the articles it accepts (the site's type
+       picker). A leading facet word filters; nothing found that way, the
+       whole query is tried again, as in game. */
+    function fuzzy(index, query, lang, test) {
+        var q = normQuery(query), sp = q.indexOf(' ');
+        if (!q || /^\d+$/.test(q)) return [];
+        if (sp > 0) {
+            var p = parseQuery(q);
+            if (p.test) {
+                var t = test ? function (a) { return p.test(a) && test(a); } : p.test;
+                var hits = fuzzyPass(index, p.q, lang, t, q.slice(0, sp));
+                if (hits.length) return hits;
+            }
+        }
+        return fuzzyPass(index, q, lang, test, '');
+    }
+
+    /* The hint, when it tells the reader something the title does not: not
+       for a match in the other script, not when the title already shows it;
+       a layout flip always, the flipped text is the point. */
+    function fuzzyHint(hit, lang) {
+        if (!hit.hint) return '';
+        if (hit.kind === 'text') {
+            var cyr = /[Ѐ-ӿ]/.test(hit.hint);
+            if ((lang === 'en') === cyr) return '';
+            if (label(hit.article, lang).toLowerCase().indexOf(hit.hint) >= 0) return '';
+        }
+        return hit.hint;
+    }
+
     return {
         squash: squash, normQuery: normQuery, label: label, hasLabel: hasLabel,
         KINDS: KINDS, kind: kind, FACET_WORDS: FACET_WORDS, parseQuery: parseQuery,
         plainText: plainText, textCache: textCache, findHit: findHit,
-        excerpt: excerpt, search: search,
+        excerpt: excerpt, search: search, fuzzy: fuzzy, fuzzyHint: fuzzyHint,
+        translit: translit, wordScore: wordScore, levenshtein: levenshtein,
     };
 });

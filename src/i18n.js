@@ -145,6 +145,7 @@ const STRINGS = {
     'help.title': 'Help search',
     'help.placeholder': 'Enter a keyword',
     'help.notFound': 'No help found',
+    'help.didYouMean': 'No help found. Did you mean:',
     'help.openMap': 'open the map',
     // vital bars
     'st.health': 'Health',
@@ -484,6 +485,7 @@ const STRINGS = {
     'help.title': 'Поиск по справке',
     'help.placeholder': 'Введи ключевое слово',
     'help.notFound': 'Справка не найдена',
+    'help.didYouMean': 'Справка не найдена. Возможно, имелось в виду:',
     'help.openMap': 'открыть карту',
     'st.health': 'Здоровье',
     'st.enemy': 'Противник',
@@ -810,6 +812,7 @@ const STRINGS = {
     'help.title': 'Пошук у довідці',
     'help.placeholder': 'Введи ключове слово',
     'help.notFound': 'Довідку не знайдено',
+    'help.didYouMean': 'Довідку не знайдено. Можливо, мали на увазі:',
     'help.openMap': 'відкрити мапу',
     'st.health': 'Здоровʼя',
     'st.enemy': 'Ворог',

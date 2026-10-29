@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { send } from '../../websock';
 import { usePrompt } from '../../react-hooks';
 import { t, getLang } from '../../i18n';
-import { loadIndex, loadBodies, makeTextCache, search, normQuery, parseQuery, label, kind, excerpt } from './helpSearch';
+import { loadIndex, loadBodies, makeTextCache, search, fuzzy, normQuery, parseQuery, label, kind, excerpt } from './helpSearch';
 
 const echo = txt => {
   $('.terminal').trigger('output', [txt]);
@@ -71,7 +71,13 @@ export default function Help() {
   const full = normQuery(query);
   // `spell fire`: the facet word filters, the rest is what gets matched and marked
   const { q, test } = useMemo(() => parseQuery(full), [full]);
-  const hits = useMemo(() => (index ? search(index, q, lang, textFor, 24, test) : []), [index, q, lang, textFor, test]);
+  const found = useMemo(() => (index ? search(index, q, lang, textFor, 24, test) : []), [index, q, lang, textFor, test]);
+  // nothing matched: the game's suggestions (layout slip, typo, word form)
+  const suggested = useMemo(
+    () => (index && q && found.length === 0 ? fuzzy(index, full, lang) : []),
+    [index, q, full, lang, found]
+  );
+  const hits = found.length ? found : suggested.map(s => s.article);
   const showList = open && q !== '' && index !== null;
 
   useEffect(() => setActive(0), [q]);
@@ -164,9 +170,13 @@ export default function Help() {
         style={{ left: pos.left, top: pos.top, width: pos.width, maxHeight: pos.maxHeight }}
       >
         {hits.length === 0 && <p className="help-results__empty">{t('help.notFound', lang)}</p>}
+        {suggested.length > 0 && found.length === 0 && (
+          <p className="help-results__empty">{t('help.didYouMean', lang)}</p>
+        )}
         {hits.map((a, i) => {
           const k = kind(a, lang);
-          const ex = textFor ? excerpt(textFor(a.id), q) : null;
+          const hint = found.length ? null : suggested[i].hint;
+          const ex = found.length && textFor ? excerpt(textFor(a.id), q) : null;
           return (
             <div
               key={a.id}
@@ -185,7 +195,9 @@ export default function Help() {
                 {label(a, lang)}
                 {k && <span className="help-results__kind">{k}</span>}
               </b>
-              {ex && ex[0] + ex[1] + ex[2] !== '' ? (
+              {hint !== null ? (
+                hint && <span className="help-results__kw">{hint}</span>
+              ) : ex && ex[0] + ex[1] + ex[2] !== '' ? (
                 <span className="help-results__excerpt">
                   {ex[0]}
                   {ex[1] && <mark>{ex[1]}</mark>}
