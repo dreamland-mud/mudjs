@@ -174,20 +174,22 @@
 
     // ---- ranking ---------------------------------------------------------
 
-    /* Exact keyword, then title substring or keyword prefix, then article text
+    /* Exact title (any language), then exact keyword, so a keyword shared by
+       several articles ("midgaard") puts its own article first; then title substring or keyword prefix, then article text
        (word-start hits before mid-word ones), 3+ characters, prose only.
        q comes out of parseQuery. textFor is null until the bodies are in;
        test, when given, keeps only the articles it accepts. */
     function search(index, q, lang, textFor, limit, test) {
         if (!q) return [];
         limit = limit || 24;
-        var exact = [], partial = [], inWord = [], inPart = [];
-        for (var i = 0; i < index.length && exact.length + partial.length < limit; i++) {
+        var named = [], exact = [], partial = [], inWord = [], inPart = [];
+        for (var i = 0; i < index.length && named.length + exact.length + partial.length < limit; i++) {
             var a = index[i];
             if (test && !test(a)) continue;
             var kws = (a.kwList || []).map(function (k) { return k.toLowerCase(); });
             var title = label(a, lang).toLowerCase();
-            if (kws.indexOf(q) >= 0) exact.push(a);
+            if (['en', 'ua', 'ru'].some(function (l) { return label(a, l).toLowerCase() === q; })) named.push(a);
+            else if (kws.indexOf(q) >= 0) exact.push(a);
             else if (title.indexOf(q) >= 0 || kws.some(function (k) { return k.indexOf(q) === 0; })) partial.push(a);
             else if (textFor && inWord.length < limit && q.length >= 3) {
                 var txt = textFor(a.id);
@@ -195,7 +197,7 @@
                 if (hit.at >= 0) (hit.word ? inWord : inPart).push(a);
             }
         }
-        return exact.concat(partial, inWord, inPart).slice(0, limit);
+        return named.concat(exact, partial, inWord, inPart).slice(0, limit);
     }
 
     // ---- suggestions on a miss -------------------------------------------
