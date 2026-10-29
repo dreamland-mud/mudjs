@@ -100,3 +100,9 @@ export const parseQuery = S.parseQuery;
    articles it accepts. */
 export const search = (index, q, lang, textFor, limit = 24, test = null) =>
   S.search(index, q, normLang(lang), textFor, limit, test);
+
+/* What `help` suggests in game when nothing matched: up to five
+   { article, hint } for the full query (facet word included); hint is ''
+   when the title already says it. A port of plug-ins/comm/help.cpp FuzzySearch. */
+export const fuzzy = (index, full, lang) =>
+  S.fuzzy(index, full, normLang(lang)).map(h => ({ article: h.article, hint: S.fuzzyHint(h, normLang(lang)) }));
