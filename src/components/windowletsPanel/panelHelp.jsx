@@ -6,12 +6,15 @@ import { send } from '../../websock';
 import { usePrompt } from '../../react-hooks';
 import { t, getLang } from '../../i18n';
 import { loadIndex, loadBodies, makeTextCache, search, fuzzy, normQuery, parseQuery, label, kind, excerpt } from './helpSearch';
+import { openWidgetHelp } from '../helpSheet/HelpSheet';
 
 const echo = txt => {
   $('.terminal').trigger('output', [txt]);
 };
 
 const DROPDOWN_MIN_WIDTH = 360;
+// 'Help about help': the contents page the book button opens, same as help.html's landing
+const HELP_HOME = 995;
 
 // Index and bodies are fetched on first focus, not on page load: most sessions
 // never touch the help box and the bodies are ~1 MB gzipped. `wanted` counts
@@ -226,7 +229,7 @@ export default function Help() {
       <button className="close" type="button" data-toggle="collapse" data-target="#help-table">
         {' '}
       </button>
-      <div id="help-table" className="">
+      <div id="help-table" className="help-row">
         <span className="fa fa-search form-control-feedback"></span>
         <input
           ref={inputRef}
@@ -251,6 +254,15 @@ export default function Help() {
           }}
           onKeyDown={onKeyDown}
         />
+        <button
+          type="button"
+          className="help-book"
+          title={t('help.contents', lang)}
+          aria-label={t('help.contents', lang)}
+          onClick={() => openWidgetHelp({ kind: 'article', id: HELP_HOME })}
+        >
+          <i className="fa fa-book" aria-hidden="true"></i>
+        </button>
       </div>
       {list}
     </div>
