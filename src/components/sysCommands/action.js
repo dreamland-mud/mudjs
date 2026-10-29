@@ -31,10 +31,10 @@ export const actionHelp = {
 // browser-only store in localStorage.actions, exactly as it used to. Whatever
 // is there moves onto the server list the moment that list arrives.
 
-const onServer = () => getTriggers().known
-const shown = trig => trig.act || trig.pattern
+export const onServer = () => getTriggers().known
+export const shown = trig => trig.act || trig.pattern
 const showOne = trig => '    {' + shown(trig) + '} : {' + trig.cmd + '}' + (trig.on === false ? ' (выкл)' : '') + '\n'
-const sameTrigger = (trig, typed) => trig.act === typed || trig.pattern === typed || trig.pattern === fromAction(typed, '').pattern
+export const sameTrigger = (trig, typed) => trig.act === typed || trig.pattern === typed || trig.pattern === fromAction(typed, '').pattern
 
 const actionAdd = actionArr => {
     const trigger = actionArr[0].slice(1,-1)
