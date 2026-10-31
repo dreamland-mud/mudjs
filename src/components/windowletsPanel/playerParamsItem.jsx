@@ -5,7 +5,7 @@ import { t } from '../../i18n';
 import './affects.css';
 
 // prompt.p1: ps - permanent stats [str, int, wis, dex, con, cha], cs - current stats
-// (same order). prompt.p2: h - hitroll, d - damroll, a - armor class, s - saves vs spell.
+// (same order). prompt.p2: h - hitroll, d - damroll, a - armor (pierce, higher is better), s - saves vs spell.
 // Rendered as flat chips (same family as the affects widget) in the Online widget's font
 // style, replacing the old two-table stat grid.
 const BASE = ['str', 'int', 'wis', 'dex', 'con', 'cha'];
