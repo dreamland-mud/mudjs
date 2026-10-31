@@ -122,7 +122,9 @@ function manipParseAndReplace(span) {
       );
     });
 
-  // Replace extra-description placeholders [read=sign знак,see=sign] with <span class="manip-cmd manip-ed" data-action="read 'sign знак'">sign</span>.
+  // Replace extra-description placeholders [read=sign знак,see=sign] with <span class="manip-cmd manip-ed" data-action="examine 'sign знак'">sign</span>.
+  // The tag keeps its historical 'read' name; the click sends 'examine', which
+  // resolves room and object extra descriptions on the server.
   // The link styling is the affordance in the web client; the literal (parentheses)
   // stay telnet-only (server keeps them in the {IW non-web branch of decorateExtraDescr).
   // Returns empty string if 'see' part is not contained within 'read' part.
@@ -132,9 +134,9 @@ function manipParseAndReplace(span) {
       if (p1.toLowerCase().split(' ').indexOf(p2.toLowerCase()) === -1)
         return '';
       return (
-        '<span class="manip-cmd manip-ed" data-action="read \'' +
+        '<span class="manip-cmd manip-ed" data-action="examine \'' +
         p1 +
-        '\'" data-echo="' + t('echo.read') + ' ' +
+        '\'" data-echo="' + t('echo.examine') + ' ' +
         p2 +
         '">' +
         p2 +
