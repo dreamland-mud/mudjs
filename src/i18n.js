@@ -194,7 +194,7 @@ const STRINGS = {
     // their own "echo." namespace: as "cmd.look" they silently overwrote the
     // panel button label of the same key, since a later key wins in an object
     // literal.
-    'echo.read': 'read',
+    'echo.examine': 'examine',
     'echo.look': 'look',
     'echo.help': 'help',
     'echo.glist': 'glist',
@@ -522,7 +522,7 @@ const STRINGS = {
     'chat.nonpc': 'Это реплика моба. Команды квеста вводятся в игре.',
     'term.historyLoaded': 'ИСТОРИЯ ЧАТА ЗАГРУЖЕНА',
     'ph.example': 'Введи: %s',
-    'echo.read': 'читать',
+    'echo.examine': 'изучить',
     'echo.look': 'смотреть',
     'echo.help': 'помощь',
     'echo.glist': 'группаумений',
@@ -850,7 +850,7 @@ const STRINGS = {
     'chat.nonpc': 'Це репліка моба. Команди квесту вводяться у грі.',
     'term.historyLoaded': 'ІСТОРІЯ ЧАТУ ЗАВАНТАЖЕНА',
     'ph.example': 'Введи: %s',
-    'echo.read': 'читати',
+    'echo.examine': 'вивчити',
     'echo.look': 'дивитися',
     'echo.help': 'допомога',
     'echo.glist': 'групавмінь',
