@@ -117,9 +117,13 @@ const FMT_CONT = /^ {7}(?! )\S/;
 
 // opts.lines: command output. Every line keeps its own row and its leading
 // spaces (affects and whois align columns with them); articles reflow instead.
+// opts.join: with lines, glue a line that opens in lower case onto the row above,
+// for output the server wrapped at ~80 columns. Not for affects: its rows start
+// with a lower-case affect name.
 export function render(raw, opts) {
   const resolve = (opts && opts.resolveLink) || null;
   const byLine = !!(opts && opts.lines);
+  const joinWrapped = !!(opts && opts.join);
   const holder = document.createElement('div');
   holder.innerHTML = String(raw || '').replace(/\r/g, '');
   const lines = toLines(flatten(holder, resolve));
@@ -186,11 +190,9 @@ export function render(raw, opts) {
     lastWasFmt = false;
 
     if (byLine) {
-      // The server wraps long text at ~80 columns. A line that opens in lower
-      // case continues the one above, so it joins it instead of starting a row.
       const lead = plain.length - plain.replace(/^\s+/, '').length;
       const prev = out.length ? out[out.length - 1] : '';
-      if (/^\s*\p{Ll}/u.test(plain) && prev.startsWith('<p class="hs-line">') && !prevBlank) {
+      if (joinWrapped && /^\s*\p{Ll}/u.test(plain) && prev.startsWith('<p class="hs-line">') && !prevBlank) {
         out[out.length - 1] = prev.slice(0, -4) + ' ' + lineHtmlFrom(line, lead) + '</p>';
       } else {
         out.push('<p class="hs-line">' + lineHtml(line) + '</p>');
