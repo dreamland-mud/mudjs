@@ -59,6 +59,19 @@ function timeRank(aff) {
     return d;
 }
 
+// Time left in words, the same hours the `affects` command shows: `d` is in ticks,
+// one tick = one game hour, d < 0 never runs out.
+function timeLeft(d, l) {
+    if (d == null) return '';
+    if (d < 0) return t('aff.perm', l);
+    if (d === 0) return t('aff.soon', l);
+    const unit = d % 10, tens = d % 100;
+    if (l === 'en') return d + ' ' + t(d === 1 ? 'aff.h1' : 'aff.h5', l);
+    if (unit === 1 && tens !== 11) return d + ' ' + t('aff.h1', l);
+    if (unit >= 2 && unit <= 4 && (tens < 12 || tens > 14)) return d + ' ' + t('aff.h2', l);
+    return d + ' ' + t('aff.h5', l);
+}
+
 export default function AffectsItem(prompt) {
     const l = prompt.lang;
 
@@ -79,14 +92,17 @@ export default function AffectsItem(prompt) {
         if (am !== bm) return am ? -1 : 1;                 // red maladictions always first
         return timeRank(a.aff) - timeRank(b.aff);          // then soonest-expiring first
     });
-    // Colour is not the only signal: a cooldown chip also says so in words, as a
-    // hover title and as screen-reader-only text (~30% of players are blind).
+    // The chip's label is a short abbreviation, so the hover title spells out the
+    // full name (server field `f`, absent when it equals the label) and the time
+    // left. Screen readers get the same as sr-only text (~30% of players are blind).
+    // Colour is not the only signal: a cooldown chip also says so in words.
     const cdWord = t('aff.cd', l);
     const chips = items.map(function (it) {
-        if (it.cd)
-            return <span key={it.key} className={'aff-chip aff-chip-cd ' + affColor(it.aff, it.color)}
-                title={it.aff.n + ' -- ' + cdWord}>{it.aff.n}<span className="sr-only">, {cdWord}</span></span>;
-        return <span key={it.key} className={'aff-chip ' + affColor(it.aff, it.color)}>{it.aff.n}</span>;
+        const details = [it.cd ? cdWord : '', timeLeft(it.aff.d, l)].filter(Boolean);
+        const title = (it.aff.f || it.aff.n) + (details.length ? ' -- ' + details.join(', ') : '');
+        const spoken = [it.aff.f].concat(details).filter(Boolean).join(', ');
+        return <span key={it.key} className={'aff-chip ' + (it.cd ? 'aff-chip-cd ' : '') + affColor(it.aff, it.color)}
+            title={title}>{it.aff.n}{spoken && <span className="sr-only">, {spoken}</span>}</span>;
     });
 
     return (
