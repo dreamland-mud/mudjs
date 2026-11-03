@@ -171,7 +171,7 @@ export default function HelpSheet() {
         if (k !== key || !live) return;
         setView({
           title: fullName(title, top, text),
-          html: render(text, { lines: true, nonce: ws && ws.nonce }),
+          html: render(text, { lines: true, join: top.what !== 'affects', nonce: ws && ws.nonce }),
           state: 'ready',
         });
       };
