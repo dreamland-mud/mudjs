@@ -1,10 +1,11 @@
-import { memo, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { memo, useEffect, useId, useMemo, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react';
 import { select } from 'd3-selection';
 import { zoom, zoomIdentity, type ZoomBehavior } from 'd3-zoom';
 import type { AreaLayout, Direction, ExitStyle, MapperIndex, PlacedExit, PlacedRoom } from './types.js';
 import { DIR_DELTAS, REVERSE_DIR } from './types.js';
 import { sectorStyle, sectorLabel } from './sectors.js';
 import { t, nameFor, exitsPhrase, type Locale } from './i18n.js';
+import { sendHotKeyCmd } from '../sysCommands/hotkey';
 
 /* ---- visual scale ---- */
 const TILE_W = 124;
@@ -380,9 +381,16 @@ const KEY_DIR: Record<string, Direction> = {
   PageUp: 'up', PageDown: 'down',
 };
 
+/** A player macro bound to this key wins over map keys, same priority the global cmdinput
+ *  handler gives it. sendHotKeyCmd sends the command and stops the event itself. */
+function firedMacro(e: KeyboardEvent): boolean {
+  return sendHotKeyCmd(e.nativeEvent);
+}
+
 /** Enter / Space activation for the role="button" groups. Stops propagation so the global
  *  cmdinput keydown handler doesn't steal focus into the command line. */
 function activateOnKey(e: KeyboardEvent, action: () => void): void {
+  if (firedMacro(e)) return;
   if (e.key !== 'Enter' && e.key !== ' ') return;
   e.preventDefault();
   e.stopPropagation();
@@ -413,6 +421,11 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
   // Polite live-region text; `n` flips a trailing NBSP so a repeated message re-announces.
   const [announce, setAnnounce] = useState({ text: '', n: 0 });
   const hintId = useId();
+  // Last tile that held DOM focus, and whether focus is still meant to be in the map. When
+  // that tile unmounts (layer snap on a move, graph refresh, area change) focus would drop
+  // to <body>; the post-commit effect below hands it to the roving tile instead.
+  const lastFocusedRef = useRef<SVGGElement | null>(null);
+  const focusInMapRef = useRef(false);
 
   const isolating = zFilter !== 'all';
   const visibleRooms = useMemo(() => {
@@ -551,7 +564,14 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
     if (!placed || !svgRef.current || !zoomRef.current) return;
     const { sx, sy } = placedToScreen(placed, layout.bounds);
     const w = svgRef.current.clientWidth;
-    const h = svgRef.current.clientHeight;
+    let h = svgRef.current.clientHeight;
+    // The room drawer (GraphMapPane sibling) overlays the bottom of the map when open:
+    // only the part above it counts as visible.
+    const drawer = svgRef.current.parentElement?.querySelector('.dl-mapper-drawer[data-open="true"]');
+    if (drawer) {
+      const top = drawer.getBoundingClientRect().top - svgRef.current.getBoundingClientRect().top;
+      if (top > TILE_H) h = Math.min(h, top);
+    }
     const { k, x, y } = transform;
     const left = sx * k + x, top = sy * k + y;
     const margin = 16;
@@ -576,20 +596,60 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
     }
   };
 
-  // Finish a deferred focus once the target tile has mounted (after a layer switch).
+  // After every commit: finish a deferred focus once the target tile has mounted (after a
+  // layer switch), or recover focus when the focused tile itself was unmounted.
   useEffect(() => {
     const v = pendingFocusRef.current;
-    if (v == null) return;
-    const el = roomRefs.current[v];
-    if (!el) return;
-    pendingFocusRef.current = null;
-    el.focus({ preventScroll: true });
-    panIntoView(v);
+    if (v != null) {
+      const el = roomRefs.current[v];
+      if (!el) return;
+      pendingFocusRef.current = null;
+      el.focus({ preventScroll: true });
+      panIntoView(v);
+      return;
+    }
+    const last = lastFocusedRef.current;
+    if (!focusInMapRef.current || last == null || last.isConnected) return;
+    const active = document.activeElement;
+    if (active != null && active !== document.body) return;
+    const el = rovingVnum != null ? roomRefs.current[rovingVnum] : null;
+    if (el) el.focus({ preventScroll: true });
   });
+
+  // Mouse presses on tiles/links must not take DOM focus: a click still selects, but the
+  // command line keeps focus (and with it typing and macros). Capture phase, because
+  // d3-zoom's mousedown stops propagation before React's root listener would see it.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const keepFocus = (ev: MouseEvent) => {
+      const el = ev.target as Element | null;
+      if (el != null && el.closest('[role="button"]') != null) ev.preventDefault();
+    };
+    svg.addEventListener('mousedown', keepFocus, true);
+    return () => svg.removeEventListener('mousedown', keepFocus, true);
+  }, []);
+
+  const onRoomFocus = (e: FocusEvent<SVGGElement>, vnum: number) => {
+    pendingFocusRef.current = null;
+    lastFocusedRef.current = e.currentTarget;
+    focusInMapRef.current = true;
+    setFocusVnum(vnum);
+  };
+
+  // A real blur leaves the tile connected; an unmount doesn't. Checked a tick later so the
+  // removal (which may fire blur mid-commit) has finished.
+  const onRoomBlur = (e: FocusEvent<SVGGElement>) => {
+    const el = e.currentTarget;
+    setTimeout(() => {
+      if (el.isConnected && lastFocusedRef.current === el) focusInMapRef.current = false;
+    }, 0);
+  };
 
   const say = (text: string) => setAnnounce((a) => ({ text, n: a.n + 1 }));
 
   const handleRoomKey = (e: KeyboardEvent, vnum: number) => {
+    if (firedMacro(e)) return;
     if (e.key === 'Enter' || e.key === ' ') {
       activateOnKey(e, () => onSelectRoom(vnum));
       return;
@@ -611,7 +671,8 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
     const target = layout.rooms[exit.target];
     if (!target) {
       const file = index.vnumToArea[exit.target];
-      say(t.exitToZone(dirWord, (file && (areaNameByFile[file] || file)) || t.anotherArea));
+      const zone = file ? areaNameByFile[file] : undefined;
+      say(zone ? t.exitToZone(dirWord, zone) : t.exitToOtherZone(dirWord));
       return;
     }
     if (!layout.placed[exit.target]) {
@@ -935,6 +996,7 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
           // Label colour: selected → black on purple fill; current → cyan; no_recall
           // rooms → bright red; else sector colour.
           const isNoRecall = room.flags.includes('no_recall');
+          const roomLabel = `${roomName || t.unnamedRoom}, ${sectorLabel(effectiveSector)}, ${roomExits}${isNoRecall ? ', ' + t.noRecall : ''}${p.z !== 0 ? t.layerZ(p.z) : ''}${isCurrent ? ', ' + t.currentLocation : ''}`;
           const labelFill = isSelected ? COLOR.ink
             : isCurrent ? COLOR.cyan
             : isNoRecall ? COLOR.noRecall
@@ -961,11 +1023,17 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
                role="button"
                tabIndex={p.vnum === rovingVnum ? 0 : -1}
                ref={(el) => { roomRefs.current[p.vnum] = el; }}
-               aria-label={`${roomName || t.unnamedRoom}, ${sectorLabel(effectiveSector)}, ${roomExits}${isNoRecall ? ', ' + t.noRecall : ''}${p.z !== 0 ? t.layerZ(p.z) : ''}${isCurrent ? ', ' + t.currentLocation : ''}`}
+               aria-label={roomLabel}
                style={{ cursor: 'pointer' }}
-               onFocus={() => { pendingFocusRef.current = null; setFocusVnum(p.vnum); }}
+               onFocus={(e) => onRoomFocus(e, p.vnum)}
+               onBlur={onRoomBlur}
                onKeyDown={(e) => handleRoomKey(e, p.vnum)}
-               onClick={() => onSelectRoom(p.vnum)}
+               onClick={() => {
+                 // Clicks don't take focus (see keepFocus); if the keyboard is already in the
+                 // map, move it along to the clicked tile so the two don't disagree.
+                 if (svgRef.current?.contains(document.activeElement)) roomRefs.current[p.vnum]?.focus({ preventScroll: true });
+                 onSelectRoom(p.vnum);
+               }}
                onDoubleClick={() => onSetCurrent(p.vnum)}>
               {/* Current-location halo — cyan bloom wrapping the label/box with margin. */}
               {isCurrent && (
@@ -1008,7 +1076,9 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
               <rect className="map-focus-ring" x={cx - (boxW + 12) / 2} y={cy - (boxH + 12) / 2}
                     width={boxW + 12} height={boxH + 12} rx={TILE_RADIUS + 5} fill="none" />
 
-              <title>{`${roomName || t.unnamedRoom}\n${sectorLabel(room.sector)}\n${t.exits}: ${room.exits.map((e) => t.dir[e.dir] ?? e.dir).join(', ') || '—'}`}</title>
+              {/* Mouse tooltip. Identical to the aria-label on purpose: a description equal to
+                  the name is dropped, so screen readers don't hear the exits twice. */}
+              <title>{roomLabel}</title>
             </g>
           );
         })}

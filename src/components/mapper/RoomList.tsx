@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
 import type { AreaLayout } from './types.js';
 import { sectorLabel, sectorStyle } from './sectors.js';
 import { t, nameFor, exitsPhrase, zLabel, type Locale } from './i18n.js';
+import { sendHotKeyCmd } from '../sysCommands/hotkey';
 
 interface Props {
   layout: AreaLayout;
@@ -13,6 +14,10 @@ interface Props {
   drawerOpen?: boolean;
   onSelectRoom: (vnum: number) => void;
 }
+
+const KEEP_KEYS = new Set([
+  'Enter', ' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown',
+]);
 
 interface Group {
   key: string;
@@ -40,7 +45,11 @@ export function RoomList({ layout, locale, currentVnum, selectedVnum, drawerOpen
     }
     const multiCluster = layout.clusters > 1;
     const out: Group[] = [];
-    const zs = Object.keys(byZ).map(Number).sort((a, b) => a - b);
+    // Ground floor first, then the floors above (going up), then the basements (going down).
+    const zs = Object.keys(byZ).map(Number).sort((a, b) => {
+      const rank = (z: number) => (z === 0 ? 0 : z > 0 ? 1 : 2);
+      return rank(a) - rank(b) || Math.abs(a) - Math.abs(b);
+    });
     for (const z of zs) {
       const vnums = byZ[z].slice().sort((a, b) => a - b);
       const byCluster: Record<number, number[]> = {};
@@ -72,15 +81,38 @@ export function RoomList({ layout, locale, currentVnum, selectedVnum, drawerOpen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout, locale]);
 
+  // Same-named rooms ("In the Dungeon" x5) get an ordinal in list order, so they can be
+  // told apart: vnum -> "(2 of 5)".
+  const dupLabel = useMemo(() => {
+    const byName: Record<string, number[]> = {};
+    for (const g of groups) {
+      for (const c of g.clusters) {
+        for (const v of c.vnums) {
+          const n = nameFor(layout.rooms[v], locale) || t.unnamedRoom;
+          if (!byName[n]) byName[n] = [];
+          byName[n].push(v);
+        }
+      }
+    }
+    const out: Record<number, string> = {};
+    for (const vs of Object.values(byName)) {
+      if (vs.length < 2) continue;
+      vs.forEach((v, i) => { out[v] = t.dupOf(i + 1, vs.length); });
+    }
+    return out;
+  }, [groups, layout, locale]);
+
   // Bring the current room into view when the list opens or the area changes (no focus move).
   useEffect(() => {
     currentRef.current?.scrollIntoView({ block: 'nearest' });
   }, [layout.meta.file]);
 
-  // Space/Enter on a room button stays here: the global cmdinput keydown handler would
-  // otherwise pull focus into the command line before the button activates.
+  // Activation and navigation keys stay here: the global cmdinput keydown handler would
+  // otherwise pull focus into the command line (and recall history on arrows). A player
+  // macro bound to the key still fires first, same priority the global handler gives it.
   const keepKeys = (e: KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') e.stopPropagation();
+    if (sendHotKeyCmd(e.nativeEvent)) return;
+    if (KEEP_KEYS.has(e.key)) e.stopPropagation();
   };
 
   const total = Object.keys(layout.rooms).length;
@@ -117,6 +149,7 @@ export function RoomList({ layout, locale, currentVnum, selectedVnum, drawerOpen
                       >
                         <span className="room-list-name" style={isCurrent ? undefined : { color: sectorStyle(sector).text }}>
                           {nameFor(room, locale) || t.unnamedRoom}
+                          {dupLabel[v] ? ` ${dupLabel[v]}` : ''}
                         </span>
                         <span className="dl-mapper-sr-only">, </span>
                         <span className="room-list-meta">

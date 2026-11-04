@@ -98,6 +98,8 @@ export interface Strings {
   exitsAria: (list: string) => string;           // ", exits north, east" room-label fragment
   noExitDir: (dir: string) => string;            // arrow pressed where the room has no exit
   exitToZone: (dir: string, zone: string) => string;   // arrow toward a cross-area exit
+  exitToOtherZone: (dir: string) => string;            // same, destination zone unknown
+  dupOf: (i: number, total: number) => string;         // "(2 of 5)" for same-named rooms in the list
   exitUnmapped: (dir: string, name: string) => string; // exit target exists but isn't placed
   mapKeysHint: string;                           // aria-describedby hint on the map group
 }
@@ -168,6 +170,8 @@ const ru: Strings = {
   exitsAria: (list) => `выходы ${list}`,
   noExitDir: (dir) => `${cap(dir)}: выхода нет`,
   exitToZone: (dir, zone) => `${cap(dir)}: выход в зону ${zone}`,
+  exitToOtherZone: (dir) => `${cap(dir)}: выход в другую зону`,
+  dupOf: (i, total) => `(${i} из ${total})`,
   exitUnmapped: (dir, name) => `${cap(dir)}: ${name}, не на карте`,
   mapKeysHint: 'Стрелки и PageUp/PageDown переходят между комнатами по выходам, Home возвращает к текущей комнате, Enter или пробел открывает комнату.',
 };
@@ -229,6 +233,8 @@ const en: Strings = {
   exitsAria: (list) => `exits ${list}`,
   noExitDir: (dir) => `No exit ${dir}`,
   exitToZone: (dir, zone) => `Exit ${dir} leads to ${zone}`,
+  exitToOtherZone: (dir) => `Exit ${dir} leads to another area`,
+  dupOf: (i, total) => `(${i} of ${total})`,
   exitUnmapped: (dir, name) => `Exit ${dir} leads to ${name}, unmapped`,
   mapKeysHint: 'Arrows and Page Up/Page Down move between rooms along exits, Home returns to the current room, Enter or Space opens the room.',
 };
@@ -290,6 +296,8 @@ const ua: Strings = {
   exitsAria: (list) => `виходи ${list}`,
   noExitDir: (dir) => `${cap(dir)}: виходу немає`,
   exitToZone: (dir, zone) => `${cap(dir)}: вихід до зони ${zone}`,
+  exitToOtherZone: (dir) => `${cap(dir)}: вихід до іншої зони`,
+  dupOf: (i, total) => `(${i} з ${total})`,
   exitUnmapped: (dir, name) => `${cap(dir)}: ${name}, не на мапі`,
   mapKeysHint: 'Стрілки та PageUp/PageDown переходять між кімнатами за виходами, Home повертає до поточної кімнати, Enter або пробіл відкриває кімнату.',
 };

@@ -150,7 +150,9 @@
 .dl-mapper-root .room-list {
   height: 100%;
   overflow: auto;
-  padding: 8px 10px 16px;
+  /* top padding clears the absolutely positioned topbar (MUI AppBar, ~49px) */
+  padding: 58px 10px 16px;
+  scroll-padding-top: 56px;
   background: var(--ink-base);
 }
 .dl-mapper-root .room-list[data-drawer="true"] { padding-bottom: 42vh; }
