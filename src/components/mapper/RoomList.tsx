@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
 import type { AreaLayout } from './types.js';
 import { sectorLabel, sectorStyle } from './sectors.js';
 import { t, nameFor, exitsPhrase, zLabel, type Locale } from './i18n.js';
-import { sendHotKeyCmd } from '../sysCommands/hotkey';
+import { sendHotKeyCmd } from '../sysCommands/hotkeySend';
 
 interface Props {
   layout: AreaLayout;

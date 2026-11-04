@@ -1,8 +1,5 @@
-import { echo } from '../../input';
-import { send } from '../../websock';
-import { expandAliases } from '../../aliases.js';
 import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands';
-import { parseUserVars } from './var';
+import { sendHotKeyCmd } from './hotkeySend';
 import keycode from './keycode';
 import { macroFor, allMacros, putMacro, deleteMacro, defaultScope, macrosOnServer } from '../../macros.js';
 
@@ -125,23 +122,7 @@ const hotkeyCmd = value => {
 };
 
 // Translate keyboard event into a symbolic name for a hotkey and run it, if defined.
-export function sendHotKeyCmd(e) {
-  const hotkey = keycode.hotkey(e);
-  if (!hotkey) return false;
-
-  let cmd = macroFor(hotkey);
-  const fallback = keycode.hotkeyFallback(e);
-  if (!cmd && fallback) cmd = macroFor(fallback);
-  if (cmd) {
-    e.stopPropagation();
-    e.preventDefault();
-    const parsedCmd = parseUserVars(cmd);
-    echo(parsedCmd);
-    send(expandAliases(parsedCmd));
-    return true;
-  }
-
-  return false;
-}
+// Lives in the leaf module so the mapper can fire macros without the SysCommands cycle.
+export { sendHotKeyCmd };
 
 export default hotkeyCmd;

@@ -5,7 +5,7 @@ import type { AreaLayout, Direction, ExitStyle, MapperIndex, PlacedExit, PlacedR
 import { DIR_DELTAS, REVERSE_DIR } from './types.js';
 import { sectorStyle, sectorLabel } from './sectors.js';
 import { t, nameFor, exitsPhrase, type Locale } from './i18n.js';
-import { sendHotKeyCmd } from '../sysCommands/hotkey';
+import { sendHotKeyCmd } from '../sysCommands/hotkeySend';
 
 /* ---- visual scale ---- */
 const TILE_W = 124;
@@ -624,7 +624,12 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
     if (!svg) return;
     const keepFocus = (ev: MouseEvent) => {
       const el = ev.target as Element | null;
-      if (el != null && el.closest('[role="button"]') != null) ev.preventDefault();
+      if (el == null || el.closest('[role="button"]') == null) return;
+      ev.preventDefault();
+      // A cancelled mousedown blurs nothing, so a mapper topbar control (room search with
+      // its open dropdown, layer select) would keep focus; release it as a normal click would.
+      const active = document.activeElement as HTMLElement | null;
+      if (active != null && !svg.contains(active) && active.closest('.dl-mapper-root') != null) active.blur();
     };
     svg.addEventListener('mousedown', keepFocus, true);
     return () => svg.removeEventListener('mousedown', keepFocus, true);
