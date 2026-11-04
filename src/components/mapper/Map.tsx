@@ -1,10 +1,10 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { select } from 'd3-selection';
 import { zoom, zoomIdentity, type ZoomBehavior } from 'd3-zoom';
 import type { AreaLayout, Direction, ExitStyle, MapperIndex, PlacedExit, PlacedRoom } from './types.js';
 import { DIR_DELTAS, REVERSE_DIR } from './types.js';
 import { sectorStyle, sectorLabel } from './sectors.js';
-import { t, nameFor, type Locale } from './i18n.js';
+import { t, nameFor, exitsPhrase, type Locale } from './i18n.js';
 
 /* ---- visual scale ---- */
 const TILE_W = 124;
@@ -373,6 +373,22 @@ function cardinalArc(
 // Last zoom level the player chose; DEFAULT_ZOOM on first visit.
 const ZOOM_KEY = 'map-zoom';
 const DEFAULT_ZOOM = 0.25;
+
+/** Roving-focus keys: arrow / page keys walk the focused room's real exits. */
+const KEY_DIR: Record<string, Direction> = {
+  ArrowUp: 'north', ArrowDown: 'south', ArrowLeft: 'west', ArrowRight: 'east',
+  PageUp: 'up', PageDown: 'down',
+};
+
+/** Enter / Space activation for the role="button" groups. Stops propagation so the global
+ *  cmdinput keydown handler doesn't steal focus into the command line. */
+function activateOnKey(e: KeyboardEvent, action: () => void): void {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  e.preventDefault();
+  e.stopPropagation();
+  action();
+}
+
 function loadZoom(): number {
   try {
     const v = parseFloat(localStorage.getItem(ZOOM_KEY) ?? '');
@@ -388,6 +404,16 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
   const zoomRef = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const [transform, setTransform] = useState({ k: 0.7, x: 0, y: 0 });
 
+  // Roving tabindex: one room is the map's single Tab stop. focusVnum is the room the
+  // keyboard last landed on; roomRefs lets arrow keys move DOM focus to a tile by vnum.
+  const [focusVnum, setFocusVnum] = useState<number | null>(null);
+  const roomRefs = useRef<Record<number, SVGGElement | null>>({});
+  // Arrow target waiting to mount (e.g. after a z-layer switch) before it can take focus.
+  const pendingFocusRef = useRef<number | null>(null);
+  // Polite live-region text; `n` flips a trailing NBSP so a repeated message re-announces.
+  const [announce, setAnnounce] = useState({ text: '', n: 0 });
+  const hintId = useId();
+
   const isolating = zFilter !== 'all';
   const visibleRooms = useMemo(() => {
     const list = Object.values(layout.placed);
@@ -399,6 +425,21 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
   }, [layout, zFilter, isolating, activeZ]);
 
   const visibleVnumSet = useMemo(() => new Set(visibleRooms.map((r) => r.vnum)), [visibleRooms]);
+
+  // The Tab stop: last keyboard-focused room if still drawn, else current, else selected,
+  // else the first drawn room. Walking in game does NOT move DOM focus.
+  const rovingVnum = useMemo(() => {
+    for (const v of [focusVnum, currentVnum, selectedVnum]) {
+      if (v != null && visibleVnumSet.has(v)) return v;
+    }
+    return visibleRooms.length > 0 ? visibleRooms[0].vnum : null;
+  }, [focusVnum, currentVnum, selectedVnum, visibleVnumSet, visibleRooms]);
+
+  // New area: forget the old focus target.
+  useEffect(() => {
+    setFocusVnum(null);
+    pendingFocusRef.current = null;
+  }, [layout.meta.file]);
 
   // Grid occupancy ("x,y,z") for neighbour-aware label sizing.
   const occupied = useMemo(() => {
@@ -504,6 +545,82 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
     return () => { if (zoomApiRef) zoomApiRef.current = null; };
   }, [zoomApiRef]);
 
+  /** Pan (no zoom change) so `vnum` sits mid-viewport, only when its tile is off-screen. */
+  const panIntoView = (vnum: number) => {
+    const placed = layout.placed[vnum];
+    if (!placed || !svgRef.current || !zoomRef.current) return;
+    const { sx, sy } = placedToScreen(placed, layout.bounds);
+    const w = svgRef.current.clientWidth;
+    const h = svgRef.current.clientHeight;
+    const { k, x, y } = transform;
+    const left = sx * k + x, top = sy * k + y;
+    const margin = 16;
+    if (left >= margin && top >= margin && left + TILE_W * k <= w - margin && top + TILE_H * k <= h - margin) return;
+    const tx = w / 2 - (sx + TILE_W / 2) * k;
+    const ty = h / 2 - (sy + TILE_H / 2) * k;
+    select(svgRef.current).call(zoomRef.current.transform, zoomIdentity.translate(tx, ty).scale(k));
+  };
+
+  /** Move keyboard focus to a room, switching the isolated z-layer first if needed. */
+  const focusRoom = (vnum: number) => {
+    const p = layout.placed[vnum];
+    if (!p) return;
+    if (isolating && p.z !== zFilter) onChangeZ(p.z);
+    setFocusVnum(vnum);
+    pendingFocusRef.current = vnum;
+    const el = roomRefs.current[vnum];
+    if (el && visibleVnumSet.has(vnum)) {
+      pendingFocusRef.current = null;
+      el.focus({ preventScroll: true });
+      panIntoView(vnum);
+    }
+  };
+
+  // Finish a deferred focus once the target tile has mounted (after a layer switch).
+  useEffect(() => {
+    const v = pendingFocusRef.current;
+    if (v == null) return;
+    const el = roomRefs.current[v];
+    if (!el) return;
+    pendingFocusRef.current = null;
+    el.focus({ preventScroll: true });
+    panIntoView(v);
+  });
+
+  const say = (text: string) => setAnnounce((a) => ({ text, n: a.n + 1 }));
+
+  const handleRoomKey = (e: KeyboardEvent, vnum: number) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      activateOnKey(e, () => onSelectRoom(vnum));
+      return;
+    }
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === 'Home') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (currentVnum != null) focusRoom(currentVnum);
+      return;
+    }
+    const dir = KEY_DIR[e.key];
+    if (!dir) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const dirWord = t.dir[dir] ?? dir;
+    const exit = layout.rooms[vnum]?.exits.find((x) => x.dir === dir);
+    if (!exit) { say(t.noExitDir(dirWord)); return; }
+    const target = layout.rooms[exit.target];
+    if (!target) {
+      const file = index.vnumToArea[exit.target];
+      say(t.exitToZone(dirWord, (file && (areaNameByFile[file] || file)) || t.anotherArea));
+      return;
+    }
+    if (!layout.placed[exit.target]) {
+      say(t.exitUnmapped(dirWord, nameFor(target, locale) || t.unnamedRoom));
+      return;
+    }
+    focusRoom(exit.target);
+  };
+
   // Auto-pan to current room (without zoom change).
   useEffect(() => {
     if (currentVnum == null || !svgRef.current || !zoomRef.current) return;
@@ -524,7 +641,9 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
   const labelZoom = Math.min(2.4, Math.max(1, 1 / transform.k));
 
   return (
-    <svg ref={svgRef} className="map-svg" role="group" aria-label={t.mapOf(nameFor(layout.meta, locale))}>
+    <>
+    <svg ref={svgRef} className="map-svg" role="group" aria-label={t.mapOf(nameFor(layout.meta, locale))}
+         aria-describedby={hintId}>
       <defs>
         {/* Soft drop shadow filter — replaces the manual offset rect for a more painterly look. */}
         <filter id="tile-shadow" x="-30%" y="-30%" width="160%" height="160%">
@@ -631,8 +750,9 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
             const cFirstY = ghostCy - cBlockH / 2 + Math.round(cFont * 0.82);
             return (
               <g key={`e${i}`} opacity={opa} style={{ cursor: 'pointer' }}
-                 role="button" aria-label={t.toZone(areaName)}
-                 onClick={() => onCrossArea(edge.targetArea || '', edge.to)}>
+                 role="button" tabIndex={-1} aria-label={t.toZone(areaName)}
+                 onClick={() => onCrossArea(edge.targetArea || '', edge.to)}
+                 onKeyDown={(e) => activateOnKey(e, () => onCrossArea(edge.targetArea || '', edge.to))}>
                 <line x1={x1} y1={y1} x2={x2} y2={y2}
                       stroke={EXIT_COLOR.cross_area} strokeWidth={1.8}
                       strokeDasharray={EXIT_DASH.cross_area} markerEnd="url(#arrow-cross)" />
@@ -806,6 +926,7 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
           const blockW = lines.reduce((m, l) => Math.max(m, l.length), 0) * fontSize * 0.6;
           const blockH = lines.length === 0 ? 0 : (lines.length - 1) * lineH + Math.round(fontSize);
           const firstLineY = cy - blockH / 2 + Math.round(fontSize * 0.82);
+          const roomExits = exitsPhrase(room.exits);
 
           // Selected purple box / current halo are sized to wrap the label with margin.
           const boxW = Math.max(TILE_W, blockW + 20);
@@ -838,9 +959,12 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
             <g key={p.vnum} opacity={opa}
                transform={`translate(${cx} ${cy}) scale(${scale}) translate(${-cx} ${-cy})`}
                role="button"
-               tabIndex={0}
-               aria-label={`${roomName || t.unnamedRoom}, ${sectorLabel(effectiveSector)}${isNoRecall ? ', ' + t.noRecall : ''}${p.z !== 0 ? t.layerZ(p.z) : ''}${isCurrent ? ', ' + t.currentLocation : ''}`}
+               tabIndex={p.vnum === rovingVnum ? 0 : -1}
+               ref={(el) => { roomRefs.current[p.vnum] = el; }}
+               aria-label={`${roomName || t.unnamedRoom}, ${sectorLabel(effectiveSector)}, ${roomExits}${isNoRecall ? ', ' + t.noRecall : ''}${p.z !== 0 ? t.layerZ(p.z) : ''}${isCurrent ? ', ' + t.currentLocation : ''}`}
                style={{ cursor: 'pointer' }}
+               onFocus={() => { pendingFocusRef.current = null; setFocusVnum(p.vnum); }}
+               onKeyDown={(e) => handleRoomKey(e, p.vnum)}
                onClick={() => onSelectRoom(p.vnum)}
                onDoubleClick={() => onSetCurrent(p.vnum)}>
               {/* Current-location halo — cyan bloom wrapping the label/box with margin. */}
@@ -880,12 +1004,21 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
                 </>
               )}
 
+              {/* Keyboard focus ring (shown only under :focus-visible, see mapper.css). */}
+              <rect className="map-focus-ring" x={cx - (boxW + 12) / 2} y={cy - (boxH + 12) / 2}
+                    width={boxW + 12} height={boxH + 12} rx={TILE_RADIUS + 5} fill="none" />
+
               <title>{`${roomName || t.unnamedRoom}\n${sectorLabel(room.sector)}\n${t.exits}: ${room.exits.map((e) => t.dir[e.dir] ?? e.dir).join(', ') || '—'}`}</title>
             </g>
           );
         })}
       </g>
     </svg>
+    <div id={hintId} className="dl-mapper-sr-only">{t.mapKeysHint}</div>
+    <div className="dl-mapper-sr-only" role="status" aria-live="polite">
+      {announce.text ? announce.text + (announce.n % 2 ? '\u00a0' : '') : ''}
+    </div>
+    </>
   );
 });
 
@@ -976,7 +1109,8 @@ function renderVerticalStub(
 
   return (
     <g key={`v${key}`} opacity={opa} style={{ cursor: 'pointer' }} onClick={handleJump}
-       role="button" aria-label={dirIsUp ? t.upTo(targetName) : t.downTo(targetName)}>
+       onKeyDown={(e) => activateOnKey(e, handleJump)}
+       role="button" tabIndex={-1} aria-label={dirIsUp ? t.upTo(targetName) : t.downTo(targetName)}>
       <line x1={startX} y1={startY} x2={endX} y2={endY}
             stroke={vcolor} strokeWidth={2} strokeDasharray="4 3"
             markerEnd="url(#arrow-vertical)" />

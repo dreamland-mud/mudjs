@@ -120,6 +120,89 @@
 .dl-mapper-root .map-svg:active { cursor: grabbing; }
 .dl-mapper-root .map-svg [role="button"]:focus,
 .dl-mapper-root .map-svg [role="button"]:focus-visible { outline: none; }
+/* Keyboard focus ring on the roving room tile: invisible until :focus-visible, constant
+   2px at any zoom (non-scaling-stroke). */
+.dl-mapper-root .map-svg .map-focus-ring {
+  stroke: none;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+.dl-mapper-root .map-svg [role="button"]:focus-visible > .map-focus-ring {
+  stroke: var(--lapis);
+  stroke-width: 2px;
+  stroke-dasharray: 6 4;
+}
+
+/* Screen-reader-only text (keyboard hint, live announcements). */
+.dl-mapper-root .dl-mapper-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- room list view (text alternative to the graph) ---- */
+.dl-mapper-root .room-list {
+  height: 100%;
+  overflow: auto;
+  padding: 8px 10px 16px;
+  background: var(--ink-base);
+}
+.dl-mapper-root .room-list[data-drawer="true"] { padding-bottom: 42vh; }
+.dl-mapper-root .room-list-summary {
+  margin: 0 0 10px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.dl-mapper-root .room-list-heading {
+  margin: 12px 0 6px;
+  font-family: var(--ui, 'Alegreya Sans', 'Helvetica Neue', Arial, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--amber);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 3px;
+}
+.dl-mapper-root .room-list-subheading {
+  margin: 8px 0 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.dl-mapper-root .room-list-items { list-style: none; margin: 0; padding: 0; }
+.dl-mapper-root .room-list-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-body);
+  padding: 5px 8px;
+  cursor: pointer;
+}
+.dl-mapper-root .room-list-item:hover { border-color: var(--amber-dim); }
+.dl-mapper-root .room-list-item:focus-visible { outline: 2px solid var(--lapis); outline-offset: 1px; }
+.dl-mapper-root .room-list-item[aria-current="location"] { border-color: var(--cyan-dark); }
+.dl-mapper-root .room-list-item[aria-current="location"] .room-list-name { color: var(--cyan); font-weight: 600; }
+.dl-mapper-root .room-list-item.is-selected { background: var(--ink-elevated); }
+.dl-mapper-root .room-list-name { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.dl-mapper-root .room-list-meta { font-size: 11px; color: var(--text-dim); }
+.dl-mapper-root .room-list-exits { font-size: 11px; color: var(--amber); letter-spacing: 0.06em; }
+.dl-mapper-root .room-list-void { font-size: 11px; color: var(--rust); }
 
 /* ---- +/- zoom buttons (in the topbar, right of the # toggle; purple like .btn-ctrl-panel) ---- */
 .dl-mapper-root .dl-mapper-zoom-btn {

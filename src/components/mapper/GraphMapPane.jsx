@@ -3,15 +3,18 @@
  *
  * Pure presentation: the shell (../map.jsx) owns the data via useGraphMapper and the
  * topbar controls (Search / layer select / ASCII toggle). Here we render the d3 <Map>
- * and, since the tile is too narrow for a docked 340px aside, the room detail <SidePanel>
- * lives in a bottom overlay-drawer that slides over the map and is dismissable.
+ * (or, in list view, the text <RoomList>) and, since the tile is too narrow for a docked
+ * 340px aside, the room detail <SidePanel> lives in a bottom overlay-drawer that slides
+ * over the map and is dismissable.
  */
 import { memo } from 'react';
 import { Map as GraphMap } from './Map';
 import { SidePanel } from './SidePanel';
+import { RoomList } from './RoomList';
 import { t } from './i18n.js';
 
 function GraphMapPane({
+  view,
   zoomApiRef,
   locale,
   index,
@@ -58,20 +61,31 @@ function GraphMapPane({
 
   return (
     <div className="dl-mapper">
-      <GraphMap
-        layout={layout}
-        index={index}
-        locale={locale}
-        currentVnum={currentVnum}
-        selectedVnum={selectedVnum}
-        activeZ={activeZ}
-        zFilter={zFilter}
-        onSelectRoom={onSelectRoom}
-        onSetCurrent={onRunTo}
-        onCrossArea={onCrossArea}
-        onChangeZ={onChangeZ}
-        zoomApiRef={zoomApiRef}
-      />
+      {view === 'list' ? (
+        <RoomList
+          layout={layout}
+          locale={locale}
+          currentVnum={currentVnum}
+          selectedVnum={selectedVnum}
+          drawerOpen={drawerOpen}
+          onSelectRoom={onSelectRoom}
+        />
+      ) : (
+        <GraphMap
+          layout={layout}
+          index={index}
+          locale={locale}
+          currentVnum={currentVnum}
+          selectedVnum={selectedVnum}
+          activeZ={activeZ}
+          zFilter={zFilter}
+          onSelectRoom={onSelectRoom}
+          onSetCurrent={onRunTo}
+          onCrossArea={onCrossArea}
+          onChangeZ={onChangeZ}
+          zoomApiRef={zoomApiRef}
+        />
+      )}
 
       <div className="dl-mapper-drawer" data-open={drawerOpen ? 'true' : 'false'}>
         <div className="dl-mapper-drawer-body">

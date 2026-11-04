@@ -93,9 +93,23 @@ export interface Strings {
   // exit directions
   dir: Record<string, string>;        // full word
   dirShort: Record<string, string>;   // compact glyph for the list view
+  // keyboard / screen-reader navigation
+  listView: string;                              // list-view toggle label
+  exitsAria: (list: string) => string;           // ", exits north, east" room-label fragment
+  noExitDir: (dir: string) => string;            // arrow pressed where the room has no exit
+  exitToZone: (dir: string, zone: string) => string;   // arrow toward a cross-area exit
+  exitUnmapped: (dir: string, name: string) => string; // exit target exists but isn't placed
+  mapKeysHint: string;                           // aria-describedby hint on the map group
 }
 
 const zSign = (z: number) => (z >= 0 ? `+${z}` : `${z}`);
+
+/** Signed layer label ("+1", "0", "-2") as used in headings and the layer picker. */
+export function zLabel(z: number): string {
+  return z === 0 ? '0' : zSign(z);
+}
+
+const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 const ru: Strings = {
   area: 'Зона',
@@ -150,6 +164,12 @@ const ru: Strings = {
   voidShort: '✦ пустота',
   dir: { north: 'север', south: 'юг', east: 'восток', west: 'запад', up: 'вверх', down: 'вниз' },
   dirShort: { north: 'с', south: 'ю', east: 'в', west: 'з', up: '^', down: 'v' },
+  listView: 'Список комнат',
+  exitsAria: (list) => `выходы ${list}`,
+  noExitDir: (dir) => `${cap(dir)}: выхода нет`,
+  exitToZone: (dir, zone) => `${cap(dir)}: выход в зону ${zone}`,
+  exitUnmapped: (dir, name) => `${cap(dir)}: ${name}, не на карте`,
+  mapKeysHint: 'Стрелки и PageUp/PageDown переходят между комнатами по выходам, Home возвращает к текущей комнате, Enter или пробел открывает комнату.',
 };
 
 const en: Strings = {
@@ -205,6 +225,12 @@ const en: Strings = {
   voidShort: '✦ void',
   dir: { north: 'north', south: 'south', east: 'east', west: 'west', up: 'up', down: 'down' },
   dirShort: { north: 'n', south: 's', east: 'e', west: 'w', up: 'u', down: 'd' },
+  listView: 'Room list',
+  exitsAria: (list) => `exits ${list}`,
+  noExitDir: (dir) => `No exit ${dir}`,
+  exitToZone: (dir, zone) => `Exit ${dir} leads to ${zone}`,
+  exitUnmapped: (dir, name) => `Exit ${dir} leads to ${name}, unmapped`,
+  mapKeysHint: 'Arrows and Page Up/Page Down move between rooms along exits, Home returns to the current room, Enter or Space opens the room.',
 };
 
 const ua: Strings = {
@@ -260,6 +286,12 @@ const ua: Strings = {
   voidShort: '✦ порожнеча',
   dir: { north: 'північ', south: 'південь', east: 'схід', west: 'захід', up: 'вгору', down: 'вниз' },
   dirShort: { north: 'пн', south: 'пд', east: 'сх', west: 'зх', up: '^', down: 'v' },
+  listView: 'Список кімнат',
+  exitsAria: (list) => `виходи ${list}`,
+  noExitDir: (dir) => `${cap(dir)}: виходу немає`,
+  exitToZone: (dir, zone) => `${cap(dir)}: вихід до зони ${zone}`,
+  exitUnmapped: (dir, name) => `${cap(dir)}: ${name}, не на мапі`,
+  mapKeysHint: 'Стрілки та PageUp/PageDown переходять між кімнатами за виходами, Home повертає до поточної кімнати, Enter або пробіл відкриває кімнату.',
 };
 
 const TABLE: Record<Locale, Strings> = { ru, en, ua };
@@ -309,4 +341,11 @@ export function descFor(entity: Described | null | undefined, loc: Locale = loca
     if (over != null && over !== '') return over;
   }
   return entity.description ?? '';
+}
+
+/** Screen-reader exits phrase for a room: "exits north, east, up" or "no exits".
+ *  Same exit list and order the SidePanel shows (raw room.exits). */
+export function exitsPhrase(exits: { dir: string }[] | null | undefined): string {
+  if (exits == null || exits.length === 0) return t.noExits;
+  return t.exitsAria(exits.map((e) => t.dir[e.dir] ?? e.dir).join(', '));
 }

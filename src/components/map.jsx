@@ -222,11 +222,12 @@ export default function Map() {
   const locale = localeFromLang(location.lang);
   setLocale(locale);
 
-  // 'graph' = new DL mapper (default); 'ascii' = legacy HTML map. Persisted per-browser.
+  // 'graph' = new DL mapper (default); 'list' = text room list over the same graph data;
+  // 'ascii' = legacy HTML map. Persisted per-browser.
   const [mode, setMode] = useState(() => localStorage.getItem('map-mode') || 'graph');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const graph = useGraphMapper(location, mode === 'graph');
+  const graph = useGraphMapper(location, mode !== 'ascii');
 
   // Prefer the graph's own area meta (carries the en/ua i18n block) for the topbar name;
   // fall back to the legacy /maps/index.json name (RU only) in ASCII mode / ungraphed zones.
@@ -272,7 +273,7 @@ export default function Map() {
   const handleCloseDrawer = useCallback(() => setDrawerOpen(false), []);
   const handleRequestAscii = useCallback(() => setModePersisted('ascii'), [setModePersisted]);
 
-  const graphReady = mode === 'graph' && graph.status === 'ready' && graph.layout != null;
+  const graphReady = mode !== 'ascii' && graph.status === 'ready' && graph.layout != null;
 
   return (
     <div className="dl-mapper-root">
@@ -300,11 +301,13 @@ export default function Map() {
           {graphReady && (
             <>
               <Search layout={graph.layout} locale={locale} onPick={handleSelectRoom} />
-              <LayerSelect
-                layout={graph.layout}
-                zFilter={graph.zFilter}
-                onChange={graph.setZFilter}
-              />
+              {mode === 'graph' && (
+                <LayerSelect
+                  layout={graph.layout}
+                  zFilter={graph.zFilter}
+                  onChange={graph.setZFilter}
+                />
+              )}
             </>
           )}
 
@@ -320,20 +323,34 @@ export default function Map() {
           </button>
           <button
             type="button"
-            className="dl-mapper-zoom-btn"
-            aria-label="zoom in"
-            onClick={handleZoomIn}
+            className={`toggle-btn${mode === 'list' ? ' is-on' : ''}`}
+            aria-pressed={mode === 'list'}
+            aria-label={t.listView}
+            title={t.listView}
+            onClick={() => setModePersisted(mode === 'list' ? 'graph' : 'list')}
           >
-            <i className="fa fa-plus" aria-hidden="true"></i>
+            <i className="fa fa-list" aria-hidden="true"></i>
           </button>
-          <button
-            type="button"
-            className="dl-mapper-zoom-btn"
-            aria-label="zoom out"
-            onClick={handleZoomOut}
-          >
-            <i className="fa fa-minus" aria-hidden="true"></i>
-          </button>
+          {mode !== 'list' && (
+            <>
+              <button
+                type="button"
+                className="dl-mapper-zoom-btn"
+                aria-label="zoom in"
+                onClick={handleZoomIn}
+              >
+                <i className="fa fa-plus" aria-hidden="true"></i>
+              </button>
+              <button
+                type="button"
+                className="dl-mapper-zoom-btn"
+                aria-label="zoom out"
+                onClick={handleZoomOut}
+              >
+                <i className="fa fa-minus" aria-hidden="true"></i>
+              </button>
+            </>
+          )}
         </Toolbar>
       </AppBar>
 
@@ -341,6 +358,7 @@ export default function Map() {
         <AsciiMapBody location={location} apiRef={asciiApiRef} />
       ) : (
         <GraphMapPane
+          view={mode === 'list' ? 'list' : 'map'}
           zoomApiRef={zoomApiRef}
           locale={locale}
           index={graph.index}
