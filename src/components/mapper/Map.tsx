@@ -528,7 +528,8 @@ export const Map = memo(function Map({ layout, index, locale, currentVnum, selec
         try { localStorage.setItem(ZOOM_KEY, String(ev.transform.k)); } catch { /* storage blocked */ }
       });
     zoomRef.current = z;
-    svg.call(z);
+    // Double-click on a tile is "run here"; d3's dblclick zoom would swallow it.
+    svg.call(z).on('dblclick.zoom', null);
     // Initial pan: center on midpoint of bounds.
     const w = svgRef.current.clientWidth;
     const h = svgRef.current.clientHeight;
