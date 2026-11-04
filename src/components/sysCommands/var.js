@@ -67,15 +67,7 @@ const varCmd = value => {
     return varAdd(stringCmd)
 }
 
-export function parseUserVars(str) {
-    const varsStorage = localStorage.vars ? JSON.parse(localStorage.vars) : {};
-    const stringArr = str.split(/([^?=[\wа-яА-я$\]])/)
-    for (let i in stringArr) {
-        if (stringArr[i].startsWith('$') && (varsStorage[stringArr[i].slice(1)])) {
-                stringArr[i] = varsStorage[stringArr[i].slice(1)]
-        }
-    }
-    return stringArr.join('')
-}
+// Moved to the leaf module (no SysCommands import); re-exported for existing callers.
+export { parseUserVars } from './hotkeySend';
 
 export default varCmd
