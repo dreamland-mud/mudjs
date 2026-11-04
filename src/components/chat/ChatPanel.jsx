@@ -299,7 +299,8 @@ export default function ChatPanel() {
           if (live.current.onlyMine && row.kind !== 'personal') return;
           if (live.current.glued && live.current.open) {
             window.requestAnimationFrame(scrollDown);
-          } else {
+          } else if (row.dir !== 'out') {
+            // Your own lines are not news: you just typed them.
             setUnread(n => n + 1);
           }
         });
