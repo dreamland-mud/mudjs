@@ -9,6 +9,7 @@
  *
  * Nothing in the terminal moves while reviewing: scrolling it would load or
  * trim history, so the textarea is a copy, kept in step as new output lands. */
+import $ from 'jquery';
 import { t } from './i18n';
 import { getKeydown } from './settings';
 import { sendHotKeyCmd } from './components/sysCommands/hotkeySend';
@@ -32,8 +33,8 @@ let copied = ''; // the text as this module last wrote it, to undo an edit that 
 let chunkCache = new WeakMap(); // emptied each time review opens: chunks edited while it was closed are read again
 
 /* Plain text of the terminal, one game line per line, blank lines dropped, with
- * the character range of every command link. Exported for tests. */
-export function collectLines(terminal) {
+ * the character range of every command link. */
+function collectLines(terminal) {
   const out = [];
   terminal.childNodes.forEach(child => {
     if (child.nodeType !== 1 || !child.hasAttribute('data-chunk-id')) {
@@ -111,9 +112,8 @@ function lineAt(offset) {
 /* How many characters were cut off the top of oldValue to get the start of
  * value: the terminal trims whole chunks off the top as new output arrives at
  * the bottom, so value is oldValue minus a prefix of whole lines, plus new text.
- * -1 when the two do not line up that way (history reloaded, say). Exported
- * for tests. */
-export function trimmedPrefix(oldValue, value) {
+ * -1 when the two do not line up that way (history reloaded, say). */
+function trimmedPrefix(oldValue, value) {
   if (value.startsWith(oldValue)) return 0;
   const nl = value.indexOf('\n');
   const first = nl < 0 ? value : value.slice(0, nl);
@@ -230,18 +230,39 @@ function stopWatching() {
   refreshTimer = null;
 }
 
-const DIALOG = '[role="dialog"], [aria-modal="true"], .modal, .settings-sheet';
+const DIALOG = '[role="dialog"], [aria-modal="true"], .modal';
+
+/* Option+arrows move by word on a Mac and Ctrl+Option is VoiceOver's key: the
+ * chat keys (chatbuffers.js) stay off there. */
+export const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || '');
+
+/* On screen: the help sheet and the settings stay in the page while closed,
+ * slid aside and marked aria-hidden. */
+export function isShown(el) {
+  return el.getAttribute('aria-hidden') !== 'true' && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+}
+
+function dialogOpen() {
+  return Array.from(document.querySelectorAll(DIALOG)).some(isShown);
+}
+
+// A link in review opened a dialog (the help sheet): the box stays until it closes.
+let dialogFromReview = false;
 
 /* Out of the page once left: a hidden copy of the whole output would stay in
  * the accessibility tree (and in browse mode) for the screen reader to track.
  * Emptied a moment later, once the screen reader has announced where the focus
- * went. While a dialog opened from review is up (the help sheet), the box stays:
- * the dialog gives the focus back to it when it closes. */
+ * went. While a dialog opened from review is up (the help sheet), the box stays,
+ * even when the focus has wandered out of the dialog: the dialog gives the focus
+ * back to the box when it closes. A dialog the player opened otherwise does not
+ * keep it. */
 function scheduleHide() {
   const el = box;
   setTimeout(() => {
     if (!el || document.activeElement === el) return;
     const now = document.activeElement;
+    if (dialogFromReview && dialogOpen()) return scheduleHide();
+    dialogFromReview = false;
     if (now && now.closest && now.closest(DIALOG)) return scheduleHide();
     el.value = '';
     el.hidden = true;
@@ -266,7 +287,10 @@ function afterClick() {
   const now = document.activeElement;
   if (now === box) return;
   if (!now || now === document.body) enterReview();
-  else leave(null); // the command line or a dialog the link moved the focus to keeps it
+  else {
+    dialogFromReview = !!(now.closest && now.closest(DIALOG));
+    leave(null); // the command line or a dialog the link moved the focus to keeps it
+  }
 }
 
 function onKeyDown(e) {
@@ -391,6 +415,8 @@ function openMenu(toggle) {
       if (e.key === 'Escape') enterReview();
       else document.getElementById('inputBox')?.focus();
     } else if (!(e.key.length === 1 && !e.ctrlKey && !e.altKey)) {
+      // F1 to F12 and other non-letter keys: the player's macro first.
+      if (sendHotKeyCmd(e)) return;
       e.stopPropagation();
     } else {
       close();
@@ -450,8 +476,10 @@ function ensureBox() {
 
 /* ---- the switch ----------------------------------------------------------- */
 
-/* Off until the player turns it on with #review on (sysCommands/review.js);
- * remembered in this browser. Then Tab in the command line reads the output. */
+/* Off until the player turns it on with #review on (sysCommands/review.js), or
+ * the game says the character uses a screen reader (config screenreader, see
+ * followServer below); remembered in this browser. Then Tab in the command
+ * line reads the output, and Alt with the arrows reads chat (chatbuffers.js). */
 const SWITCH_KEY = 'mudjs.outputReview';
 
 export function reviewEnabled() {
@@ -470,6 +498,57 @@ export function setReviewEnabled(on) {
     /* storage blocked: nothing to remember it in */
   }
 }
+
+/* The game's own screen reader setting. Turning it on or off (config
+ * screenreader, or the Settings dialog) turns review on or off. Entering the
+ * world, review is turned on only when the setting is newly on for that
+ * character: a player who then chose #review off keeps it off. */
+const SERVER_KEY = 'mudjs.outputReview.server';
+const serverOn = v => v === true || v === 1 || ['1', 'yes', 'on', 'true'].includes(String(v).toLowerCase());
+let playing = null; // the character in the world, for the per-character memory
+
+function lastServer() {
+  try {
+    return JSON.parse(localStorage.getItem(SERVER_KEY)) || {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function noteServer(name, on) {
+  if (!name) return;
+  try {
+    const seen = lastServer();
+    seen[name] = on;
+    localStorage.setItem(SERVER_KEY, JSON.stringify(seen));
+  } catch (e) {
+    /* storage blocked: follow the server each time */
+  }
+}
+
+function followServer() {
+  $('#rpc-events').on('rpc-config_state.review', (e, b) => {
+    if (!b || !b.playing) {
+      playing = null;
+      return;
+    }
+    playing = b.who || null;
+    const on = serverOn(b.screenreader);
+    if (on && lastServer()[playing] !== true) setReviewEnabled(true);
+    noteServer(playing, on);
+  });
+  const changed = (e, b) => {
+    if (!b || b.key !== 'screenreader' || b.ok === false) return;
+    const on = serverOn(b.value);
+    setReviewEnabled(on);
+    noteServer(playing, on);
+  };
+  // config_changed when typed or changed elsewhere; config_result answers this
+  // client's own Settings dialog, which gets no config_changed.
+  $('#rpc-events').on('rpc-config_changed.review', changed);
+  $('#rpc-events').on('rpc-config_result.review', changed);
+}
+$(followServer);
 
 /* Called from the command line on Tab. */
 export function enterReview() {

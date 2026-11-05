@@ -1,6 +1,6 @@
 import { parseStringCmd, echoHtml, clickableLink } from '../sysCommandUtils';
 import { t } from '../../i18n';
-import { reviewEnabled, setReviewEnabled } from '../../review';
+import { reviewEnabled, setReviewEnabled, IS_MAC } from '../../review';
 
 export const reviewHelp = {
   title: `Включить или выключить чтение вывода для программ экранного доступа, подробнее ${clickableLink('#help review')}`,
@@ -11,7 +11,9 @@ export const reviewHelp = {
 #review on   - включить
 #review off  - выключить
 
-Настройка запоминается в этом браузере.
+Пока чтение вывода включено, Alt со стрелками читает чат (кроме Mac).
+
+Настройка запоминается в этом браузере. Если в игре включить config screenreader, чтение вывода включится само, а выключить -- выключится.
 
 `,
 };
@@ -20,7 +22,8 @@ const reviewCmd = value => {
   const arg = (parseStringCmd(value)[0] || '').toLowerCase();
   if (arg === 'on' || arg === 'off') setReviewEnabled(arg === 'on');
   else if (arg) return echoHtml(t('rv.cmd.usage'));
-  echoHtml(t(reviewEnabled() ? 'rv.cmd.on' : 'rv.cmd.off'));
+  const on = reviewEnabled();
+  echoHtml(t(on ? 'rv.cmd.on' : 'rv.cmd.off') + (IS_MAC ? '' : ' ' + t(on ? 'rv.cmd.chat.on' : 'rv.cmd.chat.off')));
 };
 
 export default reviewCmd;
