@@ -23,6 +23,13 @@ var scrolling = false;
 var autoScrollEnabled = true;
 var liveId = -1; // highest chunk id appended as live output -- what a screen reader has already announced
 const FOLLOW_MAX_PASSES = 20; // followBottom never chains more loads than this
+
+/* Keys in an item's menu opened from the output review (review.js) are stopped
+ * before they reach the document listener below, yet they are activity like
+ * any other key: review calls this so the terminal follows new output again. */
+export function resumeAutoScroll() {
+  autoScrollEnabled = true;
+}
 const MSP_LINE = /^!!(?:SOUND|MUSIC)\([^)\n]*\)[ \t]*\r?(?:\n|$)/gm;
 
 const loadChunks = (startId, direction, maxlen) => {

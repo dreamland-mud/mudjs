@@ -4,6 +4,10 @@ import $ from 'jquery';
 import ansi2html from '../../ansi2html.js';
 import manip from '../../manip.js';
 import chatDb from '../../chatdb.js';
+import { chatRow, archiveChat } from '../../chatstream.js';
+// plain(): the text with every tag taken off. The footer quotes a line as a
+// reminder, and a reminder wearing markup is unreadable.
+import { plain } from '../../plaintext.js';
 import { rpccmd, send } from '../../websock.js';
 import { getLang, t } from '../../i18n.js';
 import { announceSheet, onOtherSheet } from '../../sheets.js';
@@ -113,14 +117,6 @@ function paint(text) {
 // is this version of the panel's business.
 function dress(row) {
   return Object.assign({}, row, { html: paint(row.text) });
-}
-
-// The same text with every tag taken off: the footer quotes a line as a
-// reminder, and a reminder wearing markup is unreadable.
-function plain(text) {
-  return $('<div/>')
-    .html(ansi2html(String(text || '')))
-    .text();
 }
 
 // THE TEXT KEEPS THE GAME'S OWN COLOUR. The frame carries the line rendered
@@ -271,23 +267,10 @@ export default function ChatPanel() {
       const name = live.current.who;
       if (!name || !b) return;
 
-      const row = {
-        at: b.at || Math.floor(Date.now() / 1000),
-        chan: b.id || '',
-        kind: b.kind || 'world',
-        dir: b.dir || 'in',
-        text: b.text || '',
-        name: (b.peer && b.peer.name) || '',
-        anon: !!(b.peer && b.peer.anon),
-        npc: !!(b.peer && b.peer.npc),
-        key: (b.peer && b.peer.key) || '',
-        area: b.area || '',
-        quest: b.quest || 0,
-        step: b.step || 0,
-      };
+      const row = chatRow(b);
 
-      chatDb
-        .then(db => db.append(name, row))
+      // archiveChat also hands the saved line to the chat buffer keys.
+      archiveChat(name, row)
         .then(saved => {
           // The shelf may have changed hands while the write was in flight.
           if (live.current.who !== name) return;
@@ -303,7 +286,9 @@ export default function ChatPanel() {
             // Your own lines are not news: you just typed them.
             setUnread(n => n + 1);
           }
-        });
+        })
+        // Not archived (storage full or blocked): the chat buffer keys still got it.
+        .catch(e => console.warn('chat line not archived', e));
     };
 
     $('#rpc-events').on('rpc-chat.chat', onChat);

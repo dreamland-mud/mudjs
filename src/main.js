@@ -12,6 +12,7 @@ import './prompt';
 import './combatui';
 import './bossflash';
 import './langsync';
+import './chatbuffers';
 import './textedit';
 import './cs';
 

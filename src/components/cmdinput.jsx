@@ -17,11 +17,13 @@ import Commands, {
   getSystemCmd,
 } from './SysCommands';
 import { sendHotKeyCmd } from './sysCommands/hotkey';
+import { enterReview, reviewEnabled } from '../review';
 
 const input_history = localStorage.history
   ? JSON.parse(localStorage.history)
   : [];
 let position = input_history.length;
+let tabLeavesInput = false; // Escape was the last key: Tab moves on instead of reading the output
 let current_cmd = '';
 
 $('body').on('click', '.builtin-cmd', function (e) {
@@ -51,6 +53,8 @@ const CmdInput = () => {
   useEffect(() => {
     const handleKey = e => {
       if (e.which === 9) return;
+      // The output review box (review.js) handles its own keys.
+      if (e.target && e.target.id === 'outputReview') return;
 
       const input = $('#input input');
       // A window over the game -- an editor modal, or the settings sheet --
@@ -142,6 +146,11 @@ const CmdInput = () => {
 
   const keydown = e => {
     e.stopPropagation();
+    const passTab = tabLeavesInput;
+    // Only keys really pressed here change it: the window handler re-sends keys
+    // pressed elsewhere on the page into the command line, and a lone modifier
+    // (the Shift of Shift+Tab) is not a key of its own.
+    if (e.isTrusted && !['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) tabLeavesInput = e.key === 'Escape';
     const isPgKeysScroll = localStorage.properties
       ? JSON.parse(localStorage.properties)['isPgKeysScroll']
       : true;
@@ -175,9 +184,17 @@ const CmdInput = () => {
       }
     }
 
-    if (!sendHotKeyCmd(e)) {
-      getKeydown()(e);
-    }
+    if (sendHotKeyCmd(e)) return;
+
+    // Tab or Shift+Tab reads the output (review.js). A player's own hotkey or
+    // keydown script on them wins. Escape first lets the next Tab or Shift+Tab
+    // move on to the page's other controls, so the keyboard is never trapped
+    // between the command line and the output.
+    const isTab = e.key === 'Tab' && !e.ctrlKey && !e.altKey;
+
+    getKeydown()(e);
+
+    if (isTab && !passTab && !e.defaultPrevented && reviewEnabled() && enterReview()) e.preventDefault();
   };
 
   const submit = e => {
@@ -226,7 +243,12 @@ const CmdInput = () => {
         <input
           ref={textInput}
           id="inputBox"
+          aria-label={t('in.label', lang)}
           onKeyDown={keydown}
+          onBlur={() => {
+            // Escape-then-Tab only counts while the focus stays here.
+            tabLeavesInput = false;
+          }}
           value={value}
           onChange={e => setValue(e.target.value)}
           type="text"
