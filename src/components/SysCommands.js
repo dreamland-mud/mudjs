@@ -8,6 +8,7 @@ import varCmd, { varHelp } from './sysCommands/var'
 import deleteCmd, { deleteHelp } from './sysCommands/delete'
 import actionCmd, { actionHelp } from './sysCommands/action'
 import autobuffCmd, { autobuffHelp } from './sysCommands/autobuff'
+import reviewCmd, { reviewHelp } from './sysCommands/review'
 
 const multiCmdHelp = {
     title: `Выполнить указанную команду несколько раз, подробнее ${clickableLink('#help multiCmd')}`,
@@ -28,7 +29,8 @@ const cmdAliases = {
     'настройки' : 'settings',
     'переменная' : 'var',
     'действие' : 'action',
-    'автобафф' : 'autobuff'
+    'автобафф' : 'autobuff',
+    'чтение' : 'review'
 }
 
 const Commands = {
@@ -93,6 +95,15 @@ const Commands = {
         help: {
             title: settingsHelp.title,
             description: settingsHelp.description
+        }
+    },
+    review: {
+        payload: function(value) {
+            reviewCmd(value)
+        },
+        help: {
+            title: reviewHelp.title,
+            description: reviewHelp.description
         }
     },
     delete: {
