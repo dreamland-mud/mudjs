@@ -509,6 +509,12 @@ export function setReviewEnabled(on) {
 const SERVER_KEY = 'mudjs.outputReview.server';
 const serverOn = v => v === true || v === 1 || ['1', 'yes', 'on', 'true'].includes(String(v).toLowerCase());
 let playing = null; // the character in the world, for the per-character memory
+let serverSr = false; // the character's config screenreader, as the server last said
+
+// Whether the character in the world has config screenreader on.
+export function screenreaderOn() {
+  return serverSr;
+}
 
 function lastServer() {
   try {
@@ -546,10 +552,12 @@ function followServer() {
   $('#rpc-events').on('rpc-config_state.review', (e, b) => {
     if (!b || !b.playing) {
       playing = null;
+      serverSr = false;
       return;
     }
     playing = b.who || null;
     const on = serverOn(b.screenreader);
+    serverSr = on;
     if (on && lastServer()[playing] !== true) switchTo(true);
     noteServer(playing, on);
   });
@@ -559,6 +567,7 @@ function followServer() {
     // config_changed has no ok at all.
     if ((b.ok !== undefined && !b.ok) || b.value === undefined) return;
     const on = serverOn(b.value);
+    serverSr = on;
     switchTo(on);
     noteServer(playing, on);
   };
