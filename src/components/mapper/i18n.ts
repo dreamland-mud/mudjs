@@ -95,6 +95,9 @@ export interface Strings {
   dirShort: Record<string, string>;   // compact glyph for the list view
   // keyboard / screen-reader navigation
   listView: string;                              // list-view toggle label
+  asciiView: string;                             // ASCII-view toggle label
+  zoomIn: string;
+  zoomOut: string;
   exitsAria: (list: string) => string;           // ", exits north, east" room-label fragment
   noExitDir: (dir: string) => string;            // arrow pressed where the room has no exit
   exitToZone: (dir: string, zone: string) => string;   // arrow toward a cross-area exit
@@ -167,6 +170,9 @@ const ru: Strings = {
   dir: { north: 'север', south: 'юг', east: 'восток', west: 'запад', up: 'вверх', down: 'вниз' },
   dirShort: { north: 'с', south: 'ю', east: 'в', west: 'з', up: '^', down: 'v' },
   listView: 'Список комнат',
+  asciiView: 'ASCII-карта',
+  zoomIn: 'Приблизить',
+  zoomOut: 'Отдалить',
   exitsAria: (list) => `выходы ${list}`,
   noExitDir: (dir) => `${cap(dir)}: выхода нет`,
   exitToZone: (dir, zone) => `${cap(dir)}: выход в зону ${zone}`,
@@ -230,6 +236,9 @@ const en: Strings = {
   dir: { north: 'north', south: 'south', east: 'east', west: 'west', up: 'up', down: 'down' },
   dirShort: { north: 'n', south: 's', east: 'e', west: 'w', up: 'u', down: 'd' },
   listView: 'Room list',
+  asciiView: 'ASCII map',
+  zoomIn: 'Zoom in',
+  zoomOut: 'Zoom out',
   exitsAria: (list) => `exits ${list}`,
   noExitDir: (dir) => `No exit ${dir}`,
   exitToZone: (dir, zone) => `Exit ${dir} leads to ${zone}`,
@@ -293,6 +302,9 @@ const ua: Strings = {
   dir: { north: 'північ', south: 'південь', east: 'схід', west: 'захід', up: 'вгору', down: 'вниз' },
   dirShort: { north: 'пн', south: 'пд', east: 'сх', west: 'зх', up: '^', down: 'v' },
   listView: 'Список кімнат',
+  asciiView: 'ASCII-мапа',
+  zoomIn: 'Наблизити',
+  zoomOut: 'Віддалити',
   exitsAria: (list) => `виходи ${list}`,
   noExitDir: (dir) => `${cap(dir)}: виходу немає`,
   exitToZone: (dir, zone) => `${cap(dir)}: вихід до зони ${zone}`,
