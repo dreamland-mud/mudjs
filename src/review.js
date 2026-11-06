@@ -14,6 +14,7 @@ import { t } from './i18n';
 import { getKeydown } from './settings';
 import { sendHotKeyCmd } from './components/sysCommands/hotkeySend';
 import { resumeAutoScroll } from './components/terminal';
+import { echoHtml } from './components/sysCommandUtils';
 
 // Commands, help links and item names (an item name opens its menu of actions).
 const LINK_SELECTOR = '.manip-cmd, .builtin-cmd, .dropdown-toggle';
@@ -246,16 +247,17 @@ function dialogOpen() {
   return Array.from(document.querySelectorAll(DIALOG)).some(isShown);
 }
 
-// A link in review opened a dialog (the help sheet): the box stays until it closes.
+// The focus went from the box straight into a dialog (the help sheet, say):
+// the box stays until it closes. Set where the move is visible, after the blur.
 let dialogFromReview = false;
 
 /* Out of the page once left: a hidden copy of the whole output would stay in
  * the accessibility tree (and in browse mode) for the screen reader to track.
  * Emptied a moment later, once the screen reader has announced where the focus
- * went. While a dialog opened from review is up (the help sheet), the box stays,
- * even when the focus has wandered out of the dialog: the dialog gives the focus
- * back to the box when it closes. A dialog the player opened otherwise does not
- * keep it. */
+ * went. While a dialog that took the focus from the box is up (the help sheet),
+ * the box stays, even when the focus has wandered out of the dialog: the dialog
+ * gives the focus back to the box when it closes. A dialog the player opened
+ * otherwise does not keep it. */
 function scheduleHide() {
   const el = box;
   setTimeout(() => {
@@ -287,10 +289,7 @@ function afterClick() {
   const now = document.activeElement;
   if (now === box) return;
   if (!now || now === document.body) enterReview();
-  else {
-    dialogFromReview = !!(now.closest && now.closest(DIALOG));
-    leave(null); // the command line or a dialog the link moved the focus to keeps it
-  }
+  else leave(null); // the command line or a dialog the link moved the focus to keeps it
 }
 
 function onKeyDown(e) {
@@ -461,7 +460,11 @@ function ensureBox() {
   // be kept up to date.
   box.addEventListener('blur', () => {
     setTimeout(() => {
-      if (document.activeElement !== box && document.hasFocus()) leave(null);
+      // By now React has run the dialog's focus effect, so a dialog that took
+      // the focus from the box shows here.
+      const now = document.activeElement;
+      if (now && now !== box && now.closest && now.closest(DIALOG)) dialogFromReview = true;
+      if (now !== box && document.hasFocus()) leave(null);
     }, 0);
   });
   box.addEventListener('focus', () => {
@@ -526,6 +529,19 @@ function noteServer(name, on) {
   }
 }
 
+/* What #review says about the switch; also said when the game turns it. */
+export function reviewStateText() {
+  const on = reviewEnabled();
+  return t(on ? 'rv.cmd.on' : 'rv.cmd.off') + (IS_MAC ? '' : ' ' + t(on ? 'rv.cmd.chat.on' : 'rv.cmd.chat.off'));
+}
+
+/* Turned by the game: switched and said, so Tab going into the output is not a surprise. */
+function switchTo(on) {
+  if (on === reviewEnabled()) return;
+  setReviewEnabled(on);
+  echoHtml(reviewStateText());
+}
+
 function followServer() {
   $('#rpc-events').on('rpc-config_state.review', (e, b) => {
     if (!b || !b.playing) {
@@ -534,13 +550,16 @@ function followServer() {
     }
     playing = b.who || null;
     const on = serverOn(b.screenreader);
-    if (on && lastServer()[playing] !== true) setReviewEnabled(true);
+    if (on && lastServer()[playing] !== true) switchTo(true);
     noteServer(playing, on);
   });
   const changed = (e, b) => {
-    if (!b || b.key !== 'screenreader' || b.ok === false) return;
+    if (!b || b.key !== 'screenreader') return;
+    // config_result carries ok as 1 or 0, and a refusal has no value: nothing changed.
+    // config_changed has no ok at all.
+    if ((b.ok !== undefined && !b.ok) || b.value === undefined) return;
     const on = serverOn(b.value);
-    setReviewEnabled(on);
+    switchTo(on);
     noteServer(playing, on);
   };
   // config_changed when typed or changed elsewhere; config_result answers this

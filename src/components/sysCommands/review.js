@@ -1,6 +1,6 @@
 import { parseStringCmd, echoHtml, clickableLink } from '../sysCommandUtils';
 import { t } from '../../i18n';
-import { reviewEnabled, setReviewEnabled, IS_MAC } from '../../review';
+import { setReviewEnabled, reviewStateText } from '../../review';
 
 export const reviewHelp = {
   title: `Включить или выключить чтение вывода для программ экранного доступа, подробнее ${clickableLink('#help review')}`,
@@ -22,8 +22,7 @@ const reviewCmd = value => {
   const arg = (parseStringCmd(value)[0] || '').toLowerCase();
   if (arg === 'on' || arg === 'off') setReviewEnabled(arg === 'on');
   else if (arg) return echoHtml(t('rv.cmd.usage'));
-  const on = reviewEnabled();
-  echoHtml(t(on ? 'rv.cmd.on' : 'rv.cmd.off') + (IS_MAC ? '' : ' ' + t(on ? 'rv.cmd.chat.on' : 'rv.cmd.chat.off')));
+  echoHtml(reviewStateText());
 };
 
 export default reviewCmd;

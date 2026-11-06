@@ -133,6 +133,7 @@ function start() {
 
 /* Review turned off: nothing kept, until it is on again. */
 function stop() {
+  generation++; // a read still running is for buffers no longer kept
   active = false;
   store.reset();
   loading = null;
