@@ -1,5 +1,5 @@
 import React from 'react';
-import OptionRow from './OptionRow.jsx';
+import OptionRow, { describe } from './OptionRow.jsx';
 import { t } from '../../i18n.js';
 
 // One page of the dialog: the settings themselves, plus optional content the
@@ -18,6 +18,7 @@ export default function SettingsPage({
   onChange,
   pending,
   refused,
+  heard,
   tail,
   children,
 }) {
@@ -32,6 +33,18 @@ export default function SettingsPage({
       return option.label + ': ' + (typeof why === 'string' ? why : t('cfg.refused', lang));
     })
     .join('. ');
+
+  // A change the server took is spoken only where the control itself stays
+  // silent: a switch (aria-checked), a segment (aria-pressed) and the slider
+  // (aria-valuenow) already tell the screen reader, a text field does not.
+  const SPEAKS_ITSELF = ['bool', 'enum', 'int'];
+  const took = heard
+    ? (page.options || []).find(option => option.key === heard.key)
+    : null;
+  const spoken = said
+    || (took && !SPEAKS_ITSELF.includes(took.type)
+      ? took.label + ': ' + describe(took, heard.value)
+      : '');
 
   return (
     <div className={page.kind === 'script' ? 'cfg-page cfg-page-script' : 'cfg-page'}>
@@ -61,7 +74,7 @@ export default function SettingsPage({
 
       {tail}
 
-      <div className="ab-sr" aria-live="polite">{said}</div>
+      <div className="ab-sr" aria-live="polite">{spoken}</div>
     </div>
   );
 }

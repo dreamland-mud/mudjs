@@ -51,9 +51,12 @@ function Switch({ on, onChange, label }) {
   );
 }
 
-function Segments({ options, value, onChange }) {
+function Segments({ options, value, onChange, label }) {
+  // aria-pressed is what lets a screen reader say which one is chosen, and say
+  // so again when the answer moves it: the gold background is all a sighted
+  // player gets, and it is nothing to anyone else.
   return (
-    <div className="cfg-segments" role="group">
+    <div className="cfg-segments" role="group" aria-label={label}>
       {options.map(one => (
         <button
           type="button"
@@ -61,6 +64,7 @@ function Segments({ options, value, onChange }) {
           className={
             one.value === value ? 'cfg-segment cfg-segment-on' : 'cfg-segment'
           }
+          aria-pressed={one.value === value}
           onClick={() => onChange(one.value)}
         >
           {one.label}
@@ -273,7 +277,7 @@ function Text({ value, placeholder, action, onChange, onAction, clearable }) {
 
 /** What the game says about the option as it stands now -- the same sentence
  *  the terminal prints when the option is changed. */
-function describe(option, value) {
+export function describe(option, value) {
   if (option.type === 'bool') {
     return (value ? option.on : option.off) || option.hint || '';
   }
@@ -334,6 +338,7 @@ export default function OptionRow({
   } else if (option.type === 'enum') {
     control = (
       <Segments
+        label={label}
         value={value}
         options={option.values || []}
         onChange={next => change(next, next)}

@@ -99,7 +99,7 @@ export default function SettingsDialog() {
   const sheet = useRef(null);
   const cfgSegRef = useRef(null);       // language segmented-control track
   const cfgSegIndRef = useRef(null);    // its sliding gold-gem indicator
-  const { schema, values, support, set, pending, refused } = useConfig(open, lang);
+  const { schema, values, support, set, pending, refused, heard } = useConfig(open, lang);
 
   // The character's autobuff list, asked for afresh every time the window
   // opens: a level or a practice since last time changes what is on it.
@@ -568,6 +568,7 @@ export default function SettingsDialog() {
           onChange={change}
           pending={pending}
           refused={refused}
+          heard={heard}
           tail={downloadTail}
         />
       ) : (
