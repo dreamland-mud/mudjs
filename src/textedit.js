@@ -3,21 +3,37 @@ import loader from '@monaco-editor/loader';
 import 'devbridge-autocomplete';
 import { rpccmd } from './websock';
 import { defineMonokai } from './monaco-monokai.js';
+import { t } from './i18n';
+import { screenreaderOn } from './review';
 
 let monacoEditor;
 
 // The plain textarea replaces Monaco for screen-reader users; the choice is
-// remembered per browser.
+// remembered per browser. With no choice yet, config screenreader picks plain.
 const PLAIN_KEY = 'textedit.plain';
 const plainBox = () => $('#textedit-modal .editor-plain');
 const isPlain = () => plainBox().is(':visible');
 
 function loadPlainPref() {
   try {
-    return localStorage.getItem(PLAIN_KEY) === '1';
+    const saved = localStorage.getItem(PLAIN_KEY);
+    if (saved !== null) return saved === '1';
   } catch (e) {
-    return false;
+    /* storage unavailable: fall through to the server's choice */
   }
+  return screenreaderOn();
+}
+
+// The modal is static HTML in index.html: relabel it in the player's language
+// on every open, so a config lang switch is picked up too.
+function applyLabels() {
+  const m = $('#textedit-modal');
+  m.attr('aria-label', t('ed.dialog'));
+  m.find('.editor-plain').attr('aria-label', t('ed.text'));
+  m.find('.plain-button').text(t('ed.plain')).attr('title', t('ed.plain.title'));
+  m.find('.cancel-button').text(t('ed.close'));
+  m.find('.save-button').text(t('ed.save'));
+  m.find('input').attr('placeholder', t('ed.helpsearch'));
 }
 
 function setPlain(on) {
@@ -152,6 +168,7 @@ $(document).ready(function () {
     });
 
     $('#rpc-events').on('rpc-editor_open', function (e, text, arg) {
+      applyLabels();
       monacoEditor.setValue(text || '');
       plainBox().val(text || '');
       const plain = loadPlainPref();
