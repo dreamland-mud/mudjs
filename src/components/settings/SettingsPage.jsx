@@ -1,5 +1,6 @@
 import React from 'react';
 import OptionRow from './OptionRow.jsx';
+import { t } from '../../i18n.js';
 
 // One page of the dialog: the settings themselves, plus optional content the
 // dialog hands in -- children (the account/script bodies) before the rows, a
@@ -21,6 +22,16 @@ export default function SettingsPage({
   children,
 }) {
   if (!page) return null;
+
+  // A refusal is drawn in place of the option's description, which a screen
+  // reader does not notice change: this line says it out loud.
+  const said = (page.options || [])
+    .filter(option => (refused || {})[option.key])
+    .map(option => {
+      const why = refused[option.key];
+      return option.label + ': ' + (typeof why === 'string' ? why : t('cfg.refused', lang));
+    })
+    .join('. ');
 
   return (
     <div className={page.kind === 'script' ? 'cfg-page cfg-page-script' : 'cfg-page'}>
@@ -49,6 +60,8 @@ export default function SettingsPage({
       ))}
 
       {tail}
+
+      <div className="ab-sr" aria-live="polite">{said}</div>
     </div>
   );
 }
