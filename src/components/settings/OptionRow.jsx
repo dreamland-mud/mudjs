@@ -426,8 +426,9 @@ export default function OptionRow({
         )}
       </div>
 
-      {/* A control with a change in flight takes no second click: the first one
-          has not been answered yet, and the server is the one who decides. The
+      {/* A control with a change in flight takes no second change: the first
+          one has not been answered yet, and the server is the one who decides
+          (useConfig.set refuses it, for mouse and keyboard alike). The
           slider (int) wants the whole row width, so it drops under the label
           rather than being pinned to the right like a switch or a segment. */}
       <div

@@ -42,8 +42,11 @@ export default function useConfig(open, lang) {
   const [values, setValues] = useState({});
   const [support, setSupport] = useState(SUPPORT.OFFLINE);
   // A change that has left the client and has no answer yet: the control is
-  // disabled while its name is in here.
+  // dimmed while its name is in here, and set() takes no second change for it.
   const [pending, setPending] = useState({});
+  // The same, read synchronously: two key presses can land before React
+  // re-renders, and the state above would still say nothing is in flight.
+  const inFlight = useRef({});
   // Why the server said no, by option: shown in place of the description until
   // the next thing happens to that option.
   const [refused, setRefused] = useState({});
@@ -73,6 +76,7 @@ export default function useConfig(open, lang) {
   };
 
   const forget = key => {
+    delete inFlight.current[key];
     setPending(was => {
       if (!was[key]) return was;
       const next = { ...was };
@@ -91,6 +95,7 @@ export default function useConfig(open, lang) {
     setPlaying(false);
     setSchema(null);
     setValues({});
+    inFlight.current = {};
     setPending({});
     setRefused({});
     setSupport(SUPPORT.OFFLINE);
@@ -109,6 +114,7 @@ export default function useConfig(open, lang) {
       if (!name || who.current === name) return;
       who.current = name;
       setValues({});
+      inFlight.current = {};
       setPending({});
       setRefused({});
       asked.current = null;
@@ -167,6 +173,7 @@ export default function useConfig(open, lang) {
         setPlaying(false);
         setSchema(null);
         setValues({});
+        inFlight.current = {};
         setPending({});
         setRefused({});
         setSupport(SUPPORT.OFFLINE);
@@ -214,8 +221,13 @@ export default function useConfig(open, lang) {
     // Nothing moves on screen unless the change actually left the client: a
     // socket can be gone a moment before anyone says so.
     if (!playing) return;
+    // The first change is still unanswered. Refusing here, not by disabling the
+    // control, keeps keyboard focus on it, so a screen reader still hears the
+    // new state when the answer arrives.
+    if (inFlight.current[key]) return;
     if (!rpccmd('config_set', key, String(value))) return;
 
+    inFlight.current[key] = true;
     setPending(was => ({ ...was, [key]: true }));
     setRefused(was => (was[key] ? { ...was, [key]: null } : was));
     if (spelled) setEcho(spelled);
