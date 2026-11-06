@@ -911,7 +911,7 @@ export default function AccountLogin() {
     <div
       className={'acc-overlay' + (phase === 'revealing' ? ' is-opening' : '')}
       role="dialog"
-      aria-label="Dreamland login"
+      aria-label={at('dialog', lang)}
       style={{ left: accLeft }}
     >
       <div className="acc-slab acc-slab-top" aria-hidden="true" />

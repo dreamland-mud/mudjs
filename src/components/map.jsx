@@ -315,8 +315,8 @@ export default function Map() {
             type="button"
             className={`toggle-btn${mode === 'ascii' ? ' is-on' : ''}`}
             aria-pressed={mode === 'ascii'}
-            aria-label="ASCII"
-            title="ASCII"
+            aria-label={t.asciiView}
+            title={t.asciiView}
             onClick={() => setModePersisted(mode === 'ascii' ? 'graph' : 'ascii')}
           >
             <i className="fa fa-hashtag" aria-hidden="true"></i>
@@ -336,7 +336,7 @@ export default function Map() {
               <button
                 type="button"
                 className="dl-mapper-zoom-btn"
-                aria-label="zoom in"
+                aria-label={t.zoomIn}
                 onClick={handleZoomIn}
               >
                 <i className="fa fa-plus" aria-hidden="true"></i>
@@ -344,7 +344,7 @@ export default function Map() {
               <button
                 type="button"
                 className="dl-mapper-zoom-btn"
-                aria-label="zoom out"
+                aria-label={t.zoomOut}
                 onClick={handleZoomOut}
               >
                 <i className="fa fa-minus" aria-hidden="true"></i>

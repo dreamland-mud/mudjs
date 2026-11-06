@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import { Mosaic, MosaicWindow } from 'react-mosaic-component';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
@@ -16,6 +17,7 @@ import CmdInput from './components/cmdinput';
 import AccountLogin from './components/accountLogin';
 import PropertiesStorage from './properties';
 import { send } from './websock';
+import { t } from './i18n';
 
 const propertiesStorage = PropertiesStorage;
 
@@ -150,6 +152,7 @@ const MobileApp = () => {
   const pagerRef = useRef(null);
   const [page, setPage] = useState(0);
   const [keypadOpen, setKeypadOpen] = useState(false);
+  const lang = useSelector(state => state.prompt && state.prompt.lang);
 
   const onScroll = () => {
     const el = pagerRef.current;
@@ -202,7 +205,7 @@ const MobileApp = () => {
         <button
           type="button"
           className={keypadOpen ? 'rf-cmdbtn rf-keypad-toggle is-on' : 'rf-cmdbtn rf-keypad-toggle'}
-          aria-label="movement keypad"
+          aria-label={t('in.keypad', lang)}
           aria-pressed={keypadOpen}
           onClick={() => setKeypadOpen(k => !k)}
         >

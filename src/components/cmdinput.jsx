@@ -264,7 +264,7 @@ const CmdInput = () => {
           <button type="button" onClick={historyRepeat} aria-label={t('in.repeat', lang)} className="rf-cmdbtn">
             <i className="fa fa-repeat"></i>
           </button>
-          <button type="submit" form="input" aria-label="Send" className="rf-cmdbtn rf-send">
+          <button type="submit" form="input" aria-label={t('in.send', lang)} className="rf-cmdbtn rf-send">
             <i className="fa fa-paper-plane"></i>
           </button>
         </div>
