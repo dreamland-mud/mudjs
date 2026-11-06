@@ -56,6 +56,10 @@ export default function useConfig(open, lang) {
   // The last change, spelled as the command that would have done the same at
   // the keyboard: the dialog teaches the terminal instead of hiding it.
   const [echo, setEcho] = useState(null);
+  // The last change of our own the server took, by option and stored value: the
+  // page says it out loud for controls whose own state a screen reader does
+  // not announce.
+  const [heard, setHeard] = useState(null);
   const asked = useRef(null);
   // Bumped when something the schema itself depends on changes -- the colour
   // scheme, so far. The samples under the question marks are painted for the
@@ -98,6 +102,7 @@ export default function useConfig(open, lang) {
     inFlight.current = {};
     setPending({});
     setRefused({});
+    setHeard(null);
     setSupport(SUPPORT.OFFLINE);
     asked.current = null;
     who.current = null;
@@ -117,6 +122,7 @@ export default function useConfig(open, lang) {
       inFlight.current = {};
       setPending({});
       setRefused({});
+      setHeard(null);
       asked.current = null;
     };
 
@@ -156,6 +162,7 @@ export default function useConfig(open, lang) {
         // the typed command applies.
         setValues(was => ({ ...was, [b.key]: b.value }));
         setRefused(was => (was[b.key] ? { ...was, [b.key]: null } : was));
+        setHeard({ key: b.key, value: b.value });
         if (REPAINTS.includes(b.key)) repaint();
       } else {
         setRefused(was => ({ ...was, [b.key]: b.reason || b.error || true }));
@@ -176,6 +183,7 @@ export default function useConfig(open, lang) {
         inFlight.current = {};
         setPending({});
         setRefused({});
+        setHeard(null);
         setSupport(SUPPORT.OFFLINE);
         asked.current = null;
         who.current = null;
@@ -239,5 +247,5 @@ export default function useConfig(open, lang) {
     }, ANSWER_TIMEOUT);
   };
 
-  return { schema, values, support, set, echo, pending, refused };
+  return { schema, values, support, set, echo, pending, refused, heard };
 }
