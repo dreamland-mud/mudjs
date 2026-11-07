@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { inertAround } from '../modal';
+import { IS_PHONE } from '../device';
 import $ from 'jquery';
 import { useSelector } from 'react-redux';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -63,6 +65,21 @@ const ACCOUNT_API = '/account-api';
 // bot's domain is set to dreamland.rocks in BotFather (/setdomain); until then it shows
 // "Bot domain invalid". Not a secret -- the engine ships the same value as TELEGRAM_BOT.
 const TELEGRAM_BOT = 'dreamland_mud_bot';
+
+// Said when the Telegram button cannot appear: on another site than
+// dreamland.rocks, or when telegram.org did not load it.
+const TG_NOTE = {
+  site: {
+    en: 'The Telegram button works only on dreamland.rocks. Use another way to log in here.',
+    ru: 'Кнопка Telegram работает только на dreamland.rocks. Здесь войдите другим способом.',
+    ua: 'Кнопка Telegram працює лише на dreamland.rocks. Тут увійдіть іншим способом.',
+  },
+  load: {
+    en: 'The Telegram button did not load. Try again later or use another way to log in.',
+    ru: 'Кнопка Telegram не загрузилась. Попробуйте позже или войдите другим способом.',
+    ua: 'Кнопка Telegram не завантажилася. Спробуйте пізніше або увійдіть іншим способом.',
+  },
+};
 
 async function postJson(path, body) {
   let resp;
@@ -153,6 +170,7 @@ export default function AccountLogin() {
   }
 
   const nameRef = useRef(null);
+  const overlayRef = useRef(null);      // the login window itself, see the modal effect below
   const dragonRef = useRef(null);       // the login dragon; .shake() on a wrong password
   const segRef = useRef(null);          // language segmented-control track
   const segIndRef = useRef(null);       // its sliding gold-gem indicator
@@ -160,6 +178,7 @@ export default function AccountLogin() {
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const enterPending = useRef(false);   // path B: a char click is awaiting the engine's reply
+  const [tgNote, setTgNote] = useState(''); // '' | 'site' | 'load': why the Telegram button is missing
   const tgAuthRef = useRef(null);       // latest telegram-auth handler for the widget's global callback
   const prevDepthRef = useRef(0);       // depth of the last shown step, for slide direction
   const discordRef = useRef(false);     // a Discord OAuth popup is in flight
@@ -277,7 +296,7 @@ export default function AccountLogin() {
     const place = () => {
       const seg = segRef.current, ind = segIndRef.current;
       if (!seg || !ind) return;
-      const act = seg.querySelector('[aria-selected="true"]');
+      const act = seg.querySelector('[aria-pressed="true"]');
       if (!act) return;
       ind.style.transform = 'translateX(' + act.offsetLeft + 'px)';
       ind.style.width = act.offsetWidth + 'px';
@@ -457,8 +476,11 @@ export default function AccountLogin() {
     if (bstep !== 'telegram')
       return;
     window.__dlTelegramAuth = user => { if (tgAuthRef.current) tgAuthRef.current(user); };
+    const wrongSite = !/(^|\.)dreamland\.rocks$/.test(window.location.hostname);
     const holder = document.getElementById('acc-tg-widget');
-    if (holder) {
+    // Not loaded where Telegram refuses it: its frame would only hold "Bot
+    // domain invalid", and a screen reader reads into it.
+    if (holder && !wrongSite) {
       holder.innerHTML = '';
       const s = document.createElement('script');
       s.async = true;
@@ -469,7 +491,22 @@ export default function AccountLogin() {
       s.setAttribute('data-onauth', '__dlTelegramAuth(user)');
       holder.appendChild(s);
     }
-    return () => { try { delete window.__dlTelegramAuth; } catch (e) { window.__dlTelegramAuth = undefined; } };
+    // Telegram draws its button only on the bot's own site; anywhere else (a
+    // test copy) or when telegram.org does not answer, say so instead of
+    // leaving the player waiting for a button that never comes.
+    setTgNote('');
+    const timer = setTimeout(() => {
+      const h = document.getElementById('acc-tg-widget');
+      const frame = h && h.querySelector('iframe');
+      // Telegram's frame comes without a name: give it the step's.
+      if (frame && !frame.title) frame.title = at('tg_head', lang);
+      if (wrongSite) setTgNote('site');
+      else if (!frame) setTgNote('load');
+    }, wrongSite ? 0 : 6000);
+    return () => {
+      clearTimeout(timer);
+      try { delete window.__dlTelegramAuth; } catch (e) { window.__dlTelegramAuth = undefined; }
+    };
   }, [bstep]);
 
   // Once, on mount: surface any ?acct_error the Discord full-page callback bounced back
@@ -886,6 +923,34 @@ export default function AccountLogin() {
     setBstep('idle');
   };
 
+  // A modal window: while the login is up, everything else on the page is out
+  // of reach (inert), so a screen reader cannot swipe or arrow out of it into
+  // the game behind, on a phone or a computer. Given back once it opens.
+  useEffect(() => {
+    // On a phone the door covers the whole screen. On a computer it stands to
+    // the right of the output, which stays live (its links, its text).
+    if (!IS_PHONE || phase !== 'login' || !overlayRef.current) return undefined;
+    return inertAround(overlayRef.current);
+  }, [phase]);
+
+  // Each step puts the focus on its first field (or its heading, or first
+  // button): the button that led here is gone, and a screen reader left with
+  // the focus nowhere drifts off the window.
+  const stageRef = useRef(null);
+  useEffect(() => {
+    if (phase !== 'login') return undefined;
+    const timer = setTimeout(() => {
+      const stage = stageRef.current;
+      if (!stage || stage.contains(document.activeElement)) return;
+      const el =
+        stage.querySelector('input:not([type=hidden])') ||
+        stage.querySelector('.acc-step-head') ||
+        stage.querySelector('button, [href]');
+      if (el) el.focus();
+    }, 60);
+    return () => clearTimeout(timer);
+  }, [phase, bstep, idleView, !!(busy || checking)]);
+
   if (phase === 'hidden') return null;
 
   // The changing part of the panel (busy line / method chooser / a subflow /
@@ -909,8 +974,10 @@ export default function AccountLogin() {
 
   return (
     <div
+      ref={overlayRef}
       className={'acc-overlay' + (phase === 'revealing' ? ' is-opening' : '')}
       role="dialog"
+      aria-modal="true"
       aria-label={at('dialog', lang)}
       style={{ left: accLeft }}
     >
@@ -957,14 +1024,15 @@ export default function AccountLogin() {
         )}
 
         <div className="acc-langs">
-          <div className="acc-seg" role="tablist" aria-label={at('lang', lang)} ref={segRef}>
+          <div className="acc-seg" role="group" aria-label={at('lang', lang)} ref={segRef}>
             <span className="acc-seg__ind" aria-hidden="true" ref={segIndRef} />
             {LANGS.map(l => (
               <button
                 key={l.code}
                 type="button"
-                role="tab"
-                aria-selected={lang === l.code}
+                aria-pressed={lang === l.code}
+                aria-label={l.label}
+                lang={l.code === 'ua' ? 'uk' : l.code}
                 className="acc-seg__btn"
                 onClick={() => pickLang(l.code)}
               >
@@ -974,12 +1042,12 @@ export default function AccountLogin() {
           </div>
         </div>
 
-        <div className="acc-stage" key={stageKey} data-dir={stageDir}>
+        <div className="acc-stage" key={stageKey} data-dir={stageDir} ref={stageRef}>
         {statusLine ? (
-          <div className="acc-busy">{statusLine}</div>
+          <div className="acc-busy" role="status">{statusLine}</div>
         ) : bstep === 'create' ? (
           <form className="acc-create-form" onSubmit={submitCreate}>
-            <div className="acc-col-head">{at('cr_title', lang)}</div>
+            <div role="heading" aria-level={2} className="acc-col-head acc-step-head" tabIndex={-1}>{at('cr_title', lang)}</div>
 
             <div className="acc-field">
               <label htmlFor="cr-name">{at('name', lang)}</label>
@@ -1131,17 +1199,17 @@ export default function AccountLogin() {
                 <div className="acc-methods">
                   <button className="btn btn-secondary acc-method"
                     onClick={() => { setBerror(''); setBstep('email'); }}>
-                    <span className="acc-ico"><i className="fa fa-envelope" /></span>
+                    <span className="acc-ico" aria-hidden="true"><i className="fa fa-envelope" /></span>
                     {at('via_email', lang)}
                   </button>
                   <button className="btn btn-secondary acc-method"
                     onClick={startDiscord}>
-                    <span className="acc-ico"><DiscordIcon /></span>
+                    <span className="acc-ico" aria-hidden="true"><DiscordIcon /></span>
                     {at('via_discord', lang)}
                   </button>
                   <button className="btn btn-secondary acc-method"
                     onClick={() => { setBerror(''); setBstep('telegram'); }}>
-                    <span className="acc-ico"><TelegramIcon /></span>
+                    <span className="acc-ico" aria-hidden="true"><TelegramIcon /></span>
                     {at('via_telegram', lang)}
                   </button>
                 </div>
@@ -1150,7 +1218,7 @@ export default function AccountLogin() {
               {bstep === 'email' && (
                 <form onSubmit={sendEmailCode}>
                   <div className="acc-field">
-                    <label htmlFor="acc-email">{at('via_email', lang)}</label>
+                    <label htmlFor="acc-email">{at('email_label', lang)}</label>
                     <div className="acc-input-wrap">
                       <input
                         id="acc-email"
@@ -1172,12 +1240,13 @@ export default function AccountLogin() {
 
               {bstep === 'code' && (
                 <form onSubmit={verifyEmailCode}>
-                  <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 8 }}>{at('sent_hint', lang)}</div>
+                  <div id="acc-code-hint" style={{ fontSize: 13, opacity: 0.8, marginBottom: 8 }}>{at('sent_hint', lang)}</div>
                   <div className="acc-field">
                     <label htmlFor="acc-code">{at('code_ph', lang)}</label>
                     <div className="acc-input-wrap">
                       <input
                         id="acc-code"
+                        aria-describedby="acc-code-hint"
                         className="acc-input"
                         type="text"
                         inputMode="numeric"
@@ -1197,9 +1266,14 @@ export default function AccountLogin() {
 
               {bstep === 'telegram' && (
                 <div className="acc-tg">
-                  <div className="acc-col-head" style={{ fontSize: 14 }}>{at('tg_head', lang)}</div>
+                  <div role="heading" aria-level={2} className="acc-col-head acc-step-head" tabIndex={-1} style={{ fontSize: 14 }}>{at('tg_head', lang)}</div>
                   <div style={{ fontSize: 13, opacity: 0.8, margin: '4px 0 10px' }}>{at('tg_hint', lang)}</div>
-                  <div id="acc-tg-widget" className="acc-tg-widget" aria-label={at('tg_head', lang)} />
+                  <div id="acc-tg-widget" className="acc-tg-widget" />
+                  {tgNote ? (
+                    <div role="status" style={{ fontSize: 13, margin: '4px 0 10px' }}>
+                      {TG_NOTE[tgNote][lang] || TG_NOTE[tgNote].en}
+                    </div>
+                  ) : null}
                   <button type="button" className="acc-newhero"
                     onClick={() => { setBerror(''); setBstep('idle'); }}>{at('back', lang)}</button>
                 </div>
