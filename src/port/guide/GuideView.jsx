@@ -204,16 +204,16 @@ export default function GuideView() {
   if (status.state === 'error') {
     body = (
       <div>
-        <p className="port-note" role="alert">{t('guide.offline')}</p>
-        <button ref={retryRef} type="button" className="port-btn" onClick={fetchSite}>{t('guide.retry')}</button>
+        <p className="ds-note" role="alert">{t('guide.offline')}</p>
+        <button ref={retryRef} type="button" className="btn" onClick={fetchSite}>{t('guide.retry')}</button>
       </div>
     );
   } else if (!views) {
-    body = <p className="port-note" role="status">{t('guide.loading')}</p>;
+    body = <p className="ds-note" role="status">{t('guide.loading')}</p>;
   } else {
     body = (
       <>
-        <div className="port-tabs" role="tablist" aria-label={t('guide.tabs')} onKeyDown={onTabKey}>
+        <div className="ds-tabs-pill" role="tablist" aria-label={t('guide.tabs')} onKeyDown={onTabKey}>
           {TABS.map(id => (
             <button
               key={id}
@@ -221,7 +221,7 @@ export default function GuideView() {
               id={'guide-tab-' + id}
               type="button"
               role="tab"
-              className="port-btn port-tab"
+              className="ds-tab-pill"
               aria-selected={tab === id}
               aria-controls={'guide-panel-' + id}
               aria-keyshortcuts={'Alt+Shift+' + id[0].toUpperCase()}

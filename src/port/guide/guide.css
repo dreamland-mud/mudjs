@@ -1,10 +1,3 @@
-/* The guide's tab row, over the parchment of the tool sheet. */
-.port-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
-.port-tab[aria-selected="true"] {
-  background: rgba(106, 47, 166, .12);
-  border-color: var(--hs-link);
-  box-shadow: inset 0 -3px 0 var(--hs-link);
-  color: #241809;
-}
-.port-panel { display: flex; flex-direction: column; gap: 10px; min-height: 0; flex: 1; }
+/* The guide's tab panels (the tabs are .ds-tabs-pill / .ds-tab-pill). Layout only. */
+.port-panel { display: flex; flex-direction: column; gap: 10px; min-height: min-content; flex: 1; }
 .port-panel[hidden] { display: none; }

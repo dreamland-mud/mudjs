@@ -1,0 +1,211 @@
+/*
+ * Nirvana controls the client did not have yet: dropdown, jewel-pill tabs,
+ * toggle-chip, the icon gem button, the note line and the terminal well.
+ * Ported 1:1 from dreamland_web static/design/design.css (the DS source of
+ * truth). The client already carries the rest: .btn / .btn-primary /
+ * .btn-secondary and .form-control (theme-parchment.css, the DS "Naming"
+ * table), .ds-menu (dsMenu.css). Client changes:
+ * - every token carries a hex fallback, in case the skin :root drops one;
+ * - the DS uses --body for UI type, the client calls it --ui;
+ * - a jewel pill without its gem (.ds-tgem) gets even side padding: the DS
+ *   pads the left short to make room for the jewel;
+ * - the select's focus orbit uses the client's pc-focus-orbit keyframes
+ *   (theme-parchment.css), the same ones .form-control already runs;
+ * - the pop (ds-pop) stops under reduced motion, as the DS page does for all
+ *   motion.
+ *
+ * Selection colour, per the DS rules: choosing among peers (tabs, chips) =
+ * gold gem; power, on and focus = arcane. Colour is never the only cue: the
+ * selected pill and chip change their whole face, and aria-selected /
+ * aria-pressed carry the state for a reader.
+ */
+
+/* ---- dropdown: dark well, gold-deep frame, custom gold chevron ----------- */
+
+.ds-select {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  font-family: var(--ui, 'Alegreya Sans', 'Segoe UI', sans-serif);
+  font-size: 1rem;
+  color: var(--text, #e3d8c0);
+  cursor: pointer;
+  padding: 0.5rem 2.2rem 0.5rem 0.75rem;
+  background-color: #0b0a12;
+  border: 1px solid var(--gold-deep, #55411d);
+  border-radius: var(--radius, 5px);
+  box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.6);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23c6a24e' stroke-width='2' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  transition: border-color 0.15s;
+}
+.ds-select:focus {
+  outline: none;
+  border-color: var(--gold, #c6a24e);
+  box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(198, 162, 78, 0.25);
+  animation: pc-focus-orbit 2.6s linear infinite;
+}
+.ds-select option {
+  background: var(--stone-950, #0d0b12);
+  color: var(--text, #e3d8c0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ds-select:focus {
+    animation: none;
+    filter: drop-shadow(0 0 7px rgba(187, 134, 252, 0.6));
+  }
+}
+
+/* ---- pop: jewel pills and toggle-chips snap in on select ----------------- */
+
+@keyframes ds-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.07); }
+  100% { transform: scale(1); }
+}
+
+/* ---- tabs: jewel pills. OFF = ghost; hover = ghost lit; ON = gold gem ---- */
+
+.ds-tabs-pill {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ds-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 18px 8px 10px;
+  cursor: pointer;
+  font-family: var(--ui, 'Alegreya Sans', 'Segoe UI', sans-serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--gold-dim, #856632);
+  background: rgba(19, 16, 25, 0.5);
+  border: 1px solid var(--gold-dim, #856632);
+  border-radius: 999px;
+  transition: color 0.18s, border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+.ds-tab-pill:not(:has(.ds-tgem)) {
+  padding: 8px 18px;
+}
+.ds-tab-pill:hover {
+  color: var(--gold-bright, #e6cd86);
+  border-color: var(--gold, #c6a24e);
+  box-shadow: 0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+.ds-tab-pill[aria-selected='true'] {
+  color: #1c1206;
+  border-color: transparent;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: var(--gem-face, radial-gradient(140% 140% at 50% 0%, #b8973f, #7e6127 55%, #40300f));
+  box-shadow: var(--gem-shadow, inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px #55411d);
+  animation: ds-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ds-tab-pill[aria-selected='true']:hover {
+  box-shadow: var(--gem-shadow, inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px #55411d),
+    0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+
+/* ---- toggle-chip: ghost off, gold gem on (multi-select filters) ---------- */
+
+.ds-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--ui, 'Alegreya Sans', 'Segoe UI', sans-serif);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--gold-dim, #856632);
+  padding: 6px 14px;
+  background: rgba(19, 16, 25, 0.5);
+  border: 1px solid var(--gold-dim, #856632);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s, background 0.18s, box-shadow 0.18s;
+}
+.ds-chip:hover {
+  color: var(--gold-bright, #e6cd86);
+  border-color: var(--gold, #c6a24e);
+  box-shadow: 0 0 14px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+.ds-chip.is-on {
+  color: #1c1206;
+  border-color: transparent;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: var(--gem-face, radial-gradient(140% 140% at 50% 0%, #b8973f, #7e6127 55%, #40300f));
+  box-shadow: var(--gem-shadow, inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px #55411d);
+  animation: ds-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ds-chip.is-on:hover {
+  box-shadow: var(--gem-shadow, inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px #55411d),
+    0 0 14px var(--arcane-glow, rgba(187, 134, 252, 0.55));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-tab-pill[aria-selected='true'],
+  .ds-chip.is-on {
+    animation: none;
+  }
+}
+
+/* ---- icon gem button (the DS map control): gold gem, arcane on hover ----- */
+
+.ds-mapctrl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #1c1206;
+  font-size: 15px;
+  font-weight: 700;
+  background: var(--gem-face, radial-gradient(140% 140% at 50% 0%, #b8973f, #7e6127 55%, #40300f));
+  box-shadow: var(--gem-shadow, inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px #55411d);
+}
+.ds-mapctrl:hover {
+  color: #fff;
+  background: var(--gem-face-hover, radial-gradient(140% 140% at 50% 0%, #6c3aa8, #4c2a7a 60%, #24123f));
+}
+/* active = arcane AND pressed in: depth is a non-colour cue */
+.ds-mapctrl.is-on {
+  color: #fff;
+  transform: translateY(1px);
+  background: radial-gradient(140% 140% at 50% 0%, #6c3aa8, var(--arcane-deep, #4c2a7a) 60%, #24123f);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.8), inset 0 0 0 1px rgba(0, 0, 0, 0.55);
+}
+
+/* ---- note line ----------------------------------------------------------- */
+
+.ds-note {
+  color: var(--text-dim, #a49a84);
+  font-size: 0.92rem;
+  margin: 8px 0 0;
+}
+.ds-note strong {
+  color: var(--gold-bright, #e6cd86);
+  font-weight: 700;
+}
+
+/* ---- terminal well: game text on dark, Fira with ligatures off ----------- */
+
+.ds-terminal {
+  background: #0c0b11;
+  border: 1px solid var(--gold-deep, #55411d);
+  border-radius: var(--radius, 5px);
+  padding: 14px 16px;
+  box-shadow: inset 0 1px 8px rgba(0, 0, 0, 0.5);
+  position: relative;
+  font-family: var(--article, 'Fira Code', ui-monospace, monospace);
+  font-variant-ligatures: none;
+  font-size: 0.95rem;
+  color: var(--text, #e3d8c0);
+  white-space: pre-wrap;
+  line-height: 1.4;
+}

@@ -122,7 +122,7 @@ function FindSheet() {
           <span>{t('out.find.label')}</span>
           <input
             ref={box}
-            className="port-field"
+            className="form-control"
             type="search"
             value={value}
             autoComplete="off"
@@ -131,10 +131,10 @@ function FindSheet() {
           />
         </label>
         <div className="port-actions">
-          <button type="submit" className="port-btn">
+          <button type="submit" className="btn">
             {t('out.find.go')}
           </button>
-          <button type="button" className="port-btn" onClick={close}>
+          <button type="button" className="btn btn-secondary" onClick={close}>
             {t('out.find.cancel')}
           </button>
         </div>
