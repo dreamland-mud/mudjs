@@ -226,7 +226,8 @@ export default function Help() {
       <span className="dark-panel-title" data-toggle="collapse" data-target="#help-table">
         {t('help.title', lang)}
       </span>
-      <button className="close" type="button" data-toggle="collapse" data-target="#help-table">
+      <button className="close" type="button" data-toggle="collapse" data-target="#help-table"
+        aria-label={t('help.title', lang)} aria-controls="help-table">
         {' '}
       </button>
       <div id="help-table" className="help-row">
@@ -236,6 +237,7 @@ export default function Help() {
           type="text"
           className="form-control"
           placeholder={t('help.placeholder', lang)}
+          aria-label={t('help.title', lang)}
           autoComplete="off"
           role="combobox"
           aria-autocomplete="list"

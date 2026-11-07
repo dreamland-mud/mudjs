@@ -1,3 +1,4 @@
+import '../a11yStrings';
 import React, { useEffect, useRef, useState } from 'react';
 import $ from 'jquery';
 import { useSelector } from 'react-redux';
@@ -100,11 +101,11 @@ const Overlay = ({ unread, chatUnread, onScrollToBottom, lang }) => {
             >
               <i className="fa fa-cog"></i>
             </OverlayCell>
-            <OverlayCell id="font-plus-button" ariaHidden="true">
-              <i className="fa fa-plus"></i>
+            <OverlayCell id="font-plus-button" ariaLabel={t('a11y.fontPlus', lang)}>
+              <i className="fa fa-plus" aria-hidden="true"></i>
             </OverlayCell>
-            <OverlayCell id="font-minus-button" ariaHidden="true">
-              <i className="fa fa-minus"></i>
+            <OverlayCell id="font-minus-button" ariaLabel={t('a11y.fontMinus', lang)}>
+              <i className="fa fa-minus" aria-hidden="true"></i>
             </OverlayCell>
           </tr>
           {/* Movement keypad moved to the mobile command-bar toggle (MobileKeypad in app.jsx). */}

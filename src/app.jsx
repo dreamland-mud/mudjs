@@ -18,6 +18,9 @@ import AccountLogin from './components/accountLogin';
 import PropertiesStorage from './properties';
 import { send } from './websock';
 import { t } from './i18n';
+import './a11yStrings';
+import $ from 'jquery';
+import { screenReaderMode, SR_CHANGED } from './review';
 
 const propertiesStorage = PropertiesStorage;
 
@@ -119,6 +122,7 @@ const KeyBtn = ({ cmd, longCmd, label, children }) => {
       type="button"
       className="rf-mk-btn"
       aria-label={label || cmd}
+      aria-description={longCmd ? t('a11y.mk.hold') : undefined}
       onClick={click}
       onTouchStart={start}
       onTouchEnd={end}
@@ -132,16 +136,16 @@ const KeyBtn = ({ cmd, longCmd, label, children }) => {
 };
 
 const MobileKeypad = () => (
-  <div className="rf-keypad" aria-hidden="true">
-    <KeyBtn cmd="scan" label="scan"><i className="fa fa-fw fa-refresh"></i></KeyBtn>
-    <KeyBtn cmd="n" longCmd="отпер север|откр север">N</KeyBtn>
-    <KeyBtn cmd="u" longCmd="отпер вверх|откр вверх">U</KeyBtn>
-    <KeyBtn cmd="w" longCmd="отпер запад|откр запад">W</KeyBtn>
-    <KeyBtn cmd="l" label="look"><i className="fa fa-fw fa-eye"></i></KeyBtn>
-    <KeyBtn cmd="e" longCmd="отпер восток|откр восток">E</KeyBtn>
-    <KeyBtn cmd="where" label="where"><i className="fa fa-fw fa-map-marker"></i></KeyBtn>
-    <KeyBtn cmd="s" longCmd="отпер юг|откр юг">S</KeyBtn>
-    <KeyBtn cmd="d" longCmd="отпер вниз|откр вниз">D</KeyBtn>
+  <div className="rf-keypad" role="group" aria-label={t('in.keypad')}>
+    <KeyBtn cmd="scan" label={t('a11y.mk.scan')}><i className="fa fa-fw fa-refresh" aria-hidden="true"></i></KeyBtn>
+    <KeyBtn cmd="n" label={t('a11y.mk.n')} longCmd="отпер север|откр север">N</KeyBtn>
+    <KeyBtn cmd="u" label={t('a11y.mk.u')} longCmd="отпер вверх|откр вверх">U</KeyBtn>
+    <KeyBtn cmd="w" label={t('a11y.mk.w')} longCmd="отпер запад|откр запад">W</KeyBtn>
+    <KeyBtn cmd="l" label={t('a11y.mk.look')}><i className="fa fa-fw fa-eye" aria-hidden="true"></i></KeyBtn>
+    <KeyBtn cmd="e" label={t('a11y.mk.e')} longCmd="отпер восток|откр восток">E</KeyBtn>
+    <KeyBtn cmd="where" label={t('a11y.mk.where')}><i className="fa fa-fw fa-map-marker" aria-hidden="true"></i></KeyBtn>
+    <KeyBtn cmd="s" label={t('a11y.mk.s')} longCmd="отпер юг|откр юг">S</KeyBtn>
+    <KeyBtn cmd="d" label={t('a11y.mk.d')} longCmd="отпер вниз|откр вниз">D</KeyBtn>
   </div>
 );
 
@@ -153,6 +157,12 @@ const MobileApp = () => {
   const [page, setPage] = useState(0);
   const [keypadOpen, setKeypadOpen] = useState(false);
   const lang = useSelector(state => state.prompt && state.prompt.lang);
+  const [srMode, setSrMode] = useState(screenReaderMode());
+  useEffect(() => {
+    const update = () => setSrMode(screenReaderMode());
+    $(document).on(SR_CHANGED, update);
+    return () => $(document).off(SR_CHANGED, update);
+  }, []);
 
   const onScroll = () => {
     const el = pagerRef.current;
@@ -160,6 +170,23 @@ const MobileApp = () => {
     const p = Math.round(el.scrollLeft / el.clientWidth);
     if (p !== page) setPage(p);
   };
+
+  const offPage = i => (i === page ? {} : { inert: '', 'aria-hidden': 'true' });
+
+  const pageButtons = (
+    <div className="rf-dots" role="group" aria-label={t('a11y.pages')}>
+          {PAGES.map((name, i) => (
+            <button
+              key={name}
+              type="button"
+              className={i === page ? 'rf-dot is-active' : 'rf-dot'}
+              aria-label={t('a11y.page.' + name)}
+              aria-current={i === page ? 'page' : undefined}
+              onClick={() => goTo(i)}
+            />
+          ))}
+        </div>
+  );
 
   const goTo = i => {
     const el = pagerRef.current;
@@ -169,38 +196,36 @@ const MobileApp = () => {
 
   return (
     <>
+      {/* Only the page on screen is there for a screen reader: VoiceOver
+          swiping back from the command line went on into the map page, scrolled
+          to it and so switched to it. The page buttons below switch pages. */}
       <div className="rf-pager" ref={pagerRef} onScroll={onScroll}>
-        <section className="rf-page">
+        <section className="rf-page" {...offPage(0)}>
           <MainWindow showInput={false} />
         </section>
-        <section className="rf-page rf-page-scroll">
+        <section className="rf-page rf-page-scroll" {...offPage(1)}>
           <Panel />
         </section>
-        <section className="rf-page rf-page-scroll">
+        <section className="rf-page rf-page-scroll" {...offPage(2)}>
           <Map />
         </section>
       </div>
 
-      <div className="rf-dots" aria-hidden="true">
-        {PAGES.map((name, i) => (
-          <button
-            key={name}
-            type="button"
-            className={i === page ? 'rf-dot is-active' : 'rf-dot'}
-            aria-label={name}
-            onClick={() => goTo(i)}
-          />
-        ))}
-      </div>
+      {srMode ? null : pageButtons}
 
-      <div className={keypadOpen ? 'rf-keypad-wrap is-open' : 'rf-keypad-wrap'} aria-hidden={!keypadOpen}>
+      <div
+        className={keypadOpen ? 'rf-keypad-wrap is-open' : 'rf-keypad-wrap'}
+        {...(keypadOpen ? {} : { inert: '', 'aria-hidden': 'true' })}
+      >
         <div className="rf-keypad-inner">
           <MobileKeypad />
         </div>
       </div>
 
-      <Stats />
-
+      {/* In screen reader mode the bars sit under the command line, on screen
+          too: VoiceOver on an iPhone goes by where things are, and a player
+          swiping back from the command line reaches the output straight away. */}
+      {srMode ? null : <Stats />}
       <div className="rf-cmdbar">
         <button
           type="button"
@@ -213,6 +238,9 @@ const MobileApp = () => {
         </button>
         <CmdInput />
       </div>
+      {srMode ? <Stats /> : null}
+      {/* In screen reader mode the page buttons come last, after the bars. */}
+      {srMode ? pageButtons : null}
     </>
   );
 };

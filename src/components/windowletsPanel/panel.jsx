@@ -1,3 +1,5 @@
+import { t } from '../../i18n';
+import '../../a11yStrings';
 import React from 'react';
 import { useSelector } from 'react-redux'
 
@@ -68,7 +70,7 @@ export default function Panel() {
     }
 
     return (
-        <div id="panel-wrap" aria-hidden="true">
+        <div id="panel-wrap" role="region" aria-label={t('a11y.panels')}>
             {isPrompt() && <TimeWeatherItem {...prompt} />}
             {isPromptAreaQuest() && <AreaQuestItem {...prompt} />}
             {isPromptQuestor() && <QuestorItem {...prompt} />}
