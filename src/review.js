@@ -16,6 +16,7 @@ import { getKeydown } from './settings';
 import { sendHotKeyCmd } from './components/sysCommands/hotkeySend';
 import { resumeAutoScroll } from './components/terminal';
 import { echoHtml } from './components/sysCommandUtils';
+import { playSound } from './sound';
 
 // Commands, help links and item names (an item name opens its menu of actions).
 const LINK_SELECTOR = '.manip-cmd, .builtin-cmd, .dropdown-toggle';
@@ -676,6 +677,16 @@ function followServer() {
   $('#rpc-events').on('rpc-config_result.review', changed);
 }
 $(followServer);
+
+// What the player script marks with notify() ([ooc], tells and the like, see
+// notify.js) plays the ui/notify sound in screen reader mode, as the desktop
+// client does. Low priority, so a sound the server sends for the same line
+// (chat/tell) wins.
+$(function () {
+  $('#rpc-events').on('rpc-notify.review', () => {
+    if (screenReaderMode()) playSound('ui/notify', { T: 'ui', P: 30 });
+  });
+});
 
 /* Called from the command line on Tab. */
 export function enterReview() {
