@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { t, addStrings } from '../../i18n.js';
 import { allTools, onToolsChanged, keyLabel, keyName, setToolKeys, toolForKey, setCapturing } from '../../port/tools';
 import { macroFor } from '../../macros.js';
-import { takesFromInput } from './MacrosPage.jsx';
+import { takesFromInput, KeyCaps } from './MacrosPage.jsx';
 
 // System actions: every tool of the client with its keys, which the player can
 // change, add to, remove, or set back. Kept in this browser (port/tools.js).
+// Laid out as the Macros page: one row per tool, its keys as key caps, and
+// Edit, which opens the keys in a dialog of the Macros dialog's style.
 
 addStrings({
   en: {
@@ -25,6 +27,7 @@ addStrings({
     'sa.macro': 'One of your macros has this key. Pick another key, or change the macro on the Macros page first.',
     'sa.overridden': 'your macro on %k comes first',
     'sa.cancel': 'Cancelled.',
+    'sa.edit.title': 'Keys: %s',
   },
   ru: {
     'cfg.page.sysactions': 'Системные действия',
@@ -43,6 +46,7 @@ addStrings({
     'sa.macro': 'Эта клавиша занята вашим макросом. Выберите другую или сначала измените макрос на странице «Макросы».',
     'sa.overridden': 'ваш макрос на %k важнее',
     'sa.cancel': 'Отменено.',
+    'sa.edit.title': 'Клавиши: %s',
   },
   ua: {
     'cfg.page.sysactions': 'Системні дії',
@@ -61,6 +65,7 @@ addStrings({
     'sa.macro': 'Ця клавіша зайнята вашим макросом. Виберіть іншу або спершу змініть макрос на сторінці «Макроси».',
     'sa.overridden': 'ваш макрос на %k важливіший',
     'sa.cancel': 'Скасовано.',
+    'sa.edit.title': 'Клавіші: %s',
   },
 });
 
@@ -80,9 +85,10 @@ function KeyCatcher({ label, onKey, onCancel }) {
   return (
     <input
       ref={box}
-      className="cfg-input"
+      className="cfg-input mc-capture sa-catch"
       readOnly
       aria-label={label}
+      placeholder={label}
       value=""
       onBlur={() => {
         if (!done.current) onCancel();
@@ -105,9 +111,159 @@ function KeyCatcher({ label, onKey, onCancel }) {
   );
 }
 
+/* A tool's keys as key caps, or "no key"; a key one of the player's macros
+ * has as well is named: the macro wins there. */
+function ToolKeys({ tool, lang }) {
+  if (!tool.keys.length) return <span className="cfg-note">{t('sa.none', lang)}</span>;
+  const taken = tool.keys.filter(k => macroFor(k));
+  return (
+    <span className="ab-keys">
+      {tool.keys.map(k => (
+        <KeyCaps key={k} value={k} />
+      ))}
+      {taken.length ? (
+        <span className="cfg-note">({t('sa.overridden', lang).replace('%k', keyLabel(taken))})</span>
+      ) : null}
+    </span>
+  );
+}
+
+/* One tool's keys, in the Macros dialog's frame: the keys now, then Change,
+ * Add, Remove, Default and Cancel. Change and Add wait for a key in place.
+ * onDone(msg) closes it; msg goes to the page's status line. */
+function KeysDialog({ lang, tool, onDone }) {
+  const [waiting, setWaiting] = useState(null); // { add }
+  const [note, setNote] = useState(''); // said inside: a refused key, a cancel
+  const first = useRef(null);
+  const started = useRef(null); // the button that started the wait gets the focus back
+
+  useEffect(() => {
+    if (first.current) first.current.focus();
+  }, []);
+
+  // Escape closes this dialog, never the settings sheet under it: a capture
+  // listener on window runs before the sheet's own on document. While a key
+  // is awaited, Escape is the catcher's, which cancels the wait.
+  useEffect(() => {
+    const onKey = e => {
+      if (e.key !== 'Escape' || waiting) return;
+      e.stopPropagation();
+      e.preventDefault();
+      onDone('');
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [waiting, onDone]);
+
+  const refocus = () => setTimeout(() => started.current && started.current.focus(), 0);
+
+  const take = add => key => {
+    // A key the command line needs (a letter, a digit, space, Up or Down,
+    // without Ctrl or Alt): refused, or the tool would eat every one typed.
+    if (takesFromInput(key)) {
+      setWaiting(null);
+      setNote(t('sa.typing', lang));
+      refocus();
+      return;
+    }
+    // A key one of the player's macros has: refused, so the two never fight.
+    if (macroFor(key)) {
+      setWaiting(null);
+      setNote(t('sa.macro', lang));
+      refocus();
+      return;
+    }
+    const keys = add ? Array.from(new Set(tool.keys.concat([key]))) : [key];
+    const before = toolForKey(key);
+    const lost = setToolKeys(tool.id, keys);
+    let msg = fill(t('sa.set', lang), tool.label(), keyLabel(keys));
+    if (lost.length && before && before.id !== tool.id) msg += ' ' + fill(t('sa.took', lang), before.label(), '');
+    onDone(msg);
+  };
+
+  const wait = add => e => {
+    started.current = e.currentTarget;
+    setNote('');
+    setWaiting({ add });
+  };
+
+  return (
+    <div className="mc-scrim">
+      <div className="mc-dialog ab trig" role="dialog" aria-modal="true" aria-labelledby="sa-title">
+        <div className="ab-h" id="sa-title">
+          {fill(t('sa.edit.title', lang), tool.label(), '')}
+        </div>
+
+        <div className="mc-keyrow">
+          {waiting ? (
+            <KeyCatcher
+              label={fill(t('sa.press', lang), tool.label(), '')}
+              onKey={take(waiting.add)}
+              onCancel={() => {
+                setWaiting(null);
+                setNote(t('sa.cancel', lang));
+                refocus();
+              }}
+            />
+          ) : (
+            <div className="mc-capture mc-captured">
+              <ToolKeys tool={tool} lang={lang} />
+            </div>
+          )}
+        </div>
+        <div className="cfg-note" role="status">
+          {note}
+        </div>
+
+        <div className="trig-buttons">
+          <button type="button" className="cfg-button" ref={first} onClick={wait(false)}>
+            {t('sa.change', lang)}
+          </button>
+          <button type="button" className="cfg-button" onClick={wait(true)}>
+            {t('sa.add', lang)}
+          </button>
+          {tool.keys.length ? (
+            <button
+              type="button"
+              className="cfg-button"
+             
+              onClick={() => {
+                setToolKeys(tool.id, []);
+                onDone(fill(t('sa.cleared', lang), tool.label(), ''));
+              }}
+            >
+              {t('sa.clear', lang)}
+            </button>
+          ) : null}
+          <button
+            type="button"
+            className="cfg-button"
+           
+            onClick={() => {
+              setToolKeys(tool.id, null);
+              onDone(
+                fill(
+                  t('sa.reseted', lang),
+                  tool.label(),
+                  tool.defaultKeys.length ? keyLabel(tool.defaultKeys) : t('sa.none', lang)
+                )
+              );
+            }}
+          >
+            {t('sa.reset', lang)}
+          </button>
+          <button type="button" className="cfg-button" onClick={() => onDone('')}>
+            {t('tr.cancel', lang)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SystemActionsPage({ lang }) {
   const [, bump] = useState(0);
-  const [waiting, setWaiting] = useState(null); // { id, add }
+  const [editing, setEditing] = useState(null); // tool id
   const [said, setSaid] = useState('');
   const buttons = useRef({});
   useEffect(() => onToolsChanged(() => bump(n => n + 1)), []);
@@ -116,100 +272,55 @@ export default function SystemActionsPage({ lang }) {
     .slice()
     .sort((a, b) => a.label().localeCompare(b.label()));
 
-  // Keys a macro made before has as well: the macro wins there, said so.
+  // Spoken: the keys, and which of them a macro has as well.
   const keysOf = tool => {
     if (!tool.keys.length) return t('sa.none', lang);
     const taken = tool.keys.filter(k => macroFor(k));
     return keyLabel(tool.keys) + (taken.length ? ' (' + t('sa.overridden', lang).replace('%k', keyLabel(taken)) + ')' : '');
   };
   const back = id => setTimeout(() => buttons.current[id] && buttons.current[id].focus(), 0);
-
-  const take = (tool, add) => key => {
-    // A key the command line needs (a letter, a digit, space, Up or Down,
-    // without Ctrl or Alt): refused, or the tool would eat every one typed.
-    if (takesFromInput(key)) {
-      setWaiting(null);
-      setSaid(t('sa.typing', lang));
-      back(tool.id);
-      return;
-    }
-    // A key one of the player's macros has: refused, so the two never fight.
-    if (macroFor(key)) {
-      setWaiting(null);
-      setSaid(t('sa.macro', lang));
-      back(tool.id);
-      return;
-    }
-    const keys = add ? Array.from(new Set(tool.keys.concat([key]))) : [key];
-    const before = toolForKey(key);
-    const lost = setToolKeys(tool.id, keys);
-    let msg = fill(t('sa.set', lang), tool.label(), keyLabel(keys));
-    if (lost.length && before && before.id !== tool.id) msg += ' ' + fill(t('sa.took', lang), before.label(), '');
-    setWaiting(null);
-    setSaid(msg);
-    back(tool.id);
-  };
+  const tool = editing ? list.find(x => x.id === editing) : null;
 
   return (
     <div className="ab trig">
       <div className="cfg-row-desc ab-intro">{t('sa.intro', lang)}</div>
       <div role="status" className="sr-only">{said}</div>
-      {list.map(tool => (
-        <div key={tool.id} className="ab-item" role="group" aria-label={tool.label() + ', ' + keysOf(tool)}>
-          <span className="ab-name" role="heading" aria-level={3}>
-            {tool.label()}: {keysOf(tool)}
-          </span>
-          {waiting && waiting.id === tool.id ? (
-            <KeyCatcher
-              label={fill(t('sa.press', lang), tool.label(), '')}
-              onKey={take(tool, waiting.add)}
-              onCancel={() => {
-                setWaiting(null);
-                setSaid(t('sa.cancel', lang));
-                back(tool.id);
+      <ol className="ab-list" role="list" aria-label={t('cfg.page.sysactions', lang)}>
+        {list.map(one => (
+          <li key={one.id} className="ab-item">
+            <span className="ab-name">
+              <span role="heading" aria-level={3}>
+                {one.label()}
+              </span>
+              <ToolKeys tool={one} lang={lang} />
+            </span>
+            <button
+              type="button"
+              className="cfg-button"
+              ref={el => (buttons.current[one.id] = el)}
+              aria-label={t('tr.edit', lang) + ': ' + one.label() + ', ' + keysOf(one)}
+              onClick={() => {
+                setSaid('');
+                setEditing(one.id);
               }}
-            />
-          ) : (
-            <>
-              <button
-                type="button"
-                className="cfg-button"
-                ref={el => (buttons.current[tool.id] = el)}
-                onClick={() => setWaiting({ id: tool.id, add: false })}
-              >
-                {t('sa.change', lang)}
-              </button>
-              <button type="button" className="cfg-button" onClick={() => setWaiting({ id: tool.id, add: true })}>
-                {t('sa.add', lang)}
-              </button>
-              {tool.keys.length ? (
-                <button
-                  type="button"
-                  className="cfg-button"
-                  onClick={() => {
-                    setToolKeys(tool.id, []);
-                    setSaid(fill(t('sa.cleared', lang), tool.label(), ''));
-                    back(tool.id);
-                  }}
-                >
-                  {t('sa.clear', lang)}
-                </button>
-              ) : null}
-              <button
-                type="button"
-                className="cfg-button"
-                onClick={() => {
-                  setToolKeys(tool.id, null);
-                  setSaid(fill(t('sa.reseted', lang), tool.label(), tool.defaultKeys.length ? keyLabel(tool.defaultKeys) : t('sa.none', lang)));
-                  back(tool.id);
-                }}
-              >
-                {t('sa.reset', lang)}
-              </button>
-            </>
-          )}
-        </div>
-      ))}
+            >
+              {t('tr.edit', lang)}
+            </button>
+          </li>
+        ))}
+      </ol>
+
+      {tool ? (
+        <KeysDialog
+          lang={lang}
+          tool={tool}
+          onDone={msg => {
+            setEditing(null);
+            if (msg) setSaid(msg);
+            back(tool.id);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

@@ -1,31 +1,28 @@
-/* Tool windows (src/port): a side sheet on the right, full width on phones.
- * Same parchment tokens as the help sheet, with hex fallbacks. */
+/* Tool windows (src/port): the help sheet's parchment (help-sheet.css: the
+ * .hs-skin tokens, .hs-paper, the frame, .hs-head, .hs-body) on a side sheet
+ * of their own, full width on phones. Here: the sheet's size and stacking
+ * (over the help sheet), and the controls inside the body, drawn with the
+ * same --hs-* tokens and the shape of the settings buttons. */
 
 .port-sheet {
-  --pt-edge: var(--parch-edge, #96793f);
-  --pt-ink: var(--ink, #2b2213);
-  --pt-ink-dim: var(--ink-dim, #665736);
-  --pt-paper: var(--parch, #f3e7c9);
-  --pt-hi: #6a2fa6;
-
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
   z-index: 1062;
   width: min(560px, 100vw);
-  padding: 8px;
+  padding: 10px;
   box-sizing: border-box;
   transform: translateX(100%);
   visibility: hidden;
-  transition: transform .2s ease, visibility 0s linear .2s;
+  transition: transform .24s ease, visibility 0s linear .24s;
   outline: none;
 }
 .port-sheet-wide { width: min(820px, 100vw); }
 .port-sheet-open {
   transform: none;
   visibility: visible;
-  transition: transform .2s ease;
+  transition: transform .24s ease;
 }
 @media (prefers-reduced-motion: reduce) {
   .port-sheet, .port-sheet-open { transition: none; }
@@ -38,104 +35,131 @@
   background: rgba(8, 7, 12, .55);
   opacity: 0;
   pointer-events: none;
-  transition: opacity .2s ease;
+  transition: opacity .24s ease;
 }
 .port-scrim-open { opacity: 1; pointer-events: auto; }
 
-.port-paper {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: var(--pt-paper);
-  color: var(--pt-ink);
-  border: 2px solid var(--pt-edge);
-  border-radius: 6px;
-  box-sizing: border-box;
-  font-size: 16px;
-}
-.port-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--pt-edge);
-}
-.port-title { flex: 1; margin: 0; font-size: 1.2em; }
-.port-close, .port-btn {
-  min-width: 44px;
-  min-height: 44px;
-  border: 1px solid var(--pt-edge);
-  border-radius: 4px;
-  background: transparent;
-  color: var(--pt-ink);
-  cursor: pointer;
-  font: inherit;
-  padding: 4px 10px;
-}
-.port-btn:focus-visible, .port-close:focus-visible, .port-row:focus-visible,
-.port-field:focus-visible, .port-select:focus-visible {
-  outline: 3px solid var(--pt-hi);
-  outline-offset: 1px;
-}
-.port-body {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  padding: 10px 12px;
+/* The body is a column: search, filters, the list taking the rest, actions. */
+.port-sheet .port-body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-height: 0;
 }
 
-.port-field, .port-select {
-  font: inherit;
+/* ---- buttons: the settings button's shape, inked for parchment ---------- */
+
+.port-btn {
   min-height: 44px;
-  padding: 4px 8px;
-  border: 1px solid var(--pt-edge);
-  border-radius: 4px;
-  background: #fffaf0;
-  color: #1d160b;
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: 1px solid rgba(120, 90, 50, .45);
+  background: rgba(70, 50, 20, .08);
+  color: var(--hs-ink);
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .05s;
+}
+.port-btn:hover { background: rgba(70, 50, 20, .16); border-color: var(--hs-edge); }
+.port-btn:active { transform: translateY(1px); }
+
+.port-btn:focus-visible, .port-row:focus-visible, .port-field:focus-visible,
+.port-select:focus-visible, .port-text:focus-visible, .port-details:focus-visible {
+  outline: 2px solid var(--hs-link);
+  outline-offset: 2px;
+}
+
+/* ---- fields -------------------------------------------------------------- */
+
+.port-field, .port-select, .port-text {
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid rgba(120, 90, 50, .45);
+  border-radius: 5px;
+  background: rgba(255, 251, 240, .7);
+  color: var(--hs-ink);
+  font-family: var(--ui, 'Alegreya Sans', sans-serif);
+  font-size: 15px;
   box-sizing: border-box;
 }
 .port-field { width: 100%; }
+.port-field::placeholder { color: var(--hs-ink-dim); opacity: .8; }
+.port-select { max-width: 100%; }
 
-.port-filters { display: flex; flex-wrap: wrap; gap: 8px; }
-.port-filters label { display: flex; flex-direction: column; gap: 2px; font-size: .9em; }
+.port-filters { display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.port-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  max-width: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--hs-ink-dim);
+}
 
-.port-list {
+/* ---- the list ------------------------------------------------------------ */
+
+.port-sheet .port-list {
   list-style: none;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--pt-edge);
-  border-radius: 4px;
+  border: 1px solid rgba(120, 90, 50, .3);
+  border-radius: 5px;
+  background: rgba(255, 251, 240, .3);
   overflow: auto;
   min-height: 120px;
   flex: 1;
 }
-.port-row {
+.port-sheet .port-row {
   display: block;
   width: 100%;
+  margin: 0;
   text-align: left;
-  padding: 8px 10px;
+  padding: 9px 12px;
   border: 0;
-  border-bottom: 1px solid rgba(150, 121, 63, .3);
+  border-bottom: 1px solid rgba(150, 120, 70, .25);
   background: transparent;
   color: inherit;
   font: inherit;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
   cursor: pointer;
 }
-.port-row[aria-selected="true"] { background: rgba(106, 47, 166, .14); }
-.port-row-dim { color: var(--pt-ink-dim); }
+.port-sheet .port-row:last-child { border-bottom: 0; }
+.port-row:hover { background: rgba(70, 50, 20, .08); }
+.port-row[aria-selected="true"] {
+  background: rgba(106, 47, 166, .12);
+  box-shadow: inset 3px 0 0 var(--hs-link);
+}
+.port-row-dim { color: var(--hs-ink-dim); }
 
 .port-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* The chosen row's details: the help sheet's quoted block. */
 .port-details {
   white-space: pre-wrap;
-  border: 1px solid var(--pt-edge);
+  padding: 10px 12px;
+  font-size: .95em;
+  line-height: 1.45;
+  color: #3a2f18;
+  background: rgba(70, 50, 20, .08);
+  border: 1px solid rgba(120, 90, 50, .22);
   border-radius: 4px;
-  padding: 8px 10px;
+  flex: none;
   max-height: 40%;
   overflow: auto;
 }
-.port-note { color: var(--pt-ink-dim); margin: 0; }
+.port-sheet .port-note { margin: 0; color: var(--hs-ink-dim); font-style: italic; }
 .port-menu { display: flex; flex-direction: column; gap: 6px; }
 .port-menu .port-btn { text-align: left; }
+
+/* phones: the whole screen, as the help sheet */
+@media (max-width: 599px) {
+  .port-sheet { padding: 0; }
+  .port-filters label { flex: 1 1 140px; }
+  .port-filters .port-select { width: 100%; }
+}

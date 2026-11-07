@@ -12,20 +12,11 @@
 
 .port-form { display: flex; flex-direction: column; gap: 10px; }
 .port-form label { display: flex; flex-direction: column; gap: 4px; }
-.port-text {
-  font: inherit;
+/* A text box over the whole body; its ink, border and focus are port.css's. */
+.port-sheet .port-text {
   width: 100%;
   min-height: 12em;
   flex: 1;
-  padding: 6px 8px;
-  border: 1px solid var(--pt-edge);
-  border-radius: 4px;
-  background: #fffaf0;
-  color: #1d160b;
-  box-sizing: border-box;
+  line-height: 1.45;
   white-space: pre-wrap;
-}
-.port-text:focus-visible {
-  outline: 3px solid var(--pt-hi);
-  outline-offset: 1px;
 }

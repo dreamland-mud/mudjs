@@ -9,6 +9,7 @@ import { getLang, t } from '../../i18n';
 import { loadIndex, loadBodies, label } from '../windowletsPanel/helpSearch';
 import { render } from './helpMarkup';
 import { announceSheet, onOtherSheet } from '../../sheets.js';
+import SheetFrame from './SheetFrame';
 import './help-sheet.css';
 
 // The widgets' help: a parchment sheet on the right, opened by clicking a widget.
@@ -86,18 +87,6 @@ function StatsLegend({ lang, onArticle }) {
     </>
   );
 }
-
-// The modular frame: one corner shape turned four ways, plain side rules and a
-// keystone top and bottom. Decoration only.
-const Frame = () => (
-  <span className="hs-frame" aria-hidden="true">
-    <span className="hs-frame__c tl" /><span className="hs-frame__c tr" />
-    <span className="hs-frame__c bl" /><span className="hs-frame__c br" />
-    <span className="hs-frame__s top" /><span className="hs-frame__s bottom" />
-    <span className="hs-frame__s left" /><span className="hs-frame__s right" />
-    <span className="hs-frame__k top" /><span className="hs-frame__k bottom" />
-  </span>
-);
 
 export default function HelpSheet() {
   const [open, setOpen] = useState(false);
@@ -272,7 +261,7 @@ export default function HelpSheet() {
         tabIndex={IS_PHONE ? undefined : -1}
       >
         <div className="hs-paper">
-          <Frame />
+          <SheetFrame />
           <div className="hs-head">
             {stack.length > 1 ? (
               <button type="button" className="hs-back" aria-label={t('hs.back', lang)}
