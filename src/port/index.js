@@ -4,4 +4,5 @@ import './strings';
 import './tools';
 import './find';
 import './guide';
+import './output';
 import './misc';
