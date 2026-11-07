@@ -9,6 +9,7 @@
  *
  * Nothing in the terminal moves while reviewing: scrolling it would load or
  * trim history, so the textarea is a copy, kept in step as new output lands. */
+import { IS_PHONE } from './device';
 import $ from 'jquery';
 import { t } from './i18n';
 import { getKeydown } from './settings';
@@ -69,9 +70,7 @@ function collectNode(root) {
   const walk = node => {
     if (node.nodeType === 3) return addText(node.nodeValue);
     if (node.nodeType !== 1) return;
-    // Chunks marked aria-hidden (output heard live, then reloaded) are still
-    // scrollback, so review keeps them. An item's menu of actions is hidden
-    // text inside the line: not read.
+    // An item's menu of actions is hidden text inside the line: not read.
     if (node.classList && node.classList.contains('dropdown-menu')) return;
     if (node.tagName === 'BR' || node.tagName === 'HR') return push();
     const isLink = node.matches && node.matches(LINK_SELECTOR);
@@ -243,32 +242,49 @@ export function isShown(el) {
   return el.getAttribute('aria-hidden') !== 'true' && el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
 }
 
-function dialogOpen() {
+/* A modal dialog is up. The help sheet and the settings stay in the page while
+ * closed, slid aside and marked aria-hidden: only one actually shown counts.
+ * Chat buffers (chatbuffers.js) ask the same question. */
+export function dialogOpen() {
   return Array.from(document.querySelectorAll(DIALOG)).some(isShown);
 }
 
-// The focus went from the box straight into a dialog (the help sheet, say):
-// the box stays until it closes. Set where the move is visible, after the blur.
-let dialogFromReview = false;
+// The login overlay is a dialog that stays up through login and the character
+// list: it never gives the focus back to the box, so it never keeps it.
+const NEVER_KEEPS = '.acc-overlay';
 
-/* Out of the page once left: a hidden copy of the whole output would stay in
- * the accessibility tree (and in browse mode) for the screen reader to track.
- * Emptied a moment later, once the screen reader has announced where the focus
- * went. While a dialog that took the focus from the box is up (the help sheet),
- * the box stays, even when the focus has wandered out of the dialog: the dialog
- * gives the focus back to the box when it closes. A dialog the player opened
- * otherwise does not keep it. */
+// The dialog the focus went to straight from the box (the help sheet, say): the
+// box stays until that dialog closes. Set where the move is visible, after the
+// blur; cleared whenever the box is entered again or hidden.
+let keptFor = null;
+
+let hideTimer = null;
+
+/* Out of the page now: a hidden copy of the whole output would stay in the
+ * accessibility tree (and in browse mode) for the screen reader to track. */
+function hideNow() {
+  clearTimeout(hideTimer);
+  hideTimer = null;
+  keptFor = null;
+  if (!box) return;
+  box.value = '';
+  box.hidden = true;
+  if (wrap) wrap.hidden = true;
+  lines = []; // let trimmed chunks go: the copy held their link elements
+}
+
+/* Hidden a moment after leaving, once the screen reader has announced where
+ * the focus went. While the dialog that took the focus from the box is up, the
+ * box stays, even when the focus has wandered out of the dialog: the dialog
+ * gives the focus back to the box when it closes. Any other dialog, opened
+ * after leaving, does not keep it. One timer at a time. */
 function scheduleHide() {
-  const el = box;
-  setTimeout(() => {
-    if (!el || document.activeElement === el) return;
-    const now = document.activeElement;
-    if (dialogFromReview && dialogOpen()) return scheduleHide();
-    dialogFromReview = false;
-    if (now && now.closest && now.closest(DIALOG)) return scheduleHide();
-    el.value = '';
-    el.hidden = true;
-    lines = []; // let trimmed chunks go: the copy held their link elements
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(() => {
+    hideTimer = null;
+    if (!box || document.activeElement === box) return;
+    if (keptFor && keptFor.isConnected && isShown(keptFor)) return scheduleHide();
+    hideNow();
   }, 1500);
 }
 
@@ -392,6 +408,14 @@ function openMenu(toggle) {
   }
   function onMenuKey(e) {
     resumeAutoScroll();
+    // The keypad with NumLock off reports arrows too: all four stay movement,
+    // through the player's macro or keydown script, as in the review box.
+    if (e.code && e.code.startsWith('Numpad') && NAV_KEYS.has(e.key)) {
+      e.stopPropagation();
+      if (!sendHotKeyCmd(e)) getKeydown()(e);
+      e.preventDefault();
+      return;
+    }
     const i = items.indexOf(document.activeElement);
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
@@ -414,9 +438,11 @@ function openMenu(toggle) {
       if (e.key === 'Escape') enterReview();
       else document.getElementById('inputBox')?.focus();
     } else if (!(e.key.length === 1 && !e.ctrlKey && !e.altKey)) {
-      // F1 to F12 and other non-letter keys: the player's macro first.
+      // F1 to F12 and other non-letter keys: the player's macro first, then
+      // the keydown script, as in the review box.
       if (sendHotKeyCmd(e)) return;
       e.stopPropagation();
+      getKeydown()(e);
     } else {
       close();
     }
@@ -432,6 +458,8 @@ function openMenu(toggle) {
     box.focus();
   }
 }
+
+let wrap = null; // the box's application container, see ensureBox
 
 function ensureBox() {
   if (box) return box;
@@ -463,18 +491,40 @@ function ensureBox() {
       // By now React has run the dialog's focus effect, so a dialog that took
       // the focus from the box shows here.
       const now = document.activeElement;
-      if (now && now !== box && now.closest && now.closest(DIALOG)) dialogFromReview = true;
+      const dialog = now && now !== box && now.closest ? now.closest(DIALOG) : null;
+      if (dialog && !dialog.matches(NEVER_KEEPS)) keptFor = dialog;
       if (now !== box && document.hasFocus()) leave(null);
     }, 0);
   });
   box.addEventListener('focus', () => {
+    keptFor = null; // back in the box: the dialog that kept it has done its job
     if (!observer && !box.hidden) {
       startWatching();
       scheduleRefresh();
     }
   });
-  document.body.appendChild(box);
+  // In an application to NVDA: Escape goes back to the command line at once,
+  // instead of first switching NVDA to browse mode.
+  wrap = document.createElement('div');
+  wrap.className = 'output-review-wrap';
+  wrap.setAttribute('role', 'application');
+  wrap.hidden = true;
+  wrap.appendChild(box);
+  placeBox();
   return box;
+}
+
+/* The box sits right after the command line's form, in the same container:
+ * NVDA in Firefox took a moment for Tab back to the command line when the box
+ * was out at the end of the page, far from it in the accessibility tree. Put
+ * back there on every entry: the command line is rebuilt on a reconnect. The
+ * box stays fixed off screen, so where it sits does not change the layout. */
+function placeBox() {
+  const form = document.getElementById('input');
+  const parent = form && form.parentElement;
+  if (parent) {
+    if (wrap.parentElement !== parent || wrap.previousElementSibling !== form) parent.insertBefore(wrap, form.nextSibling);
+  } else if (!wrap.isConnected) document.body.appendChild(wrap);
 }
 
 /* ---- the switch ----------------------------------------------------------- */
@@ -485,7 +535,13 @@ function ensureBox() {
  * line reads the output, and Alt with the arrows reads chat (chatbuffers.js). */
 const SWITCH_KEY = 'mudjs.outputReview';
 
+/* Phones and tablets: their screen readers read the output itself, with its
+ * links, by touch; review mode would only stand in the way. Never on there,
+ * whatever the game or #review say. */
+export { IS_PHONE }; // from device.js, kept here for the older imports
+
 export function reviewEnabled() {
+  if (IS_PHONE) return false;
   try {
     return localStorage.getItem(SWITCH_KEY) === 'on';
   } catch (e) {
@@ -509,12 +565,13 @@ export function setReviewEnabled(on) {
 const SERVER_KEY = 'mudjs.outputReview.server';
 const serverOn = v => v === true || v === 1 || ['1', 'yes', 'on', 'true'].includes(String(v).toLowerCase());
 let playing = null; // the character in the world, for the per-character memory
-let serverSr = false; // the character's config screenreader, as the server last said
+let serverSr = false; // the character's config screenreader, as the server last said; reset on leaving the world
 
-// Whether the character in the world has config screenreader on.
+// Whether the character in the world has config screenreader on (textedit.js).
 export function screenreaderOn() {
   return serverSr;
 }
+const UNNAMED = '*'; // not a valid character name
 
 function lastServer() {
   try {
@@ -545,7 +602,45 @@ export function reviewStateText() {
 function switchTo(on) {
   if (on === reviewEnabled()) return;
   setReviewEnabled(on);
+  // Storage blocked: nothing changed, so nothing to say (it would say the
+  // opposite of what the game just asked for).
+  if (reviewEnabled() !== on) return;
+  // Turned off while reading, or while a dialog keeps the box for the way
+  // back: review ends now, not when the dialog hands the focus back.
+  if (!on && box && !box.hidden) {
+    const inBox = document.activeElement === box;
+    stopWatching();
+    hideNow();
+    if (inBox) document.getElementById('inputBox')?.focus();
+  }
   echoHtml(reviewStateText());
+}
+
+/* The game's own screen reader setting for the character in the world (asked
+ * at character creation, "config screenreader"), or review mode on: the
+ * layout can suit a screen reader then. Remembered, so a reload lays the page
+ * out the same before the game has said it again. */
+const SR_KEY = 'mudjs.screenReaderMode';
+export const SR_CHANGED = 'screenreader:changed';
+let srServer = (() => {
+  try {
+    return localStorage.getItem(SR_KEY) === '1';
+  } catch (e) {
+    return false;
+  }
+})();
+export function screenReaderMode() {
+  return srServer || reviewEnabled();
+}
+function setServerSr(on) {
+  if (on === srServer) return;
+  srServer = on;
+  try {
+    localStorage.setItem(SR_KEY, on ? '1' : '0');
+  } catch (e) {
+    /* storage blocked: for this page only */
+  }
+  $(document).trigger(SR_CHANGED);
 }
 
 function followServer() {
@@ -555,9 +650,12 @@ function followServer() {
       serverSr = false;
       return;
     }
-    playing = b.who || null;
+    // Without a name (the server leaves who out on some paths) the choice is
+    // remembered under one shared key, so #review off still holds.
+    playing = b.who || UNNAMED;
     const on = serverOn(b.screenreader);
     serverSr = on;
+    setServerSr(on);
     if (on && lastServer()[playing] !== true) switchTo(true);
     noteServer(playing, on);
   });
@@ -568,6 +666,7 @@ function followServer() {
     if ((b.ok !== undefined && !b.ok) || b.value === undefined) return;
     const on = serverOn(b.value);
     serverSr = on;
+    setServerSr(on);
     switchTo(on);
     noteServer(playing, on);
   };
@@ -583,8 +682,14 @@ export function enterReview() {
   const terminal = terminalEl();
   if (!terminal) return false;
   const el = ensureBox();
+  placeBox();
+  clearTimeout(hideTimer);
+  hideTimer = null;
+  keptFor = null;
   el.hidden = false;
+  if (wrap) wrap.hidden = false;
   el.setAttribute('aria-label', t('rv.label'));
+  if (wrap) wrap.setAttribute('aria-label', t('rv.label')); // the same name as the box: NVDA then does not say "application" (as in the tool windows)
   chunkCache = new WeakMap();
   // While the terminal reloads its history it is empty for a moment: show the
   // copy from last time until the reload lands, rather than a blank box.
@@ -603,3 +708,8 @@ export function enterReview() {
   el.setSelectionRange(pos, pos);
   return true;
 }
+
+/* role="application" lets NVDA pass Escape straight to the page (the tool
+ * windows use it). On a phone it is left off: there is no Escape there, and
+ * VoiceOver may take such an area for one single element. */
+export const APP_ROLE = IS_PHONE ? undefined : 'application';

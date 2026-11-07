@@ -27,7 +27,7 @@ import { plain } from './plaintext';
 import { createStore, CHANNEL } from './chatstore';
 import { t } from './i18n';
 import { sendHotKeyCmd } from './components/sysCommands/hotkeySend';
-import { reviewEnabled, isShown, IS_MAC } from './review';
+import { reviewEnabled, dialogOpen, IS_MAC } from './review';
 
 const KEEP = 1000; // lines kept per buffer
 // Lines read back from the archive: several buffers' worth, so a quiet
@@ -47,7 +47,6 @@ export function bufferLabel(name) {
 /* ---- screen reader announcements ------------------------------------------ */
 
 let region = null;
-let pending = null;
 let wipe = null;
 
 function ensureRegion() {
@@ -56,26 +55,41 @@ function ensureRegion() {
   region.id = 'chatBufferAnnounce';
   region.className = 'sr-only';
   region.setAttribute('aria-live', 'assertive');
-  region.setAttribute('aria-atomic', 'true');
+  region.setAttribute('aria-relevant', 'additions');
   document.body.appendChild(region);
   return region;
 }
 
-/* Emptied first and filled a moment later: a screen reader then speaks the
- * text even when it is the same as last time (Alt+Down at the end, twice).
- * Emptied again once spoken, so browse mode does not find old chat at the
- * bottom of the page. */
+/* Each text goes in as a new line of its own, at once: a screen reader speaks
+ * an added line straight away, also when it is the same text as last time
+ * (Alt+Down at the end, twice). The line before is taken out first, so only
+ * the new one is read. Emptied once spoken, so browse mode does not find old
+ * chat at the bottom of the page. */
+/* The browser's ariaNotify hands the text straight to the screen reader, with
+ * no live region in between. Heard with NVDA in Firefox on the PC; in other
+ * browsers and on phones nobody has heard it yet, so they keep the region. */
+const NOTIFY =
+  typeof document !== 'undefined' &&
+  typeof document.ariaNotify === 'function' &&
+  /Firefox\//.test(navigator.userAgent) &&
+  !/Android|Mobile/.test(navigator.userAgent);
+
 export function announce(text) {
+  if (NOTIFY) {
+    try {
+      document.ariaNotify(String(text), { priority: 'high' });
+      return;
+    } catch (e) {
+      /* fall through to the region */
+    }
+  }
   const r = ensureRegion();
-  r.textContent = '';
-  clearTimeout(pending);
   clearTimeout(wipe);
-  pending = setTimeout(() => {
-    r.textContent = text;
-    wipe = setTimeout(() => {
-      r.textContent = '';
-    }, 4000);
-  }, 50);
+  r.replaceChildren();
+  const line = document.createElement('div');
+  line.textContent = text;
+  r.appendChild(line);
+  wipe = setTimeout(() => r.replaceChildren(), 4000);
 }
 
 /* ---- the buffers ---------------------------------------------------------- */
@@ -202,11 +216,11 @@ const ACTIONS = {
  * settings with macro recording, the account login), drop-down lists, menus,
  * comboboxes, the text editor. */
 function keysBelongElsewhere() {
-  if (document.body.classList.contains('modal-open') || document.body.classList.contains('settings-open'))
+  if (document.body.classList.contains('modal-open') || document.body.classList.contains('settings-open') ||
+      document.body.classList.contains('port-sheet-open'))
     return true;
-  // The help sheet and the settings stay in the page while closed, slid aside
-  // and marked aria-hidden: only a modal dialog actually open counts.
-  if (Array.from(document.querySelectorAll('[aria-modal="true"]')).some(isShown)) return true;
+  // A dialog actually up, by the same test output review uses.
+  if (dialogOpen()) return true;
   const el = document.activeElement;
   if (!el || el === document.body) return false;
   if (el.tagName === 'SELECT' || el.isContentEditable) return true;

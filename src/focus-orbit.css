@@ -13,7 +13,11 @@
   --orbit-k: 1;               /* strength: 1 for an opaque field */
   position: absolute;
   inset: calc(-1 * var(--orbit-pad));
-  display: none;
+  /* Shown by opacity, not display: switching display made Firefox rebuild this
+     part of the accessibility tree right as the field took the focus, and NVDA
+     announced the command line a moment late. Paused while hidden, so it costs
+     nothing then. */
+  opacity: 0;
   pointer-events: none;
   /* outside only: the field itself is never painted over */
   clip-path: polygon(evenodd,
@@ -24,7 +28,11 @@
     calc(100% - var(--orbit-pad)) var(--orbit-pad),
     var(--orbit-pad) var(--orbit-pad));
 }
-:focus-within > .focus-orbit { display: block; }
+:focus-within > .focus-orbit { opacity: 1; }
+.focus-orbit .focus-orbit__a,
+.focus-orbit .focus-orbit__b { animation-play-state: paused; }
+:focus-within > .focus-orbit .focus-orbit__a,
+:focus-within > .focus-orbit .focus-orbit__b { animation-play-state: running; }
 
 /* field with its own outer focus ring: sit under it (the host isolates, so
    z-index -1 stays above the host's own backdrop) so the ring stays crisp on top.
