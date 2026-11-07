@@ -12,7 +12,7 @@ import { useGraphMapper } from './mapper/useGraphMapper';
 import { t, setLocale, localeFromLang, nameFor } from './mapper/i18n.js';
 import './mapper/mapper.css';
 
-const useLocation = () => {
+export const useLocation = () => {
   const [location, setLocation] = useState(lastLocation() || {});
 
   useEffect(() => {

@@ -25,6 +25,76 @@ interface Group {
   clusters: { key: string; heading: string | null; vnums: number[] }[];
 }
 
+/** The rooms grouped as the List view shows them: by z-layer (ground floor, the floors
+ *  above, the basements), by cluster when the area has several, then the rooms the
+ *  layout could not place. Shared with the rooms window (port/find/RoomsView). */
+export function listGroups(layout: AreaLayout): Group[] {
+  const byZ: Record<number, number[]> = {};
+  const unplaced: number[] = [];
+  for (const r of Object.values(layout.rooms)) {
+    const p = layout.placed[r.vnum];
+    if (!p) { unplaced.push(r.vnum); continue; }
+    if (!byZ[p.z]) byZ[p.z] = [];
+    byZ[p.z].push(r.vnum);
+  }
+  const multiCluster = layout.clusters > 1;
+  const out: Group[] = [];
+  // Ground floor first, then the floors above (going up), then the basements (going down).
+  const zs = Object.keys(byZ).map(Number).sort((a, b) => {
+    const rank = (z: number) => (z === 0 ? 0 : z > 0 ? 1 : 2);
+    return rank(a) - rank(b) || Math.abs(a) - Math.abs(b);
+  });
+  for (const z of zs) {
+    const vnums = byZ[z].slice().sort((a, b) => a - b);
+    const byCluster: Record<number, number[]> = {};
+    for (const v of vnums) {
+      const c = layout.placed[v].cluster;
+      if (!byCluster[c]) byCluster[c] = [];
+      byCluster[c].push(v);
+    }
+    const clusterKeys = Object.keys(byCluster).map(Number).sort((a, b) => a - b);
+    out.push({
+      key: `z${z}`,
+      heading: t.layerHeading(zLabel(z), vnums.length),
+      clusters: clusterKeys.map((c) => ({
+        key: `z${z}c${c}`,
+        heading: multiCluster ? t.clusterOf(c + 1, layout.clusters) : null,
+        vnums: byCluster[c],
+      })),
+    });
+  }
+  if (unplaced.length > 0) {
+    const label = t.unmapped.charAt(0).toUpperCase() + t.unmapped.slice(1);
+    out.push({
+      key: 'unplaced',
+      heading: `${label} · ${t.rooms(unplaced.length)}`,
+      clusters: [{ key: 'unplaced', heading: null, vnums: unplaced.sort((a, b) => a - b) }],
+    });
+  }
+  return out;
+}
+
+/** Same-named rooms ("In the Dungeon" x5) get an ordinal in list order, so they can be
+ *  told apart: vnum -> "(2 of 5)". */
+export function dupLabels(layout: AreaLayout, groups: Group[], locale: Locale): Record<number, string> {
+  const byName: Record<string, number[]> = {};
+  for (const g of groups) {
+    for (const c of g.clusters) {
+      for (const v of c.vnums) {
+        const n = nameFor(layout.rooms[v], locale) || t.unnamedRoom;
+        if (!byName[n]) byName[n] = [];
+        byName[n].push(v);
+      }
+    }
+  }
+  const out: Record<number, string> = {};
+  for (const vs of Object.values(byName)) {
+    if (vs.length < 2) continue;
+    vs.forEach((v, i) => { out[v] = t.dupOf(i + 1, vs.length); });
+  }
+  return out;
+}
+
 /**
  * RoomList — text alternative to the graph map: every room of the area as a real
  * <button>, grouped by z-layer (and by disconnected cluster when the area has several).
@@ -34,73 +104,11 @@ interface Group {
 export function RoomList({ layout, locale, currentVnum, selectedVnum, drawerOpen, onSelectRoom }: Props) {
   const currentRef = useRef<HTMLButtonElement | null>(null);
 
-  const groups = useMemo(() => {
-    const byZ: Record<number, number[]> = {};
-    const unplaced: number[] = [];
-    for (const r of Object.values(layout.rooms)) {
-      const p = layout.placed[r.vnum];
-      if (!p) { unplaced.push(r.vnum); continue; }
-      if (!byZ[p.z]) byZ[p.z] = [];
-      byZ[p.z].push(r.vnum);
-    }
-    const multiCluster = layout.clusters > 1;
-    const out: Group[] = [];
-    // Ground floor first, then the floors above (going up), then the basements (going down).
-    const zs = Object.keys(byZ).map(Number).sort((a, b) => {
-      const rank = (z: number) => (z === 0 ? 0 : z > 0 ? 1 : 2);
-      return rank(a) - rank(b) || Math.abs(a) - Math.abs(b);
-    });
-    for (const z of zs) {
-      const vnums = byZ[z].slice().sort((a, b) => a - b);
-      const byCluster: Record<number, number[]> = {};
-      for (const v of vnums) {
-        const c = layout.placed[v].cluster;
-        if (!byCluster[c]) byCluster[c] = [];
-        byCluster[c].push(v);
-      }
-      const clusterKeys = Object.keys(byCluster).map(Number).sort((a, b) => a - b);
-      out.push({
-        key: `z${z}`,
-        heading: t.layerHeading(zLabel(z), vnums.length),
-        clusters: clusterKeys.map((c) => ({
-          key: `z${z}c${c}`,
-          heading: multiCluster ? t.clusterOf(c + 1, layout.clusters) : null,
-          vnums: byCluster[c],
-        })),
-      });
-    }
-    if (unplaced.length > 0) {
-      const label = t.unmapped.charAt(0).toUpperCase() + t.unmapped.slice(1);
-      out.push({
-        key: 'unplaced',
-        heading: `${label} · ${t.rooms(unplaced.length)}`,
-        clusters: [{ key: 'unplaced', heading: null, vnums: unplaced.sort((a, b) => a - b) }],
-      });
-    }
-    return out;
+  const groups = useMemo(() => listGroups(layout),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layout, locale]);
+    [layout, locale]);
 
-  // Same-named rooms ("In the Dungeon" x5) get an ordinal in list order, so they can be
-  // told apart: vnum -> "(2 of 5)".
-  const dupLabel = useMemo(() => {
-    const byName: Record<string, number[]> = {};
-    for (const g of groups) {
-      for (const c of g.clusters) {
-        for (const v of c.vnums) {
-          const n = nameFor(layout.rooms[v], locale) || t.unnamedRoom;
-          if (!byName[n]) byName[n] = [];
-          byName[n].push(v);
-        }
-      }
-    }
-    const out: Record<number, string> = {};
-    for (const vs of Object.values(byName)) {
-      if (vs.length < 2) continue;
-      vs.forEach((v, i) => { out[v] = t.dupOf(i + 1, vs.length); });
-    }
-    return out;
-  }, [groups, layout, locale]);
+  const dupLabel = useMemo(() => dupLabels(layout, groups, locale), [groups, layout, locale]);
 
   // Bring the current room into view when the list opens or the area changes (no focus move).
   useEffect(() => {
