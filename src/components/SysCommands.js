@@ -30,7 +30,8 @@ const cmdAliases = {
     'переменная' : 'var',
     'действие' : 'action',
     'автобафф' : 'autobuff',
-    'чтение' : 'review'
+    'чтение' : 'review',
+    'инструменты' : 'tools'
 }
 
 const Commands = {

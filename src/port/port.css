@@ -1,0 +1,141 @@
+/* Tool windows (src/port): a side sheet on the right, full width on phones.
+ * Same parchment tokens as the help sheet, with hex fallbacks. */
+
+.port-sheet {
+  --pt-edge: var(--parch-edge, #96793f);
+  --pt-ink: var(--ink, #2b2213);
+  --pt-ink-dim: var(--ink-dim, #665736);
+  --pt-paper: var(--parch, #f3e7c9);
+  --pt-hi: #6a2fa6;
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1062;
+  width: min(560px, 100vw);
+  padding: 8px;
+  box-sizing: border-box;
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform .2s ease, visibility 0s linear .2s;
+  outline: none;
+}
+.port-sheet-wide { width: min(820px, 100vw); }
+.port-sheet-open {
+  transform: none;
+  visibility: visible;
+  transition: transform .2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .port-sheet, .port-sheet-open { transition: none; }
+}
+
+.port-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1061;
+  background: rgba(8, 7, 12, .55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+.port-scrim-open { opacity: 1; pointer-events: auto; }
+
+.port-paper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--pt-paper);
+  color: var(--pt-ink);
+  border: 2px solid var(--pt-edge);
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+.port-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--pt-edge);
+}
+.port-title { flex: 1; margin: 0; font-size: 1.2em; }
+.port-close, .port-btn {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--pt-edge);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--pt-ink);
+  cursor: pointer;
+  font: inherit;
+  padding: 4px 10px;
+}
+.port-btn:focus-visible, .port-close:focus-visible, .port-row:focus-visible,
+.port-field:focus-visible, .port-select:focus-visible {
+  outline: 3px solid var(--pt-hi);
+  outline-offset: 1px;
+}
+.port-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.port-field, .port-select {
+  font: inherit;
+  min-height: 44px;
+  padding: 4px 8px;
+  border: 1px solid var(--pt-edge);
+  border-radius: 4px;
+  background: #fffaf0;
+  color: #1d160b;
+  box-sizing: border-box;
+}
+.port-field { width: 100%; }
+
+.port-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.port-filters label { display: flex; flex-direction: column; gap: 2px; font-size: .9em; }
+
+.port-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--pt-edge);
+  border-radius: 4px;
+  overflow: auto;
+  min-height: 120px;
+  flex: 1;
+}
+.port-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: 0;
+  border-bottom: 1px solid rgba(150, 121, 63, .3);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.port-row[aria-selected="true"] { background: rgba(106, 47, 166, .14); }
+.port-row-dim { color: var(--pt-ink-dim); }
+
+.port-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.port-details {
+  white-space: pre-wrap;
+  border: 1px solid var(--pt-edge);
+  border-radius: 4px;
+  padding: 8px 10px;
+  max-height: 40%;
+  overflow: auto;
+}
+.port-note { color: var(--pt-ink-dim); margin: 0; }
+.port-menu { display: flex; flex-direction: column; gap: 6px; }
+.port-menu .port-btn { text-align: left; }

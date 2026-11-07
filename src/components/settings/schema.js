@@ -1,4 +1,5 @@
 import { t } from '../../i18n.js';
+import { listTools } from '../../port/tools';
 import { SUPPORT } from './useConfig.js';
 
 // Turning what the server sent into what the dialog draws: a tree of sections
@@ -13,6 +14,9 @@ export const SCRIPT_PAGE = 'script';
 export const AUTOBUFF_PAGE = 'autobuff';
 export const TRIGGERS_PAGE = 'triggers';
 export const SOUND_PAGE = 'sound';
+export const ACCESS_PAGE = 'access';
+export const SYSACTIONS_PAGE = 'sysactions';
+export const TOOLS_PAGE = 'tools';
 export const ALIASES_PAGE = 'aliases';
 export const MACROS_PAGE = 'macros';
 export const ACCOUNT_PAGE = 'account';
@@ -32,6 +36,44 @@ function accountSection(lang) {
         key: ACCOUNT_PAGE,
         kind: 'account',
         label: t('cfg.page.account', lang),
+        options: [],
+      },
+    ],
+  };
+}
+
+// Accessibility: the client's own switches for screen reader players, right
+// after the account so it is found without knowing it is there.
+function accessSection(lang) {
+  return {
+    key: 'access',
+    label: t('cfg.section.access', lang),
+    pages: [
+      {
+        key: ACCESS_PAGE,
+        kind: 'access',
+        label: t('cfg.page.access', lang),
+        search: 'accessibility screen reader nvda talkback voiceover review sounds доступность чтец доступність читач',
+        options: [],
+      },
+      // The client's own windows and actions, once there are any.
+      ...(listTools().length
+        ? [
+            {
+              key: TOOLS_PAGE,
+              kind: 'tools',
+              label: t('tools.menu', lang),
+              search: 'tools menu windows инструменты меню інструменти',
+              options: [],
+            },
+          ]
+        : []),
+      // System actions: the client's own windows and actions, and their keys.
+      {
+        key: SYSACTIONS_PAGE,
+        kind: 'sysactions',
+        label: t('cfg.page.sysactions', lang),
+        search: 'system actions keys shortcuts hotkeys tools rebind системные действия клавиши системні дії клавіші',
         options: [],
       },
     ],
@@ -159,7 +201,7 @@ export function buildTree(schema, support, lang, autobuff) {
   // playing rather than about how the game behaves, and it is the page a player
   // opens this window for without having to look for it. The script stays last,
   // where a tool belongs.
-  sections.unshift(accountSection(lang));
+  sections.unshift(accountSection(lang), accessSection(lang));
   sections.push(scriptSection(lang, autobuff));
   return sections;
 }
