@@ -407,19 +407,23 @@ export default function OptionRow({
   return (
     <div className="cfg-row">
       <div className="cfg-row-text">
-        {hasHelp ? (
-          <button
-            type="button"
-            className="cfg-row-key cfg-row-link"
-            aria-expanded={open}
-            aria-controls={helpId}
-            onClick={() => setOpen(was => !was)}
-          >
-            {name}
-          </button>
-        ) : (
-          <span className="cfg-row-key">{name}</span>
-        )}
+        {/* Each setting's name is a heading: a screen reader jumps from one
+            setting to the next with H, its control and help right after. */}
+        <span role="heading" aria-level={3}>
+          {hasHelp ? (
+            <button
+              type="button"
+              className="cfg-row-key cfg-row-link"
+              aria-expanded={open}
+              aria-controls={helpId}
+              onClick={() => setOpen(was => !was)}
+            >
+              {name}
+            </button>
+          ) : (
+            <span className="cfg-row-key">{name}</span>
+          )}
+        </span>
         {/* What the server says the option is, or -- until the next thing
             happens to it -- why the server would not have it. */}
         {refused ? (

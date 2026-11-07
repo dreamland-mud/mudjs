@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { inertAround } from '../../modal';
+import { IS_PHONE } from '../../device';
 import $ from 'jquery';
 
 import { rpccmd, send, ws } from '../../websock.js';
@@ -205,8 +207,16 @@ export default function HelpSheet() {
       if (e.key === 'Escape') setOpen(false);
     };
     document.addEventListener('keydown', onKey);
-    if (sheet.current) sheet.current.focus();
-    return () => document.removeEventListener('keydown', onKey);
+    // Onto the title, not the sheet: VoiceOver on an iPhone takes a focused
+    // container for one single element and never goes inside it.
+    const title = sheet.current && sheet.current.querySelector('.hs-title');
+    if (title) title.focus();
+    else if (sheet.current) sheet.current.focus();
+    const undoInert = sheet.current ? inertAround(sheet.current) : () => {};
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      undoInert();
+    };
   }, [open]);
 
   useEffect(() => {
@@ -259,7 +269,7 @@ export default function HelpSheet() {
         aria-modal="true"
         aria-labelledby="hs-title"
         aria-hidden={!open}
-        tabIndex={-1}
+        tabIndex={IS_PHONE ? undefined : -1}
       >
         <div className="hs-paper">
           <Frame />
@@ -268,7 +278,7 @@ export default function HelpSheet() {
               <button type="button" className="hs-back" aria-label={t('hs.back', lang)}
                 onClick={() => setStack(s => s.slice(0, -1))}>‹</button>
             ) : null}
-            <h2 id="hs-title" className="hs-title">{view && view.title ? view.title : ''}</h2>
+            <h2 id="hs-title" className="hs-title" tabIndex={-1}>{view && view.title ? view.title : ''}</h2>
             <button type="button" className="hs-close" aria-label={t('hs.close', lang)}
               onClick={() => setOpen(false)}>✕</button>
           </div>
