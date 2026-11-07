@@ -158,6 +158,18 @@ const MobileApp = () => {
   const [keypadOpen, setKeypadOpen] = useState(false);
   const lang = useSelector(state => state.prompt && state.prompt.lang);
   const [srMode, setSrMode] = useState(screenReaderMode());
+  // The rooms key opens the map's room list: on a phone, its page.
+  useEffect(() => {
+    const toMap = () => goTo(2);
+    const toPanels = () => goTo(1); // the help key: the help box is on the panels page
+    $(document).on('map:roomlist', toMap);
+    $(document).on('panel:help', toPanels);
+    return () => {
+      $(document).off('map:roomlist', toMap);
+      $(document).off('panel:help', toPanels);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
     const update = () => setSrMode(screenReaderMode());
     $(document).on(SR_CHANGED, update);

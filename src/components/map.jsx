@@ -241,6 +241,27 @@ export default function Map() {
     localStorage.setItem('map-mode', next);
   }, []);
 
+  // The rooms key (port/find: Alt+Shift+O, #rooms): the List view, with the
+  // focus on the room the player is in, else the first room.
+  useEffect(() => {
+    const open = () => {
+      setModePersisted('list');
+      // On a phone the map page is out of reach (inert) until the pager has
+      // scrolled to it: try again until the focus lands, for a second.
+      let tries = 0;
+      const tryFocus = () => {
+        const root = document.querySelector('.dl-mapper-root');
+        const el =
+          (root && (root.querySelector('.room-list [aria-current="location"]') || root.querySelector('.room-list button'))) || null;
+        if (el) el.focus();
+        if ((!el || document.activeElement !== el) && ++tries < 10) setTimeout(tryFocus, 100);
+      };
+      setTimeout(tryFocus, 150);
+    };
+    $(document).on('map:roomlist', open);
+    return () => $(document).off('map:roomlist', open);
+  }, [setModePersisted]);
+
   // The +/- live in the topbar (right of the # toggle) and drive whichever body is active:
   // d3 zoom in graph mode, ASCII font size in ASCII mode. Each body publishes its handle.
   const zoomApiRef = useRef(null);
