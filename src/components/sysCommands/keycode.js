@@ -148,6 +148,12 @@ for (let key in keyCode.codes) {
   keyCode.names[keyCode.codes[key]] = key;
 }
 
+// Firefox reports a few punctuation keys by other codes: = is 61, - is 173,
+// ; is 59. They name the same keys.
+keyCode.names[61] = '=';
+keyCode.names[173] = '-';
+keyCode.names[59] = ';';
+
 // aliases mapping
 for (let alias in keyCode.aliases) {
   keyCode.codes[alias] = keyCode.aliases[alias];
