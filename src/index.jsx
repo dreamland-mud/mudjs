@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import App from './app.jsx';
 import SettingsDialog from './components/settings/SettingsDialog.jsx';
 import HelpSheet from './components/helpSheet/HelpSheet.jsx';
+import ToolsHost from './port/ToolsHost.jsx';
+import './port/index.js';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -58,6 +60,7 @@ if (settingsElement) {
         <ThemeProvider theme={theme}>
           <SettingsDialog />
           <HelpSheet />
+          <ToolsHost />
         </ThemeProvider>
       </Provider>
     </React.StrictMode>

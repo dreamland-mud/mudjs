@@ -1,0 +1,40 @@
+import { addStrings } from '../i18n';
+
+addStrings({
+  en: {
+    'tools.menu': 'Tools',
+    'tools.intro': "The client's own windows and actions. Each opens once Settings has closed; their keys are on the System actions page.",
+    'tools.close': 'Close',
+    'find.filters': 'Filters',
+    'find.actions': 'Actions',
+    'find.details': 'Details',
+    'find.count': '%d found',
+    'find.many': '%d found, showing the first %n. Type more to narrow it down.',
+    'find.none': 'Nothing found.',
+    'find.loading': 'Loading...',
+  },
+  ru: {
+    'tools.menu': 'Инструменты',
+    'tools.intro': 'Собственные окна и действия клиента. Каждое открывается, когда Настройки закроются; их клавиши на странице «Системные действия».',
+    'tools.close': 'Закрыть',
+    'find.filters': 'Фильтры',
+    'find.actions': 'Действия',
+    'find.details': 'Подробности',
+    'find.count': 'Найдено: %d',
+    'find.many': 'Найдено: %d, показаны первые %n. Уточните поиск.',
+    'find.none': 'Ничего не найдено.',
+    'find.loading': 'Загрузка...',
+  },
+  ua: {
+    'tools.menu': 'Інструменти',
+    'tools.intro': 'Власні вікна й дії клієнта. Кожне відкривається, коли Налаштування закриються; їхні клавіші на сторінці «Системні дії».',
+    'tools.close': 'Закрити',
+    'find.filters': 'Фільтри',
+    'find.actions': 'Дії',
+    'find.details': 'Подробиці',
+    'find.count': 'Знайдено: %d',
+    'find.many': 'Знайдено: %d, показано перші %n. Уточніть пошук.',
+    'find.none': 'Нічого не знайдено.',
+    'find.loading': 'Завантаження...',
+  },
+});
