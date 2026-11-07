@@ -33,8 +33,8 @@ function TextSheet() {
   return (
     <Sheet id="out-panels" open={open} onClose={() => setOpen(false)} title={t('out.panels')} initialFocus={box} wide>
       {/* An application to NVDA: Escape closes the window at once instead of first switching to browse mode. */}
-      <div role={APP_ROLE} aria-label={t('out.panels')}>
-        <textarea ref={box} className="port-text" readOnly value={text} aria-label={t('out.panels')} />
+      <div className="port-fill" role={APP_ROLE} aria-label={t('out.panels')}>
+        <textarea ref={box} className="form-control port-text" readOnly value={text} aria-label={t('out.panels')} />
       </div>
     </Sheet>
   );
@@ -61,7 +61,7 @@ function FightSheet() {
             key={cmd + i}
             ref={i === 0 ? first : undefined}
             type="button"
-            className="port-btn"
+            className="btn btn-secondary"
             onClick={() => {
               setOpen(false);
               setTimeout(() => command(cmd), 50);

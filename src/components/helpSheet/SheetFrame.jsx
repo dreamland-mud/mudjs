@@ -1,8 +1,10 @@
 import React from 'react';
+import './sheet-frame.css';
 
-// The modular frame of the parchment sheets (help sheet, tool sheets): one
-// corner shape turned four ways, plain side rules and a keystone top and
-// bottom. Decoration only. Styles: help-sheet.css (.hs-frame).
+// The modular frame of the side sheets (the parchment help sheet, the dark
+// tool sheets): one corner shape turned four ways, plain side rules and a
+// keystone top and bottom. Decoration only. Styles: sheet-frame.css; the
+// sheet sets the colour (--dl-frame).
 export default function SheetFrame() {
   return (
     <span className="hs-frame" aria-hidden="true">

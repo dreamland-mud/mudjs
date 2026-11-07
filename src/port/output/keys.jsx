@@ -58,8 +58,8 @@ function KeysSheet() {
   return (
     <Sheet id="out-keys" open={open} onClose={() => setOpen(false)} title={t('out.keys')} initialFocus={box} wide>
       {/* An application to NVDA: Escape closes the window at once instead of first switching to browse mode. */}
-      <div role={APP_ROLE} aria-label={t('out.keys')}>
-        <textarea ref={box} className="port-text" readOnly value={text} aria-label={t('out.keys')} />
+      <div className="port-fill" role={APP_ROLE} aria-label={t('out.keys')}>
+        <textarea ref={box} className="form-control port-text" readOnly value={text} aria-label={t('out.keys')} />
       </div>
     </Sheet>
   );

@@ -178,12 +178,12 @@ export default function FindView({
       {/* An application to NVDA: Escape here reaches the window at once
           instead of first switching NVDA to browse mode. The details below stay
           outside, readable in browse mode. */}
-      <div role={APP_ROLE} aria-label={searchLabel}>
+      <div className="port-fill" role={APP_ROLE} aria-label={searchLabel}>
       <label className="port-search">
         <span className="sr-only">{searchLabel}</span>
         <input
           ref={box}
-          className="port-field"
+          className="form-control"
           type="search"
           value={query}
           placeholder={searchLabel}
@@ -205,7 +205,7 @@ export default function FindView({
               </span>
               <select
                 ref={el => (filterRefs.current[n] = el)}
-                className="port-select"
+                className="ds-select"
                 value={f.value}
                 onChange={e => f.onChange(e.target.value)}
                 onKeyDown={onCommonKey}
@@ -220,7 +220,7 @@ export default function FindView({
           ))}
         </div>
       ) : null}
-      <p id={uid + '-count'} className="port-note" aria-live="polite">
+      <p id={uid + '-count'} className="ds-note" aria-live="polite">
         {loading ? t('find.loading') : found.length ? count : emptyText || t('find.none')}
       </p>
       {shown.length ? (
@@ -249,11 +249,11 @@ export default function FindView({
         <div className="port-actions" role="group" aria-label={t('find.actions')}>
           {actions
             .filter(a => !a.when || a.when(row))
-            .map(a => (
+            .map((a, n) => (
               <button
                 key={a.id}
                 type="button"
-                className="port-btn"
+                className={n === 0 ? 'btn' : 'btn btn-secondary'}
                 aria-keyshortcuts={a.key ? 'Alt+' + a.key.toUpperCase() : undefined}
                 onClick={() => a.run(row)}
               >
@@ -266,7 +266,7 @@ export default function FindView({
       {details && row && details.key === row.key ? (
         <div
           ref={detailsRef}
-          className="port-details"
+          className="ds-terminal port-details"
           tabIndex={-1}
           role="region"
           aria-label={t('find.details')}

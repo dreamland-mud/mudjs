@@ -97,17 +97,17 @@ function FilterSheet() {
           <span>{t('out.sf.label')}</span>
           <textarea
             ref={box}
-            className="port-text"
+            className="form-control port-text"
             value={value}
             spellCheck={false}
             onChange={e => setValue(e.target.value)}
           />
         </label>
         <div className="port-actions">
-          <button type="submit" className="port-btn">
+          <button type="submit" className="btn">
             {t('out.sf.save')}
           </button>
-          <button type="button" className="port-btn" onClick={close}>
+          <button type="button" className="btn btn-secondary" onClick={close}>
             {t('out.sf.cancel')}
           </button>
         </div>

@@ -1,6 +1,7 @@
-/* Output tools (src/port/output). */
+/* Output tools (src/port/output). Layout only: the controls are the Nirvana
+   classes (port.css says which). */
 
-/* A match found with Ctrl+F. */
+/* A match found with Ctrl+F, in the terminal itself. */
 ::highlight(port-find) {
   background-color: #ffd54a;
   color: #1d160b;
@@ -11,12 +12,23 @@
 }
 
 .port-form { display: flex; flex-direction: column; gap: 10px; }
-.port-form label { display: flex; flex-direction: column; gap: 4px; }
-/* A text box over the whole body; its ink, border and focus are port.css's. */
+.port-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  font-weight: 700;
+  color: var(--text-dim, #a49a84);
+}
+/* A text box over the whole body (.form-control): the game's own words, so
+   Fira with ligatures off, as any aligned output. */
 .port-sheet .port-text {
   width: 100%;
   min-height: 12em;
   flex: 1;
   line-height: 1.45;
   white-space: pre-wrap;
+  font-family: var(--article, 'Fira Code', ui-monospace, monospace);
+  font-variant-ligatures: none;
+  font-weight: 400;
 }
