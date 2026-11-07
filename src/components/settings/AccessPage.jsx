@@ -23,6 +23,7 @@ addStrings({
     'acc.intro': 'For playing with a screen reader. Each switch is kept in this browser.',
     'acc.review': 'Read the output with Tab from the command line (review mode)',
     'acc.review.hint': 'On a computer. Phones read the output by touch, with its links, so it is never on there.',
+    'acc.lists': 'Open game lists (skills, groups, help) in a window with buttons',
     'acc.speech': 'Speak new output',
     'acc.tones': 'Play a sound for each exit when you move',
     'acc.room': 'Play sounds for players, creatures and items in a room',
@@ -34,6 +35,7 @@ addStrings({
     'acc.intro': 'Для игры с экранным чтецом. Каждый переключатель хранится в этом браузере.',
     'acc.review': 'Читать вывод клавишей Tab из командной строки (режим просмотра)',
     'acc.review.hint': 'На компьютере. Телефон читает вывод касанием, со ссылками, поэтому там он не включается.',
+    'acc.lists': 'Открывать игровые списки (умения, группы, справку) в окне с кнопками',
     'acc.speech': 'Озвучивать новый вывод',
     'acc.tones': 'Звук для каждого выхода при движении',
     'acc.room': 'Звуки для игроков, существ и предметов в комнате',
@@ -45,6 +47,7 @@ addStrings({
     'acc.intro': 'Для гри з екранним читачем. Кожен перемикач зберігається в цьому браузері.',
     'acc.review': 'Читати вивід клавішею Tab з командного рядка (режим перегляду)',
     'acc.review.hint': 'На комп\'ютері. Телефон читає вивід дотиком, з посиланнями, тому там він не вмикається.',
+    'acc.lists': 'Відкривати ігрові списки (вміння, групи, довідку) у вікні з кнопками',
     'acc.speech': 'Озвучувати новий вивід',
     'acc.tones': 'Звук для кожного виходу під час руху',
     'acc.room': 'Звуки для гравців, істот і предметів у кімнаті',
@@ -62,6 +65,7 @@ function read(key) {
 
 const state = () => ({
   review: reviewEnabled(),
+  lists: read('mudjs.serverLists') === '1',
   speech: read('mudjs.speechOff') !== '1',
   tones: read('mudjs.exitTones') === '1',
   room: read('mudjs.roomSounds') === '1',
@@ -114,6 +118,7 @@ export default function AccessPage({ lang }) {
           }}
         />
       )}
+      <Switch id="acc-lists" label={t('acc.lists', lang)} on={s.lists} onToggle={tool('lists', s.lists ? 'off' : 'on')} />
       <Switch id="acc-speech" label={t('acc.speech', lang)} on={s.speech} onToggle={tool('out-speech')} />
       <Switch id="acc-tones" label={t('acc.tones', lang)} on={s.tones} onToggle={tool('exittones', s.tones ? 'off' : 'on')} />
       <Switch id="acc-room" label={t('acc.room', lang)} on={s.room} onToggle={tool('roomsounds', s.room ? 'off' : 'on')} />

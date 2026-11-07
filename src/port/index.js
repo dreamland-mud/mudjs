@@ -6,4 +6,5 @@ import './find';
 import './guide';
 import './output';
 import './sounds';
+import './lists';
 import './misc';
