@@ -1665,6 +1665,28 @@ body.cfg-resizing {
   padding: 3px 10px;
 }
 
+/* Tools and System actions: a tool's keys under its name, one key cap set each. */
+.ab-keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+/* System actions: the field waiting for a key, drawn as the Macros capture box. */
+.sa-catch {
+  width: 100%;
+  font: inherit;
+  font-size: 13px;
+  text-align: center;
+  color: var(--cfg-text);
+  cursor: default;
+}
+.sa-catch::placeholder {
+  color: var(--cfg-dim);
+  opacity: 1;
+}
+
 .mc-wait {
   font-size: 13px;
   color: var(--cfg-dim);

@@ -1,4 +1,5 @@
-/* The window every tool opens in: a modal side sheet, like the help sheet.
+/* The window every tool opens in: a modal side sheet, the help sheet's paper,
+ * frame, head and body (help-sheet.css), sized and stacked in port.css.
  *
  * role=dialog with aria-modal and a heading for its name; out of the
  * accessibility tree while closed; Escape and the close button close it; Tab
@@ -12,6 +13,8 @@ import { announceSheet, onOtherSheet } from '../sheets';
 import { IS_PHONE } from '../device';
 import { inertAround } from '../modal';
 import { t } from '../i18n';
+import SheetFrame from '../components/helpSheet/SheetFrame';
+import '../components/helpSheet/help-sheet.css';
 import './port.css';
 
 const FOCUSABLE =
@@ -136,7 +139,7 @@ export default function Sheet({ id, open, onClose, title, children, wide, initia
       <div className={open ? 'port-scrim port-scrim-open' : 'port-scrim'} onClick={onClose} />
       <section
         ref={sheet}
-        className={'port-sheet' + (open ? ' port-sheet-open' : '') + (wide ? ' port-sheet-wide' : '')}
+        className={'hs-skin port-sheet' + (open ? ' port-sheet-open' : '') + (wide ? ' port-sheet-wide' : '')}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -145,14 +148,15 @@ export default function Sheet({ id, open, onClose, title, children, wide, initia
         onKeyDown={onKeyDown}
       >
         {open ? (
-          <div className="port-paper">
-            <div className="port-head">
-              <h2 id={titleId} className="port-title" tabIndex={-1}>{title}</h2>
-              <button type="button" className="port-close" aria-label={t('tools.close')} onClick={onClose}>
+          <div className="hs-paper">
+            <SheetFrame />
+            <div className="hs-head">
+              <h2 id={titleId} className="hs-title port-title" tabIndex={-1}>{title}</h2>
+              <button type="button" className="hs-close" aria-label={t('tools.close')} onClick={onClose}>
                 ✕
               </button>
             </div>
-            <div className="port-body">{children}</div>
+            <div className="hs-body port-body">{children}</div>
           </div>
         ) : null}
       </section>
