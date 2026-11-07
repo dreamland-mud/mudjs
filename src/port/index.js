@@ -2,3 +2,6 @@
  * tools, keys and windows when imported here. */
 import './strings';
 import './tools';
+import './find';
+import './guide';
+import './misc';

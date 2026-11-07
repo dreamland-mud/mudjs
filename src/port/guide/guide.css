@@ -1,0 +1,9 @@
+/* The guide's tab row, over the parchment of the tool sheet. */
+.port-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.port-tab[aria-selected="true"] {
+  background: rgba(106, 47, 166, .14);
+  border-width: 2px;
+  font-weight: bold;
+}
+.port-panel { display: flex; flex-direction: column; gap: 10px; min-height: 0; flex: 1; }
+.port-panel[hidden] { display: none; }
