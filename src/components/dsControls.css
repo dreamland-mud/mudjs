@@ -1,5 +1,5 @@
 /*
- * Nirvana controls the client did not have yet: dropdown, jewel-pill tabs,
+ * Nirvana controls the client did not have yet: dropdown,
  * toggle-chip, the icon gem button, the note line and the terminal well.
  * Ported 1:1 from dreamland_web static/design/design.css (the DS source of
  * truth). The client already carries the rest: .btn / .btn-primary /
@@ -7,17 +7,16 @@
  * table), .ds-menu (dsMenu.css). Client changes:
  * - every token carries a hex fallback, in case the skin :root drops one;
  * - the DS uses --body for UI type, the client calls it --ui;
- * - a jewel pill without its gem (.ds-tgem) gets even side padding: the DS
- *   pads the left short to make room for the jewel;
  * - the select's focus orbit uses the client's pc-focus-orbit keyframes
  *   (theme-parchment.css), the same ones .form-control already runs;
+ * - .ds-chips is the chip row (the DS page lays chips out inline);
  * - the pop (ds-pop) stops under reduced motion, as the DS page does for all
  *   motion.
  *
  * Selection colour, per the DS rules: choosing among peers (tabs, chips) =
  * gold gem; power, on and focus = arcane. Colour is never the only cue: the
- * selected pill and chip change their whole face, and aria-selected /
- * aria-pressed carry the state for a reader.
+ * selected chip changes its whole face, and aria-selected (a chip used as a
+ * tab, with .is-on) / aria-pressed carry the state for a reader.
  */
 
 /* ---- dropdown: dark well, gold-deep frame, custom gold chevron ----------- */
@@ -59,7 +58,7 @@
   }
 }
 
-/* ---- pop: jewel pills and toggle-chips snap in on select ----------------- */
+/* ---- pop: toggle-chips snap in on select ----------------- */
 
 @keyframes ds-pop {
   0% { transform: scale(1); }
@@ -67,50 +66,9 @@
   100% { transform: scale(1); }
 }
 
-/* ---- tabs: jewel pills. OFF = ghost; hover = ghost lit; ON = gold gem ---- */
-
-.ds-tabs-pill {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.ds-tab-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  padding: 8px 18px 8px 10px;
-  cursor: pointer;
-  font-family: var(--ui, 'Alegreya Sans', 'Segoe UI', sans-serif);
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--gold-dim, #856632);
-  background: rgba(19, 16, 25, 0.5);
-  border: 1px solid var(--gold-dim, #856632);
-  border-radius: 999px;
-  transition: color 0.18s, border-color 0.18s, background 0.18s, box-shadow 0.18s;
-}
-.ds-tab-pill:not(:has(.ds-tgem)) {
-  padding: 8px 18px;
-}
-.ds-tab-pill:hover {
-  color: var(--gold-bright, #e6cd86);
-  border-color: var(--gold, #c6a24e);
-  box-shadow: 0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.55));
-}
-.ds-tab-pill[aria-selected='true'] {
-  color: #1c1206;
-  border-color: transparent;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
-  background: var(--gem-face, radial-gradient(140% 140% at 50% 0%, #b8973f, #7e6127 55%, #40300f));
-  box-shadow: var(--gem-shadow, inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px #55411d);
-  animation: ds-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.ds-tab-pill[aria-selected='true']:hover {
-  box-shadow: var(--gem-shadow, inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px #55411d),
-    0 0 16px var(--arcane-glow, rgba(187, 134, 252, 0.55));
-}
-
 /* ---- toggle-chip: ghost off, gold gem on (multi-select filters) ---------- */
+
+.ds-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .ds-chip {
   display: inline-flex;
@@ -146,7 +104,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ds-tab-pill[aria-selected='true'],
   .ds-chip.is-on {
     animation: none;
   }

@@ -1,3 +1,3 @@
-/* The guide's tab panels (the tabs are .ds-tabs-pill / .ds-tab-pill). Layout only. */
+/* The guide's tab panels (the tabs are .ds-chip toggle-chips). Layout only. */
 .port-panel { display: flex; flex-direction: column; gap: 10px; min-height: min-content; flex: 1; }
 .port-panel[hidden] { display: none; }

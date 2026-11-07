@@ -94,7 +94,7 @@ function LinksSheet() {
     >
       {sub ? (
         <div className="port-actions">
-          <button type="button" className="btn btn-secondary" onClick={() => setSub(null)}>
+          <button type="button" className="btn btn-sm btn-secondary" onClick={() => setSub(null)}>
             {t('out.links.back')}
           </button>
         </div>
