@@ -11,7 +11,7 @@ import { macroFor } from '../../macros.js';
 /** Replace $name with the #var value stored in localStorage.vars. */
 export function parseUserVars(str) {
     const varsStorage = localStorage.vars ? JSON.parse(localStorage.vars) : {};
-    const stringArr = str.split(/([^?=[\wа-яА-я$\]])/)
+    const stringArr = str.split(/([^?=[\wа-яА-яёЁіІїЇєЄґҐ$\]])/)
     for (let i in stringArr) {
         if (stringArr[i].startsWith('$') && (varsStorage[stringArr[i].slice(1)])) {
                 stringArr[i] = varsStorage[stringArr[i].slice(1)]

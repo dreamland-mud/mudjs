@@ -1,37 +1,24 @@
 import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands'
+import { st } from './strings'
 
 export const settingsHelp = {
-    title: `Установить или сбросить пользовательские настройки, подробнее ${clickableLink('#help settings')}`,
-    description: `Команда #settings позволяет изменять и запоминать пользовательские настройки.
-
-Синтаксис:
-#settings - вывести список доступных настроек
-#settings property - удаляет текущий параметр property и сбрасывает его на значение "по умолчанию"
-#settings property value - устанавливает значение value для параметра property
-
-Список доступных настроек:
-terminalLayoutWidth - ширина окна терминала
-panelLayoutWidth    - ширина окна панели виджетов
-mapLayoutWidth      - ширина окна карты
-terminalFontSize    - размер шрифта в окне терминала
-isPgKeysScroll      - использовать ли клавишы PgUp и PgDown для листания (true) или сделать их доступными для использования в качестве горячих клавиш (false).
-
-`
-}
+    get title() { return st('sys.set.title', clickableLink('#help settings')) },
+    get description() { return st('sys.set.desc') },
+};
 
 const setProperty = (stringCmd) => {
     const propertiesStorage = JSON.parse(localStorage.properties)
-    if (!propertiesStorage.hasOwnProperty(stringCmd[0])) return echoHtml("Нет такого параметра")
+    if (!propertiesStorage.hasOwnProperty(stringCmd[0])) return echoHtml(st('sys.set.noparam'))
     let save = false
     const propertyValueType = typeof(propertiesStorage[stringCmd[0]])
     switch (propertyValueType) {
         case 'number':
-            if (!(+stringCmd[1])) return echoHtml('Параметр должен быть числом')
+            if (!(+stringCmd[1])) return echoHtml(st('sys.set.number'))
             propertiesStorage[stringCmd[0]] = Number.parseInt(stringCmd[1])
             save = true
             break
         case 'boolean':
-            if (!(String(stringCmd[1]) === 'true') && !(String(stringCmd[1]) === 'false')) return echoHtml('Параметр должен быть true или false')
+            if (!(String(stringCmd[1]) === 'true') && !(String(stringCmd[1]) === 'false')) return echoHtml(st('sys.set.bool'))
             if (String(stringCmd[1]) === 'true') {
                 propertiesStorage[stringCmd[0]] = true
             }
@@ -50,15 +37,15 @@ const setProperty = (stringCmd) => {
 
 const propertyDelete = (property) => {
     const propertiesStorage = JSON.parse(localStorage.properties)
-    if (!propertiesStorage[property]) return echoHtml('Нет такого параметра')
+    if (!propertiesStorage[property]) return echoHtml(st('sys.set.noparam'))
     delete propertiesStorage[property]
     localStorage.properties = JSON.stringify(propertiesStorage)
-    echoHtml(`Параметр ${property} удален. После перезагруки страницы будет использовано значение "по умолчанию"`)
+    echoHtml(st('sys.set.removed', property))
 }
 
 const propertiesList = () => {
     const propertiesStorage = JSON.parse(localStorage.properties)
-    let properties = 'Пользовательские настройки: \n'
+    let properties = st('sys.set.list')
     for (let i in propertiesStorage) {
         properties = properties + i + ' : ' +  propertiesStorage[i] + '\n'
     }
@@ -70,8 +57,8 @@ const propertiesCmd = value => {
     const stringCmd = parseStringCmd(value)
     if (!stringCmd[0]) return propertiesList()
     if (stringCmd.length === 1) return propertyDelete(stringCmd[0])
-    if (stringCmd.length > 2) return echoHtml('Проверьте правильность введенной команды')
+    if (stringCmd.length > 2) return echoHtml(st('sys.set.check'))
     return setProperty(stringCmd)
 }
 
-export default propertiesCmd 
+export default propertiesCmd

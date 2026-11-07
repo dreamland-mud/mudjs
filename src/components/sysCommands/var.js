@@ -1,33 +1,25 @@
 import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands'
+import { st } from './strings'
+import { DELETE_WORDS } from '../sysCommandUtils'
 
 export const varHelp = {
-    title: `Позволяет создать переменную с указанным значением, подробнее ${clickableLink('#help var')}`,
-    description: `Команда ${clickableLink('#var')} позволяет создавать переменные.
-Синтаксис:
-#var                - вывести список заданных переменных
-#var variable       - вывести значение переменной variable
-#var variable value - задать значение value переменной variable
+    get title() { return st('sys.var.title', clickableLink('#help var')) },
+    get description() { return st('sys.var.desc', clickableLink('#var')) },
+};
 
-Имя переменной должно начинаться с буквы. В имени переменной могут быть использованы русские и английские буквы, цифры и символ нижнего подчеркивания. Пример правильного имени переменной: враг, victim, my_enemy, food1
-
-Переменные удобно использовать внутри команд для горячих клавиш, перед именем переменной нужно написать знак доллара $:
-#var еда пирог
-#hotkey f1 есть $еда
-После этого по нажатию клавиши f1 выполнится команда 'есть пирог'.
-
-`
-}
+// Names may use English, Russian and Ukrainian letters (parseUserVars in
+// hotkeySend.js reads them with the same set).
+const NAME = /^[a-zA-Zа-яА-ЯёЁіІїЇєЄґҐ][\wа-яА-ЯёЁіІїЇєЄґҐ]*$/
 
 const varAdd = (stringCmd) => {
     const varsStorage = localStorage.vars ? JSON.parse(localStorage.vars) : {};
-    const re = new RegExp(/^[a-zA-Zа-яА-Я][\wа-яА-Я]*$/)
-    let varName = stringCmd[0]; 
-    if (!re.test(varName)) 
-        return echoHtml(`Неподходящее имя переменной. Для дополнительной справки введи ${clickableLink('#help var')}.\n`)
+    let varName = stringCmd[0];
+    if (!NAME.test(varName))
+        return echoHtml(st('sys.var.badname', clickableLink('#help var')))
     let varValue = stringCmd.slice(1).join(' ');
     varsStorage[varName] = varValue;
     localStorage.vars = JSON.stringify(varsStorage)
-    echoHtml(`Переменная '${varName}' теперь означает '${varValue}'.\n`);
+    echoHtml(st('sys.var.set', varName, varValue));
 }
 
 const varDelete = key => {
@@ -35,23 +27,23 @@ const varDelete = key => {
     if (varsStorage[key]){
         delete varsStorage[key]
         localStorage.vars = JSON.stringify(varsStorage)
-        echoHtml(`Переменная ${key} удалена из списка.\n`)
+        echoHtml(st('sys.var.deleted', key))
         return
     }
-    
-    return echoHtml(`Переменная не задана.\n`)
+
+    return echoHtml(st('sys.var.notset'))
 }
 
 const varShow = (userVar) => {
     const varsStorage = localStorage.vars ? JSON.parse(localStorage.vars) : {};
-    if (!varsStorage[userVar]) return echoHtml(`Переменная не найдена. Для просмотра всех сохраненых переменных введи ${clickableLink('#var')}.\n`)
+    if (!varsStorage[userVar]) return echoHtml(st('sys.var.notfound', clickableLink('#var')))
     echoHtml(`$${userVar} : ${varsStorage[userVar]} \n`)
 }
 
 const varsListShow = () => {
     const varsStorage = localStorage.vars ? JSON.parse(localStorage.vars) : {};
-    if (Object.keys(varsStorage).length === 0) return echoHtml(`Список переменных пуст. Набери ${clickableLink('#help var')} для справки.\n`)
-    let varsList = 'Список переменных: \n'
+    if (Object.keys(varsStorage).length === 0) return echoHtml(st('sys.var.empty', clickableLink('#help var')))
+    let varsList = st('sys.var.list')
     for (let i in varsStorage) {
         varsList += '    ' + i + ' : ' +  varsStorage[i] + '\n'
     }
@@ -62,7 +54,7 @@ const varCmd = value => {
     const stringCmd = parseStringCmd(value)
     if (!stringCmd[0]) return varsListShow()
     if (stringCmd.length === 1) return varShow(stringCmd[0])
-    if (stringCmd.length === 2 && (stringCmd[1] === 'delete' || stringCmd[1] === 'удалить'))
+    if (stringCmd.length === 2 && DELETE_WORDS.includes(stringCmd[1]))
         return varDelete(stringCmd[0]);
     return varAdd(stringCmd)
 }

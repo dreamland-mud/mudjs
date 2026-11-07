@@ -9,76 +9,72 @@ import deleteCmd, { deleteHelp } from './sysCommands/delete'
 import actionCmd, { actionHelp } from './sysCommands/action'
 import autobuffCmd, { autobuffHelp } from './sysCommands/autobuff'
 import reviewCmd, { reviewHelp } from './sysCommands/review'
+import { st } from './sysCommands/strings'
+import { getLang } from '../i18n'
 
 const multiCmdHelp = {
-    title: `Выполнить указанную команду несколько раз, подробнее ${clickableLink('#help multiCmd')}`,
-    description: `Синтаксис:
-#number action - выполнить команду action указанное число раз (number)
-
-Примеры:
-#10 новость
-#3 сбежать|возврат
-
-`
+    get title() { return st('sys.multi.title', clickableLink('#help multiCmd')) },
+    get description() { return st('sys.multi.desc') },
 }
 
-const cmdAliases = {
-    'удалить' : 'delete',
-    'справка' : 'help',
-    'кнопка' : 'hotkey',
-    'настройки' : 'settings',
-    'переменная' : 'var',
-    'действие' : 'action',
-    'автобафф' : 'autobuff',
-    'чтение' : 'review',
-    'инструменты' : 'tools'
+// Other names of the commands, per display language. Any of them works
+// whatever the language; the help lists only the ones of the player's own.
+const ALIASES = {
+    ru: {
+        'удалить' : 'delete',
+        'справка' : 'help',
+        'кнопка' : 'hotkey',
+        'настройки' : 'settings',
+        'переменная' : 'var',
+        'действие' : 'action',
+        'автобафф' : 'autobuff',
+        'чтение' : 'review',
+        'инструменты' : 'tools'
+    },
+    ua: {
+        'видалити' : 'delete',
+        'довідка' : 'help',
+        'кнопка' : 'hotkey',
+        'налаштування' : 'settings',
+        'змінна' : 'var',
+        'дія' : 'action',
+        'автобаф' : 'autobuff',
+        'читання' : 'review',
+        'інструменти' : 'tools'
+    }
 }
+const cmdAliases = { ...ALIASES.ru, ...ALIASES.ua }
 
 const Commands = {
     autobuff: {
         payload: function(value) {
             autobuffCmd(value)
         },
-        help: {
-            title: autobuffHelp.title,
-            description: autobuffHelp.description
-        }
+        help: autobuffHelp
     },
     action: {
         payload: function(value) {
             actionCmd(value)
         },
-        help: {
-            title: actionHelp.title,
-            description: actionHelp.description
-        }
+        help: actionHelp
     },
     help: {
         payload: function(value) {
             helpCmd(value)
         },
-        help: {
-            title: helpHelp.title,
-            description: helpHelp.description
-        }
+        help: helpHelp
     },
     hotkey: {
         payload: function(value) {
             hotkeyCmd(value)
         },
-        help: {
-            title: hotkeyHelp.title,
-            description: hotkeyHelp.description
-        }
+        help: hotkeyHelp
     },
     var: {
         payload: function(value) {
             varCmd(value)
         },
-        help: {
-            title: varHelp.title,
-            description: varHelp.description
-        }
+        help: varHelp
     },
     multiCmd: {
         payload: function(value) {
@@ -93,28 +89,19 @@ const Commands = {
         payload: function(value) {
             propertiesCmd(value)
         },
-        help: {
-            title: settingsHelp.title,
-            description: settingsHelp.description
-        }
+        help: settingsHelp
     },
     review: {
         payload: function(value) {
             reviewCmd(value)
         },
-        help: {
-            title: reviewHelp.title,
-            description: reviewHelp.description
-        }
+        help: reviewHelp
     },
     delete: {
         payload: function(value) {
             deleteCmd(value)
         },
-        help: {
-            title: deleteHelp.title,
-            description: deleteHelp.description
-        }
+        help: deleteHelp
     }
 }
 
@@ -135,8 +122,9 @@ export function getSystemCmd(cmd) {
 export function getSystemCmdAliases(cmd) {
     let string = ''
     let aliases = []
-    for (let alias in cmdAliases) {
-        if (cmdAliases[alias] === cmd) {
+    const own = ALIASES[getLang()] || {}
+    for (let alias in own) {
+        if (own[alias] === cmd) {
             aliases.push(alias)
         }
     }
@@ -150,7 +138,8 @@ export function getSystemCmdAliases(cmd) {
     return string
 }
 
-export const errCmdDoesNotExist = `Этой команды не существует, набери ${clickableLink('#help')} для получения списка доступных команд. \n`
+// A function: the text follows the player's display language.
+export const errCmdDoesNotExist = () => st('sys.nocmd', clickableLink('#help'))
 
 export function splitCommand(value) {
     const sysCmd = value.split(' ')[0].substr(1);

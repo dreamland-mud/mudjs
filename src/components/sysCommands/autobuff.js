@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { send, rpccmd } from '../../websock';
-import { parseStringCmd, echoHtml, clickableLink } from '../sysCommandUtils';
+import { parseStringCmd, echoHtml, clickableLink, DELETE_WORDS } from '../sysCommandUtils';
+import { st } from './strings';
 
 // Player-managed manual autobuff list, stored per browser in
 // localStorage.autobuff as an array of { gate, cmd }. The '~' key (defaults.js)
@@ -17,35 +18,11 @@ import { parseStringCmd, echoHtml, clickableLink } from '../sysCommandUtils';
 // The tab offers to import the browser lines, which then empties this list.
 
 export const autobuffHelp = {
-  title: `Настроить свои строки автобаффа, подробнее ${clickableLink(
-    '#help autobuff'
-  )}`,
-  description: `Кнопка автобаффа (по умолчанию клавиша ~) накладывает все доступные тебе усиления, которые ты знаешь на 50%+ и которых на тебе еще нет. Серверная часть считается сама и обновляется с уровнем и практикой -- ее настраивать не нужно.
-
-Команда ${clickableLink(
-    '#autobuff'
-  )} добавляет ТВОИ строки, которые сервер знать не может: баф от питомца, приказ, что угодно.
-
-Синтаксис:
-#autobuff                     - показать свой список
-#autobuff add аффект команда  - слать команду, пока этого аффекта нет на тебе
-#autobuff add * команда       - слать команду всегда, по каждому нажатию
-#autobuff del N               - удалить строку номер N
-#autobuff clear               - очистить весь список
-
-Аффект пишется английским системным именем заклинания, как в касте: haste, sanctuary, fly.
-
-Примеры:
-#autobuff add haste order rat c haste
-#autobuff add sanctuary c sanctuary
-#autobuff add * улыбнуться
-
-Эти строки живут только в этом браузере. Удобнее настроить все во вкладке Настройки -> Расширения -> Автобафф: там можно выключить отдельные баффы, поменять порядок и добавить свои строки прямо персонажу, и они сработают с любого устройства и из команды 'buff'.
-
-`,
+  get title() { return st('sys.ab.title', clickableLink('#help autobuff')); },
+  get description() { return st('sys.ab.desc', clickableLink('#autobuff')); },
 };
 
-const errAutobuff = `Набери ${clickableLink('#help autobuff')} для справки.\n`;
+const errAutobuff = () => st('sys.forhelp', clickableLink('#help autobuff'));
 
 function loadList() {
   try {
@@ -174,15 +151,11 @@ $(function () {
 function listEntries() {
   const list = loadList();
   if (list.length === 0)
-    return echoHtml(
-      `Твой список автобаффа пуст. Набери ${clickableLink(
-        '#help autobuff'
-      )} для справки.\n`
-    );
-  let buf = 'Твои строки автобаффа:\n';
+    return echoHtml(st('sys.ab.empty', clickableLink('#help autobuff')));
+  let buf = st('sys.ab.list');
   for (let i = 0; i < list.length; i++) {
     const e = list[i];
-    const when = e.gate === '*' ? 'всегда' : `если нет '${e.gate}'`;
+    const when = e.gate === '*' ? st('sys.ab.always') : st('sys.ab.ifnot', e.gate);
     buf += `    ${i + 1}. [${when}] ${e.cmd}\n`;
   }
   echoHtml(buf + '\n');
@@ -191,43 +164,39 @@ function listEntries() {
 function addEntry(s) {
   const gate = s[1];
   const cmd = s.slice(2).join(' ').trim();
-  if (!gate || !cmd) return echoHtml(errAutobuff);
+  if (!gate || !cmd) return echoHtml(errAutobuff());
 
   const list = loadList();
   list.push({ gate: gate, cmd: cmd });
   saveList(list);
 
-  const when = gate === '*' ? 'всегда' : `пока нет аффекта '${gate}'`;
-  echoHtml(`Строка автобаффа добавлена (${when}): ${cmd}\n`);
+  const when = gate === '*' ? st('sys.ab.always') : st('sys.ab.whilenot', gate);
+  echoHtml(st('sys.ab.added', when, cmd));
 }
 
 function delEntry(s) {
   const n = parseInt(s[1], 10);
   const list = loadList();
   if (!n || n < 1 || n > list.length)
-    return echoHtml(
-      `Нет строки с таким номером. Набери ${clickableLink(
-        '#autobuff'
-      )} чтобы увидеть список.\n`
-    );
+    return echoHtml(st('sys.ab.nonum', clickableLink('#autobuff')));
   const removed = list.splice(n - 1, 1)[0];
   saveList(list);
-  echoHtml(`Строка автобаффа удалена: ${removed.cmd}\n`);
+  echoHtml(st('sys.ab.deleted', removed.cmd));
 }
 
 function clearEntries() {
   saveList([]);
-  echoHtml(`Список автобаффа очищен.\n`);
+  echoHtml(st('sys.ab.cleared'));
 }
 
 const autobuffCmd = value => {
   const s = parseStringCmd(value);
   if (!s[0]) return listEntries();
   const sub = s[0].toLowerCase();
-  if (sub === 'add' || sub === 'добавить') return addEntry(s);
-  if (sub === 'del' || sub === 'удалить') return delEntry(s);
-  if (sub === 'clear' || sub === 'очистить') return clearEntries();
-  return echoHtml(errAutobuff);
+  if (sub === 'add' || sub === 'добавить' || sub === 'додати') return addEntry(s);
+  if (sub === 'del' || DELETE_WORDS.includes(sub)) return delEntry(s);
+  if (sub === 'clear' || sub === 'очистить' || sub === 'очистити') return clearEntries();
+  return echoHtml(errAutobuff());
 };
 
 // The '~' key (defaults.js) and the panel button both call this.

@@ -1,26 +1,13 @@
 import { parseStringCmd, echoHtml, clickableLink } from '../SysCommands'
 import { send } from '../../websock';
 import { getTriggers, setTriggerList, fromAction, legacyActionMap, setLegacyActionMap } from '../../triggers';
+import { st } from './strings';
+import { DELETE_WORDS } from '../sysCommandUtils';
 
 export const actionHelp = {
-    title: `Создать пользовательский триггер, подробнее ${clickableLink('#help action')}`,
-    description: `Команда ${clickableLink('#action')} позволяет создавать/удалять/изменять пользовательские триггеры для событий в игре.
-Синтаксис:
-#action -- список всех триггеров
-#action {trigger} {action} -- создать пользовательский триггер с действием {action} для события {trigger}. Триггер хранится на персонаже и работает с любого устройства
-#action string -- вывести список триггеров совпадающих со строкой 'string'
-#action string delete|удалить -- удалить все триггеры совпадающие со строкой 'string'
-#action {trigger} delete|удалить -- удалить указанный триггер
-
-В триггере {trigger} могут быть использоны регулярные выражения. Можно определять переменные вида %1,%2,%3...%9 для дальнейшего использования в действиях {action}.  
-
-Примеры использования:
-#action {%1 пришел с севера} {say hello %1}
-
-Звук, подсветку и общие для всего аккаунта триггеры настраивай в Настройки -> Расширения -> Триггеры.
-#action {^Ты умираешь от голода|^Ты умираешь от жажды} {взять бочон сумка|пить боч|пить боч|пить боч|положить боч сумка}
-`
-}
+    get title() { return st('sys.act.title', clickableLink('#help action')) },
+    get description() { return st('sys.act.desc', clickableLink('#action')) },
+};
 
 // #action edits the character's trigger list on the server (triggers.js), the
 // same list the settings tab edits. Its pattern keeps the old meaning: a regex
@@ -33,7 +20,7 @@ export const actionHelp = {
 
 export const onServer = () => getTriggers().known
 export const shown = trig => trig.act || trig.pattern
-const showOne = trig => '    {' + shown(trig) + '} : {' + trig.cmd + '}' + (trig.on === false ? ' (выкл)' : '') + '\n'
+const showOne = trig => '    {' + shown(trig) + '} : {' + trig.cmd + '}' + (trig.on === false ? ` (${st('sys.act.off')})` : '') + '\n'
 export const sameTrigger = (trig, typed) => trig.act === typed || trig.pattern === typed || trig.pattern === fromAction(typed, '').pattern
 
 const actionAdd = actionArr => {
@@ -43,13 +30,13 @@ const actionAdd = actionArr => {
         // The old store sorts by priority 0-9, given as an optional third {N}.
         let priority = 5
         if (actionArr[2]) {
-            if (!/^{\d}$/.test(actionArr[2])) return echoHtml(`Приоритет должен быть числом от 0 до 9. Набери ${clickableLink('#help action')} для справки.\n`)
+            if (!/^{\d}$/.test(actionArr[2])) return echoHtml(st('sys.act.priority', clickableLink('#help action')))
             priority = parseInt(actionArr[2].slice(1,-1))
         }
         const stored = legacyActionMap()
         stored[trigger] = { action, priority }
         setLegacyActionMap(stored)
-        return echoHtml(` {${trigger}} добавлен в список триггеров.\n`)
+        return echoHtml(st('sys.act.added', trigger))
     }
     const list = getTriggers().char
     const old = list.find(x => sameTrigger(x, trigger))
@@ -63,7 +50,7 @@ const actionAdd = actionArr => {
     } else {
         setTriggerList('char', list.concat([trig]))
     }
-    echoHtml(` {${trigger}} добавлен в список триггеров. Звук и подсветка: Настройки -> Расширения -> Триггеры.\n`)
+    echoHtml(st('sys.act.added.server', trigger))
 }
 
 const actionsListShow = string => {
@@ -76,11 +63,11 @@ const actionsListShow = string => {
     }
     if (string) {
         let re
-        try { re = new RegExp(string) } catch (e) { return echoHtml(`Некорректный шаблон поиска.\n`) }
+        try { re = new RegExp(string) } catch (e) { return echoHtml(st('sys.act.badsearch')) }
         list = list.filter(x => re.test(shown(x)))
     }
-    if (list.length === 0) return echoHtml(`Список триггеров пуст. Набери ${clickableLink('#help action')} для справки.\n`)
-    return echoHtml('Список триггеров: \n' + list.map(showOne).join('') + '\n')
+    if (list.length === 0) return echoHtml(st('sys.act.empty', clickableLink('#help action')))
+    return echoHtml(st('sys.act.list') + list.map(showOne).join('') + '\n')
 }
 
 const actionShow = value => {
@@ -92,7 +79,7 @@ const actionShow = value => {
         const stored = legacyActionMap()
         if (stored[typed]) trig = { pattern: typed, cmd: stored[typed].action }
     }
-    if (!trig) return echoHtml(`Триггер не найден. Для просмотра всех триггеров введи ${clickableLink('#action')}.\n`)
+    if (!trig) return echoHtml(st('sys.act.notfound', clickableLink('#action')))
     echoHtml(showOne(trig))
 }
 
@@ -100,10 +87,10 @@ const actionDelete = value => {
     const typed = value.slice(1,-1)
     if (!onServer()) {
         const stored = legacyActionMap()
-        if (!stored[typed]) return echoHtml(`Такой триггер не задан.\n`)
+        if (!stored[typed]) return echoHtml(st('sys.act.notset'))
         delete stored[typed]
         setLegacyActionMap(stored)
-        return echoHtml(` {${typed}} удален из списка.\n`)
+        return echoHtml(st('sys.act.deleted', typed))
     }
     let found = false
     for (const scope of ['char', 'acct']) {
@@ -113,14 +100,14 @@ const actionDelete = value => {
             setTriggerList(scope, list.filter(x => !sameTrigger(x, typed)))
         }
     }
-    if (!found) return echoHtml(`Такой триггер не задан.\n`)
-    echoHtml(` {${typed}} удален из списка.\n`)
+    if (!found) return echoHtml(st('sys.act.notset'))
+    echoHtml(st('sys.act.deleted', typed))
 }
 
 const actionDeleteOnMask = value => {
     const mask = value.substring(0, value.lastIndexOf(" "))
     let re
-    try { re = new RegExp(mask) } catch (e) { return echoHtml(`Некорректный шаблон.\n`) }
+    try { re = new RegExp(mask) } catch (e) { return echoHtml(st('sys.act.badmask')) }
     let gone = []
     if (!onServer()) {
         const stored = legacyActionMap()
@@ -136,9 +123,9 @@ const actionDeleteOnMask = value => {
             gone = gone.concat(hit)
         }
     }
-    if (gone.length === 0) return echoHtml(`Совпавших триггеров не найдено.\n`)
-    gone.forEach(x => echoHtml(` {${shown(x)}} удален из списка.\n`))
-    return echoHtml(`Все совпавшие триггеры удалены.\n`)
+    if (gone.length === 0) return echoHtml(st('sys.act.nomatch'))
+    gone.forEach(x => echoHtml(st('sys.act.deleted', shown(x))))
+    return echoHtml(st('sys.act.alldeleted'))
 }
 
 const actionCmd = value => {
@@ -146,22 +133,22 @@ const actionCmd = value => {
     const actionArr =  parseActionCmd(value)
     if (value.toString().startsWith('{')) {
         if (actionArr.length === 1) {
-            if ((stringCmd[stringCmd.length-1] === 'delete') || (stringCmd[stringCmd.length-1] === 'удалить')) {
+            if (DELETE_WORDS.includes(stringCmd[stringCmd.length-1])) {
                 return actionDelete(actionArr[0])
             }
             return actionShow(actionArr[0])
         }
         if (actionArr.length >= 2) return actionAdd(actionArr)
-        return echoHtml(`Некорректная команда. Введи ${clickableLink('#help action')} для получения справки.\n`) 
+        return echoHtml(st('sys.act.badcmd', clickableLink('#help action')))
     }
     if (!stringCmd[0]) return actionsListShow()
     if (stringCmd.length > 1) { 
-        if ((stringCmd[stringCmd.length-1] === 'delete') || (stringCmd[stringCmd.length-1] === 'удалить')) {
+        if (DELETE_WORDS.includes(stringCmd[stringCmd.length-1])) {
             return actionDeleteOnMask(value)
         }
     }
     if ((stringCmd[0]) && (!actionArr?.length)) return actionsListShow(stringCmd)
-    return echoHtml(`Некорректная команда. Введи ${clickableLink('#help action')} для получения справки.\n`)
+    return echoHtml(st('sys.act.badcmd', clickableLink('#help action')))
 }
 
 export default actionCmd

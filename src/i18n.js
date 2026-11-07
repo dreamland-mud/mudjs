@@ -1186,6 +1186,14 @@ export function t(key, lang) {
   return key;
 }
 
+// tf(key, ...values) -- t() with every %s or %d filled in turn, by position: the
+// values are game text and may hold "%s" or "$&" themselves. Here, beside t(), so
+// modules low in the import order can use it without importing the tools.
+export function tf(key, ...values) {
+  const parts = t(key).split(/%[sd]/);
+  return parts.map((p, i) => p + (i < parts.length - 1 ? String(values[i] ?? '') : '')).join('');
+}
+
 // fmt(key, value, lang?) -- t() with the first "%d"/"%s" placeholder replaced by `value`.
 export function fmt(key, value, lang) {
   return t(key, lang).replace(/%[ds]/, value);

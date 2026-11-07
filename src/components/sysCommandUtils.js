@@ -25,3 +25,6 @@ export function echoHtml(html) {
   if (!html) return
   $('.terminal').trigger('output-html', html)
 }
+
+// The word that deletes, in each language the #-commands take.
+export const DELETE_WORDS = ['delete', 'удалить', 'видалити']
