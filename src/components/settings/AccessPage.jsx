@@ -24,6 +24,8 @@ addStrings({
     'acc.review': 'Read the output with Tab from the command line (review mode)',
     'acc.review.hint': 'On a computer. Phones read the output by touch, with its links, so it is never on there.',
     'acc.speech': 'Speak new output',
+    'acc.tones': 'Play a sound for each exit when you move',
+    'acc.room': 'Play sounds for players, creatures and items in a room',
     'acc.filter': 'Words not to speak',
   },
   ru: {
@@ -33,6 +35,8 @@ addStrings({
     'acc.review': 'Читать вывод клавишей Tab из командной строки (режим просмотра)',
     'acc.review.hint': 'На компьютере. Телефон читает вывод касанием, со ссылками, поэтому там он не включается.',
     'acc.speech': 'Озвучивать новый вывод',
+    'acc.tones': 'Звук для каждого выхода при движении',
+    'acc.room': 'Звуки для игроков, существ и предметов в комнате',
     'acc.filter': 'Слова, которые не озвучивать',
   },
   ua: {
@@ -42,6 +46,8 @@ addStrings({
     'acc.review': 'Читати вивід клавішею Tab з командного рядка (режим перегляду)',
     'acc.review.hint': 'На комп\'ютері. Телефон читає вивід дотиком, з посиланнями, тому там він не вмикається.',
     'acc.speech': 'Озвучувати новий вивід',
+    'acc.tones': 'Звук для кожного виходу під час руху',
+    'acc.room': 'Звуки для гравців, істот і предметів у кімнаті',
     'acc.filter': 'Слова, які не озвучувати',
   },
 });
@@ -57,6 +63,8 @@ function read(key) {
 const state = () => ({
   review: reviewEnabled(),
   speech: read('mudjs.speechOff') !== '1',
+  tones: read('mudjs.exitTones') === '1',
+  room: read('mudjs.roomSounds') === '1',
 });
 
 function Switch({ id, label, hint, on, onToggle }) {
@@ -107,6 +115,8 @@ export default function AccessPage({ lang }) {
         />
       )}
       <Switch id="acc-speech" label={t('acc.speech', lang)} on={s.speech} onToggle={tool('out-speech')} />
+      <Switch id="acc-tones" label={t('acc.tones', lang)} on={s.tones} onToggle={tool('exittones', s.tones ? 'off' : 'on')} />
+      <Switch id="acc-room" label={t('acc.room', lang)} on={s.room} onToggle={tool('roomsounds', s.room ? 'off' : 'on')} />
       <div className="ab-item">
         <button type="button" className="cfg-button" onClick={() => openWindow('out-speechfilter')}>
           {t('acc.filter', lang)}
