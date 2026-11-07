@@ -1,0 +1,31 @@
+/* Output tools (src/port/output). */
+
+/* A match found with Ctrl+F. */
+::highlight(port-find) {
+  background-color: #ffd54a;
+  color: #1d160b;
+}
+.port-find-hit {
+  outline: 3px solid #ffd54a;
+  outline-offset: 1px;
+}
+
+.port-form { display: flex; flex-direction: column; gap: 10px; }
+.port-form label { display: flex; flex-direction: column; gap: 4px; }
+.port-text {
+  font: inherit;
+  width: 100%;
+  min-height: 12em;
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--pt-edge);
+  border-radius: 4px;
+  background: #fffaf0;
+  color: #1d160b;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+}
+.port-text:focus-visible {
+  outline: 3px solid var(--pt-hi);
+  outline-offset: 1px;
+}

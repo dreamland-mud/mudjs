@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import { t, addStrings } from '../../i18n.js';
+import { runTool } from '../../port/tools';
 import { reviewEnabled, setReviewEnabled, IS_PHONE } from '../../review';
+import { announceSheet } from '../../sheets';
 
-// Accessibility: the screen reader switches in plain words, so nobody has to
-// know a #command. Each is the same switch as its command (#review) and is
-// kept in this browser. The next PRs add their own switches here.
+/* Another window from here: Settings closes first (it keeps the page behind it
+ * out of reach while open), then the window opens. */
+const openWindow = id => {
+  announceSheet('access-leave');
+  setTimeout(() => runTool(id), 200);
+};
+
+// Accessibility: every switch of the tools from the desktop client, in plain
+// words, so nobody has to know a #command. Each one is the same switch as its
+// command (#lists, #exittones, #roomsounds, Ctrl+Shift+S, #review) and is kept
+// in this browser.
 
 addStrings({
   en: {
@@ -13,6 +23,8 @@ addStrings({
     'acc.intro': 'For playing with a screen reader. Each switch is kept in this browser.',
     'acc.review': 'Read the output with Tab from the command line (review mode)',
     'acc.review.hint': 'On a computer. Phones read the output by touch, with its links, so it is never on there.',
+    'acc.speech': 'Speak new output',
+    'acc.filter': 'Words not to speak',
   },
   ru: {
     'cfg.section.access': 'Доступность',
@@ -20,6 +32,8 @@ addStrings({
     'acc.intro': 'Для игры с экранным чтецом. Каждый переключатель хранится в этом браузере.',
     'acc.review': 'Читать вывод клавишей Tab из командной строки (режим просмотра)',
     'acc.review.hint': 'На компьютере. Телефон читает вывод касанием, со ссылками, поэтому там он не включается.',
+    'acc.speech': 'Озвучивать новый вывод',
+    'acc.filter': 'Слова, которые не озвучивать',
   },
   ua: {
     'cfg.section.access': 'Доступність',
@@ -27,6 +41,8 @@ addStrings({
     'acc.intro': 'Для гри з екранним читачем. Кожен перемикач зберігається в цьому браузері.',
     'acc.review': 'Читати вивід клавішею Tab з командного рядка (режим перегляду)',
     'acc.review.hint': 'На комп\'ютері. Телефон читає вивід дотиком, з посиланнями, тому там він не вмикається.',
+    'acc.speech': 'Озвучувати новий вивід',
+    'acc.filter': 'Слова, які не озвучувати',
   },
 });
 
@@ -40,6 +56,7 @@ function read(key) {
 
 const state = () => ({
   review: reviewEnabled(),
+  speech: read('mudjs.speechOff') !== '1',
 });
 
 function Switch({ id, label, hint, on, onToggle }) {
@@ -69,6 +86,10 @@ export default function AccessPage({ lang }) {
   const [, bump] = useState(0);
   const s = state();
   const again = () => bump(n => n + 1);
+  const tool = (id, arg) => () => {
+    runTool(id, arg);
+    again();
+  };
 
   return (
     <div className="ab trig">
@@ -85,6 +106,12 @@ export default function AccessPage({ lang }) {
           }}
         />
       )}
+      <Switch id="acc-speech" label={t('acc.speech', lang)} on={s.speech} onToggle={tool('out-speech')} />
+      <div className="ab-item">
+        <button type="button" className="cfg-button" onClick={() => openWindow('out-speechfilter')}>
+          {t('acc.filter', lang)}
+        </button>
+      </div>
     </div>
   );
 }
