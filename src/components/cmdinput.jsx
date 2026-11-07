@@ -35,6 +35,14 @@ $('body').on('click', '.builtin-cmd', function (e) {
   Commands[command]['payload'](sysCmdArgs);
 });
 
+/* Extra keys of the command line, used by the next PRs (the output tools in
+ * src/port): fn(e, atHistoryEnd)
+ * returns true when it took the key. */
+const keyHooks = [];
+export function addInputKeyHook(fn) {
+  keyHooks.push(fn);
+}
+
 const scrollPage = dir => {
   const wrap = $('.terminal-wrap');
   wrap.scrollTop(wrap.scrollTop() + wrap.height() * dir);
@@ -59,7 +67,7 @@ const CmdInput = () => {
       const input = $('#input input');
       // A window over the game -- an editor modal, or the settings sheet --
       // keeps what is typed in it.
-      if ($('body.modal-open, body.settings-open').length !== 0) return;
+      if ($('body.modal-open, body.settings-open, body.port-sheet-open').length !== 0) return;
 
       if (!sendHotKeyCmd(e)) {
         if (e.ctrlKey || e.altKey) return;
@@ -121,6 +129,17 @@ const CmdInput = () => {
   };
 
   const historyDown = () => {
+    // Down below the newest command with something typed: the unfinished line
+    // is kept in the history, where Up finds it again, and the line is cleared
+    // for something else, as in the desktop client.
+    if (position >= input_history.length && value.trim()) {
+      const i = input_history.lastIndexOf(value);
+      if (i >= 0) input_history.splice(i, 1);
+      current_cmd = '';
+      saveCmd(value);
+      setValue('');
+      return;
+    }
     if (position < input_history.length) {
       for (let i = position + 1; i < input_history.length; i++) {
         if (input_history[i].includes(current_cmd)) {
@@ -151,6 +170,7 @@ const CmdInput = () => {
     // pressed elsewhere on the page into the command line, and a lone modifier
     // (the Shift of Shift+Tab) is not a key of its own.
     if (e.isTrusted && !['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) tabLeavesInput = e.key === 'Escape';
+    if (keyHooks.some(fn => fn(e, position >= input_history.length))) return;
     const isPgKeysScroll = localStorage.properties
       ? JSON.parse(localStorage.properties)['isPgKeysScroll']
       : true;

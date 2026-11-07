@@ -155,7 +155,12 @@ body{
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 /* Off screen but full size: a 1px box (like .sr-only) cannot move its caret
    between lines, so Up and Down would not read anything. */
-.output-review{position:fixed;left:-10000px;top:0;width:800px;height:400px;white-space:pre;overflow:auto}
+/* The review box (review.js): on the screen but unseen, at the right edge level
+   with the command line, so a screen reader that places things by sound hears
+   the output to the right of the command line. Invisible and not clickable. */
+.output-review{position:fixed;right:0;bottom:0;width:240px;height:60px;white-space:pre;overflow:auto;
+  opacity:0;pointer-events:none;z-index:-1;border:0;padding:0;resize:none}
+.output-review-wrap{position:fixed;right:0;bottom:0;width:0;height:0;overflow:visible}
 
 /* buttons -- faceted gem, lifted from the site theme. Default is aged gold with a
    glassy top facet; hover swaps to an arcane gradient with a light label. */
@@ -1306,3 +1311,19 @@ body.mud-fighting form#input .focus-orbit{display:none}
    player's, set inline; this only shapes the line band. */
 .trig-line{border-radius:2px}
 .trig-note{color:#c4674a}
+
+/* Screen reader mode on a phone puts the bars under the command line (app.jsx):
+   the room for the iPhone's home bar goes under them then, not under the
+   command line, or the bars land in it, off the visible screen. */
+@media (max-width:599px){
+  .rf-cmdbar + .pbars{flex:none;padding-bottom:calc(6px + env(safe-area-inset-bottom))}
+  .rf-cmdbar:has(+ .pbars){padding-bottom:5px}
+}
+
+/* ...and with the page buttons after the bars, the home bar room goes under
+   the buttons. */
+@media (max-width:599px){
+  .pbars + .rf-dots{padding-bottom:calc(4px + env(safe-area-inset-bottom))}
+  .rf-cmdbar + .pbars:has(+ .rf-dots){padding-bottom:6px}
+}
+

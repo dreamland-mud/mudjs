@@ -32,6 +32,53 @@ export function resumeAutoScroll() {
 }
 const MSP_LINE = /^!!(?:SOUND|MUSIC)\([^)\n]*\)[ \t]*\r?(?:\n|$)/gm;
 
+/* Command links are spans: they become links for a screen reader here, on
+ * every chunk put in the page. The history stores the HTML from before this,
+ * so a chunk loaded back from it needs the same, or VoiceOver and TalkBack do
+ * not find its links. */
+const markLinks = $chunk => {
+  $chunk.find('.manip-cmd').attr('role', 'link').attr('tabindex', 0);
+  return $chunk;
+};
+
+/* How long a line stays in the announcer once added: long enough for a screen
+ * reader to queue it, short enough that browse mode does not find it as a
+ * second copy of the output at the bottom of the page. */
+const ANNOUNCE_KEEP_MS = 5000;
+
+/* Hooks used by the next PRs (the output tools and the list windows, in
+ * src/port): onOutputChunk(fn) gets every
+ * new chunk as fn(element, id, isEcho); setAnnounceFilter(fn) gets the text
+ * about to be spoken and returns what is left of it ('' says nothing). */
+const chunkHooks = [];
+export function onOutputChunk(fn) {
+  chunkHooks.push(fn);
+}
+let announceFilter = null;
+export function setAnnounceFilter(fn) {
+  announceFilter = fn;
+}
+/* holdSpeech(ms), used by the next PRs (the list windows): new output is not
+ * spoken until its prompt has come, or ms have passed; holdSpeech(0) speaks
+ * again at once. */
+let heldUntil = 0;
+const quietIds = new Set(); // chunks kept quiet, by id: whichever way they are announced
+export function holdSpeech(ms) {
+  heldUntil = ms ? Date.now() + ms : 0;
+}
+/* Whether this output is kept quiet. The prompt (output that ends without a
+ * line break) is the last of it. */
+function takeHeld(html) {
+  if (!heldUntil) return false;
+  if (Date.now() >= heldUntil) {
+    heldUntil = 0;
+    return false;
+  }
+  const text = String(html || '').replace(/<[^>]*>/g, '');
+  if (text && !/\n\s*$/.test(text)) heldUntil = 0;
+  return true;
+}
+
 const loadChunks = (startId, direction, maxlen) => {
   const chunks = [];
 
@@ -51,13 +98,40 @@ const loadChunks = (startId, direction, maxlen) => {
       if (startId && direction && chunks.length === 0) firstChunkId = startId;
 
       return chunks.map(({ id, value }) =>
-        $('<div>').append(value).attr('data-chunk-id', id)
+        markLinks($('<div>').append(value).attr('data-chunk-id', id))
       );
     });
 };
 
 function terminalInit(wrap) {
   const terminal = wrap.find('.terminal');
+  const announcer = wrap.find('.terminal-announcer')[0];
+
+  /* New output is spoken from a live region of its own, not from the terminal.
+   * The terminal is reloaded from the history all the time (scrolling, catching
+   * up after a scroll-up, scroll to bottom), and as a live region it read every
+   * reload out again; hiding the reloaded chunks with aria-hidden stopped that,
+   * but also hid their links from phone screen readers for good. Here only
+   * output that is new to the player is spoken, and every chunk in the terminal
+   * stays readable. */
+  const announce = $chunk => {
+    if (!announcer) return;
+    const chunkId = Number($chunk.attr('data-chunk-id'));
+    const quiet = quietIds.delete(chunkId);
+    const copy = $chunk.clone();
+    copy.find('.dropdown-menu').remove(); // an item's hidden menu of actions is not read
+    copy.find('[aria-hidden="true"]').remove(); // nor the echo of a sent command
+    let text = copy.text().replace(/\xa0/g, ' ').trim();
+    if (quiet || !text) return;
+    // Speech off, or lines with the player's filtered words (the filter is set
+    // by the output tools of a later PR).
+    if (announceFilter) text = String(announceFilter(text) || '').trim();
+    if (!text) return;
+    const line = document.createElement('div');
+    line.textContent = text;
+    announcer.appendChild(line);
+    setTimeout(() => line.remove(), ANNOUNCE_KEEP_MS);
+  };
 
   /* Cut the DOM back to maxBytesOnScreen from one end, in one batch. Removing
    * a chunk at a time and re-serializing the whole terminal after each one is
@@ -118,15 +192,19 @@ function terminalInit(wrap) {
     );
   };
 
-  // hideUpTo: chunks up to this id go in aria-hidden (see followBottom).
-  const loadBottom = (startId, len, hideUpTo) => {
+  // heardUpTo: chunks newer than this id are new to the player and are spoken
+  // (see followBottom); without it nothing is, as when scrolling down history.
+  const loadBottom = (startId, len, heardUpTo) => {
     scrolling = true;
 
     return loadChunks(startId, false, len).then(chunks =>
       chunks.forEach(chunk => {
-        if (hideUpTo !== undefined && parseInt(chunk.attr('data-chunk-id')) <= hideUpTo)
-          chunk.attr('aria-hidden', 'true');
         terminal.append(chunk);
+        const id = parseInt(chunk.attr('data-chunk-id'));
+        if (heardUpTo !== undefined && id > heardUpTo) {
+          announce(chunk);
+          liveId = Math.max(liveId, id);
+        }
       })
     );
   };
@@ -152,10 +230,9 @@ function terminalInit(wrap) {
    * Instead, read whatever is missing from the history database (which already
    * holds the new chunk) in order, then stick to the bottom.
    *
-   * The terminal is a live region, so the refill would be read out again in
-   * full. Chunks the player already heard live (id <= liveId -- the stretch
-   * the scroll-up trimmed) go in aria-hidden; only output newer than that is
-   * announced.
+   * Chunks the player already heard live (id <= liveId -- the stretch the
+   * scroll-up trimmed) come back silently; only output newer than that is
+   * announced (see announce).
    *
    * Termination: every pass must move the DOM tail forward, at most
    * FOLLOW_MAX_PASSES passes chain, and a call made by scrollToBottom never
@@ -189,6 +266,17 @@ function terminalInit(wrap) {
     return loadTop(null, maxBytesOnScreen).then(() => {
       stickBottom();
       scrolling = false;
+      // Output that came while the player was scrolled up is new to them: spoken
+      // in order, as followBottom does. Not on the first load of the page
+      // (nothing heard yet), which would read the whole history out.
+      if (liveId >= 0)
+        terminal.children('[data-chunk-id]').each(function () {
+          const id = parseInt(this.getAttribute('data-chunk-id'));
+          if (id > liveId) {
+            announce($(this));
+            liveId = id;
+          }
+        });
       // Output that arrived during the load was not appended (see output-html).
       return followBottom(true);
     }); // scroll to the bottom
@@ -217,15 +305,24 @@ function terminalInit(wrap) {
 
   // this may not be called from outside of terminal logic.
   terminal.on('output-html', function (e, html) {
+    // Decided as the output arrives, not once it is saved and shown: the
+    // answer before a hold is still spoken.
+    const quiet = takeHeld(html);
     historyDb
       .then(db => db.append(html))
       .then(id => {
-        const $chunk = $('<div>')
-          .append(html)
-          .attr('data-chunk-id', id);
-
-        $chunk.find('.manip-cmd').each(function () {
-          $(this).attr('role', 'link').attr('tabindex', 0);
+        if (quiet) {
+          quietIds.add(id);
+          if (quietIds.size > 200) quietIds.delete(quietIds.values().next().value);
+        }
+        const $chunk = markLinks($('<div>').append(html).attr('data-chunk-id', id));
+        const isEcho = $chunk.find('.echo-with-anchor').length > 0;
+        chunkHooks.forEach(fn => {
+          try {
+            fn($chunk[0], id, isEcho);
+          } catch (err) {
+            console.warn(err);
+          }
         });
         // Only straight after the chunk that came before it, and never into a
         // database load that is still filling the DOM: anything else leaves a
@@ -236,6 +333,7 @@ function terminalInit(wrap) {
 
         if (autoScrollEnabled && contiguous) {
           append($chunk);
+          announce($chunk);
           liveId = Math.max(liveId, id);
         } else if (autoScrollEnabled) {
           followBottom();
@@ -331,7 +429,11 @@ function terminalInit(wrap) {
     }
   });
 
+  // Not when this terminal was already taken down: in development React mounts
+  // it twice, and both banners went into the saved output.
+  let live = true;
   scrollToBottom().then(() => {
+    if (!live) return;
     const echo = html => terminal.trigger('output-html', [html]);
 
     echo('<hr>');
@@ -344,6 +446,7 @@ function terminalInit(wrap) {
   });
 
   return () => {
+    live = false;
     wrap.off();
     terminal.off();
   };
@@ -401,11 +504,9 @@ export default forwardRef(({ bumpUnread, resetUnread }, ref) => {
       <div className="terminal-glow" aria-hidden="true"></div>
       <div className="terminal-flash" aria-hidden="true"></div>
       <div className="terminal-wrap" ref={wrap}>
-        <div
-          className="terminal"
-          aria-live="polite"
-          aria-relevant="additions"
-        ></div>
+        <div className="terminal"></div>
+        {/* New output is spoken from here (see announce in terminalInit). */}
+        <div className="terminal-announcer sr-only" aria-live="polite" aria-relevant="additions"></div>
       </div>
     </>
   );

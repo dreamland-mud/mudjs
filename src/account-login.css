@@ -625,7 +625,7 @@
   transition: color 0.2s;
 }
 .acc-seg__btn:hover { color: var(--gold-bright, #e6cd86); }
-.acc-seg__btn[aria-selected="true"] { color: #1c1206; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3); }
+.acc-seg__btn[aria-pressed="true"] { color: #1c1206; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3); }
 @media (prefers-reduced-motion: reduce) { .acc-seg__ind { transition: none; } }
 
 .acc-busy {

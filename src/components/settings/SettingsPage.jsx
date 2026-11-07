@@ -50,12 +50,17 @@ export default function SettingsPage({
     <div className={page.kind === 'script' ? 'cfg-page cfg-page-script' : 'cfg-page'}>
       {page.kind === 'missing' ? (
         <div className="cfg-page-head">
-          <div className="cfg-page-title">{page.label}</div>
+          <div className="cfg-page-title" role="heading" aria-level={2}>{page.label}</div>
           {page.subtitle ? (
             <div className="cfg-page-subtitle">{page.subtitle}</div>
           ) : null}
         </div>
-      ) : null}
+      ) : (
+        // The page's name as a heading for screen readers only: the settings
+        // come after it, each with a heading of its own. On screen the name is
+        // already lit in the menu.
+        <h2 className="sr-only">{page.label}</h2>
+      )}
 
       {children}
 

@@ -1167,6 +1167,14 @@ const STRINGS = {
   },
 };
 
+// addStrings({en: {...}, ru: {...}, ua: {...}}) -- a feature brings its own
+// strings in its own file instead of growing the tables above.
+export function addStrings(tables) {
+  Object.keys(tables).forEach(l => {
+    STRINGS[l] = Object.assign(STRINGS[l] || {}, tables[l]);
+  });
+}
+
 // t(key, lang?) -- look up a UI string. `lang` defaults to the current display language.
 // Falls back to English, then to the key itself, so a missing translation degrades
 // visibly-but-safely instead of throwing. Placeholders "%d"/"%s" are substituted via fmt().

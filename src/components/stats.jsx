@@ -25,6 +25,7 @@ const Bar = ({ type, caption, v, max_v }) => {
       aria-valuenow={v}
       aria-valuemin={0}
       aria-valuemax={max_v}
+      aria-valuetext={`${v} / ${max_v}`}
     >
       <div className="pbar-fill" style={{ width: `${pct}%` }} />
       <span className="pbar-gem" aria-hidden="true" dangerouslySetInnerHTML={{ __html: gemSvg }} />
@@ -48,6 +49,7 @@ const EnemyBar = ({ caption, percent }) => {
       aria-valuenow={percent}
       aria-valuemin={1}
       aria-valuemax={100}
+      aria-valuetext={`${percent}%`}
     >
       <div className="pbar-fill" style={{ width: `${pct}%` }} />
       <span className="pbar-val">

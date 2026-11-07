@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { inertAround } from '../../modal';
 import $ from 'jquery';
 import { t, getLang } from '../../i18n.js';
 import { send } from '../../websock.js';
@@ -116,7 +117,15 @@ export default function SettingsDialog() {
 
   // The gear over the terminal is the only way in; everything else here closes.
   useEffect(() => {
-    const onOpen = () => setOpen(true);
+    // settings:open with a page key opens on that page (the Tools page for
+    // Alt+Shift+T and #tools).
+    const onOpen = (e, key) => {
+      setOpen(true);
+      if (typeof key === 'string' && key) {
+        setPageKey(key);
+        setInPage(true);
+      }
+    };
     const onClose = () => setOpen(false);
     const onPrompt = (e, b) => {
       if (b && b.lang) setLang(b.lang);
@@ -177,13 +186,27 @@ export default function SettingsDialog() {
 
   // Focus goes into the sheet while it is open and comes back to the game's
   // command line when it closes -- the player was typing there a moment ago.
+  // What had the focus when Settings opened (the command line, the output
+  // review, a link): it gets the focus back on close, as with the help sheet.
+  const returnTo = useRef(null);
   useEffect(() => {
     if (open) {
+      const was = document.activeElement;
+      returnTo.current = was && was !== document.body ? was : null;
+      // Onto the title, not the sheet: VoiceOver on an iPhone takes a focused
+      // container for one single element and never goes inside it.
       const node = sheet.current;
-      if (node) node.focus({ preventScroll: true });
-      return;
+      const title = node && node.querySelector('.cfg-head-title');
+      if (title) title.focus({ preventScroll: true });
+      else if (node) node.focus({ preventScroll: true });
+      // A modal window: the page behind is out of reach while it is open, so
+      // swiping past the end does not wander into the game.
+      return node ? inertAround(node) : undefined;
     }
 
+    const back = returnTo.current;
+    returnTo.current = null;
+    if (back && document.contains(back) && !back.closest('[inert]')) return back.focus({ preventScroll: true });
     const input = document.getElementById('inputBox');
     if (input) input.focus({ preventScroll: true });
   }, [open]);
@@ -445,6 +468,7 @@ export default function SettingsDialog() {
       <input
         type="text"
         className="cfg-search"
+        aria-label={t('cfg.search', lang)}
         value={query}
         placeholder={t('cfg.search', lang)}
         onChange={e => setQuery(e.target.value)}
@@ -673,7 +697,7 @@ export default function SettingsDialog() {
         aria-modal="true"
         aria-label={t('cfg.title', lang)}
         aria-hidden={!open}
-        tabIndex={-1}
+        tabIndex={narrow ? undefined : -1}
         onKeyDown={onKeyDown}
         style={
           pushed
@@ -718,7 +742,7 @@ export default function SettingsDialog() {
             ) : null}
 
             <div className="cfg-head-text">
-              <div className="cfg-head-title">
+              <div className="cfg-head-title" role="heading" aria-level={1} tabIndex={-1}>
                 {narrow && onPage && current ? current.label : t('cfg.title', lang)}
               </div>
             </div>
