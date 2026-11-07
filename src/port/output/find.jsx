@@ -131,10 +131,10 @@ function FindSheet() {
           />
         </label>
         <div className="port-actions">
-          <button type="submit" className="btn">
+          <button type="submit" className="btn btn-sm">
             {t('out.find.go')}
           </button>
-          <button type="button" className="btn btn-secondary" onClick={close}>
+          <button type="button" className="btn btn-sm btn-secondary" onClick={close}>
             {t('out.find.cancel')}
           </button>
         </div>

@@ -104,10 +104,10 @@ function FilterSheet() {
           />
         </label>
         <div className="port-actions">
-          <button type="submit" className="btn">
+          <button type="submit" className="btn btn-sm">
             {t('out.sf.save')}
           </button>
-          <button type="button" className="btn btn-secondary" onClick={close}>
+          <button type="button" className="btn btn-sm btn-secondary" onClick={close}>
             {t('out.sf.cancel')}
           </button>
         </div>

@@ -61,7 +61,7 @@ function FightSheet() {
             key={cmd + i}
             ref={i === 0 ? first : undefined}
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-sm btn-secondary"
             onClick={() => {
               setOpen(false);
               setTimeout(() => command(cmd), 50);

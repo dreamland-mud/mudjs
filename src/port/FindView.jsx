@@ -253,7 +253,7 @@ export default function FindView({
               <button
                 key={a.id}
                 type="button"
-                className={n === 0 ? 'btn' : 'btn btn-secondary'}
+                className={n === 0 ? 'btn btn-sm' : 'btn btn-sm btn-secondary'}
                 aria-keyshortcuts={a.key ? 'Alt+' + a.key.toUpperCase() : undefined}
                 onClick={() => a.run(row)}
               >

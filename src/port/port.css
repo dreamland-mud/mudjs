@@ -6,7 +6,7 @@
  * THE RULE: tool sheets are dark ground, and every control in them comes from
  * the Nirvana design system classes -- .btn (main action), .btn-secondary
  * (the rest), .form-control (text field and text box), .ds-select,
- * .ds-tabs-pill / .ds-tab-pill, .ds-chip, .ds-mapctrl (close), .ds-note,
+ * .ds-chip (also the guide tabs), .ds-mapctrl (close), .ds-note,
  * .ds-terminal (components/dsControls.css, theme-parchment.css). No bespoke
  * control styles here: this file holds the sheet's surface, size and
  * stacking, the layout of the body, the result rows and the focus ring on the
@@ -116,12 +116,11 @@
    below slide over the list. */
 .port-fill { display: flex; flex-direction: column; gap: 10px; flex: 1 1 auto; min-height: min-content; }
 
-/* ---- sizing of the DS controls in a sheet: 44px touch targets ------------ */
+/* ---- sizing: fields keep 44px; buttons are the DS small size (btn-sm) and
+   tabs are default toggle-chips, as Kit set for the compact sheets ---------- */
 
-.port-body .btn,
 .port-body .form-control,
-.port-body .ds-select,
-.port-body .ds-tab-pill { min-height: 44px; }
+.port-body .ds-select { min-height: 44px; }
 .port-body .ds-note { margin: 0; }
 
 .port-search { display: block; margin: 0; }
@@ -208,14 +207,12 @@
 .port-row:focus-visible,
 .port-details:focus-visible,
 .port-sheet .ds-mapctrl:focus-visible,
-.port-sheet .ds-tab-pill:focus-visible,
 .port-sheet .ds-chip:focus-visible {
   outline: 2px solid var(--arcane, #bb86fc);
   outline-offset: -2px;
   box-shadow: 0 0 12px var(--arcane-glow, rgba(187, 134, 252, .55));
 }
 .port-sheet .ds-mapctrl:focus-visible,
-.port-sheet .ds-tab-pill:focus-visible,
 .port-sheet .ds-chip:focus-visible { outline-offset: 2px; }
 
 /* phones: the whole screen, the frame tucks in */
