@@ -11,6 +11,9 @@ import AccountPage from './AccountPage.jsx';
 import AutobuffPage from './AutobuffPage.jsx';
 import TriggersPage from './TriggersPage.jsx';
 import SoundPage from './SoundPage.jsx';
+import AccessPage from './AccessPage.jsx';
+import SystemActionsPage from './SystemActionsPage.jsx';
+import ToolsPage from './ToolsPage.jsx';
 import AliasesPage from './AliasesPage.jsx';
 import MacrosPage from './MacrosPage.jsx';
 import {
@@ -32,6 +35,9 @@ import {
   AUTOBUFF_PAGE,
   TRIGGERS_PAGE,
   SOUND_PAGE,
+  ACCESS_PAGE,
+  SYSACTIONS_PAGE,
+  TOOLS_PAGE,
   ALIASES_PAGE,
   MACROS_PAGE,
 } from './schema.js';
@@ -424,6 +430,9 @@ export default function SettingsDialog() {
   const isAutobuff = !!current && current.key === AUTOBUFF_PAGE;
   const isTriggers = !!current && current.key === TRIGGERS_PAGE;
   const isSound = !!current && current.key === SOUND_PAGE;
+  const isAccess = !!current && current.key === ACCESS_PAGE;
+  const isSysActions = !!current && current.key === SYSACTIONS_PAGE;
+  const isTools = !!current && current.key === TOOLS_PAGE;
   const isAliases = !!current && current.key === ALIASES_PAGE;
   const isMacros = !!current && current.key === MACROS_PAGE;
   // The Download log used to sit in a footer strip of its own. It belongs to the
@@ -585,7 +594,7 @@ export default function SettingsDialog() {
     <>
       {shown.length ? (
         <SettingsPage
-          page={isScript || isAccount || isAutobuff || isTriggers || isSound || isAliases || isMacros ? null : current}
+          page={isScript || isAccount || isAutobuff || isTriggers || isSound || isAccess || isSysActions || isTools || isAliases || isMacros ? null : current}
           values={values}
           lang={lang}
           query={needle}
@@ -634,6 +643,24 @@ export default function SettingsDialog() {
       {isSound ? (
         <SettingsPage page={findPage(tree, SOUND_PAGE)} values={values} lang={lang}>
           <SoundPage lang={lang} />
+        </SettingsPage>
+      ) : null}
+
+      {isTools ? (
+        <SettingsPage page={findPage(tree, TOOLS_PAGE)} values={values} lang={lang}>
+          <ToolsPage lang={lang} />
+        </SettingsPage>
+      ) : null}
+
+      {isSysActions ? (
+        <SettingsPage page={findPage(tree, SYSACTIONS_PAGE)} values={values} lang={lang}>
+          <SystemActionsPage lang={lang} />
+        </SettingsPage>
+      ) : null}
+
+      {isAccess ? (
+        <SettingsPage page={findPage(tree, ACCESS_PAGE)} values={values} lang={lang}>
+          <AccessPage lang={lang} />
         </SettingsPage>
       ) : null}
 

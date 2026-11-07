@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { t } from '../../i18n.js';
+import { t, addStrings } from '../../i18n.js';
+import { toolKeysOn, setToolKeysOn, toolForKey } from '../../port/tools';
 import keycode from '../sysCommands/keycode.js';
 import {
   getMacros,
@@ -65,8 +66,9 @@ export function KeyCaps({ value }) {
   );
 }
 
-/** Keys the game's input needs for itself: binding one takes it away there. */
-function takesFromInput(key) {
+/** Keys the game's input needs for itself: binding one takes it away there.
+ *  System actions (SystemActionsPage.jsx) refuses these outright. */
+export function takesFromInput(key) {
   if (!key) return '';
   const parts = key.split('+');
   const k = parts[parts.length - 1] || 'kp+';
@@ -171,7 +173,10 @@ export function MacroDialog({ lang, start, onDone, onSaved }) {
   const full =
     form.scope !== 'local' && form.origScope !== form.scope && macros[form.scope].length >= MAX_PER_LIST;
   const cmd = form.cmd.trim();
-  const canSave = form.key && cmd && !clash && !full && !listening;
+  // A key one of the client's own actions has (Settings, System actions): not
+  // for a macro too, or one of them would silently stop working.
+  const sysClash = form.key && toolKeysOn() ? toolForKey(form.key) : null;
+  const canSave = form.key && cmd && !clash && !sysClash && !full && !listening;
   const warn = takesFromInput(form.key);
 
   const save = e => {
@@ -260,6 +265,11 @@ export function MacroDialog({ lang, start, onDone, onSaved }) {
           </div>
         ) : null}
         {!listening && warn ? <div className="cfg-note mc-warn">{t(warn, lang)}</div> : null}
+        {!listening && sysClash ? (
+          <div className="cfg-note trig-bad" role="alert">
+            {t('mc.sysclash', lang).replace('%s', sysClash.label())}
+          </div>
+        ) : null}
         {!listening && clash ? (
           <div className="cfg-note trig-bad" role="alert">
             {t('mc.clash', lang)}: {clash.cmd}
@@ -362,6 +372,53 @@ export function MacroDialog({ lang, start, onDone, onSaved }) {
 export const noKeyboard = () =>
   typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
+addStrings({
+  en: {
+    'mc.toolkeys': 'Client keys',
+    'mc.sysclash': 'This key belongs to the system action %s. Pick another key, or free it on the System actions page first.',
+    'mc.toolkeys.desc': 'Keys for the windows and actions of the client itself, listed on the Tools and System actions pages (Settings, Accessibility). On by default in screen reader mode. Off, the browser keeps its own shortcuts, and the tools still open from the Tools page.',
+  },
+  ru: {
+    'mc.toolkeys': 'Клавиши клиента',
+    'mc.sysclash': 'Эта клавиша занята системным действием «%s». Выберите другую или сначала освободите её на странице «Системные действия».',
+    'mc.toolkeys.desc': 'Клавиши собственных окон и действий клиента, они перечислены на страницах «Инструменты» и «Системные действия» (Настройки, Доступность). По умолчанию включены в режиме экранного чтеца. Если выключить, браузер сохранит свои сочетания, а инструменты по-прежнему открываются со страницы «Инструменты».',
+  },
+  ua: {
+    'mc.toolkeys': 'Клавіші клієнта',
+    'mc.sysclash': 'Ця клавіша зайнята системною дією «%s». Виберіть іншу або спершу звільніть її на сторінці «Системні дії».',
+    'mc.toolkeys.desc': 'Клавіші власних вікон і дій клієнта, вони перелічені на сторінках «Інструменти» і «Системні дії» (Налаштування, Доступність). Типово ввімкнені в режимі екранного читача. Якщо вимкнути, браузер збереже свої сполучення, а інструменти й далі відкриваються зі сторінки «Інструменти».',
+  },
+});
+
+/* On by default: the client's own keys (port/tools.js). */
+function ClientKeysSwitch({ lang }) {
+  const [on, setOn] = useState(toolKeysOn());
+  return (
+    <div className="ab-item">
+      <span className="ab-name" id="mc-toolkeys-l" role="heading" aria-level={3}>
+        {t('mc.toolkeys', lang)}
+        <span className="cfg-row-desc" id="mc-toolkeys-d">
+          {' '}
+          {t('mc.toolkeys.desc', lang)}
+        </span>
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        aria-labelledby="mc-toolkeys-l"
+        className={on ? 'cfg-switch cfg-switch-on' : 'cfg-switch'}
+        onClick={() => {
+          setToolKeysOn(!on);
+          setOn(!on);
+        }}
+      >
+        <span className="cfg-switch-knob" />
+      </button>
+    </div>
+  );
+}
+
 export default function MacrosPage({ lang }) {
   const [data, setData] = useState(getMacros);
   const [dialog, setDialog] = useState(null);
@@ -425,13 +482,20 @@ export default function MacrosPage({ lang }) {
     );
   };
 
-  if (!data.known && !data.unsupported) return <div className="cfg-note">{t('mc.loading', lang)}</div>;
+  if (!data.known && !data.unsupported)
+    return (
+      <div className="ab trig">
+        <ClientKeysSwitch lang={lang} />
+        <div className="cfg-note">{t('mc.loading', lang)}</div>
+      </div>
+    );
 
   const scopes = data.known ? ['char', 'acct'] : ['local'];
   const firstScope = data.known ? (data.char.length >= MAX_PER_LIST && data.account ? 'acct' : 'char') : 'local';
 
   return (
     <div className="ab trig">
+      <ClientKeysSwitch lang={lang} />
       <div className="cfg-row-desc ab-intro">{t('mc.intro', lang)}</div>
       {data.unsupported ? <div className="cfg-note">{t('mc.unsupported', lang)}</div> : null}
       <div className="ab-sr" aria-live="polite">
