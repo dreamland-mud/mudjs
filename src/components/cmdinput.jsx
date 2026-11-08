@@ -266,6 +266,8 @@ const CmdInput = () => {
     }
     setValue('');
     saveCmd(userCommand);
+    // The same text sent from another line: the unsent line has now been sent.
+    if (input_history[draftAt] === userCommand) draftAt = -1;
 
     if (userCommand.startsWith('#')) {
       echo(userCommand);
