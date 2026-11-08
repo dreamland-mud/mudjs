@@ -23,6 +23,7 @@ const input_history = localStorage.history
   ? JSON.parse(localStorage.history)
   : [];
 let position = input_history.length;
+let draftAt = -1; // where Down put away the unsent line, while it is still unsent
 let tabLeavesInput = false; // Escape was the last key: Tab moves on instead of reading the output
 let current_cmd = '';
 
@@ -96,6 +97,16 @@ const CmdInput = () => {
     return () => window.removeEventListener('keydown', handleKey);
   }, []);
 
+  const persistHistory = () => {
+    const drop = Math.max(0, input_history.length - 1000);
+    const save = JSON.stringify(input_history.slice(drop));
+    try {
+      localStorage.history = save;
+    } catch (e) {
+      console.warn('Could not save history to localStorage', e);
+    }
+  };
+
   const saveCmd = t => {
     if (t) {
       position = input_history.length;
@@ -104,18 +115,35 @@ const CmdInput = () => {
         t !== input_history[input_history.length - 1]
       ) {
         input_history[position++] = t;
-        const drop = Math.max(0, input_history.length - 1000);
-        const save = JSON.stringify(input_history.slice(drop));
-        try {
-          localStorage.history = save;
-        } catch (e) {
-          console.warn('Could not save history to localStorage', e);
-        }
+        persistHistory();
       }
     }
   };
 
+  // Up or Down on a line taken from the history that the player has changed:
+  // the change is kept, so moving away and back finds it, as in the desktop
+  // client. The unsent line Down put away is updated in place; a changed past
+  // command stays as it was sent, and the changed copy becomes the unsent line.
+  const keepEdit = () => {
+    if (position >= input_history.length) return;
+    if (!value.trim() || value === input_history[position]) return;
+    if (position === draftAt) {
+      input_history[position] = value;
+      persistHistory();
+      return;
+    }
+    const i = input_history.lastIndexOf(value);
+    if (i >= 0) {
+      input_history.splice(i, 1);
+      if (i < position) position--;
+    }
+    input_history.push(value);
+    draftAt = input_history.length - 1;
+    persistHistory();
+  };
+
   const historyUp = () => {
+    keepEdit();
     if (position > 0) {
       if (position === input_history.length) current_cmd = value;
       for (let i = position - 1; i >= 0; i--) {
@@ -134,12 +162,20 @@ const CmdInput = () => {
     // for something else, as in the desktop client.
     if (position >= input_history.length && value.trim()) {
       const i = input_history.lastIndexOf(value);
-      if (i >= 0) input_history.splice(i, 1);
+      const wasDraft = i >= 0 && i === draftAt;
+      if (i >= 0) {
+        input_history.splice(i, 1);
+        if (i < draftAt) draftAt--;
+      }
       current_cmd = '';
       saveCmd(value);
+      // A line already sent once stays a sent command; only new text (or the
+      // unsent line itself) is the unsent line.
+      if (i < 0 || wasDraft) draftAt = input_history.length - 1;
       setValue('');
       return;
     }
+    keepEdit();
     if (position < input_history.length) {
       for (let i = position + 1; i < input_history.length; i++) {
         if (input_history[i].includes(current_cmd)) {
@@ -156,6 +192,7 @@ const CmdInput = () => {
   const historyRepeat = () => {
     const cmd = input_history[position] || input_history[position - 1];
     if (!cmd) return;
+    if (input_history[draftAt] === cmd) draftAt = -1;
     setValue('');
     position = input_history.length;
     saveCmd(cmd);
@@ -220,8 +257,17 @@ const CmdInput = () => {
   const submit = e => {
     e.preventDefault();
     const userCommand = value;
+    // Sending the unsent line: it leaves the history as it was put away, and
+    // what is sent goes in as a command like any other.
+    if (position === draftAt) {
+      input_history.splice(draftAt, 1);
+      draftAt = -1;
+      persistHistory();
+    }
     setValue('');
     saveCmd(userCommand);
+    // The same text sent from another line: the unsent line has now been sent.
+    if (input_history[draftAt] === userCommand) draftAt = -1;
 
     if (userCommand.startsWith('#')) {
       echo(userCommand);
