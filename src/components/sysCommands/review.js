@@ -1,21 +1,11 @@
 import { parseStringCmd, echoHtml, clickableLink } from '../sysCommandUtils';
 import { t } from '../../i18n';
 import { setReviewEnabled, reviewStateText } from '../../review';
+import { st } from './strings';
 
 export const reviewHelp = {
-  title: `Включить или выключить чтение вывода для программ экранного доступа, подробнее ${clickableLink('#help review')}`,
-  description: `Когда чтение вывода включено, Tab в командной строке переносит в текст вывода игры. Стрелки вверх и вниз читают его по строкам, Enter выполняет команду в строке, Tab, Shift+Tab или Escape возвращают в командную строку.
-
-Синтаксис:
-#review      - сказать, включено ли
-#review on   - включить
-#review off  - выключить
-
-Пока чтение вывода включено, Alt со стрелками читает чат (кроме Mac).
-
-Настройка запоминается в этом браузере. Если в игре включить config screenreader, чтение вывода включится само, а выключить -- выключится.
-
-`,
+  get title() { return st('sys.rv.title', clickableLink('#help review')); },
+  get description() { return st('sys.rv.desc'); },
 };
 
 const reviewCmd = value => {

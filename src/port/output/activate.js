@@ -19,7 +19,7 @@ export function runBuiltin(action, echoText) {
   const { sysCmd, sysCmdArgs } = splitCommand(action);
   const command = getSystemCmd(sysCmd);
   echo(echoText);
-  if (!command) return echoHtml(errCmdDoesNotExist);
+  if (!command) return echoHtml(errCmdDoesNotExist());
   Commands[command].payload(sysCmdArgs);
 }
 

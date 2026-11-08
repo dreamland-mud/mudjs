@@ -31,7 +31,7 @@ $('body').on('click', '.builtin-cmd', function (e) {
   const { sysCmd, sysCmdArgs } = splitCommand(cmd.attr('data-action'));
   const command = getSystemCmd(sysCmd);
   echo(cmd.attr('data-echo'));
-  if (!command) return errCmdDoesNotExist;
+  if (!command) return echoHtml(errCmdDoesNotExist());
   Commands[command]['payload'](sysCmdArgs);
 });
 
@@ -235,7 +235,7 @@ const CmdInput = () => {
         Commands[command]['payload'](sysCmdArgs);
         return;
       }
-      return echoHtml(errCmdDoesNotExist);
+      return echoHtml(errCmdDoesNotExist());
     }
 
     const lines = userCommand.split('\n');
