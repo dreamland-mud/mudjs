@@ -40,8 +40,12 @@ const en = {
   'areas.note': 'Note: %s.',
 
   'rooms.title': 'Rooms of this area',
-  'rooms.about': 'The room list of the map, for the area you are in. Pick a room to walk there.',
-  'rooms.nomap': 'The map is not open, so its room list cannot be shown. Open the map window first.',
+  'rooms.about': 'The rooms of the area you are in, from the map. Pick a room to learn about it or walk there.',
+  'rooms.search': 'Search rooms by name',
+  'rooms.here': 'you are here',
+  'rooms.nomap': 'This area has no map yet, so its rooms cannot be listed.',
+  'rooms.noarea': 'Enter the world first: the list shows the rooms of the area you are in.',
+  'rooms.route': '%s, route: run %s',
 
   'items.title': 'Find an item',
   'items.about': 'Weapons, armor, magic items and pets by name in any language, magic items also by their spells. Shows the stats and where each one comes from.',
@@ -197,8 +201,12 @@ const ru = {
   'areas.note': 'Примечание: %s.',
 
   'rooms.title': 'Комнаты этой зоны',
-  'rooms.about': 'Список комнат карты для зоны, где вы находитесь. Выберите комнату, чтобы пойти туда.',
-  'rooms.nomap': 'Карта не открыта, поэтому её список комнат не показать. Сначала откройте окно карты.',
+  'rooms.about': 'Комнаты зоны, где вы находитесь, по карте. Выберите комнату, чтобы узнать о ней или пойти туда.',
+  'rooms.search': 'Поиск комнаты по названию',
+  'rooms.here': 'вы здесь',
+  'rooms.nomap': 'У этой зоны пока нет карты, поэтому её комнаты не показать.',
+  'rooms.noarea': 'Сначала войдите в мир: список показывает комнаты зоны, где вы находитесь.',
+  'rooms.route': '%s, путь: run %s',
 
   'items.title': 'Найти вещь',
   'items.about': 'Оружие, доспехи, магические вещи и питомцы по названию на любом языке, магические вещи и по заклинаниям. Показывает параметры и откуда вещь берётся.',
@@ -354,8 +362,12 @@ const ua = {
   'areas.note': 'Примітка: %s.',
 
   'rooms.title': 'Кімнати цієї зони',
-  'rooms.about': 'Список кімнат карти для зони, де ви перебуваєте. Виберіть кімнату, щоб піти туди.',
-  'rooms.nomap': 'Мапу не відкрито, тому її список кімнат не показати. Спершу відкрийте вікно мапи.',
+  'rooms.about': 'Кімнати зони, де ви перебуваєте, за мапою. Виберіть кімнату, щоб дізнатися про неї або піти туди.',
+  'rooms.search': 'Пошук кімнати за назвою',
+  'rooms.here': 'ви тут',
+  'rooms.nomap': 'Ця зона поки не має мапи, тому її кімнат не показати.',
+  'rooms.noarea': 'Спершу увійдіть у світ: список показує кімнати зони, де ви перебуваєте.',
+  'rooms.route': '%s, шлях: run %s',
 
   'items.title': 'Знайти річ',
   'items.about': 'Зброя, обладунки, магічні речі та улюбленці за назвою будь-якою мовою, магічні речі й за закляттями. Показує параметри і звідки річ береться.',

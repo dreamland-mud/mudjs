@@ -7,8 +7,8 @@ import { t } from '../../i18n';
 import { openFind } from './common';
 import AreasView from './AreasView';
 import $ from 'jquery';
-import { say } from '../speak';
 import ItemsView from './ItemsView';
+import RoomsView from './RoomsView';
 
 registerView('areas', AreasView);
 registerTool({
@@ -21,8 +21,10 @@ registerTool({
 });
 
 // The rooms of this area: the mapper's own room list (the map's List view),
-// which walks to the room picked. Only its key lives here.
+// which walks to the room picked. In the map pane when it is on the screen
+// (and on the phone's map page); otherwise a find window over the same map data.
 export const OPEN_ROOM_LIST = 'map:roomlist';
+registerView('rooms', RoomsView);
 registerTool({
   id: 'rooms',
   label: () => t('rooms.title'),
@@ -30,12 +32,9 @@ registerTool({
   hash: 'rooms',
   help: () => t('rooms.about'),
   run: () => {
-    $(document).trigger(OPEN_ROOM_LIST);
-    // The map window can be closed on a computer: say so, not nothing.
-    setTimeout(() => {
-      const root = document.querySelector('.dl-mapper-root');
-      if (!root || !root.getClientRects().length) say(t('rooms.nomap'));
-    }, 400);
+    const root = document.querySelector('.dl-mapper-root');
+    if (root && root.getClientRects().length) $(document).trigger(OPEN_ROOM_LIST);
+    else openFind('rooms');
   },
 });
 

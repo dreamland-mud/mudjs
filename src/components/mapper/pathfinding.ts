@@ -39,6 +39,24 @@ export function findPath(layout: AreaLayout, fromVnum: number, toVnum: number): 
   return null;
 }
 
+/** The route from one room to every room it can reach in this layout, in one
+ *  search, with the same rules as findPath (no cross-area exits). */
+export function routesFrom(layout: AreaLayout, fromVnum: number): Record<number, PathStep[]> {
+  const routes: Record<number, PathStep[]> = { [fromVnum]: [] };
+  const queue: number[] = [fromVnum];
+  while (queue.length > 0) {
+    const vnum = queue.shift()!;
+    const room = layout.rooms[vnum];
+    if (!room) continue;
+    for (const exit of room.exits) {
+      if (routes[exit.target] || !layout.rooms[exit.target]) continue;
+      routes[exit.target] = [...routes[vnum], { dir: exit.dir, vnum: exit.target }];
+      queue.push(exit.target);
+    }
+  }
+  return routes;
+}
+
 export function pathToSpeedwalk(path: PathStep[]): string {
   return path.map((s) => DIR_LETTERS[s.dir]).join('');
 }
