@@ -1293,12 +1293,16 @@ export default function AccountLogin() {
                       const nm = typeof ch === 'string' ? ch : ch.name;
                       const obj = ch && typeof ch === 'object' ? ch : null;
                       const lvl = obj && obj.level != null ? obj.level : null;
+                      // remorts: count of past lives, sent by engines since 2026-11.
+                      const rem = obj && obj.remorts > 0 ? obj.remorts : 0;
+                      const remText = rem ? at('card_remorts', lang).replace('{n}', rem) : '';
                       const cls = obj && obj.class
                         ? (obj.class[lang] || obj.class.en || '') : '';
                       // The badge is picked off class.en (the engine key), not the
                       // localized label; unmapped or class-less rows keep the letter.
                       const icon = obj && obj.class ? classIconFor(obj.class.en) : null;
-                      const label = nm + (cls ? ', ' + cls : '') + (lvl != null ? ' ' + lvl : '');
+                      const label = nm + (cls ? ', ' + cls : '') + (lvl != null ? ' ' + lvl : '')
+                        + (remText ? ', ' + remText : '');
                       return (
                         <button key={nm} className="acc-card" onClick={() => enterAs(nm)} aria-label={label}>
                           {icon
@@ -1310,7 +1314,12 @@ export default function AccountLogin() {
                             <span className="acc-card-name">{nm}</span>
                             {cls && <span className="acc-card-cls" aria-hidden="true">{cls}</span>}
                           </span>
-                          {lvl != null && <span className="acc-card-lvl" aria-hidden="true">{lvl}</span>}
+                          {lvl != null && (
+                            <span className="acc-card-lvlbox" aria-hidden="true">
+                              <span className="acc-card-lvl">{lvl}</span>
+                              {remText && <span className="acc-card-rem">{remText}</span>}
+                            </span>
+                          )}
                         </button>
                       );
                     })}
