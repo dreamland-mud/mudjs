@@ -227,10 +227,10 @@ export default function Help() {
         {t('help.title', lang)}
       </span>
       <button className="close" type="button" data-toggle="collapse" data-target="#help-table"
-        aria-label={t('help.title', lang)} aria-controls="help-table">
+        aria-label={t('help.title', lang)} aria-controls="help-table" aria-expanded="true">
         {' '}
       </button>
-      <div id="help-table" className="help-row">
+      <div id="help-table" className="help-row collapse show">
         <span className="fa fa-search form-control-feedback"></span>
         <input
           ref={inputRef}
