@@ -515,11 +515,23 @@
 }
 .acc-card-title { font-size: 11px; color: var(--text-dim, #b7ad95); }
 
-/* level, large and alone on the right edge */
-.acc-card-lvl {
+/* level, large on the right edge; remort count small beneath it */
+.acc-card-lvlbox {
   margin-left: auto;
   flex: none;
   padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.acc-card-rem {
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text-dim, #b7ad95);
+}
+.acc-card-lvl {
   font-family: var(--display, serif);
   font-size: 26px;
   line-height: 1;
