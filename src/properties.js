@@ -30,4 +30,8 @@ if (Object.keys(PropertiesStorage).length !== Object.keys(DEFAULT_PROPERTIES).le
     localStorage.properties = JSON.stringify(PropertiesStorage)
 }
 
+// Editors open at the main window's text size, so the +/- buttons scale them too
+// (and a phone that shrank the terminal gets a small editor).
+export const editorFontSize = () => parseFloat(PropertiesStorage.terminalFontSize) || 16
+
 export default PropertiesStorage

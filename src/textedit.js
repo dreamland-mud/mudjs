@@ -5,6 +5,7 @@ import { rpccmd } from './websock';
 import { defineMonokai } from './monaco-monokai.js';
 import { t } from './i18n';
 import { screenreaderOn } from './review';
+import { editorFontSize } from './properties';
 
 let monacoEditor;
 
@@ -169,6 +170,9 @@ $(document).ready(function () {
 
     $('#rpc-events').on('rpc-editor_open', function (e, text, arg) {
       applyLabels();
+      const fontSize = editorFontSize();
+      monacoEditor.updateOptions({ fontSize });
+      plainBox().css('font-size', fontSize + 'px');
       monacoEditor.setValue(text || '');
       plainBox().val(text || '');
       const plain = loadPlainPref();
