@@ -2,6 +2,7 @@ import $ from 'jquery';
 import loader from '@monaco-editor/loader';
 import { rpccmd } from './websock.js';
 import { defineMonokai } from './monaco-monokai.js';
+import { editorFontSize } from './properties';
 
 function fixindent(fn, str) {
   const lines = str.replace(/\r/g, '').split('\n');
@@ -181,6 +182,7 @@ $(document).ready(function () {
     });
 
     $('#rpc-events').on('rpc-cs_edit', function (e, subj, body) {
+      monacoEditor.updateOptions({ fontSize: editorFontSize() });
       if (subj) $('#cs-subject').val(subj);
       if (body) openFileTab(subj || 'file.js', fixindent(tabsize8to4, body));
       $('#cs-modal').modal('show');
