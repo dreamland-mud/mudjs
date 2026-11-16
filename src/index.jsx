@@ -5,6 +5,7 @@ import SettingsDialog from './components/settings/SettingsDialog.jsx';
 import HelpSheet from './components/helpSheet/HelpSheet.jsx';
 import ToolsHost from './port/ToolsHost.jsx';
 import './port/index.js';
+import './ambience.js';
 
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
