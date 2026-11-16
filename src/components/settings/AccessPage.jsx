@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { t, addStrings } from '../../i18n.js';
 import { runTool } from '../../port/tools';
+import { targetChimeOn } from '../../port/sounds';
 import { reviewEnabled, setReviewEnabled, IS_PHONE } from '../../review';
 import { announceSheet } from '../../sheets';
 
@@ -13,7 +14,7 @@ const openWindow = id => {
 
 // Accessibility: every switch of the tools from the desktop client, in plain
 // words, so nobody has to know a #command. Each one is the same switch as its
-// command (#lists, #exittones, #roomsounds, Ctrl+Shift+S, #review) and is kept
+// command (#lists, #exittones, #roomsounds, #targetchime, Ctrl+Shift+S, #review) and is kept
 // in this browser.
 
 addStrings({
@@ -27,6 +28,7 @@ addStrings({
     'acc.speech': 'Speak new output',
     'acc.tones': 'Play a sound for each exit when you move',
     'acc.room': 'Play sounds for players, creatures and items in a room',
+    'acc.target': 'Chime when your quest target is in the room',
     'acc.filter': 'Words not to speak',
   },
   ru: {
@@ -39,6 +41,7 @@ addStrings({
     'acc.speech': 'Озвучивать новый вывод',
     'acc.tones': 'Звук для каждого выхода при движении',
     'acc.room': 'Звуки для игроков, существ и предметов в комнате',
+    'acc.target': 'Сигнал, когда в комнате цель задания',
     'acc.filter': 'Слова, которые не озвучивать',
   },
   ua: {
@@ -51,6 +54,7 @@ addStrings({
     'acc.speech': 'Озвучувати новий вивід',
     'acc.tones': 'Звук для кожного виходу під час руху',
     'acc.room': 'Звуки для гравців, істот і предметів у кімнаті',
+    'acc.target': 'Сигнал, коли в кімнаті ціль завдання',
     'acc.filter': 'Слова, які не озвучувати',
   },
 });
@@ -69,6 +73,7 @@ const state = () => ({
   speech: read('mudjs.speechOff') !== '1',
   tones: read('mudjs.exitTones') === '1',
   room: read('mudjs.roomSounds') === '1',
+  target: targetChimeOn(),
 });
 
 function Switch({ id, label, hint, on, onToggle }) {
@@ -122,6 +127,7 @@ export default function AccessPage({ lang }) {
       <Switch id="acc-speech" label={t('acc.speech', lang)} on={s.speech} onToggle={tool('out-speech')} />
       <Switch id="acc-tones" label={t('acc.tones', lang)} on={s.tones} onToggle={tool('exittones', s.tones ? 'off' : 'on')} />
       <Switch id="acc-room" label={t('acc.room', lang)} on={s.room} onToggle={tool('roomsounds', s.room ? 'off' : 'on')} />
+      <Switch id="acc-target" label={t('acc.target', lang)} on={s.target} onToggle={tool('targetchime', s.target ? 'off' : 'on')} />
       <div className="ab-item">
         <button type="button" className="cfg-button" onClick={() => openWindow('out-speechfilter')}>
           {t('acc.filter', lang)}

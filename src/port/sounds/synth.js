@@ -32,11 +32,12 @@ function audio() {
   )
 );
 
-/* 0..1 from the sound settings: nothing when muted. */
-function volume() {
+/* 0..1 from the sound settings for a type ("ui" unless told): nothing when
+ * muted. */
+function volume(kind = 'ui') {
   const p = getSoundPrefs();
   if (p.mute) return 0;
-  const type = p.types && p.types.ui !== undefined ? p.types.ui : 100;
+  const type = p.types && p.types[kind] !== undefined ? p.types[kind] : 100;
   return (p.master / 100) * (type / 100);
 }
 
@@ -83,9 +84,10 @@ const EXIT_NAMES = { n: 'north', e: 'east', s: 'south', w: 'west', u: 'up', d: '
 
 /* Fetch and decode every sound before it is needed, so the first one of a
  * kind is not late. */
-export function preload() {
+export function preload(targetOnly = false) {
   const c = audio();
   if (!c) return;
+  if (targetOnly) return load(c, 'room/target');
   Object.values(EXIT_NAMES).forEach(n => load(c, 'exits/' + n));
   ['target', 'player', 'mob', 'item'].forEach(k => load(c, 'room/' + k));
 }
@@ -116,4 +118,12 @@ export function playRoom(kinds, delay = 0) {
   const c = v > 0 && kinds.length ? audio() : null;
   if (!c) return;
   kinds.forEach(kind => play(c, 'room/' + kind, delay, (ROOM_LEVEL[kind] || EXIT_LEVEL) * v));
+}
+
+/* The quest-target chime alone, for players with room sounds off: at the
+ * "alert" volume, as the event it is. */
+export function playTarget() {
+  const v = volume('alert');
+  const c = v > 0 ? audio() : null;
+  if (c) play(c, 'room/target', 0, EXIT_LEVEL * v);
 }

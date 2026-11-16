@@ -1,5 +1,6 @@
-/* Exit tones and room sounds, both off until the player turns them on, and
- * keys for mute and the master volume.
+/* Exit tones and room sounds, both off until the player turns them on, the
+ * quest-target chime, on unless turned off, and keys for mute and the master
+ * volume.
  *
  * Exit tones: on each move a short tone per visible exit of the prompt.
  * Room sounds: as soon as the room's text has come in (the output ends without
@@ -15,10 +16,13 @@ import { registerTool } from '../tools';
 import { prompt } from '../game';
 import { say as speak } from '../speak';
 import './strings';
-import { EXIT_ORDER, playExits, playRoom, ROOM_ORDER, preload } from './synth';
+import { EXIT_ORDER, playExits, playRoom, playTarget, ROOM_ORDER, preload } from './synth';
 
 const TONES_KEY = 'mudjs.exitTones';
 const ROOM_KEY = 'mudjs.roomSounds';
+// The quest-target chime on its own, for players who keep room sounds off.
+// On by default: only a stored '0' turns it off.
+const TARGET_KEY = 'mudjs.targetChime';
 // Any player, creature or item line in the text within this long of a move
 // counts as being in the room, so a say from someone elsewhere in that moment
 // counts as a player here too. Accepted: the game marks no room boundary.
@@ -26,13 +30,16 @@ const ROOM_WAIT_MS = 800;
 const QUIET_MS = 40;
 let quietTimer = null;
 
-function flag(key) {
+function flag(key, dflt = false) {
   try {
-    return localStorage.getItem(key) === '1';
+    const v = localStorage.getItem(key);
+    return v === null ? dflt : v === '1';
   } catch (e) {
-    return false;
+    return dflt;
   }
 }
+
+export const targetChimeOn = () => flag(TARGET_KEY, true);
 
 function setFlag(key, on) {
   try {
@@ -94,11 +101,14 @@ function finishRoom() {
   const text = collecting;
   collecting = null;
   roomTimer = null;
-  if (text == null || !flag(ROOM_KEY)) return;
+  if (text == null) return;
   const present = classify(text);
-  const kinds = ROOM_ORDER.filter(k => present.has(k));
-  // At once, over the exit tones if they still play, as the desktop does.
-  playRoom(kinds);
+  if (flag(ROOM_KEY)) {
+    const kinds = ROOM_ORDER.filter(k => present.has(k));
+    // At once, over the exit tones if they still play, as the desktop does.
+    // The target is among them: no separate chime on top.
+    playRoom(kinds);
+  } else if (present.has('target') && targetChimeOn()) playTarget();
 }
 
 function onRoom(vnum, frameExits) {
@@ -107,6 +117,7 @@ function onRoom(vnum, frameExits) {
   if (String(vnum) === String(room)) return;
   room = String(vnum);
   if (flag(TONES_KEY) || flag(ROOM_KEY)) preload();
+  else if (targetChimeOn() && !getSoundPrefs().mute) preload(true);
   if (first) return;
 
   if (flag(TONES_KEY)) {
@@ -118,7 +129,7 @@ function onRoom(vnum, frameExits) {
   clearTimeout(roomTimer);
   clearTimeout(quietTimer);
   collecting = null;
-  if (flag(ROOM_KEY)) {
+  if (flag(ROOM_KEY) || targetChimeOn()) {
     collecting = '';
     roomTimer = setTimeout(finishRoom, ROOM_WAIT_MS);
   }
@@ -162,9 +173,9 @@ $(document).ready(() => {
 /* ---- toggles and keys ---------------------------------------------------- */
 
 
-function toggle(key, arg, onText, offText) {
+function toggle(key, arg, onText, offText, dflt = false) {
   const a = String(arg || '').toLowerCase();
-  const on = a === 'on' ? true : a === 'off' ? false : !flag(key);
+  const on = a === 'on' ? true : a === 'off' ? false : !flag(key, dflt);
   setFlag(key, on);
   speak(t(on ? onText : offText));
 }
@@ -183,6 +194,14 @@ registerTool({
   hash: 'roomsounds',
   help: () => t('snd.room.help'),
   run: arg => toggle(ROOM_KEY, arg, 'snd.room.on', 'snd.room.off'),
+});
+
+registerTool({
+  id: 'targetchime',
+  label: () => t('snd.target'),
+  hash: 'targetchime',
+  help: () => t('snd.target.help'),
+  run: arg => toggle(TARGET_KEY, arg, 'snd.target.on', 'snd.target.off', true),
 });
 
 registerTool({

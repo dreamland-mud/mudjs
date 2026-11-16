@@ -43,6 +43,20 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "alert/charmed",
+   "type": "alert",
+   "file": "alert/charmed.mp3",
+   "label": {
+    "en": "Enchanted",
+    "ru": "Чары",
+    "ua": "Чари"
+   },
+   "title": "Mysterious Sparkle Flourish",
+   "author": "SkySpeira",
+   "source": "https://freesound.org/people/SkySpeira/sounds/844398/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "alert/gquest",
    "type": "alert",
    "file": "alert/gquest.mp3",
@@ -57,6 +71,20 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "alert/hunger",
+   "type": "alert",
+   "file": "alert/hunger.mp3",
+   "label": {
+    "en": "Hungry stomach",
+    "ru": "Урчание в животе",
+    "ua": "Бурчання в животі"
+   },
+   "title": "fav.stomach.growl.mp3",
+   "author": "CropDub6425",
+   "source": "https://freesound.org/people/CropDub6425/sounds/703168/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "alert/lowhp",
    "type": "alert",
    "file": "alert/lowhp.mp3",
@@ -68,6 +96,34 @@
    "title": "heartbeat.wav",
    "author": "PollyannaMedia",
    "source": "https://freesound.org/people/PollyannaMedia/sounds/541434/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "alert/malediction",
+   "type": "alert",
+   "file": "alert/malediction.mp3",
+   "label": {
+    "en": "Curse lands",
+    "ru": "Проклятие",
+    "ua": "Прокляття"
+   },
+   "title": "Energy Drain",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/742835/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "alert/pk",
+   "type": "alert",
+   "file": "alert/pk.mp3",
+   "label": {
+    "en": "Player attack",
+    "ru": "Нападение игрока",
+    "ua": "Напад гравця"
+   },
+   "title": "Middle Ages War Cry 3.wav",
+   "author": "joelcarrsound",
+   "source": "https://freesound.org/people/joelcarrsound/sounds/521831/",
    "license": "CC0 1.0"
   },
   {
@@ -113,6 +169,90 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "alert/reboot",
+   "type": "alert",
+   "file": "alert/reboot.mp3",
+   "label": {
+    "en": "Reboot alarm",
+    "ru": "Тревога перезагрузки",
+    "ua": "Тривога перезавантаження"
+   },
+   "title": "dive.wav",
+   "author": "mkjunker",
+   "source": "https://freesound.org/people/mkjunker/sounds/156672/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "alert/shielddown",
+   "type": "alert",
+   "file": "alert/shielddown.mp3",
+   "label": {
+    "en": "Shield collapses",
+    "ru": "Щит рушится",
+    "ua": "Щит розсипається"
+   },
+   "title": "magicShield_down.wav",
+   "author": "rafaelzimrp",
+   "source": "https://freesound.org/people/rafaelzimrp/sounds/570852/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "alert/summoned",
+   "type": "alert",
+   "file": "alert/summoned.mp3",
+   "label": {
+    "en": "Pulled away",
+    "ru": "Тебя перенесло",
+    "ua": "Тебе перенесло"
+   },
+   "title": "Fast Warp In",
+   "author": "GammaGool",
+   "source": "https://freesound.org/people/GammaGool/sounds/735062/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "alert/wearoff",
+   "type": "alert",
+   "file": "alert/wearoff.mp3",
+   "label": {
+    "en": "Protection fades",
+    "ru": "Защита гаснет",
+    "ua": "Захист згасає"
+   },
+   "title": "Power Down",
+   "author": "noirenex",
+   "source": "https://freesound.org/people/noirenex/sounds/159399/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/cave",
+   "type": "ambient",
+   "file": "ambient/cave.mp3",
+   "label": {
+    "en": "Cave",
+    "ru": "Пещера",
+    "ua": "Печера"
+   },
+   "title": "Underwater Cave Ambience",
+   "author": "TommyListens",
+   "source": "https://freesound.org/people/TommyListens/sounds/839819/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/city",
+   "type": "ambient",
+   "file": "ambient/city.mp3",
+   "label": {
+    "en": "City",
+    "ru": "Город",
+    "ua": "Місто"
+   },
+   "title": "Town Square Ambience.aif",
+   "author": "ftpalad",
+   "source": "https://freesound.org/people/ftpalad/sounds/119934/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "ambient/fire",
    "type": "ambient",
    "file": "ambient/fire.mp3",
@@ -121,9 +261,9 @@
     "ru": "Костер",
     "ua": "Багаття"
    },
-   "title": "Fireplace",
-   "author": "myLoop",
-   "source": "https://freesound.org/people/myLoop/sounds/852107/",
+   "title": "Ambiance_Campfire_Loop_Stereo.wav",
+   "author": "Nox_Sound",
+   "source": "https://freesound.org/people/Nox_Sound/sounds/558967/",
    "license": "CC0 1.0"
   },
   {
@@ -141,6 +281,34 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "ambient/thunder",
+   "type": "ambient",
+   "file": "ambient/thunder.mp3",
+   "label": {
+    "en": "Thunder",
+    "ru": "Гром",
+    "ua": "Грім"
+   },
+   "title": "thunder5.ogg",
+   "author": "Josh74000MC",
+   "source": "https://freesound.org/people/Josh74000MC/sounds/477839/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/water",
+   "type": "ambient",
+   "file": "ambient/water.mp3",
+   "label": {
+    "en": "Underwater",
+    "ru": "Под водой",
+    "ua": "Під водою"
+   },
+   "title": "Underwater Ambience",
+   "author": "Fission9",
+   "source": "https://freesound.org/people/Fission9/sounds/504641/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "ambient/wind",
    "type": "ambient",
    "file": "ambient/wind.mp3",
@@ -149,9 +317,23 @@
     "ru": "Ветер",
     "ua": "Вітер"
    },
-   "title": "Mount Horeb",
-   "author": "InChristAlone",
-   "source": "https://freesound.org/people/InChristAlone/sounds/615440/",
+   "title": "Ambiance_Wind_Forest_Calm_Loop_Stereo.wav",
+   "author": "Nox_Sound",
+   "source": "https://freesound.org/people/Nox_Sound/sounds/506910/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/wind_forest",
+   "type": "ambient",
+   "file": "ambient/wind_forest.mp3",
+   "label": {
+    "en": "Wind in the trees",
+    "ru": "Ветер в лесу",
+    "ua": "Вітер у лісі"
+   },
+   "title": "Ambiance_Wind_Trees_Strong_Loop_Stereo.wav",
+   "author": "Nox_Sound",
+   "source": "https://freesound.org/people/Nox_Sound/sounds/544853/",
    "license": "CC0 1.0"
   },
   {
@@ -197,6 +379,20 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "combat/break",
+   "type": "combat",
+   "file": "combat/break.mp3",
+   "label": {
+    "en": "Something breaks",
+    "ru": "Что-то ломается",
+    "ua": "Щось ламається"
+   },
+   "title": "Sword_Clash (2).wav",
+   "author": "JohnBuhr",
+   "source": "https://freesound.org/people/JohnBuhr/sounds/326841/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "combat/crit",
    "type": "combat",
    "file": "combat/crit.mp3",
@@ -208,6 +404,20 @@
    "title": "Slash1.ogg",
    "author": "Wenpire",
    "source": "https://freesound.org/people/Wenpire/sounds/574821/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/death",
+   "type": "combat",
+   "file": "combat/death.mp3",
+   "label": {
+    "en": "Death knell",
+    "ru": "Похоронный звон",
+    "ua": "Похоронний дзвін"
+   },
+   "title": "TollBell.wav",
+   "author": "daytripper",
+   "source": "https://freesound.org/people/daytripper/sounds/73678/",
    "license": "CC0 1.0"
   },
   {
@@ -267,6 +477,20 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "combat/kill",
+   "type": "combat",
+   "file": "combat/kill.mp3",
+   "label": {
+    "en": "Mighty foe slain",
+    "ru": "Сильный враг повержен",
+    "ua": "Сильного ворога повалено"
+   },
+   "title": "Mutant Scream",
+   "author": "scorpion67890",
+   "source": "https://freesound.org/people/scorpion67890/sounds/396797/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "combat/miss",
    "type": "combat",
    "file": "combat/miss.mp3",
@@ -292,6 +516,34 @@
    "title": "Sword_Clash (2).wav",
    "author": "JohnBuhr",
    "source": "https://freesound.org/people/JohnBuhr/sounds/326841/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/phase",
+   "type": "combat",
+   "file": "combat/phase.mp3",
+   "label": {
+    "en": "Boss phase",
+    "ru": "Фаза босса",
+    "ua": "Фаза боса"
+   },
+   "title": "Apocalyptic Cinematic Brass Braam Impact",
+   "author": "brktkrgll",
+   "source": "https://freesound.org/people/brktkrgll/sounds/856173/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/phase_legend",
+   "type": "combat",
+   "file": "combat/phase_legend.mp3",
+   "label": {
+    "en": "Legend phase",
+    "ru": "Фаза легенды",
+    "ua": "Фаза легенди"
+   },
+   "title": "Horn of Doom",
+   "author": "michalwa2003",
+   "source": "https://freesound.org/people/michalwa2003/sounds/391133/",
    "license": "CC0 1.0"
   },
   {
@@ -323,6 +575,20 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "music/fight",
+   "type": "music",
+   "file": "music/fight.mp3",
+   "label": {
+    "en": "Battle drums",
+    "ru": "Боевые барабаны",
+    "ua": "Бойові барабани"
+   },
+   "title": "Tribe Drum Loop",
+   "author": "PearceWilsonKing",
+   "source": "https://freesound.org/people/PearceWilsonKing/sounds/342465/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "ui/click",
    "type": "ui",
    "file": "ui/click.mp3",
@@ -348,6 +614,20 @@
    "title": "acess denied buzz",
    "author": "Jacco18",
    "source": "https://freesound.org/people/Jacco18/sounds/419023/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ui/levelstat",
+   "type": "ui",
+   "file": "ui/levelstat.mp3",
+   "label": {
+    "en": "Soft chime",
+    "ru": "Тихий звон",
+    "ua": "Тихий дзвін"
+   },
+   "title": "Soft-Notifications - Bell - Ding-Dong.mp3",
+   "author": "LegitCheese",
+   "source": "https://freesound.org/people/LegitCheese/sounds/571513/",
    "license": "CC0 1.0"
   },
   {

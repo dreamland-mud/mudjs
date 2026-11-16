@@ -12,6 +12,8 @@
 // Effects share one channel with MSP priority: a new sound stops the one that
 // is playing only if its priority is strictly higher, so a fight does not turn
 // into a mush of half-sounds. Music is a second channel, one track at a time.
+// The server's background loops (the 'ambience' frame) are a separate layer
+// in ambience.js and never touch either channel.
 //
 // Volume is this device's business, not the character's: master, per-type and
 // mute live in localStorage under mudjs.sound.
@@ -26,7 +28,7 @@ import $ from 'jquery';
 const BASE = import.meta.env.BASE_URL + 'sounds/';
 const PREFS_KEY = 'mudjs.sound';
 
-export const SOUND_TYPES = ['combat', 'alert', 'chat', 'ui', 'ambient'];
+export const SOUND_TYPES = ['combat', 'alert', 'chat', 'ui', 'ambient', 'music'];
 
 const DEFAULT_PREFS = {
   mute: false,
@@ -41,6 +43,7 @@ let libraryLoad = null;
 let effect = null; // { audio, priority }
 let mspOn = false;
 let music = null; // { audio, name }
+const prefsListeners = [];
 
 function loadPrefs() {
   try {
@@ -66,6 +69,29 @@ export function setSoundPrefs(next) {
   }
   if (prefs.mute) stopAll();
   else applyVolumes();
+  prefsListeners.forEach(fn => fn(prefs));
+}
+
+/** Call fn(prefs) after every change of the sound settings (the ambience
+ *  layer follows the sliders and mute live). */
+export function onSoundPrefs(fn) {
+  prefsListeners.push(fn);
+}
+
+/** The library entry with exactly this name, or null (library not loaded yet,
+ *  or no such sound). */
+export function findSound(name) {
+  return (library && library.find(s => s.name === name)) || null;
+}
+
+/** Every library entry whose name matches re. */
+export function findSounds(re) {
+  return library ? library.filter(s => re.test(s.name)) : [];
+}
+
+/** URL of a library entry's file. */
+export function soundUrl(entry) {
+  return BASE + entry.file;
 }
 
 /** The library, loaded once. Resolves to [] when the manifest is missing. */
@@ -105,7 +131,8 @@ function resolve(name) {
   return hits[Math.floor(Math.random() * hits.length)];
 }
 
-function gain(type, v) {
+/** 0..1 for a sound type at volume v (0-100): master * type * v, 0 when muted. */
+export function gain(type, v = 100) {
   if (prefs.mute) return 0;
   const t = prefs.types[type] !== undefined ? prefs.types[type] : 100;
   return (prefs.master / 100) * (t / 100) * (v / 100);
