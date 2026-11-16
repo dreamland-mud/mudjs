@@ -85,6 +85,20 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "alert/levelup",
+   "type": "alert",
+   "file": "alert/levelup.mp3",
+   "label": {
+    "en": "Level up",
+    "ru": "Новый уровень",
+    "ua": "Новий рівень"
+   },
+   "title": "Treasure Chest Reveal",
+   "author": "Qvantor",
+   "source": "https://freesound.org/people/Qvantor/sounds/878615/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "alert/lowhp",
    "type": "alert",
    "file": "alert/lowhp.mp3",
@@ -415,9 +429,9 @@
     "ru": "Похоронный звон",
     "ua": "Похоронний дзвін"
    },
-   "title": "TollBell.wav",
-   "author": "daytripper",
-   "source": "https://freesound.org/people/daytripper/sounds/73678/",
+   "title": "Tubular Bell of Death",
+   "author": "ani_music",
+   "source": "https://freesound.org/people/ani_music/sounds/165331/",
    "license": "CC0 1.0"
   },
   {
@@ -586,6 +600,1364 @@
    "title": "Tribe Drum Loop",
    "author": "PearceWilsonKing",
    "source": "https://freesound.org/people/PearceWilsonKing/sounds/342465/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/acid",
+   "type": "spell",
+   "file": "spell/acid.mp3",
+   "label": {
+    "en": "Spell: acid",
+    "ru": "Заклинание: кислота",
+    "ua": "Заклинання: кислота"
+   },
+   "title": "cig_extinguish.wav",
+   "author": "the_semen_incident",
+   "source": "https://freesound.org/people/the_semen_incident/sounds/155660/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/acid_2",
+   "type": "spell",
+   "file": "spell/acid_2.mp3",
+   "label": {
+    "en": "Spell: acid 2",
+    "ru": "Заклинание: кислота 2",
+    "ua": "Заклинання: кислота 2"
+   },
+   "title": "Death by burn-acid.wav",
+   "author": "coppoler",
+   "source": "https://freesound.org/people/coppoler/sounds/699467/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/arcane",
+   "type": "spell",
+   "file": "spell/arcane.mp3",
+   "label": {
+    "en": "Spell: arcane",
+    "ru": "Заклинание: чистая магия",
+    "ua": "Заклинання: чиста магія"
+   },
+   "title": "Soft Magic Spell Cast Whoosh (Fantasy RPG)",
+   "author": "Assetsmith",
+   "source": "https://freesound.org/people/Assetsmith/sounds/876167/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/arcane_2",
+   "type": "spell",
+   "file": "spell/arcane_2.mp3",
+   "label": {
+    "en": "Spell: arcane 2",
+    "ru": "Заклинание: чистая магия 2",
+    "ua": "Заклинання: чиста магія 2"
+   },
+   "title": "Magic Dispell",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/817464/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/arcane_3",
+   "type": "spell",
+   "file": "spell/arcane_3.mp3",
+   "label": {
+    "en": "Spell: arcane 3",
+    "ru": "Заклинание: чистая магия 3",
+    "ua": "Заклинання: чиста магія 3"
+   },
+   "title": "\"Success\" / \"Level Passed\" Videogame UI Sound",
+   "author": "Nomagician",
+   "source": "https://freesound.org/people/Nomagician/sounds/833634/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/bat_swarm",
+   "type": "spell",
+   "file": "spell/bat_swarm.mp3",
+   "label": {
+    "en": "Spell: bat swarm",
+    "ru": "Заклинание: летучие мыши",
+    "ua": "Заклинання: кажани"
+   },
+   "title": "bird_flapping_7.wav",
+   "author": "Clusman",
+   "source": "https://freesound.org/people/Clusman/sounds/543115/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/benediction",
+   "type": "spell",
+   "file": "spell/benediction.mp3",
+   "label": {
+    "en": "Spell: benediction",
+    "ru": "Заклинание: благость",
+    "ua": "Заклинання: благодать"
+   },
+   "title": "Vocal_chord.wav",
+   "author": "cellokratzer",
+   "source": "https://freesound.org/people/cellokratzer/sounds/502947/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/blades",
+   "type": "spell",
+   "file": "spell/blades.mp3",
+   "label": {
+    "en": "Spell: blades",
+    "ru": "Заклинание: клинки",
+    "ua": "Заклинання: клинки"
+   },
+   "title": "Unsheathed blade",
+   "author": "deleted_user_2906614",
+   "source": "https://freesound.org/people/deleted_user_2906614/sounds/320521/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/breath_acid",
+   "type": "spell",
+   "file": "spell/breath_acid.mp3",
+   "label": {
+    "en": "Spell: acid breath",
+    "ru": "Заклинание: кислотное дыхание",
+    "ua": "Заклинання: кислотний подих"
+   },
+   "title": "8 Bit Sizzle",
+   "author": "Jofae",
+   "source": "https://freesound.org/people/Jofae/sounds/361211/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/breath_fire",
+   "type": "spell",
+   "file": "spell/breath_fire.mp3",
+   "label": {
+    "en": "Spell: fire breath",
+    "ru": "Заклинание: огненное дыхание",
+    "ua": "Заклинання: вогняний подих"
+   },
+   "title": "Dragon Breathing Fire",
+   "author": "Spennnyyy",
+   "source": "https://freesound.org/people/Spennnyyy/sounds/323496/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/breath_gas",
+   "type": "spell",
+   "file": "spell/breath_gas.mp3",
+   "label": {
+    "en": "Spell: gas breath",
+    "ru": "Заклинание: выхлоп газа",
+    "ua": "Заклинання: вихлоп газу"
+   },
+   "title": "Monster (Sneezing)",
+   "author": "moodyfingers",
+   "source": "https://freesound.org/people/moodyfingers/sounds/715406/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/breath_lightning",
+   "type": "spell",
+   "file": "spell/breath_lightning.mp3",
+   "label": {
+    "en": "Spell: lightning breath",
+    "ru": "Заклинание: дыхание молний",
+    "ua": "Заклинання: подих блискавок"
+   },
+   "title": "Electric Zap Loop",
+   "author": "Resaural",
+   "source": "https://freesound.org/people/Resaural/sounds/531421/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/creation",
+   "type": "spell",
+   "file": "spell/creation.mp3",
+   "label": {
+    "en": "Spell: creation",
+    "ru": "Заклинание: сотворение",
+    "ua": "Заклинання: створення"
+   },
+   "title": "Magic disappearing/appearing",
+   "author": "Tetoszka",
+   "source": "https://freesound.org/people/Tetoszka/sounds/538013/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/creation_2",
+   "type": "spell",
+   "file": "spell/creation_2.mp3",
+   "label": {
+    "en": "Spell: creation 2",
+    "ru": "Заклинание: сотворение 2",
+    "ua": "Заклинання: створення 2"
+   },
+   "title": "Woosh",
+   "author": "florianreichelt",
+   "source": "https://freesound.org/people/florianreichelt/sounds/683096/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/creation_3",
+   "type": "spell",
+   "file": "spell/creation_3.mp3",
+   "label": {
+    "en": "Spell: creation 3",
+    "ru": "Заклинание: сотворение 3",
+    "ua": "Заклинання: створення 3"
+   },
+   "title": "Force Field 01.wav",
+   "author": "LilMati",
+   "source": "https://freesound.org/people/LilMati/sounds/702771/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/dark_shroud",
+   "type": "spell",
+   "file": "spell/dark_shroud.mp3",
+   "label": {
+    "en": "Spell: dark shroud",
+    "ru": "Заклинание: темная аура",
+    "ua": "Заклинання: темна аура"
+   },
+   "title": "Dark Whoosh Transition Horror 01",
+   "author": "TommasoMotteran",
+   "source": "https://freesound.org/people/TommasoMotteran/sounds/850424/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/disintegrate",
+   "type": "spell",
+   "file": "spell/disintegrate.mp3",
+   "label": {
+    "en": "Spell: disintegrate",
+    "ru": "Заклинание: дезинтеграция",
+    "ua": "Заклинання: дезінтеграція"
+   },
+   "title": "Laser Beam Hits And Disintegrates Object.wav",
+   "author": "Glitchedtones",
+   "source": "https://freesound.org/people/Glitchedtones/sounds/375922/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/dispel",
+   "type": "spell",
+   "file": "spell/dispel.mp3",
+   "label": {
+    "en": "Spell: dispel affects",
+    "ru": "Заклинание: снятие воздействий",
+    "ua": "Заклинання: зняття впливів"
+   },
+   "title": "Power Down",
+   "author": "noirenex",
+   "source": "https://freesound.org/people/noirenex/sounds/159399/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/dispel_2",
+   "type": "spell",
+   "file": "spell/dispel_2.mp3",
+   "label": {
+    "en": "Spell: dispel affects 2",
+    "ru": "Заклинание: снятие воздействий 2",
+    "ua": "Заклинання: зняття впливів 2"
+   },
+   "title": "magicShield_down.wav",
+   "author": "rafaelzimrp",
+   "source": "https://freesound.org/people/rafaelzimrp/sounds/570852/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/dispel_3",
+   "type": "spell",
+   "file": "spell/dispel_3.mp3",
+   "label": {
+    "en": "Spell: dispel affects 3",
+    "ru": "Заклинание: снятие воздействий 3",
+    "ua": "Заклинання: зняття впливів 3"
+   },
+   "title": "Force Field Knock",
+   "author": "modusmogulus",
+   "source": "https://freesound.org/people/modusmogulus/sounds/787866/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/earthquake",
+   "type": "spell",
+   "file": "spell/earthquake.mp3",
+   "label": {
+    "en": "Spell: earthquake",
+    "ru": "Заклинание: землетрясение",
+    "ua": "Заклинання: землетрус"
+   },
+   "title": "Smashed/demolished brick wall crumbling/caving in",
+   "author": "Squirrel_404",
+   "source": "https://freesound.org/people/Squirrel_404/sounds/829103/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/earthquake_2",
+   "type": "spell",
+   "file": "spell/earthquake_2.mp3",
+   "label": {
+    "en": "Spell: earthquake 2",
+    "ru": "Заклинание: землетрясение 2",
+    "ua": "Заклинання: землетрус 2"
+   },
+   "title": "Retro Bit Explosion",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/814052/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/enchant",
+   "type": "spell",
+   "file": "spell/enchant.mp3",
+   "label": {
+    "en": "Spell: enchantment",
+    "ru": "Заклинание: зачарование",
+    "ua": "Заклинання: зачарування"
+   },
+   "title": "Magic, Spell, Sorcery, Enchant, Appear, Ghost",
+   "author": "julianmateo_",
+   "source": "https://freesound.org/people/julianmateo_/sounds/522694/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/enchant_2",
+   "type": "spell",
+   "file": "spell/enchant_2.mp3",
+   "label": {
+    "en": "Spell: enchantment 2",
+    "ru": "Заклинание: зачарование 2",
+    "ua": "Заклинання: зачарування 2"
+   },
+   "title": "Magic Enchantment",
+   "author": "GammaGool",
+   "source": "https://freesound.org/people/GammaGool/sounds/739444/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/enhancement",
+   "type": "spell",
+   "file": "spell/enhancement.mp3",
+   "label": {
+    "en": "Spell: enhancement",
+    "ru": "Заклинание: усиление",
+    "ua": "Заклинання: посилення"
+   },
+   "title": "Spell Cast / Buff / High Tone",
+   "author": "SypherZent",
+   "source": "https://freesound.org/people/SypherZent/sounds/420676/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/enhancement_2",
+   "type": "spell",
+   "file": "spell/enhancement_2.mp3",
+   "label": {
+    "en": "Spell: enhancement 2",
+    "ru": "Заклинание: усиление 2",
+    "ua": "Заклинання: посилення 2"
+   },
+   "title": "rpgPowerup.wav",
+   "author": "colorsCrimsonTears",
+   "source": "https://freesound.org/people/colorsCrimsonTears/sounds/577965/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/enhancement_3",
+   "type": "spell",
+   "file": "spell/enhancement_3.mp3",
+   "label": {
+    "en": "Spell: enhancement 3",
+    "ru": "Заклинание: усиление 3",
+    "ua": "Заклинання: посилення 3"
+   },
+   "title": "Bouncing Power Up 1_2",
+   "author": "Joao_Janz",
+   "source": "https://freesound.org/people/Joao_Janz/sounds/478337/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/evil_spirit",
+   "type": "spell",
+   "file": "spell/evil_spirit.mp3",
+   "label": {
+    "en": "Spell: evil spirit",
+    "ru": "Заклинание: средоточие зла",
+    "ua": "Заклинання: зосередження зла"
+   },
+   "title": "Cthulhu",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/827668/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/fire",
+   "type": "spell",
+   "file": "spell/fire.mp3",
+   "label": {
+    "en": "Spell: fire",
+    "ru": "Заклинание: огонь",
+    "ua": "Заклинання: вогонь"
+   },
+   "title": "Tree Burns Down",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/442677/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/fire_2",
+   "type": "spell",
+   "file": "spell/fire_2.mp3",
+   "label": {
+    "en": "Spell: fire 2",
+    "ru": "Заклинание: огонь 2",
+    "ua": "Заклинання: вогонь 2"
+   },
+   "title": "JM_FX_Fireball 01.wav",
+   "author": "Julien_Matthey",
+   "source": "https://freesound.org/people/Julien_Matthey/sounds/105016/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/fire_3",
+   "type": "spell",
+   "file": "spell/fire_3.mp3",
+   "label": {
+    "en": "Spell: fire 3",
+    "ru": "Заклинание: огонь 3",
+    "ua": "Заклинання: вогонь 3"
+   },
+   "title": "WD-40 quarter Full - Flame thrower 6",
+   "author": "Sadiquecat",
+   "source": "https://freesound.org/people/Sadiquecat/sounds/739472/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/fizzle",
+   "type": "spell",
+   "file": "spell/fizzle.mp3",
+   "label": {
+    "en": "Spell: spell fizzles",
+    "ru": "Заклинание: заклинание сорвалось",
+    "ua": "Заклинання: закляття зірвалось"
+   },
+   "title": "Cigarette Sizzle 01",
+   "author": "chaosportal",
+   "source": "https://freesound.org/people/chaosportal/sounds/133448/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/fizzle_2",
+   "type": "spell",
+   "file": "spell/fizzle_2.mp3",
+   "label": {
+    "en": "Spell: spell fizzles 2",
+    "ru": "Заклинание: заклинание сорвалось 2",
+    "ua": "Заклинання: закляття зірвалось 2"
+   },
+   "title": "Cigarette Sizzle 02",
+   "author": "chaosportal",
+   "source": "https://freesound.org/people/chaosportal/sounds/133449/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/fizzle_3",
+   "type": "spell",
+   "file": "spell/fizzle_3.mp3",
+   "label": {
+    "en": "Spell: spell fizzles 3",
+    "ru": "Заклинание: заклинание сорвалось 3",
+    "ua": "Заклинання: закляття зірвалось 3"
+   },
+   "title": "Plug IN",
+   "author": "unfa",
+   "source": "https://freesound.org/people/unfa/sounds/170379/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/force",
+   "type": "spell",
+   "file": "spell/force.mp3",
+   "label": {
+    "en": "Spell: force hit",
+    "ru": "Заклинание: удар силы",
+    "ua": "Заклинання: удар сили"
+   },
+   "title": "Energy impact 3",
+   "author": "ihitokage",
+   "source": "https://freesound.org/people/ihitokage/sounds/413217/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/force_2",
+   "type": "spell",
+   "file": "spell/force_2.mp3",
+   "label": {
+    "en": "Spell: force hit 2",
+    "ru": "Заклинание: удар силы 2",
+    "ua": "Заклинання: удар сили 2"
+   },
+   "title": "Sound Design Elements Impact SFX PS 003",
+   "author": "AudioPapkin",
+   "source": "https://freesound.org/people/AudioPapkin/sounds/749485/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/frenzy",
+   "type": "spell",
+   "file": "spell/frenzy.mp3",
+   "label": {
+    "en": "Spell: frenzy",
+    "ru": "Заклинание: неистовство",
+    "ua": "Заклинання: несамовитість"
+   },
+   "title": "Middle Ages War Cry 3.wav",
+   "author": "joelcarrsound",
+   "source": "https://freesound.org/people/joelcarrsound/sounds/521831/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/frost",
+   "type": "spell",
+   "file": "spell/frost.mp3",
+   "label": {
+    "en": "Spell: frost",
+    "ru": "Заклинание: холод",
+    "ua": "Заклинання: холод"
+   },
+   "title": "Freeze sound effect FX",
+   "author": "antonsoederberg",
+   "source": "https://freesound.org/people/antonsoederberg/sounds/685253/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/frost_2",
+   "type": "spell",
+   "file": "spell/frost_2.mp3",
+   "label": {
+    "en": "Spell: frost 2",
+    "ru": "Заклинание: холод 2",
+    "ua": "Заклинання: холод 2"
+   },
+   "title": "Ice 1",
+   "author": "JarredGibb",
+   "source": "https://freesound.org/people/JarredGibb/sounds/263905/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/frost_3",
+   "type": "spell",
+   "file": "spell/frost_3.mp3",
+   "label": {
+    "en": "Spell: frost 3",
+    "ru": "Заклинание: холод 3",
+    "ua": "Заклинання: холод 3"
+   },
+   "title": "Freezing HZA",
+   "author": "hz37",
+   "source": "https://freesound.org/people/hz37/sounds/396447/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/glimmer",
+   "type": "spell",
+   "file": "spell/glimmer.mp3",
+   "label": {
+    "en": "Spell: detection",
+    "ru": "Заклинание: обнаружение",
+    "ua": "Заклинання: виявлення"
+   },
+   "title": "Fantasy_ui_Button_1.wav",
+   "author": "ZenithInfinitiveStudios",
+   "source": "https://freesound.org/people/ZenithInfinitiveStudios/sounds/376747/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/glimmer_2",
+   "type": "spell",
+   "file": "spell/glimmer_2.mp3",
+   "label": {
+    "en": "Spell: detection 2",
+    "ru": "Заклинание: обнаружение 2",
+    "ua": "Заклинання: виявлення 2"
+   },
+   "title": "FX_UX_quick_shimmer_reactive_up and down .wav",
+   "author": "PLukx",
+   "source": "https://freesound.org/people/PLukx/sounds/703283/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/growth",
+   "type": "spell",
+   "file": "spell/growth.mp3",
+   "label": {
+    "en": "Spell: rapid growth",
+    "ru": "Заклинание: бурный рост",
+    "ua": "Заклинання: бурхливий ріст"
+   },
+   "title": "Growing bulbous nose",
+   "author": "basoap",
+   "source": "https://freesound.org/people/basoap/sounds/233201/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/growth_2",
+   "type": "spell",
+   "file": "spell/growth_2.mp3",
+   "label": {
+    "en": "Spell: rapid growth 2",
+    "ru": "Заклинание: бурный рост 2",
+    "ua": "Заклинання: бурхливий ріст 2"
+   },
+   "title": "one plant grows with lettuce.wav",
+   "author": "squidge316",
+   "source": "https://freesound.org/people/squidge316/sounds/677814/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/harm",
+   "type": "spell",
+   "file": "spell/harm.mp3",
+   "label": {
+    "en": "Spell: harm",
+    "ru": "Заклинание: боль",
+    "ua": "Заклинання: біль"
+   },
+   "title": "Soldier-Death Agony scream",
+   "author": "TyrantTim",
+   "source": "https://freesound.org/people/TyrantTim/sounds/800871/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/harm_2",
+   "type": "spell",
+   "file": "spell/harm_2.mp3",
+   "label": {
+    "en": "Spell: harm 2",
+    "ru": "Заклинание: боль 2",
+    "ua": "Заклинання: біль 2"
+   },
+   "title": "human male scream 3",
+   "author": "JohnsonBrandEditing",
+   "source": "https://freesound.org/people/JohnsonBrandEditing/sounds/243381/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/haste",
+   "type": "spell",
+   "file": "spell/haste.mp3",
+   "label": {
+    "en": "Spell: haste",
+    "ru": "Заклинание: ускорение",
+    "ua": "Заклинання: прискорення"
+   },
+   "title": "Boost.wav",
+   "author": "CogFireStudios",
+   "source": "https://freesound.org/people/CogFireStudios/sounds/420998/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/heal",
+   "type": "spell",
+   "file": "spell/heal.mp3",
+   "label": {
+    "en": "Spell: healing",
+    "ru": "Заклинание: исцеление",
+    "ua": "Заклинання: зцілення"
+   },
+   "title": "Heal - Rpg",
+   "author": "colorsCrimsonTears",
+   "source": "https://freesound.org/people/colorsCrimsonTears/sounds/562292/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/heal_2",
+   "type": "spell",
+   "file": "spell/heal_2.mp3",
+   "label": {
+    "en": "Spell: healing 2",
+    "ru": "Заклинание: исцеление 2",
+    "ua": "Заклинання: зцілення 2"
+   },
+   "title": "healing wave",
+   "author": "sounagix",
+   "source": "https://freesound.org/people/sounagix/sounds/677773/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/holy",
+   "type": "spell",
+   "file": "spell/holy.mp3",
+   "label": {
+    "en": "Spell: holy",
+    "ru": "Заклинание: святость",
+    "ua": "Заклинання: святість"
+   },
+   "title": "Magic chorus",
+   "author": "punisherdan",
+   "source": "https://freesound.org/people/punisherdan/sounds/444455/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/holy_2",
+   "type": "spell",
+   "file": "spell/holy_2.mp3",
+   "label": {
+    "en": "Spell: holy 2",
+    "ru": "Заклинание: святость 2",
+    "ua": "Заклинання: святість 2"
+   },
+   "title": "Short Choir",
+   "author": "Breviceps",
+   "source": "https://freesound.org/people/Breviceps/sounds/444491/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/light",
+   "type": "spell",
+   "file": "spell/light.mp3",
+   "label": {
+    "en": "Spell: light",
+    "ru": "Заклинание: свет",
+    "ua": "Заклинання: світло"
+   },
+   "title": "Laser, beam, phaser etc",
+   "author": "wubitog",
+   "source": "https://freesound.org/people/wubitog/sounds/200458/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/light_2",
+   "type": "spell",
+   "file": "spell/light_2.mp3",
+   "label": {
+    "en": "Spell: light 2",
+    "ru": "Заклинание: свет 2",
+    "ua": "Заклинання: світло 2"
+   },
+   "title": "shipboard_railgun.mp3",
+   "author": "deleted_user_1941307",
+   "source": "https://freesound.org/people/deleted_user_1941307/sounds/155790/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/light_3",
+   "type": "spell",
+   "file": "spell/light_3.mp3",
+   "label": {
+    "en": "Spell: light 3",
+    "ru": "Заклинание: свет 3",
+    "ua": "Заклинання: світло 3"
+   },
+   "title": "Weapons Beam Loop",
+   "author": "unfa",
+   "source": "https://freesound.org/people/unfa/sounds/584191/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/lightning",
+   "type": "spell",
+   "file": "spell/lightning.mp3",
+   "label": {
+    "en": "Spell: lightning",
+    "ru": "Заклинание: молния",
+    "ua": "Заклинання: блискавка"
+   },
+   "title": "Zap.ogg",
+   "author": "egomassive",
+   "source": "https://freesound.org/people/egomassive/sounds/536741/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/lightning_2",
+   "type": "spell",
+   "file": "spell/lightning_2.mp3",
+   "label": {
+    "en": "Spell: lightning 2",
+    "ru": "Заклинание: молния 2",
+    "ua": "Заклинання: блискавка 2"
+   },
+   "title": "ELECTRIC_ZAP_001.wav",
+   "author": "JoelAudio",
+   "source": "https://freesound.org/people/JoelAudio/sounds/136542/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/lightning_3",
+   "type": "spell",
+   "file": "spell/lightning_3.mp3",
+   "label": {
+    "en": "Spell: lightning 3",
+    "ru": "Заклинание: молния 3",
+    "ua": "Заклинання: блискавка 3"
+   },
+   "title": "Electrical Shock (Zap).wav",
+   "author": "BigKahuna360",
+   "source": "https://freesound.org/people/BigKahuna360/sounds/160421/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/lightning_4",
+   "type": "spell",
+   "file": "spell/lightning_4.mp3",
+   "label": {
+    "en": "Spell: lightning 4",
+    "ru": "Заклинание: молния 4",
+    "ua": "Заклинання: блискавка 4"
+   },
+   "title": "Energy Field Loop 2",
+   "author": "unfa",
+   "source": "https://freesound.org/people/unfa/sounds/209856/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/malediction",
+   "type": "spell",
+   "file": "spell/malediction.mp3",
+   "label": {
+    "en": "Spell: curse",
+    "ru": "Заклинание: проклятие",
+    "ua": "Заклинання: прокляття"
+   },
+   "title": "Demonic Whisper",
+   "author": "Magnesus",
+   "source": "https://freesound.org/people/Magnesus/sounds/438989/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/malediction_2",
+   "type": "spell",
+   "file": "spell/malediction_2.mp3",
+   "label": {
+    "en": "Spell: curse 2",
+    "ru": "Заклинание: проклятие 2",
+    "ua": "Заклинання: прокляття 2"
+   },
+   "title": "\"Ascend With Us\" creepy whisper",
+   "author": "BFMGames",
+   "source": "https://freesound.org/people/BFMGames/sounds/171102/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/mind",
+   "type": "spell",
+   "file": "spell/mind.mp3",
+   "label": {
+    "en": "Spell: mind",
+    "ru": "Заклинание: разум",
+    "ua": "Заклинання: розум"
+   },
+   "title": "Radar-Fantastic-MrJmix1st.wav",
+   "author": "MrJmix",
+   "source": "https://freesound.org/people/MrJmix/sounds/331078/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/mind_2",
+   "type": "spell",
+   "file": "spell/mind_2.mp3",
+   "label": {
+    "en": "Spell: mind 2",
+    "ru": "Заклинание: разум 2",
+    "ua": "Заклинання: розум 2"
+   },
+   "title": "SFX_Spell_WhisperedShort-04",
+   "author": "Wavewire",
+   "source": "https://freesound.org/people/Wavewire/sounds/837459/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/nature",
+   "type": "spell",
+   "file": "spell/nature.mp3",
+   "label": {
+    "en": "Spell: nature",
+    "ru": "Заклинание: природа",
+    "ua": "Заклинання: природа"
+   },
+   "title": "dry branches cracking.aiff",
+   "author": "SoundCollectah",
+   "source": "https://freesound.org/people/SoundCollectah/sounds/109357/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/nature_2",
+   "type": "spell",
+   "file": "spell/nature_2.mp3",
+   "label": {
+    "en": "Spell: nature 2",
+    "ru": "Заклинание: природа 2",
+    "ua": "Заклинання: природа 2"
+   },
+   "title": "A Tree Falling Down.wav",
+   "author": "ecfike",
+   "source": "https://freesound.org/people/ecfike/sounds/139952/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/nature_3",
+   "type": "spell",
+   "file": "spell/nature_3.mp3",
+   "label": {
+    "en": "Spell: nature 3",
+    "ru": "Заклинание: природа 3",
+    "ua": "Заклинання: природа 3"
+   },
+   "title": "Creaking Wood 9.wav",
+   "author": "Greg_Surr",
+   "source": "https://freesound.org/people/Greg_Surr/sounds/590157/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/necromancy",
+   "type": "spell",
+   "file": "spell/necromancy.mp3",
+   "label": {
+    "en": "Spell: necromancy",
+    "ru": "Заклинание: некромантия",
+    "ua": "Заклинання: некромантія"
+   },
+   "title": "Gore Rend",
+   "author": "magnuswaker",
+   "source": "https://freesound.org/people/magnuswaker/sounds/563491/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/necromancy_2",
+   "type": "spell",
+   "file": "spell/necromancy_2.mp3",
+   "label": {
+    "en": "Spell: necromancy 2",
+    "ru": "Заклинание: некромантия 2",
+    "ua": "Заклинання: некромантія 2"
+   },
+   "title": "Demon_Ghost Growling 1.wav",
+   "author": "Osiruswaltz",
+   "source": "https://freesound.org/people/Osiruswaltz/sounds/362672/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/necromancy_3",
+   "type": "spell",
+   "file": "spell/necromancy_3.mp3",
+   "label": {
+    "en": "Spell: necromancy 3",
+    "ru": "Заклинание: некромантия 3",
+    "ua": "Заклинання: некромантія 3"
+   },
+   "title": "Demon Growl for Halloween Spooky Creepy Scary Monster Ghoul Ghost Sounds",
+   "author": "Voices_Of_Marz",
+   "source": "https://freesound.org/people/Voices_Of_Marz/sounds/444445/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/paralysis",
+   "type": "spell",
+   "file": "spell/paralysis.mp3",
+   "label": {
+    "en": "Spell: paralysis",
+    "ru": "Заклинание: паралич",
+    "ua": "Заклинання: параліч"
+   },
+   "title": "time stop.mp3",
+   "author": "terminallynerdy",
+   "source": "https://freesound.org/people/terminallynerdy/sounds/381822/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/power_word_kill",
+   "type": "spell",
+   "file": "spell/power_word_kill.mp3",
+   "label": {
+    "en": "Spell: power word kill",
+    "ru": "Заклинание: слово смерти",
+    "ua": "Заклинання: слово смерті"
+   },
+   "title": "DSGNVocl_Dark, Demonic, Low, Voice, Horror, Recording 3_JW Audio",
+   "author": "JW_Audio",
+   "source": "https://freesound.org/people/JW_Audio/sounds/823849/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/sanctuary",
+   "type": "spell",
+   "file": "spell/sanctuary.mp3",
+   "label": {
+    "en": "Spell: sanctuary",
+    "ru": "Заклинание: аура святилища",
+    "ua": "Заклинання: аура святилища"
+   },
+   "title": "Heal Restore",
+   "author": "Qvantor",
+   "source": "https://freesound.org/people/Qvantor/sounds/878621/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/scream",
+   "type": "spell",
+   "file": "spell/scream.mp3",
+   "label": {
+    "en": "Spell: scream",
+    "ru": "Заклинание: крик",
+    "ua": "Заклинання: крик"
+   },
+   "title": "Monster / Banshee Scream",
+   "author": "SypherZent",
+   "source": "https://freesound.org/people/SypherZent/sounds/420682/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/scream_2",
+   "type": "spell",
+   "file": "spell/scream_2.mp3",
+   "label": {
+    "en": "Spell: scream 2",
+    "ru": "Заклинание: крик 2",
+    "ua": "Заклинання: крик 2"
+   },
+   "title": "Demonic Woman Scream.wav",
+   "author": "nick121087",
+   "source": "https://freesound.org/people/nick121087/sounds/333832/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/shadowlife",
+   "type": "spell",
+   "file": "spell/shadowlife.mp3",
+   "label": {
+    "en": "Spell: shadowlife",
+    "ru": "Заклинание: оживить тень",
+    "ua": "Заклинання: оживити тінь"
+   },
+   "title": "Creepy Whispering",
+   "author": "RaspberryTickle",
+   "source": "https://freesound.org/people/RaspberryTickle/sounds/234044/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/stardust",
+   "type": "spell",
+   "file": "spell/stardust.mp3",
+   "label": {
+    "en": "Spell: stardust",
+    "ru": "Заклинание: звездная пыль",
+    "ua": "Заклинання: зоряний пил"
+   },
+   "title": "Fairy FlyBy 2.aif",
+   "author": "timgormly",
+   "source": "https://freesound.org/people/timgormly/sounds/148047/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/strike",
+   "type": "spell",
+   "file": "spell/strike.mp3",
+   "label": {
+    "en": "Spell: lightning strike",
+    "ru": "Заклинание: удар молнии",
+    "ua": "Заклинання: удар блискавки"
+   },
+   "title": "Thunderclap one shot",
+   "author": "breadmanelex",
+   "source": "https://freesound.org/people/breadmanelex/sounds/743447/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/summon",
+   "type": "spell",
+   "file": "spell/summon.mp3",
+   "label": {
+    "en": "Spell: summoning",
+    "ru": "Заклинание: призыв",
+    "ua": "Заклинання: виклик"
+   },
+   "title": "Stand Summon Effect.mp3",
+   "author": "Milky0519",
+   "source": "https://freesound.org/people/Milky0519/sounds/506626/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/summon_2",
+   "type": "spell",
+   "file": "spell/summon_2.mp3",
+   "label": {
+    "en": "Spell: summoning 2",
+    "ru": "Заклинание: призыв 2",
+    "ua": "Заклинання: виклик 2"
+   },
+   "title": "Monster summon",
+   "author": "Allesyt",
+   "source": "https://freesound.org/people/Allesyt/sounds/791360/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/summon_3",
+   "type": "spell",
+   "file": "spell/summon_3.mp3",
+   "label": {
+    "en": "Spell: summoning 3",
+    "ru": "Заклинание: призыв 3",
+    "ua": "Заклинання: виклик 3"
+   },
+   "title": "Distorted Whoosh Impactful",
+   "author": "SoundEffectsForAll",
+   "source": "https://freesound.org/people/SoundEffectsForAll/sounds/840813/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/travel",
+   "type": "spell",
+   "file": "spell/travel.mp3",
+   "label": {
+    "en": "Spell: teleport",
+    "ru": "Заклинание: телепорт",
+    "ua": "Заклинання: телепорт"
+   },
+   "title": "Fast Warp In",
+   "author": "GammaGool",
+   "source": "https://freesound.org/people/GammaGool/sounds/735062/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/travel_2",
+   "type": "spell",
+   "file": "spell/travel_2.mp3",
+   "label": {
+    "en": "Spell: teleport 2",
+    "ru": "Заклинание: телепорт 2",
+    "ua": "Заклинання: телепорт 2"
+   },
+   "title": "Whoosh Swirl Spinning",
+   "author": "Qvantor",
+   "source": "https://freesound.org/people/Qvantor/sounds/877983/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/travel_3",
+   "type": "spell",
+   "file": "spell/travel_3.mp3",
+   "label": {
+    "en": "Spell: teleport 3",
+    "ru": "Заклинание: телепорт 3",
+    "ua": "Заклинання: телепорт 3"
+   },
+   "title": "teleport.mp3",
+   "author": "outroelison",
+   "source": "https://freesound.org/people/outroelison/sounds/150950/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/unholy",
+   "type": "spell",
+   "file": "spell/unholy.mp3",
+   "label": {
+    "en": "Spell: unholy",
+    "ru": "Заклинание: скверна",
+    "ua": "Заклинання: скверна"
+   },
+   "title": "Growl or groan of a synthetic monster 6.wav",
+   "author": "Wax_vibe",
+   "source": "https://freesound.org/people/Wax_vibe/sounds/556881/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/unholy_2",
+   "type": "spell",
+   "file": "spell/unholy_2.mp3",
+   "label": {
+    "en": "Spell: unholy 2",
+    "ru": "Заклинание: скверна 2",
+    "ua": "Заклинання: скверна 2"
+   },
+   "title": "Growl or groan of a synthetic monster 5.wav",
+   "author": "Wax_vibe",
+   "source": "https://freesound.org/people/Wax_vibe/sounds/556880/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/ward",
+   "type": "spell",
+   "file": "spell/ward.mp3",
+   "label": {
+    "en": "Spell: ward",
+    "ru": "Заклинание: защита",
+    "ua": "Заклинання: захист"
+   },
+   "title": "Force Field 02.wav",
+   "author": "LilMati",
+   "source": "https://freesound.org/people/LilMati/sounds/702772/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/ward_2",
+   "type": "spell",
+   "file": "spell/ward_2.mp3",
+   "label": {
+    "en": "Spell: ward 2",
+    "ru": "Заклинание: защита 2",
+    "ua": "Заклинання: захист 2"
+   },
+   "title": "shield guard",
+   "author": "nekoninja",
+   "source": "https://freesound.org/people/nekoninja/sounds/370203/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/ward_3",
+   "type": "spell",
+   "file": "spell/ward_3.mp3",
+   "label": {
+    "en": "Spell: ward 3",
+    "ru": "Заклинание: защита 3",
+    "ua": "Заклинання: захист 3"
+   },
+   "title": "Wub wub wub",
+   "author": "thehorriblejoke",
+   "source": "https://freesound.org/people/thehorriblejoke/sounds/198969/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/ward_4",
+   "type": "spell",
+   "file": "spell/ward_4.mp3",
+   "label": {
+    "en": "Spell: ward 4",
+    "ru": "Заклинание: защита 4",
+    "ua": "Заклинання: захист 4"
+   },
+   "title": "Sound Design Elements Impact SFX PS 087",
+   "author": "AudioPapkin",
+   "source": "https://freesound.org/people/AudioPapkin/sounds/812753/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/water",
+   "type": "spell",
+   "file": "spell/water.mp3",
+   "label": {
+    "en": "Spell: water",
+    "ru": "Заклинание: вода",
+    "ua": "Заклинання: вода"
+   },
+   "title": "8-bit wave crash",
+   "author": "ImATaco",
+   "source": "https://freesound.org/people/ImATaco/sounds/849560/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/water_2",
+   "type": "spell",
+   "file": "spell/water_2.mp3",
+   "label": {
+    "en": "Spell: water 2",
+    "ru": "Заклинание: вода 2",
+    "ua": "Заклинання: вода 2"
+   },
+   "title": "Waboba Moon Ball Water Splash 7",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/867462/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/water_3",
+   "type": "spell",
+   "file": "spell/water_3.mp3",
+   "label": {
+    "en": "Spell: water 3",
+    "ru": "Заклинание: вода 3",
+    "ua": "Заклинання: вода 3"
+   },
+   "title": "Acid Bubbling.wav",
+   "author": "spookymodem",
+   "source": "https://freesound.org/people/spookymodem/sounds/202094/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/water_4",
+   "type": "spell",
+   "file": "spell/water_4.mp3",
+   "label": {
+    "en": "Spell: water 4",
+    "ru": "Заклинание: вода 4",
+    "ua": "Заклинання: вода 4"
+   },
+   "title": "Sizzle.wav",
+   "author": "CHEATSman115",
+   "source": "https://freesound.org/people/CHEATSman115/sounds/234124/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/water_5",
+   "type": "spell",
+   "file": "spell/water_5.mp3",
+   "label": {
+    "en": "Spell: water 5",
+    "ru": "Заклинание: вода 5",
+    "ua": "Заклинання: вода 5"
+   },
+   "title": "splash 1",
+   "author": "Logicogonist",
+   "source": "https://freesound.org/people/Logicogonist/sounds/807961/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/whip",
+   "type": "spell",
+   "file": "spell/whip.mp3",
+   "label": {
+    "en": "Spell: whip",
+    "ru": "Заклинание: хлыст",
+    "ua": "Заклинання: батіг"
+   },
+   "title": "Galactic whip FK_Prod.mp3",
+   "author": "FK_Prod",
+   "source": "https://freesound.org/people/FK_Prod/sounds/188948/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/wind",
+   "type": "spell",
+   "file": "spell/wind.mp3",
+   "label": {
+    "en": "Spell: wind",
+    "ru": "Заклинание: ветер",
+    "ua": "Заклинання: вітер"
+   },
+   "title": "WindGust",
+   "author": "phuonglamb",
+   "source": "https://freesound.org/people/phuonglamb/sounds/738085/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/wind_2",
+   "type": "spell",
+   "file": "spell/wind_2.mp3",
+   "label": {
+    "en": "Spell: wind 2",
+    "ru": "Заклинание: ветер 2",
+    "ua": "Заклинання: вітер 2"
+   },
+   "title": "Wind whistle.mp3",
+   "author": "Rvgerxini",
+   "source": "https://freesound.org/people/Rvgerxini/sounds/509732/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/witch_curse",
+   "type": "spell",
+   "file": "spell/witch_curse.mp3",
+   "label": {
+    "en": "Spell: witch curse",
+    "ru": "Заклинание: ведьминское проклятие",
+    "ua": "Заклинання: відьминське прокляття"
+   },
+   "title": "Possessed Laugh.wav",
+   "author": "AgentA1cr",
+   "source": "https://freesound.org/people/AgentA1cr/sounds/559107/",
    "license": "CC0 1.0"
   },
   {

@@ -9,9 +9,15 @@
 // download URL from the server is ignored on purpose: the web client never
 // fetches audio from wherever a line of text points.
 //
+// An exact name also picks among its numbered variants (spell/fire,
+// spell/fire_2, spell/fire_3), so a sound cast every few seconds does not
+// repeat itself. The server sends the base name; Mudlet plays the base file.
+//
 // Effects share one channel with MSP priority: a new sound stops the one that
 // is playing only if its priority is strictly higher, so a fight does not turn
-// into a mush of half-sounds. Music is a second channel, one track at a time.
+// into a mush of half-sounds. Spells get a channel of their own: otherwise a
+// fireball would be cut by the crit sound of its own damage in the same
+// output. Music is a third channel, one track at a time.
 // The server's background loops (the 'ambience' frame) are a separate layer
 // in ambience.js and never touch either channel.
 //
@@ -28,12 +34,12 @@ import $ from 'jquery';
 const BASE = import.meta.env.BASE_URL + 'sounds/';
 const PREFS_KEY = 'mudjs.sound';
 
-export const SOUND_TYPES = ['combat', 'alert', 'chat', 'ui', 'ambient', 'music'];
+export const SOUND_TYPES = ['combat', 'spell', 'alert', 'chat', 'ui', 'ambient', 'music'];
 
 const DEFAULT_PREFS = {
   mute: false,
   master: 80,
-  types: { combat: 100, alert: 100, chat: 100, ui: 100, ambient: 0, music: 0 },
+  types: { combat: 100, spell: 70, alert: 100, chat: 100, ui: 100, ambient: 0, music: 0 },
 };
 // With a screen reader the background tells where you are (rain = outdoors,
 // fire = resting, drums = a boss), so it is on, low enough to sit under the
@@ -47,6 +53,12 @@ let library = null; // [{ name, type, file, author, source, license }]
 let libraryLoad = null;
 
 let effect = null; // { audio, priority }
+let spell = null; // { audio, priority, type, v, base }
+// The same spell again within DAMP_MS plays quieter: a warlock on a fireball
+// loop hears the first one in full and the rest as texture.
+const DAMP_MS = 8000;
+const DAMP = [1, 0.7, 0.5];
+const recent = {}; // base name -> { t, n }
 let mspOn = false;
 let music = null; // { audio, name }
 const prefsListeners = [];
@@ -153,7 +165,13 @@ function resolve(name) {
   if (clean.split('/').includes('..')) return null;
 
   const re = wildcard(clean);
-  let hits = library.filter(s => re.test(s.name));
+  let hits;
+  if (/[*?]/.test(clean)) hits = library.filter(s => re.test(s.name));
+  else {
+    const esc = clean.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+    const variants = new RegExp('^' + esc + '(_\\d+)?$', 'i');
+    hits = library.filter(s => variants.test(s.name));
+  }
   if (hits.length === 0 && clean.indexOf('/') < 0)
     hits = library.filter(s => re.test(s.name.split('/').pop()));
   if (hits.length === 0) return null;
@@ -169,6 +187,7 @@ export function gain(type, v = 100) {
 
 function applyVolumes() {
   if (effect) effect.audio.volume = gain(effect.type, effect.v);
+  if (spell) spell.audio.volume = gain(spell.type, spell.v);
   if (music) music.audio.volume = gain('music', music.v);
 }
 
@@ -206,6 +225,7 @@ export function playSound(name, opts = {}) {
     const p = clamp(opts.P, 0, 100, 50);
     const type = (opts.T || entry.type || 'alert').toLowerCase();
     if (gain(type, v) === 0) return; // silent: do not fetch it at all
+    if (type === 'spell') return playSpell(name, entry, v, loops, p);
 
     if (effect && !effect.audio.ended && !effect.audio.paused) {
       if (p <= effect.priority) return; // a tie: the one already playing wins
@@ -219,9 +239,46 @@ export function playSound(name, opts = {}) {
   });
 }
 
+/** Fade out over ~100 ms instead of a click. */
+function fadeOut(audio) {
+  const v0 = audio.volume;
+  let step = 0;
+  const id = setInterval(() => {
+    step++;
+    audio.volume = Math.max(0, v0 * (1 - step / 5));
+    if (step >= 5) {
+      clearInterval(id);
+      audio.pause();
+    }
+  }, 20);
+}
+
+/** The spell channel. Casts land every few seconds and a sound runs 2-4 s, so
+ *  the same spell again replaces the one still playing (it would be dropped
+ *  on a tie otherwise); a different spell of the same priority still waits. */
+function playSpell(name, entry, v, loops, p) {
+  const base = name.replace(/\.(wav|mid|ogg|mp3)$/i, '').toLowerCase();
+  const now = Date.now();
+  const last = recent[base];
+  const n = last && now - last.t < DAMP_MS ? Math.min(last.n + 1, DAMP.length - 1) : 0;
+  recent[base] = { t: now, n };
+  v = Math.round(v * DAMP[n]);
+
+  if (spell && !spell.audio.ended && !spell.audio.paused) {
+    if (p < spell.priority || (p === spell.priority && spell.base !== base)) return;
+    fadeOut(spell.audio);
+  }
+  const audio = start(name, entry, v, loops, 'spell', a => {
+    if (spell && spell.audio === a) spell = null;
+  });
+  spell = { audio, priority: p, type: 'spell', v, base };
+}
+
 export function stopSound() {
   if (effect) effect.audio.pause();
   effect = null;
+  if (spell) spell.audio.pause();
+  spell = null;
 }
 
 /** MSP !!MUSIC. opts: V, L, C (1 = keep playing the same track, 0 = restart). */

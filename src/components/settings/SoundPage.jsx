@@ -7,9 +7,9 @@ import { getSoundPrefs, setSoundPrefs, playSound, stopSound } from '../../sound.
 // Mute stops what is playing at once. Each type has its own level, so combat
 // can stay loud while the ambience whispers.
 
-const TYPES = ['combat', 'alert', 'chat', 'ui', 'ambient', 'music'];
+const TYPES = ['combat', 'spell', 'alert', 'chat', 'ui', 'ambient', 'music'];
 // A short sample per type, so a slider can be tried where it is set.
-const SAMPLE = { combat: 'combat/hit', alert: 'alert/bell', chat: 'chat/tell', ui: 'ui/notify' };
+const SAMPLE = { combat: 'combat/hit', spell: 'spell/fire', alert: 'alert/bell', chat: 'chat/tell', ui: 'ui/notify' };
 
 function Slider({ id, label, value, onChange, onTry, lang }) {
   return (
