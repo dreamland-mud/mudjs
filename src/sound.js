@@ -33,7 +33,9 @@ export const SOUND_TYPES = ['combat', 'alert', 'chat', 'ui', 'ambient', 'music']
 const DEFAULT_PREFS = {
   mute: false,
   master: 80,
-  types: { combat: 100, alert: 100, chat: 100, ui: 100, ambient: 60, music: 50 },
+  // Ambience and music are opt-in: a loop under a screen reader's speech gets
+  // in the way, and the loops are the heaviest downloads.
+  types: { combat: 100, alert: 100, chat: 100, ui: 100, ambient: 0, music: 0 },
 };
 
 let prefs = loadPrefs();
@@ -176,6 +178,7 @@ export function playSound(name, opts = {}) {
     if (loops === 0) loops = 1;
     const p = clamp(opts.P, 0, 100, 50);
     const type = (opts.T || entry.type || 'alert').toLowerCase();
+    if (gain(type, v) === 0) return; // silent: do not fetch it at all
 
     if (effect && !effect.audio.ended && !effect.audio.paused) {
       if (p <= effect.priority) return; // a tie: the one already playing wins
@@ -208,6 +211,7 @@ export function playMusic(name, opts = {}) {
     let loops = clamp(opts.L, -1, 100, 1);
     if (loops === 0) loops = 1;
     const cont = clamp(opts.C, 0, 1, 1) === 1;
+    if (gain('music', v) === 0) return stopMusic();
 
     if (music && music.name === name && cont && !music.audio.paused) {
       music.v = v;

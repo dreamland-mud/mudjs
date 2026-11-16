@@ -185,13 +185,16 @@ function stopEverything() {
 /** Bring what plays in line with `wanted`. */
 function apply() {
   if (serverOff || getSoundPrefs().mute) return;
-  const names = wanted.layers;
-  const music = wanted.music;
+  // A layer at volume 0 is not fetched and not played; raising the slider
+  // brings it back through onSoundPrefs -> apply().
+  const names = gain('ambient') === 0 ? [] : wanted.layers;
+  const music = gain('music') === 0 ? '' : wanted.music;
+  const snapshot = wanted;
   if (!names.length && !music && !layers.size && !musicTrack) return;
 
   loadLibrary().then(() => {
     // The state may have changed while the library loaded.
-    if (serverOff || getSoundPrefs().mute || wanted.layers !== names || wanted.music !== music) return;
+    if (serverOff || getSoundPrefs().mute || wanted !== snapshot) return;
     if (!audio()) return;
 
     layers.forEach((track, name) => {
