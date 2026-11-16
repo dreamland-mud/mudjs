@@ -16,7 +16,7 @@ import { getKeydown } from './settings';
 import { sendHotKeyCmd } from './components/sysCommands/hotkeySend';
 import { resumeAutoScroll } from './components/terminal';
 import { echoHtml } from './components/sysCommandUtils';
-import { playSound } from './sound';
+import { playSound, setSoundScreenReader } from './sound';
 
 // Commands, help links and item names (an item name opens its menu of actions).
 const LINK_SELECTOR = '.manip-cmd, .builtin-cmd, .dropdown-toggle';
@@ -557,6 +557,7 @@ export function setReviewEnabled(on) {
   } catch (e) {
     /* storage blocked: nothing to remember it in */
   }
+  setSoundScreenReader(screenReaderMode());
 }
 
 /* The game's own screen reader setting. Turning it on or off (config
@@ -641,6 +642,7 @@ function setServerSr(on) {
   } catch (e) {
     /* storage blocked: for this page only */
   }
+  setSoundScreenReader(screenReaderMode());
   $(document).trigger(SR_CHANGED);
 }
 
@@ -677,6 +679,8 @@ function followServer() {
   $('#rpc-events').on('rpc-config_result.review', changed);
 }
 $(followServer);
+// Sound defaults follow screen reader mode from the first page load.
+$(() => setSoundScreenReader(screenReaderMode()));
 
 // What the player script marks with notify() ([ooc], tells and the like, see
 // notify.js) plays the ui/notify sound in screen reader mode, as the desktop
