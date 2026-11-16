@@ -33,11 +33,15 @@ export const SOUND_TYPES = ['combat', 'alert', 'chat', 'ui', 'ambient', 'music']
 const DEFAULT_PREFS = {
   mute: false,
   master: 80,
-  // Ambience and music are opt-in: a loop under a screen reader's speech gets
-  // in the way, and the loops are the heaviest downloads.
   types: { combat: 100, alert: 100, chat: 100, ui: 100, ambient: 0, music: 0 },
 };
+// With a screen reader the background tells where you are (rain = outdoors,
+// fire = resting, drums = a boss), so it is on, low enough to sit under the
+// speech. Without one it is atmosphere only and starts off.
+const SR_TYPES = { ambient: 30, music: 50 };
 
+let srMode = false;
+let userTypes = {}; // only the volumes the player has set; the rest follow the defaults
 let prefs = loadPrefs();
 let library = null; // [{ name, type, file, author, source, license }]
 let libraryLoad = null;
@@ -47,15 +51,34 @@ let mspOn = false;
 let music = null; // { audio, name }
 const prefsListeners = [];
 
+function defaultTypes() {
+  return srMode ? { ...DEFAULT_PREFS.types, ...SR_TYPES } : { ...DEFAULT_PREFS.types };
+}
+
 function loadPrefs() {
+  let saved = null;
   try {
-    const saved = JSON.parse(localStorage.getItem(PREFS_KEY) || 'null');
-    if (saved && typeof saved === 'object')
-      return { ...DEFAULT_PREFS, ...saved, types: { ...DEFAULT_PREFS.types, ...(saved.types || {}) } };
+    saved = JSON.parse(localStorage.getItem(PREFS_KEY) || 'null');
   } catch (e) {
     /* private mode or a broken value: defaults */
   }
-  return { ...DEFAULT_PREFS, types: { ...DEFAULT_PREFS.types } };
+  if (!saved || typeof saved !== 'object') saved = {};
+  userTypes = saved.types && typeof saved.types === 'object' ? { ...saved.types } : {};
+  return { ...DEFAULT_PREFS, ...saved, types: { ...defaultTypes(), ...userTypes } };
+}
+
+function savePrefs() {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify({ ...prefs, types: userTypes }));
+  } catch (e) {
+    /* private mode: the change lives for this tab */
+  }
+}
+
+function changed() {
+  if (prefs.mute) stopAll();
+  else applyVolumes();
+  prefsListeners.forEach(fn => fn(prefs));
 }
 
 export function getSoundPrefs() {
@@ -63,15 +86,19 @@ export function getSoundPrefs() {
 }
 
 export function setSoundPrefs(next) {
-  prefs = { ...prefs, ...next, types: { ...prefs.types, ...(next.types || {}) } };
-  try {
-    localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-  } catch (e) {
-    /* private mode: the change lives for this tab */
-  }
-  if (prefs.mute) stopAll();
-  else applyVolumes();
-  prefsListeners.forEach(fn => fn(prefs));
+  userTypes = { ...userTypes, ...(next.types || {}) };
+  prefs = { ...prefs, ...next, types: { ...defaultTypes(), ...userTypes } };
+  savePrefs();
+  changed();
+}
+
+/** Screen reader mode on or off: volumes the player never set follow it. */
+export function setSoundScreenReader(on) {
+  on = !!on;
+  if (on === srMode) return;
+  srMode = on;
+  prefs = { ...prefs, types: { ...defaultTypes(), ...userTypes } };
+  changed();
 }
 
 /** Call fn(prefs) after every change of the sound settings (the ambience
