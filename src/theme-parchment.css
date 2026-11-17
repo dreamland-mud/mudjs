@@ -852,6 +852,11 @@ body[data-glow="rage"] .terminal-glow{
   --glow-base:inset 0 0 330px 0 rgba(204,0,0,.45),inset 0 0 660px 0 rgba(204,0,0,.21);
   --glow-peak:inset 0 0 575px 0 rgba(204,0,0,.84),inset 0 0 1150px 0 rgba(204,0,0,.42);
 }
+/* shape (druid shapeshift) -> the rage beat, in green */
+body[data-glow="shape"] .terminal-glow{
+  --glow-base:inset 0 0 330px 0 rgba(40,160,50,.45),inset 0 0 660px 0 rgba(40,160,50,.21);
+  --glow-peak:inset 0 0 575px 0 rgba(40,160,50,.84),inset 0 0 1150px 0 rgba(40,160,50,.42);
+}
 /* neardeath (<=25% HP) -> heavy dark-crimson throb that never fully recedes */
 body[data-glow="neardeath"] .terminal-glow{
   --glow-base:inset 0 0 300px 0 rgba(110,0,15,.44),inset 0 0 600px 0 rgba(110,0,15,.22);
@@ -859,9 +864,11 @@ body[data-glow="neardeath"] .terminal-glow{
 }
 body[data-glow="fight"] .terminal-glow::before,
 body[data-glow="rage"] .terminal-glow::before,
+body[data-glow="shape"] .terminal-glow::before,
 body[data-glow="neardeath"] .terminal-glow::before{animation:glow-beat-base var(--beat,1.15s) infinite}
 body[data-glow="fight"] .terminal-glow::after,
 body[data-glow="rage"] .terminal-glow::after,
+body[data-glow="shape"] .terminal-glow::after,
 body[data-glow="neardeath"] .terminal-glow::after{animation:glow-beat-peak var(--beat,1.15s) infinite}
 
 /* blind -> white wash, slow deep breathe (a fast strobe read as a disco -- Kerrad) */

@@ -32,7 +32,7 @@ import { store } from './store.js';
 
 // The state flags this file reads off window.mudprompt (missing = off). hit/max_hit
 // stay: user scripts read them too.
-const STATE_KEYS = ['fight', 'rage', 'blind', 'mind', 'faerie', 'poison', 'fade', 'hide'];
+const STATE_KEYS = ['fight', 'rage', 'shape', 'blind', 'mind', 'faerie', 'poison', 'fade', 'hide'];
 
 // Out of the world (quit, disconnect) no prompt comes to switch the accent off, so a
 // red fight vignette or a combat input stroke would sit over the login and the
@@ -67,6 +67,9 @@ $(function () {
     // so rage reads as blood over the whole view. Gated on fighting -- a rage buff
     // still ticking in town shouldn't paint the client red.
     const raging = fighting && !!p.rage;
+    // Druid shapeshift (prompt.shape = bear/lizard/wolverine): the rage beat in
+    // green. The form only lasts a fight, so no fighting gate is needed.
+    const shaped = !!p.shape;
 
     // Combat classes still drive the input stroke + red button panel.
     body.classList.toggle('mud-fighting', fighting);
@@ -94,6 +97,7 @@ $(function () {
       p.blind ? 'blind' :
       p.mind ? 'mind' :
       raging ? 'rage' :
+      shaped ? 'shape' :
       fighting ? 'fight' :
       p.faerie ? 'faerie' :
       p.poison ? 'poison' :
