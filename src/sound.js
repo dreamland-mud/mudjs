@@ -13,13 +13,15 @@
 // spell/fire_2, spell/fire_3), so a sound cast every few seconds does not
 // repeat itself. The server sends the base name; Mudlet plays the base file.
 //
-// Effects share one channel with MSP priority: a new sound stops the one that
-// is playing only if its priority is strictly higher, so a fight does not turn
-// into a mush of half-sounds. Spells get a channel of their own: otherwise a
-// fireball would be cut by the crit sound of its own damage in the same
-// output. Music is a third channel, one track at a time.
+// Effects and spells are pools of voices mixed through Web Audio: casts and
+// hits overlap in a real fight, so several play at once. Each pool has a cap
+// (lower in screen reader mode, so speech stays on top); a full pool steals
+// its oldest lowest-priority voice, MSP priority deciding. The same spell
+// again replaces its own voice, and the same effect twice within DEDUP_MS
+// plays once (an area spell's ten hit lines are one hit). A compressor on the
+// mix keeps stacked sounds from clipping. Music is one track at a time.
 // The server's background loops (the 'ambience' frame) are a separate layer
-// in ambience.js and never touch either channel.
+// in ambience.js and never touch the pools.
 //
 // Volume is this device's business, not the character's: master, per-type and
 // mute live in localStorage under mudjs.sound.
@@ -52,8 +54,13 @@ let prefs = loadPrefs();
 let library = null; // [{ name, type, file, author, source, license }]
 let libraryLoad = null;
 
-let effect = null; // { audio, priority }
-let spell = null; // { audio, priority, type, v, base }
+// Voice pools: { type, v, priority, base, name, t, setVolume(), stop(fade) }.
+const effects = [];
+const spells = [];
+const CAPS = { effect: 4, spell: 6 };
+const SR_CAPS = { effect: 3, spell: 3 };
+const DEDUP_MS = 120;
+const lastEffect = {}; // name -> ms
 // The same spell again within DAMP_MS plays quieter: a warlock on a fireball
 // loop hears the first one in full and the rest as texture.
 const DAMP_MS = 8000;
@@ -194,8 +201,7 @@ export function gain(type, v = 100) {
 }
 
 function applyVolumes() {
-  if (effect) effect.audio.volume = gain(effect.type, effect.v);
-  if (spell) spell.audio.volume = gain(spell.type, spell.v);
+  effects.concat(spells).forEach(voice => voice.setVolume(gain(voice.type, voice.v)));
   if (music) music.audio.volume = gain('music', music.v);
 }
 
@@ -216,6 +222,183 @@ function start(name, entry, v, loops, type, onEnd) {
   return audio;
 }
 
+/* ---- Web Audio voices ------------------------------------------------- */
+
+let ctx = null; // AudioContext, null where the browser has none
+let bus = null; // compressor -> destination; every voice feeds it
+// file -> Promise<AudioBuffer>, least recently used first. A decoded second
+// is ~190 KB of floats, so only the last BUFFER_CAP files stay decoded.
+const buffers = new Map();
+const BUFFER_CAP = 40;
+
+function context() {
+  if (ctx === null) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    try {
+      ctx = Ctx ? new Ctx() : false;
+    } catch (e) {
+      ctx = false;
+    }
+    if (ctx) {
+      // A soft limiter: one sound passes untouched, a stack is held down.
+      bus = ctx.createDynamicsCompressor();
+      bus.threshold.value = -10;
+      bus.knee.value = 6;
+      bus.ratio.value = 12;
+      bus.attack.value = 0.003;
+      bus.release.value = 0.25;
+      bus.connect(ctx.destination);
+    }
+  }
+  if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+  return ctx || null;
+}
+
+// Browsers start audio only after a key or a click on the page.
+['keydown', 'pointerdown'].forEach(type =>
+  window.addEventListener(
+    type,
+    () => {
+      // Safari keeps a context made outside a gesture suspended, so make it
+      // here once the server sends sounds and the player has them on.
+      if (ctx === null && mspOn && !prefs.mute) context();
+      if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+    },
+    { capture: true, passive: true }
+  )
+);
+
+function decode(file) {
+  let job = buffers.get(file);
+  if (job) {
+    buffers.delete(file); // re-insert: most recently used
+  } else {
+    job = fetch(BASE + file)
+      .then(r => {
+        if (!r.ok) throw new Error(r.status);
+        return r.arrayBuffer();
+      })
+      .then(data => new Promise((ok, fail) => ctx.decodeAudioData(data, ok, fail)))
+      .catch(e => {
+        buffers.delete(file); // a network blip must not silence it for good
+        throw e;
+      });
+  }
+  buffers.set(file, job);
+  if (buffers.size > BUFFER_CAP) buffers.delete(buffers.keys().next().value);
+  return job;
+}
+
+/** Before the first click or key the browser keeps the context suspended; a
+ *  sound started then would burst out later with everything queued behind
+ *  it, so it is dropped, as a rejected play() was. */
+function canPlay() {
+  const c = context();
+  return !c || c.state === 'running';
+}
+
+function drop(pool, voice) {
+  const i = pool.indexOf(voice);
+  if (i >= 0) pool.splice(i, 1);
+}
+
+/** A voice in `pool`: plays `loops` times (-1 = until stopped), re-resolving
+ *  wildcards and variants per loop. Web Audio where there is one, else an
+ *  <audio> element (no compressor, no volume on iOS). */
+function startVoice(pool, name, entry, v, loops, type, meta) {
+  const voice = { type, v, t: Date.now(), dead: false, ...meta };
+  let left = loops;
+  const next = () => {
+    if (left > 0) left--;
+    if (left === 0) return finish();
+    play(resolve(name) || entry);
+  };
+  const finish = () => {
+    if (voice.dead) return;
+    voice.dead = true;
+    drop(pool, voice);
+    if (voice.g) voice.g.disconnect();
+  };
+  let play;
+
+  const c = context();
+  if (c) {
+    voice.g = c.createGain();
+    voice.g.gain.value = gain(type, v);
+    voice.g.connect(bus);
+    play = e =>
+      decode(e.file)
+        .then(buf => {
+          if (voice.dead) return;
+          const src = c.createBufferSource();
+          src.buffer = buf;
+          src.connect(voice.g);
+          src.onended = () => {
+            if (!voice.dead) next();
+          };
+          voice.src = src;
+          src.start();
+        })
+        .catch(finish);
+    voice.setVolume = x => {
+      if (!voice.dead) voice.g.gain.setTargetAtTime(x, c.currentTime, 0.02);
+    };
+    voice.stop = fade => {
+      if (voice.dead) return;
+      voice.dead = true;
+      drop(pool, voice);
+      const g = voice.g;
+      const when = c.currentTime + (fade ? 0.1 : 0);
+      if (fade) g.gain.setTargetAtTime(0, c.currentTime, 0.025);
+      try {
+        if (voice.src) voice.src.stop(when);
+      } catch (e) {
+        /* already stopped */
+      }
+      setTimeout(() => g.disconnect(), fade ? 150 : 0);
+    };
+  } else {
+    const audio = new Audio();
+    audio.volume = gain(type, v);
+    audio.addEventListener('ended', () => {
+      if (!voice.dead) next();
+    });
+    play = e => {
+      audio.src = BASE + e.file;
+      audio.play().catch(finish);
+    };
+    voice.setVolume = x => {
+      audio.volume = x;
+    };
+    voice.stop = () => {
+      if (voice.dead) return;
+      voice.dead = true;
+      drop(pool, voice);
+      audio.pause();
+    };
+  }
+
+  pool.push(voice);
+  play(entry);
+  return voice;
+}
+
+/** Room in a pool for a sound of priority p: true when it may play (a voice
+ *  was free or one was stolen), false when every voice outranks it. */
+function makeRoom(pool, cap, p) {
+  if (pool.length < cap) return true;
+  let victim = null;
+  pool.forEach(voice => {
+    if (!victim || voice.priority < victim.priority || (voice.priority === victim.priority && voice.t < victim.t))
+      victim = voice;
+  });
+  if (victim.priority > p) return false;
+  victim.stop(true);
+  return true;
+}
+
+const capOf = kind => (srMode ? SR_CAPS : CAPS)[kind];
+
 /** MSP !!SOUND. opts: V volume 0-100, L loops (-1 forever), P priority 0-100,
  *  T type (falls back to the library's own type for the sound). */
 export function playSound(name, opts = {}) {
@@ -233,37 +416,22 @@ export function playSound(name, opts = {}) {
     const p = clamp(opts.P, 0, 100, 50);
     const type = (opts.T || entry.type || 'alert').toLowerCase();
     if (gain(type, v) === 0) return; // silent: do not fetch it at all
+    if (!canPlay()) return;
     if (type === 'spell') return playSpell(name, entry, v, loops, p);
 
-    if (effect && !effect.audio.ended && !effect.audio.paused) {
-      if (p <= effect.priority) return; // a tie: the one already playing wins
-      effect.audio.pause();
-    }
+    const key = name.toLowerCase();
+    const now = Date.now();
+    if (lastEffect[key] && now - lastEffect[key] < DEDUP_MS) return;
+    lastEffect[key] = now;
 
-    const audio = start(name, entry, v, loops, type, a => {
-      if (effect && effect.audio === a) effect = null;
-    });
-    effect = { audio, priority: p, type, v };
+    if (!makeRoom(effects, capOf('effect'), p)) return;
+    startVoice(effects, name, entry, v, loops, type, { priority: p, name: key });
   });
 }
 
-/** Fade out over ~100 ms instead of a click. */
-function fadeOut(audio) {
-  const v0 = audio.volume;
-  let step = 0;
-  const id = setInterval(() => {
-    step++;
-    audio.volume = Math.max(0, v0 * (1 - step / 5));
-    if (step >= 5) {
-      clearInterval(id);
-      audio.pause();
-    }
-  }, 20);
-}
-
-/** The spell channel. Casts land every few seconds and a sound runs 2-4 s, so
- *  the same spell again replaces the one still playing (it would be dropped
- *  on a tie otherwise); a different spell of the same priority still waits. */
+/** The spell pool. Casts land every few seconds and a sound runs 2-4 s, so
+ *  the same spell again replaces its own voice instead of stacking; other
+ *  spells overlap up to the cap. */
 function playSpell(name, entry, v, loops, p) {
   const base = name.replace(/\.(wav|mid|ogg|mp3)$/i, '').toLowerCase();
   const now = Date.now();
@@ -272,21 +440,16 @@ function playSpell(name, entry, v, loops, p) {
   recent[base] = { t: now, n };
   v = Math.round(v * DAMP[n]);
 
-  if (spell && !spell.audio.ended && !spell.audio.paused) {
-    if (p < spell.priority || (p === spell.priority && spell.base !== base)) return;
-    fadeOut(spell.audio);
-  }
-  const audio = start(name, entry, v, loops, 'spell', a => {
-    if (spell && spell.audio === a) spell = null;
-  });
-  spell = { audio, priority: p, type: 'spell', v, base };
+  const same = spells.find(voice => voice.base === base);
+  if (same) {
+    if (p < same.priority) return;
+    same.stop(true);
+  } else if (!makeRoom(spells, capOf('spell'), p)) return;
+  startVoice(spells, name, entry, v, loops, 'spell', { priority: p, base });
 }
 
 export function stopSound() {
-  if (effect) effect.audio.pause();
-  effect = null;
-  if (spell) spell.audio.pause();
-  spell = null;
+  effects.concat(spells).forEach(voice => voice.stop(false));
 }
 
 /** MSP !!MUSIC. opts: V, L, C (1 = keep playing the same track, 0 = restart). */
