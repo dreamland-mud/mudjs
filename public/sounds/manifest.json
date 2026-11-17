@@ -2211,6 +2211,62 @@
    "author": "stwime",
    "source": "https://freesound.org/people/stwime/sounds/545370/",
    "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/shift_bear",
+   "type": "spell",
+   "file": "spell/shift_bear.mp3",
+   "label": {
+    "en": "Shapeshift: bear",
+    "ru": "Перекинуться: медведь",
+    "ua": "Перекинутися: ведмідь"
+   },
+   "title": "Synthetic Bear Growl 2",
+   "author": "Piddipop",
+   "source": "https://freesound.org/people/Piddipop/sounds/728102/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/shift_lizard",
+   "type": "spell",
+   "file": "spell/shift_lizard.mp3",
+   "label": {
+    "en": "Shapeshift: lizard",
+    "ru": "Перекинуться: ящер",
+    "ua": "Перекинутися: ящірка"
+   },
+   "title": "Hissing",
+   "author": "VisualPony",
+   "source": "https://freesound.org/people/VisualPony/sounds/269111/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/shift_wolverine",
+   "type": "spell",
+   "file": "spell/shift_wolverine.mp3",
+   "label": {
+    "en": "Shapeshift: wolverine",
+    "ru": "Перекинуться: росомаха",
+    "ua": "Перекинутися: росомаха"
+   },
+   "title": "Creature Snarl",
+   "author": "ChuckChuckGoof",
+   "source": "https://freesound.org/people/ChuckChuckGoof/sounds/743297/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/shift_end",
+   "type": "spell",
+   "file": "spell/shift_end.mp3",
+   "label": {
+    "en": "Shapeshift: form ends",
+    "ru": "Перекинуться: конец формы",
+    "ua": "Перекинутися: кінець форми"
+   },
+   "title": "Bone Crack 2 (Like Murder Drones's sound)",
+   "author": "Vikra9409",
+   "source": "https://freesound.org/people/Vikra9409/sounds/825525/",
+   "license": "CC0 1.0"
   }
  ]
 }
