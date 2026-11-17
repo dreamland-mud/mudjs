@@ -239,6 +239,34 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "ambient/air",
+   "type": "ambient",
+   "file": "ambient/air.mp3",
+   "label": {
+    "en": "High wind",
+    "ru": "Ветер в вышине",
+    "ua": "Вітер у височині"
+   },
+   "title": "Demential, strong wind through the edges of an aluminum door 1 @ 96 KHz 24bit",
+   "author": "Bronxio",
+   "source": "https://freesound.org/people/Bronxio/sounds/376644/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/birds",
+   "type": "ambient",
+   "file": "ambient/birds.mp3",
+   "label": {
+    "en": "Birds",
+    "ru": "Птицы",
+    "ua": "Птахи"
+   },
+   "title": "forest-bird (1).WAV",
+   "author": "sama66",
+   "source": "https://freesound.org/people/sama66/sounds/462137/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "ambient/cave",
    "type": "ambient",
    "file": "ambient/cave.mp3",
@@ -261,9 +289,65 @@
     "ru": "Город",
     "ua": "Місто"
    },
-   "title": "Town Square Ambience.aif",
-   "author": "ftpalad",
-   "source": "https://freesound.org/people/ftpalad/sounds/119934/",
+   "title": "S032_Voices_in_Bazaar_Mono.wav",
+   "author": "Pól",
+   "source": "https://freesound.org/people/P%C3%B3l/sounds/385915/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/city_night",
+   "type": "ambient",
+   "file": "ambient/city_night.mp3",
+   "label": {
+    "en": "City at night",
+    "ru": "Ночной город",
+    "ua": "Нічне місто"
+   },
+   "title": "Silencyo_VILLAGE_NIGHT_Fountain_Reverberant_space_MSd.aif",
+   "author": "silencyo",
+   "source": "https://freesound.org/people/silencyo/sounds/81734/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/crickets",
+   "type": "ambient",
+   "file": "ambient/crickets.mp3",
+   "label": {
+    "en": "Crickets",
+    "ru": "Сверчки",
+    "ua": "Цвіркуни"
+   },
+   "title": "Forest atmosphere at night with cicada, cricket, bird recorded in the Amazon rainforest",
+   "author": "felix.blume",
+   "source": "https://freesound.org/people/felix.blume/sounds/669609/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/desert",
+   "type": "ambient",
+   "file": "ambient/desert.mp3",
+   "label": {
+    "en": "Desert",
+    "ru": "Пустыня",
+    "ua": "Пустеля"
+   },
+   "title": "Wind blowing and howling in a plastic bottle, in the desert of Chile.",
+   "author": "felix.blume",
+   "source": "https://freesound.org/people/felix.blume/sounds/147512/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/dungeon",
+   "type": "ambient",
+   "file": "ambient/dungeon.mp3",
+   "label": {
+    "en": "Dungeon",
+    "ru": "Подземелье",
+    "ua": "Підземелля"
+   },
+   "title": "Echo Dungeon 2",
+   "author": "ibm5155",
+   "source": "https://freesound.org/people/ibm5155/sounds/397956/",
    "license": "CC0 1.0"
   },
   {
@@ -295,6 +379,34 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "ambient/sea",
+   "type": "ambient",
+   "file": "ambient/sea.mp3",
+   "label": {
+    "en": "Sea",
+    "ru": "Море",
+    "ua": "Море"
+   },
+   "title": "Sea & Waves Gordons Bay",
+   "author": "IanFSA",
+   "source": "https://freesound.org/people/IanFSA/sounds/755303/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "ambient/stream",
+   "type": "ambient",
+   "file": "ambient/stream.mp3",
+   "label": {
+    "en": "Stream",
+    "ru": "Ручей",
+    "ua": "Струмок"
+   },
+   "title": "stream1.wav",
+   "author": "gluckose",
+   "source": "https://freesound.org/people/gluckose/sounds/333984/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "ambient/thunder",
    "type": "ambient",
    "file": "ambient/thunder.mp3",
@@ -309,9 +421,9 @@
    "license": "CC0 1.0"
   },
   {
-   "name": "ambient/water",
+   "name": "ambient/underwater",
    "type": "ambient",
-   "file": "ambient/water.mp3",
+   "file": "ambient/underwater.mp3",
    "label": {
     "en": "Underwater",
     "ru": "Под водой",
@@ -589,17 +701,101 @@
    "license": "CC0 1.0"
   },
   {
-   "name": "music/fight",
+   "name": "music/fight_1",
    "type": "music",
-   "file": "music/fight.mp3",
+   "file": "music/fight_1.mp3",
    "label": {
-    "en": "Battle drums",
-    "ru": "Боевые барабаны",
-    "ua": "Бойові барабани"
+    "en": "Battle drums 1",
+    "ru": "Боевые барабаны 1",
+    "ua": "Бойові барабани 1"
    },
-   "title": "Tribe Drum Loop",
-   "author": "PearceWilsonKing",
-   "source": "https://freesound.org/people/PearceWilsonKing/sounds/342465/",
+   "title": "cinematic_drum_loop_shortsword_140",
+   "author": "harrisonlace",
+   "source": "https://freesound.org/people/harrisonlace/sounds/877282/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "music/fight_2",
+   "type": "music",
+   "file": "music/fight_2.mp3",
+   "label": {
+    "en": "Battle drums 2",
+    "ru": "Боевые барабаны 2",
+    "ua": "Бойові барабани 2"
+   },
+   "title": "cinematic_drum_loop_shellshock_143",
+   "author": "harrisonlace",
+   "source": "https://freesound.org/people/harrisonlace/sounds/871671/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "music/fight_3",
+   "type": "music",
+   "file": "music/fight_3.mp3",
+   "label": {
+    "en": "Battle drums 3",
+    "ru": "Боевые барабаны 3",
+    "ua": "Бойові барабани 3"
+   },
+   "title": "cinematic_drum_loop_ares_127",
+   "author": "harrisonlace",
+   "source": "https://freesound.org/people/harrisonlace/sounds/873168/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "music/fight_4",
+   "type": "music",
+   "file": "music/fight_4.mp3",
+   "label": {
+    "en": "Battle drums 4",
+    "ru": "Боевые барабаны 4",
+    "ua": "Бойові барабани 4"
+   },
+   "title": "cinematic_drum_loop_paradoxical_165",
+   "author": "harrisonlace",
+   "source": "https://freesound.org/people/harrisonlace/sounds/876541/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "music/fight_5",
+   "type": "music",
+   "file": "music/fight_5.mp3",
+   "label": {
+    "en": "Battle drums 5",
+    "ru": "Боевые барабаны 5",
+    "ua": "Бойові барабани 5"
+   },
+   "title": "cinematic_drum_loop_battle_172",
+   "author": "harrisonlace",
+   "source": "https://freesound.org/people/harrisonlace/sounds/868964/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "music/fight_6",
+   "type": "music",
+   "file": "music/fight_6.mp3",
+   "label": {
+    "en": "Battle drums 6",
+    "ru": "Боевые барабаны 6",
+    "ua": "Бойові барабани 6"
+   },
+   "title": "cinematic_drum_loop_acid_runner_172",
+   "author": "harrisonlace",
+   "source": "https://freesound.org/people/harrisonlace/sounds/868378/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "music/fight_7",
+   "type": "music",
+   "file": "music/fight_7.mp3",
+   "label": {
+    "en": "Battle drums 7",
+    "ru": "Боевые барабаны 7",
+    "ua": "Бойові барабани 7"
+   },
+   "title": "cinematic_drum_loop_construction_elements_140",
+   "author": "harrisonlace",
+   "source": "https://freesound.org/people/harrisonlace/sounds/878033/",
    "license": "CC0 1.0"
   },
   {
