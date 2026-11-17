@@ -820,15 +820,6 @@ header.MuiPaper-root.MuiAppBar-root {
   content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   opacity:0;transition:opacity .35s ease;
 }
-/* Form layer (body[data-form], set by combatui.js): a steady rim drawn on the
-   element itself, so it sits under the ::before/::after pulse and survives any
-   data-glow state. Static shadow: it never animates, so it costs nothing per
-   frame. Tighter than the red reach so the two read as rim + beat, not mud.
-   shape (druid shapeshift) -> thick green */
-.terminal-glow{transition:box-shadow .35s ease}
-body[data-form="shape"] .terminal-glow{
-  box-shadow:inset 0 0 140px 0 rgba(40,170,60,.60),inset 0 0 300px 0 rgba(40,170,60,.28);
-}
 .terminal-glow::before{box-shadow:var(--glow-base,none)}
 .terminal-glow::after{box-shadow:var(--glow-peak,none)}
 body[data-glow] .terminal-glow::before{opacity:1}
@@ -861,6 +852,32 @@ body[data-glow="rage"] .terminal-glow{
   --glow-base:inset 0 0 330px 0 rgba(204,0,0,.45),inset 0 0 660px 0 rgba(204,0,0,.21);
   --glow-peak:inset 0 0 575px 0 rgba(204,0,0,.84),inset 0 0 1150px 0 rgba(204,0,0,.42);
 }
+/* shape (druid shapeshift). Out of a fight: a steady thick green rim.
+   In a fight: a two-beat cycle, red then green, each fading out fully before
+   the other so they never mix into brown. ::before carries the red, ::after
+   the green; the cycle is two heartbeats long, so it still quickens with HP.
+   shape-rage uses the rage red. Near death outranks it: dark crimson only. */
+body[data-glow="shape"] .terminal-glow{
+  --glow-base:inset 0 0 140px 0 rgba(40,170,60,.60),inset 0 0 300px 0 rgba(40,170,60,.28);
+}
+body[data-glow="shape-fight"] .terminal-glow::before{box-shadow:inset 0 0 330px 0 rgba(204,0,0,.55),inset 0 0 660px 0 rgba(204,0,0,.26)}
+body[data-glow="shape-rage"] .terminal-glow::before{box-shadow:inset 0 0 575px 0 rgba(204,0,0,.84),inset 0 0 1150px 0 rgba(204,0,0,.42)}
+body[data-glow="shape-fight"] .terminal-glow::after,
+body[data-glow="shape-rage"] .terminal-glow::after{box-shadow:inset 0 0 330px 0 rgba(40,170,60,.70),inset 0 0 660px 0 rgba(40,170,60,.32)}
+@keyframes glow-alt-first{
+  0%{opacity:0;animation-timing-function:linear}
+  7%{opacity:1;animation-timing-function:ease-out}
+  50%,100%{opacity:0}
+}
+@keyframes glow-alt-second{
+  0%,50%{opacity:0;animation-timing-function:linear}
+  57%{opacity:1;animation-timing-function:ease-out}
+  100%{opacity:0}
+}
+body[data-glow="shape-fight"] .terminal-glow::before,
+body[data-glow="shape-rage"] .terminal-glow::before{animation:glow-alt-first calc(var(--beat,1.15s) * 2) infinite}
+body[data-glow="shape-fight"] .terminal-glow::after,
+body[data-glow="shape-rage"] .terminal-glow::after{animation:glow-alt-second calc(var(--beat,1.15s) * 2) infinite}
 /* neardeath (<=25% HP) -> heavy dark-crimson throb that never fully recedes */
 body[data-glow="neardeath"] .terminal-glow{
   --glow-base:inset 0 0 300px 0 rgba(110,0,15,.44),inset 0 0 600px 0 rgba(110,0,15,.22);
@@ -920,6 +937,7 @@ body[data-glow="hide"] .terminal-glow{
   body[data-glow] .terminal-glow::before,
   body[data-glow] .terminal-glow::after{animation:none}
   body[data-glow] .terminal-glow::after{opacity:.5;will-change:auto}
+  body[data-glow^="shape-"] .terminal-glow::before{opacity:.5}
 }
 
 /* --- Boss phase flash (src/bossflash.js) ------------------------------------

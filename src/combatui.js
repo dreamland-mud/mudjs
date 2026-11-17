@@ -42,7 +42,6 @@ function clearState() {
   const body = document.body;
   body.classList.remove('mud-fighting', 'mud-rage');
   delete body.dataset.glow;
-  delete body.dataset.form;
   body.style.removeProperty('--beat');
   if (window.mudprompt)
     for (const k of STATE_KEYS) delete window.mudprompt[k];
@@ -68,12 +67,10 @@ $(function () {
     // so rage reads as blood over the whole view. Gated on fighting -- a rage buff
     // still ticking in town shouldn't paint the client red.
     const raging = fighting && !!p.rage;
-    // Druid shapeshift (prompt.shape = bear/lizard/wolverine) is a second,
-    // independent layer: a steady green rim on .terminal-glow itself, under the
-    // pulse vignette below. "What you are" (the form) and "what is happening to
-    // you" (fight, rage, dying) show at once instead of fighting for one slot.
-    if (p.shape) body.dataset.form = 'shape';
-    else delete body.dataset.form;
+    // Druid shapeshift (prompt.shape = bear/lizard/wolverine). In a fight the
+    // beat alternates red (combat) and green (the form), so both read at once;
+    // out of a fight the form is a steady green rim.
+    const shaped = !!p.shape;
 
     // Combat classes still drive the input stroke + red button panel.
     body.classList.toggle('mud-fighting', fighting);
@@ -100,8 +97,9 @@ $(function () {
       nearDeath ? 'neardeath' :
       p.blind ? 'blind' :
       p.mind ? 'mind' :
-      raging ? 'rage' :
-      fighting ? 'fight' :
+      raging ? (shaped ? 'shape-rage' : 'rage') :
+      fighting ? (shaped ? 'shape-fight' : 'fight') :
+      shaped ? 'shape' :
       p.faerie ? 'faerie' :
       p.poison ? 'poison' :
       p.fade ? 'fade' :
