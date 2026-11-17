@@ -151,7 +151,10 @@ export function findSounds(re) {
 
 /** URL of a library entry's file. */
 export function soundUrl(entry) {
-  return BASE + entry.file;
+  // v is the file's content hash, stamped into the built manifest
+  // (vite.config.js stampSoundManifest): sounds are cached for a week, so a
+  // replaced file needs a new URL or players keep hearing the old one.
+  return BASE + entry.file + (entry.v ? '?v=' + entry.v : '');
 }
 
 /** The library, loaded once. Resolves to [] when the manifest is missing. */
@@ -207,14 +210,14 @@ function applyVolumes() {
 
 /** Play `loops` times (-1 = until stopped), re-resolving wildcards per loop. */
 function start(name, entry, v, loops, type, onEnd) {
-  const audio = new Audio(BASE + entry.file);
+  const audio = new Audio(soundUrl(entry));
   audio.volume = gain(type, v);
   let left = loops;
   audio.addEventListener('ended', () => {
     if (left > 0) left--;
     if (left === 0) return onEnd(audio);
     const next = resolve(name) || entry;
-    audio.src = BASE + next.file;
+    audio.src = soundUrl(next);
     audio.play().catch(() => onEnd(audio));
   });
   // Rejected until the first click or key on the page (browser autoplay rule).
@@ -226,7 +229,7 @@ function start(name, entry, v, loops, type, onEnd) {
 
 let ctx = null; // AudioContext, null where the browser has none
 let bus = null; // compressor -> destination; every voice feeds it
-// file -> Promise<AudioBuffer>, least recently used first. A decoded second
+// url -> Promise<AudioBuffer>, least recently used first. A decoded second
 // is ~190 KB of floats, so only the last BUFFER_CAP files stay decoded.
 const buffers = new Map();
 const BUFFER_CAP = 40;
@@ -268,23 +271,23 @@ function context() {
   )
 );
 
-function decode(file) {
-  let job = buffers.get(file);
+function decode(url) {
+  let job = buffers.get(url);
   if (job) {
-    buffers.delete(file); // re-insert: most recently used
+    buffers.delete(url); // re-insert: most recently used
   } else {
-    job = fetch(BASE + file)
+    job = fetch(url)
       .then(r => {
         if (!r.ok) throw new Error(r.status);
         return r.arrayBuffer();
       })
       .then(data => new Promise((ok, fail) => ctx.decodeAudioData(data, ok, fail)))
       .catch(e => {
-        buffers.delete(file); // a network blip must not silence it for good
+        buffers.delete(url); // a network blip must not silence it for good
         throw e;
       });
   }
-  buffers.set(file, job);
+  buffers.set(url, job);
   if (buffers.size > BUFFER_CAP) buffers.delete(buffers.keys().next().value);
   return job;
 }
@@ -327,7 +330,7 @@ function startVoice(pool, name, entry, v, loops, type, meta) {
     voice.g.gain.value = gain(type, v);
     voice.g.connect(bus);
     play = e =>
-      decode(e.file)
+      decode(soundUrl(e))
         .then(buf => {
           if (voice.dead) return;
           const src = c.createBufferSource();
@@ -364,7 +367,7 @@ function startVoice(pool, name, entry, v, loops, type, meta) {
       if (!voice.dead) next();
     });
     play = e => {
-      audio.src = BASE + e.file;
+      audio.src = soundUrl(e);
       audio.play().catch(finish);
     };
     voice.setVolume = x => {
