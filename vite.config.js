@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 
 /**
  * Dev-only: serve the DL mapper graph JSON (/maps/graph/*) from a local, gitignored
@@ -119,8 +120,33 @@ function emitSoundpack() {
   };
 }
 
+/** After the build copies public/, stamp build/sounds/manifest.json: each entry gets v, the
+ * first 10 hex of its file's md5. The client puts it in the URL (sound.js soundUrl), so a
+ * replaced sound gets a new URL despite nginx's week-long cache on /play/sounds. */
+function stampSoundManifest() {
+  let outDir = 'build';
+  return {
+    name: 'dl-stamp-sound-manifest',
+    apply: 'build',
+    configResolved(cfg) {
+      outDir = cfg.build.outDir;
+    },
+    closeBundle() {
+      const dir = path.resolve(__dirname, outDir, 'sounds');
+      const file = path.join(dir, 'manifest.json');
+      if (!fs.existsSync(file)) return;
+      const m = JSON.parse(fs.readFileSync(file, 'utf8'));
+      for (const s of m.sounds || []) {
+        const f = path.join(dir, s.file);
+        if (fs.existsSync(f)) s.v = crypto.createHash('md5').update(fs.readFileSync(f)).digest('hex').slice(0, 10);
+      }
+      fs.writeFileSync(file, JSON.stringify(m));
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react(), devMapperGraph(), emitVersion(), emitSoundpack()],
+  plugins: [react(), devMapperGraph(), emitVersion(), emitSoundpack(), stampSoundManifest()],
   define: {
     __BUILD_ID__: JSON.stringify(BUILD_ID),
   },
