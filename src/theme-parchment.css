@@ -820,6 +820,15 @@ header.MuiPaper-root.MuiAppBar-root {
   content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   opacity:0;transition:opacity .35s ease;
 }
+/* Form layer (body[data-form], set by combatui.js): a steady rim drawn on the
+   element itself, so it sits under the ::before/::after pulse and survives any
+   data-glow state. Static shadow: it never animates, so it costs nothing per
+   frame. Tighter than the red reach so the two read as rim + beat, not mud.
+   shape (druid shapeshift) -> thick green */
+.terminal-glow{transition:box-shadow .35s ease}
+body[data-form="shape"] .terminal-glow{
+  box-shadow:inset 0 0 140px 0 rgba(40,170,60,.60),inset 0 0 300px 0 rgba(40,170,60,.28);
+}
 .terminal-glow::before{box-shadow:var(--glow-base,none)}
 .terminal-glow::after{box-shadow:var(--glow-peak,none)}
 body[data-glow] .terminal-glow::before{opacity:1}
@@ -852,11 +861,6 @@ body[data-glow="rage"] .terminal-glow{
   --glow-base:inset 0 0 330px 0 rgba(204,0,0,.45),inset 0 0 660px 0 rgba(204,0,0,.21);
   --glow-peak:inset 0 0 575px 0 rgba(204,0,0,.84),inset 0 0 1150px 0 rgba(204,0,0,.42);
 }
-/* shape (druid shapeshift) -> the rage beat, in green */
-body[data-glow="shape"] .terminal-glow{
-  --glow-base:inset 0 0 330px 0 rgba(40,160,50,.45),inset 0 0 660px 0 rgba(40,160,50,.21);
-  --glow-peak:inset 0 0 575px 0 rgba(40,160,50,.84),inset 0 0 1150px 0 rgba(40,160,50,.42);
-}
 /* neardeath (<=25% HP) -> heavy dark-crimson throb that never fully recedes */
 body[data-glow="neardeath"] .terminal-glow{
   --glow-base:inset 0 0 300px 0 rgba(110,0,15,.44),inset 0 0 600px 0 rgba(110,0,15,.22);
@@ -864,11 +868,9 @@ body[data-glow="neardeath"] .terminal-glow{
 }
 body[data-glow="fight"] .terminal-glow::before,
 body[data-glow="rage"] .terminal-glow::before,
-body[data-glow="shape"] .terminal-glow::before,
 body[data-glow="neardeath"] .terminal-glow::before{animation:glow-beat-base var(--beat,1.15s) infinite}
 body[data-glow="fight"] .terminal-glow::after,
 body[data-glow="rage"] .terminal-glow::after,
-body[data-glow="shape"] .terminal-glow::after,
 body[data-glow="neardeath"] .terminal-glow::after{animation:glow-beat-peak var(--beat,1.15s) infinite}
 
 /* blind -> white wash, slow deep breathe (a fast strobe read as a disco -- Kerrad) */
