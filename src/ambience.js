@@ -6,6 +6,10 @@
 //   layers: library names, e.g. ["ambient/rain", "ambient/thunder"]
 //   music:  a library name, or "" for none
 // What is new fades in, what is gone fades out, what stays keeps playing.
+// A name picks at random among its numbered variants (music/fight,
+// music/fight_2...) when its track starts, and that pick holds for the life
+// of the track: tracks are keyed by the base name, so the drums do not swap
+// mid-fight.
 //
 // WebAudio, not <audio loop>: a looping AudioBufferSourceNode is gapless on
 // every engine, Safari and iOS included, where HTMLAudio leaves a click or a
@@ -18,7 +22,7 @@
 // Mute, an 'msp' frame with false and a new connection stop everything.
 
 import $ from 'jquery';
-import { loadLibrary, findSound, findSounds, soundUrl, gain, getSoundPrefs, onSoundPrefs } from './sound.js';
+import { loadLibrary, findVariant, findSounds, soundUrl, gain, getSoundPrefs, onSoundPrefs } from './sound.js';
 
 const LAYER_IN = 2.5;
 const LAYER_OUT = 2.5;
@@ -209,7 +213,7 @@ function apply() {
         if (findSounds(THUNDER_RE).length) layers.set(name, startThunder());
         return;
       }
-      const entry = findSound(name);
+      const entry = findVariant(name);
       if (entry) layers.set(name, startLoop(entry, ambientBus, LAYER_IN));
     });
 
@@ -218,7 +222,7 @@ function apply() {
       musicTrack = null;
     }
     if (music && !musicTrack) {
-      const entry = findSound(music);
+      const entry = findVariant(music);
       if (entry) {
         musicTrack = startLoop(entry, musicBus, MUSIC_IN);
         musicTrack.name = music;

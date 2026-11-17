@@ -119,10 +119,22 @@ export function onSoundPrefs(fn) {
   prefsListeners.push(fn);
 }
 
-/** The library entry with exactly this name, or null (library not loaded yet,
- *  or no such sound). */
-export function findSound(name) {
-  return (library && library.find(s => s.name === name)) || null;
+/** Every library entry named `name` or a numbered variant of it (name_2,
+ *  name_3...). Empty when the library is not loaded yet. */
+function variantsOf(name) {
+  if (!library) return [];
+  const esc = name.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('^' + esc + '(_\\d+)?$', 'i');
+  return library.filter(s => re.test(s.name));
+}
+
+const pickRandom = list => list[Math.floor(Math.random() * list.length)];
+
+/** A random entry among `name` and its numbered variants, or null (library
+ *  not loaded yet, or no such sound). */
+export function findVariant(name) {
+  const hits = variantsOf(name);
+  return hits.length ? pickRandom(hits) : null;
 }
 
 /** Every library entry whose name matches re. */
@@ -167,15 +179,11 @@ function resolve(name) {
   const re = wildcard(clean);
   let hits;
   if (/[*?]/.test(clean)) hits = library.filter(s => re.test(s.name));
-  else {
-    const esc = clean.replace(/[.+^${}()|[\]\\]/g, '\\$&');
-    const variants = new RegExp('^' + esc + '(_\\d+)?$', 'i');
-    hits = library.filter(s => variants.test(s.name));
-  }
+  else hits = variantsOf(clean);
   if (hits.length === 0 && clean.indexOf('/') < 0)
     hits = library.filter(s => re.test(s.name.split('/').pop()));
   if (hits.length === 0) return null;
-  return hits[Math.floor(Math.random() * hits.length)];
+  return pickRandom(hits);
 }
 
 /** 0..1 for a sound type at volume v (0-100): master * type * v, 0 when muted. */
