@@ -127,10 +127,17 @@ function terminalInit(wrap) {
     // by the output tools of a later PR).
     if (announceFilter) text = String(announceFilter(text) || '').trim();
     if (!text) return;
-    const line = document.createElement('div');
-    line.textContent = text;
-    announcer.appendChild(line);
-    setTimeout(() => line.remove(), ANNOUNCE_KEEP_MS);
+    // One node per output line: a screen reader then queues each line as its
+    // own utterance, and its "previous/next spoken" keys step through the room
+    // name, description, exits, contents and prompt one at a time.
+    text.split('\n').forEach(part => {
+      part = part.trim();
+      if (!part) return;
+      const line = document.createElement('div');
+      line.textContent = part;
+      announcer.appendChild(line);
+      setTimeout(() => line.remove(), ANNOUNCE_KEEP_MS);
+    });
   };
 
   /* Cut the DOM back to maxBytesOnScreen from one end, in one batch. Removing
