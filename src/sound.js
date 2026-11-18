@@ -36,12 +36,12 @@ import $ from 'jquery';
 const BASE = import.meta.env.BASE_URL + 'sounds/';
 const PREFS_KEY = 'mudjs.sound';
 
-export const SOUND_TYPES = ['combat', 'spell', 'alert', 'chat', 'ui', 'ambient', 'music'];
+export const SOUND_TYPES = ['combat', 'spell', 'skill', 'alert', 'chat', 'ui', 'ambient', 'music'];
 
 const DEFAULT_PREFS = {
   mute: false,
   master: 80,
-  types: { combat: 100, spell: 70, alert: 100, chat: 100, ui: 100, ambient: 0, music: 0 },
+  types: { combat: 100, spell: 70, skill: 70, alert: 100, chat: 100, ui: 100, ambient: 0, music: 0 },
 };
 // With a screen reader the background tells where you are (rain = outdoors,
 // fire = resting, drums = a boss), so it is on, low enough to sit under the
@@ -420,7 +420,7 @@ export function playSound(name, opts = {}) {
     const type = (opts.T || entry.type || 'alert').toLowerCase();
     if (gain(type, v) === 0) return; // silent: do not fetch it at all
     if (!canPlay()) return;
-    if (type === 'spell') return playSpell(name, entry, v, loops, p);
+    if (type === 'spell' || type === 'skill') return playSpell(name, entry, v, loops, p, type);
 
     const key = name.toLowerCase();
     const now = Date.now();
@@ -432,10 +432,10 @@ export function playSound(name, opts = {}) {
   });
 }
 
-/** The spell pool. Casts land every few seconds and a sound runs 2-4 s, so
- *  the same spell again replaces its own voice instead of stacking; other
- *  spells overlap up to the cap. */
-function playSpell(name, entry, v, loops, p) {
+/** The spell pool, shared by skills. Casts and skill uses land every few
+ *  seconds and a sound runs 1-4 s, so the same sound again replaces its own
+ *  voice instead of stacking; others overlap up to the cap. */
+function playSpell(name, entry, v, loops, p, type = 'spell') {
   const base = name.replace(/\.(wav|mid|ogg|mp3)$/i, '').toLowerCase();
   const now = Date.now();
   const last = recent[base];
@@ -448,7 +448,7 @@ function playSpell(name, entry, v, loops, p) {
     if (p < same.priority) return;
     same.stop(true);
   } else if (!makeRoom(spells, capOf('spell'), p)) return;
-  startVoice(spells, name, entry, v, loops, 'spell', { priority: p, base });
+  startVoice(spells, name, entry, v, loops, type, { priority: p, base });
 }
 
 export function stopSound() {

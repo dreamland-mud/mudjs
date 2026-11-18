@@ -2267,6 +2267,678 @@
    "author": "Vikra9409",
    "source": "https://freesound.org/people/Vikra9409/sounds/825525/",
    "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/ambush",
+   "type": "skill",
+   "file": "skill/ambush.mp3",
+   "label": {
+    "en": "Skill: ambush",
+    "ru": "Умение: засада",
+    "ua": "Навичка: засідка"
+   },
+   "title": "Bush Rustle.m4a",
+   "author": "RoyalRose",
+   "source": "https://freesound.org/people/RoyalRose/sounds/560261/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/anvil",
+   "type": "skill",
+   "file": "skill/anvil.mp3",
+   "label": {
+    "en": "Skill: anvil",
+    "ru": "Умение: наковальня",
+    "ua": "Навичка: ковадло"
+   },
+   "title": "Anvil - Lokomo A 100 kg - Hammer on back 1 time",
+   "author": "ldezem",
+   "source": "https://freesound.org/people/ldezem/sounds/386099/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/assassinate",
+   "type": "skill",
+   "file": "skill/assassinate.mp3",
+   "label": {
+    "en": "Skill: assassination",
+    "ru": "Умение: убийство",
+    "ua": "Навичка: вбивство"
+   },
+   "title": "Necksnap_build.wav",
+   "author": "danielrutterfilms",
+   "source": "https://freesound.org/people/danielrutterfilms/sounds/134025/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/bandage",
+   "type": "skill",
+   "file": "skill/bandage.mp3",
+   "label": {
+    "en": "Skill: bandage",
+    "ru": "Умение: перевязка",
+    "ua": "Навичка: перевʼязка"
+   },
+   "title": "Cloth Tearing and Ripping - Flannel, Cotton, Scraps - Close Mic - Short & Fast",
+   "author": "ChristopherJngs",
+   "source": "https://freesound.org/people/ChristopherJngs/sounds/719004/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/beast",
+   "type": "skill",
+   "file": "skill/beast.mp3",
+   "label": {
+    "en": "Skill: beast roar",
+    "ru": "Умение: рёв зверя",
+    "ua": "Навичка: рик звіра"
+   },
+   "title": "Didgeridoo Monster Roar",
+   "author": "Noxdl",
+   "source": "https://freesound.org/people/Noxdl/sounds/204912/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/bite",
+   "type": "skill",
+   "file": "skill/bite.mp3",
+   "label": {
+    "en": "Skill: vampire bite",
+    "ru": "Умение: укус вампира",
+    "ua": "Навичка: укус вампіра"
+   },
+   "title": "Gut Rip (Bladed)",
+   "author": "magnuswaker",
+   "source": "https://freesound.org/people/magnuswaker/sounds/522168/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/blackjack",
+   "type": "skill",
+   "file": "skill/blackjack.mp3",
+   "label": {
+    "en": "Skill: blackjack",
+    "ru": "Умение: дубинка",
+    "ua": "Навичка: кийок"
+   },
+   "title": "platzender Kopf_nachSchlag.wav",
+   "author": "huluvu42",
+   "source": "https://freesound.org/people/huluvu42/sounds/87572/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/bow",
+   "type": "skill",
+   "file": "skill/bow.mp3",
+   "label": {
+    "en": "Skill: bow shot",
+    "ru": "Умение: выстрел из лука",
+    "ua": "Навичка: постріл з лука"
+   },
+   "title": "FX_bow&arrow.wav",
+   "author": "Lydmakeren",
+   "source": "https://freesound.org/people/Lydmakeren/sounds/511490/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/butcher",
+   "type": "skill",
+   "file": "skill/butcher.mp3",
+   "label": {
+    "en": "Skill: butchering",
+    "ru": "Умение: разделка",
+    "ua": "Навичка: оббілування"
+   },
+   "title": "chopping_meat.wav",
+   "author": "helenacm",
+   "source": "https://freesound.org/people/helenacm/sounds/101733/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/caltrops",
+   "type": "skill",
+   "file": "skill/caltrops.mp3",
+   "label": {
+    "en": "Skill: caltrops",
+    "ru": "Умение: шипы",
+    "ua": "Навичка: шипи"
+   },
+   "title": "Nail_Drop_008.wav",
+   "author": "Cerp7",
+   "source": "https://freesound.org/people/Cerp7/sounds/188357/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/choke",
+   "type": "skill",
+   "file": "skill/choke.mp3",
+   "label": {
+    "en": "Skill: strangle",
+    "ru": "Умение: удушение",
+    "ua": "Навичка: задушення"
+   },
+   "title": "Zisa, Choke, Inhale, Wheeze, Strangle, High Pitched_4.wav",
+   "author": "hisoul",
+   "source": "https://freesound.org/people/hisoul/sounds/520286/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/chop",
+   "type": "skill",
+   "file": "skill/chop.mp3",
+   "label": {
+    "en": "Skill: woodcutting",
+    "ru": "Умение: рубка дерева",
+    "ua": "Навичка: рубання дерева"
+   },
+   "title": "axe chop into wood little debris.wav",
+   "author": "kyles",
+   "source": "https://freesound.org/people/kyles/sounds/452554/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/claw",
+   "type": "skill",
+   "file": "skill/claw.mp3",
+   "label": {
+    "en": "Skill: claw",
+    "ru": "Умение: когти",
+    "ua": "Навичка: кігті"
+   },
+   "title": "monster bite",
+   "author": "LucasDuff",
+   "source": "https://freesound.org/people/LucasDuff/sounds/467701/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/cleave",
+   "type": "skill",
+   "file": "skill/cleave.mp3",
+   "label": {
+    "en": "Skill: cleave",
+    "ru": "Умение: рассечение",
+    "ua": "Навичка: розтин"
+   },
+   "title": "Gore Impact - \"LOT OF HEART\"",
+   "author": "magnuswaker",
+   "source": "https://freesound.org/people/magnuswaker/sounds/641046/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/crowd",
+   "type": "skill",
+   "file": "skill/crowd.mp3",
+   "label": {
+    "en": "Skill: angry crowd",
+    "ru": "Умение: толпа",
+    "ua": "Навичка: натовп"
+   },
+   "title": "Boo 7 Get Off The Stage No You Didn't.wav",
+   "author": "jayfrosting",
+   "source": "https://freesound.org/people/jayfrosting/sounds/333407/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/dig",
+   "type": "skill",
+   "file": "skill/dig.mp3",
+   "label": {
+    "en": "Skill: digging",
+    "ru": "Умение: копание",
+    "ua": "Навичка: копання"
+   },
+   "title": "Digging20200426-125956_01.wav",
+   "author": "szegvari",
+   "source": "https://freesound.org/people/szegvari/sounds/515087/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/doorbash",
+   "type": "skill",
+   "file": "skill/doorbash.mp3",
+   "label": {
+    "en": "Skill: door bash",
+    "ru": "Умение: выбить дверь",
+    "ua": "Навичка: вибити двері"
+   },
+   "title": "Kicking/Forcing/Breaking Wooden Door",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/160213/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/draw",
+   "type": "skill",
+   "file": "skill/draw.mp3",
+   "label": {
+    "en": "Skill: blade draw",
+    "ru": "Умение: выхват клинка",
+    "ua": "Навичка: вихоплення клинка"
+   },
+   "title": "Sword draw unsheathe",
+   "author": "SamsterBirdies",
+   "source": "https://freesound.org/people/SamsterBirdies/sounds/581594/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/drums",
+   "type": "skill",
+   "file": "skill/drums.mp3",
+   "label": {
+    "en": "Skill: war drums",
+    "ru": "Умение: боевые барабаны",
+    "ua": "Навичка: бойові барабани"
+   },
+   "title": "IMPACT ROLL",
+   "author": "XHALE303",
+   "source": "https://freesound.org/people/XHALE303/sounds/535607/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/dust",
+   "type": "skill",
+   "file": "skill/dust.mp3",
+   "label": {
+    "en": "Skill: dust in the eyes",
+    "ru": "Умение: пыль в глаза",
+    "ua": "Навичка: пил в очі"
+   },
+   "title": "Crumble #5.wav",
+   "author": "abstraktgeneriert",
+   "source": "https://freesound.org/people/abstraktgeneriert/sounds/348948/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/envenom",
+   "type": "skill",
+   "file": "skill/envenom.mp3",
+   "label": {
+    "en": "Skill: envenom",
+    "ru": "Умение: яд на клинок",
+    "ua": "Навичка: отрута на клинок"
+   },
+   "title": "Bottle Drip",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/792924/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/file",
+   "type": "skill",
+   "file": "skill/file.mp3",
+   "label": {
+    "en": "Skill: metal file",
+    "ru": "Умение: напильник",
+    "ua": "Навичка: напилок"
+   },
+   "title": "File on reed edge and metal plaque.WAV",
+   "author": "bassoonrckr",
+   "source": "https://freesound.org/people/bassoonrckr/sounds/329354/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/focus",
+   "type": "skill",
+   "file": "skill/focus.mp3",
+   "label": {
+    "en": "Skill: focus",
+    "ru": "Умение: сосредоточение",
+    "ua": "Навичка: зосередження"
+   },
+   "title": "Deep Inhale & Exhale 1.wav",
+   "author": "EverydayEldritch",
+   "source": "https://freesound.org/people/EverydayEldritch/sounds/615047/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/grapple",
+   "type": "skill",
+   "file": "skill/grapple.mp3",
+   "label": {
+    "en": "Skill: grapple",
+    "ru": "Умение: захват",
+    "ua": "Навичка: захоплення"
+   },
+   "title": "Man Struggle.wav",
+   "author": "HenKonen",
+   "source": "https://freesound.org/people/HenKonen/sounds/682137/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/harakiri",
+   "type": "skill",
+   "file": "skill/harakiri.mp3",
+   "label": {
+    "en": "Skill: hara kiri",
+    "ru": "Умение: харакири",
+    "ua": "Навичка: харакірі"
+   },
+   "title": "Shakuhachi with Echo",
+   "author": "--DeletedUser--",
+   "source": "https://freesound.org/people/--DeletedUser--/sounds/157759/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/heavy",
+   "type": "skill",
+   "file": "skill/heavy.mp3",
+   "label": {
+    "en": "Skill: heavy blow",
+    "ru": "Умение: тяжёлый удар",
+    "ua": "Навичка: важкий удар"
+   },
+   "title": "Spade hacking sound, with gore effects",
+   "author": "Mozfoo",
+   "source": "https://freesound.org/people/Mozfoo/sounds/506314/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/herbs",
+   "type": "skill",
+   "file": "skill/herbs.mp3",
+   "label": {
+    "en": "Skill: herbs",
+    "ru": "Умение: травы",
+    "ua": "Навичка: трави"
+   },
+   "title": "Egg Shell Crunch 11 Single Shot",
+   "author": "velcronator",
+   "source": "https://freesound.org/people/velcronator/sounds/733132/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/jeweler",
+   "type": "skill",
+   "file": "skill/jeweler.mp3",
+   "label": {
+    "en": "Skill: jewelry",
+    "ru": "Умение: ювелирка",
+    "ua": "Навичка: ювелірка"
+   },
+   "title": "Metal Plate Hit 1",
+   "author": "loganzsound",
+   "source": "https://freesound.org/people/loganzsound/sounds/784152/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/kick",
+   "type": "skill",
+   "file": "skill/kick.mp3",
+   "label": {
+    "en": "Skill: kick",
+    "ru": "Умение: пинок",
+    "ua": "Навичка: копняк"
+   },
+   "title": "kicks bass impacts subs by CVLTIV8R 97.wav",
+   "author": "CVLTIV8R",
+   "source": "https://freesound.org/people/CVLTIV8R/sounds/794194/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/knockdown",
+   "type": "skill",
+   "file": "skill/knockdown.mp3",
+   "label": {
+    "en": "Skill: knockdown",
+    "ru": "Умение: сбить с ног",
+    "ua": "Навичка: збити з ніг"
+   },
+   "title": "Sound Design Elements Impact SFX PS 017",
+   "author": "AudioPapkin",
+   "source": "https://freesound.org/people/AudioPapkin/sounds/755054/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/lockpick",
+   "type": "skill",
+   "file": "skill/lockpick.mp3",
+   "label": {
+    "en": "Skill: lock",
+    "ru": "Умение: замок",
+    "ua": "Навичка: замок"
+   },
+   "title": "Unlocking Door Lock",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/160215/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/rescue",
+   "type": "skill",
+   "file": "skill/rescue.mp3",
+   "label": {
+    "en": "Skill: rescue",
+    "ru": "Умение: спасение",
+    "ua": "Навичка: порятунок"
+   },
+   "title": "small-metal-hit-07.wav",
+   "author": "newagesoup",
+   "source": "https://freesound.org/people/newagesoup/sounds/337868/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/saw",
+   "type": "skill",
+   "file": "skill/saw.mp3",
+   "label": {
+    "en": "Skill: saw",
+    "ru": "Умение: пила",
+    "ua": "Навичка: пилка"
+   },
+   "title": "WoodCutting.mp3",
+   "author": "Voxelle",
+   "source": "https://freesound.org/people/Voxelle/sounds/574311/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/shout",
+   "type": "skill",
+   "file": "skill/shout.mp3",
+   "label": {
+    "en": "Skill: taunt",
+    "ru": "Умение: насмешка",
+    "ua": "Навичка: глузування"
+   },
+   "title": "Mocking Laughter",
+   "author": "CreepyKing",
+   "source": "https://freesound.org/people/CreepyKing/sounds/842291/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/smoke",
+   "type": "skill",
+   "file": "skill/smoke.mp3",
+   "label": {
+    "en": "Skill: smoke bomb",
+    "ru": "Умение: дымовая бомба",
+    "ua": "Навичка: димова бомба"
+   },
+   "title": "Poof Smoke Bomb",
+   "author": "marokki",
+   "source": "https://freesound.org/people/marokki/sounds/739070/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/stab",
+   "type": "skill",
+   "file": "skill/stab.mp3",
+   "label": {
+    "en": "Skill: stab",
+    "ru": "Умение: удар в спину",
+    "ua": "Навичка: удар у спину"
+   },
+   "title": "Sword hits the body.wav",
+   "author": "vdovitsky",
+   "source": "https://freesound.org/people/vdovitsky/sounds/411122/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/steal",
+   "type": "skill",
+   "file": "skill/steal.mp3",
+   "label": {
+    "en": "Skill: coins",
+    "ru": "Умение: монеты",
+    "ua": "Навичка: монети"
+   },
+   "title": "coins - in cloth 08.wav",
+   "author": "Anthousai",
+   "source": "https://freesound.org/people/Anthousai/sounds/336576/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/stealth",
+   "type": "skill",
+   "file": "skill/stealth.mp3",
+   "label": {
+    "en": "Skill: stealth",
+    "ru": "Умение: скрытность",
+    "ua": "Навичка: непомітність"
+   },
+   "title": "Rustling fabric",
+   "author": "NachtmahrTV",
+   "source": "https://freesound.org/people/NachtmahrTV/sounds/556711/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/summon",
+   "type": "skill",
+   "file": "skill/summon.mp3",
+   "label": {
+    "en": "Skill: horn call",
+    "ru": "Умение: зов рога",
+    "ua": "Навичка: поклик рогу"
+   },
+   "title": "war horn.wav",
+   "author": "adharca",
+   "source": "https://freesound.org/people/adharca/sounds/539956/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/tail",
+   "type": "skill",
+   "file": "skill/tail.mp3",
+   "label": {
+    "en": "Skill: tail",
+    "ru": "Умение: хвост",
+    "ua": "Навичка: хвіст"
+   },
+   "title": "Foley_Punch_Edu_01.wav",
+   "author": "soleilmadrid",
+   "source": "https://freesound.org/people/soleilmadrid/sounds/344394/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/throw",
+   "type": "skill",
+   "file": "skill/throw.mp3",
+   "label": {
+    "en": "Skill: throw",
+    "ru": "Умение: бросок",
+    "ua": "Навичка: кидок"
+   },
+   "title": "Lasso rope being spun, spinning through air then throw",
+   "author": "zapsplat.com",
+   "source": "https://freesound.org/people/zapsplat.com/sounds/719638/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/thrust",
+   "type": "skill",
+   "file": "skill/thrust.mp3",
+   "label": {
+    "en": "Skill: thrust",
+    "ru": "Умение: выпад",
+    "ua": "Навичка: випад"
+   },
+   "title": "sword slash.wav",
+   "author": "ethanchase7744",
+   "source": "https://freesound.org/people/ethanchase7744/sounds/441666/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/transform",
+   "type": "skill",
+   "file": "skill/transform.mp3",
+   "label": {
+    "en": "Skill: transformation",
+    "ru": "Умение: превращение",
+    "ua": "Навичка: перетворення"
+   },
+   "title": "hanging bats (two) with wings.wav",
+   "author": "sastoryteller",
+   "source": "https://freesound.org/people/sastoryteller/sounds/352899/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/trap",
+   "type": "skill",
+   "file": "skill/trap.mp3",
+   "label": {
+    "en": "Skill: trap set",
+    "ru": "Умение: ловушка",
+    "ua": "Навичка: пастка"
+   },
+   "title": "metal-mechanism-click.mp3",
+   "author": "rottako",
+   "source": "https://freesound.org/people/rottako/sounds/693587/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/trap_hit",
+   "type": "skill",
+   "file": "skill/trap_hit.mp3",
+   "label": {
+    "en": "Skill: trap sprung",
+    "ru": "Умение: сработала ловушка",
+    "ua": "Навичка: спрацювала пастка"
+   },
+   "title": "Hidden Spike Trap",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/166535/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/vanish",
+   "type": "skill",
+   "file": "skill/vanish.mp3",
+   "label": {
+    "en": "Skill: vanish",
+    "ru": "Умение: исчезновение",
+    "ua": "Навичка: зникнення"
+   },
+   "title": "Puff of Smoke",
+   "author": "qubodup",
+   "source": "https://freesound.org/people/qubodup/sounds/714257/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/warcry",
+   "type": "skill",
+   "file": "skill/warcry.mp3",
+   "label": {
+    "en": "Skill: war cry",
+    "ru": "Умение: боевой клич",
+    "ua": "Навичка: бойовий клич"
+   },
+   "title": "Studio roar",
+   "author": "AugustSandberg",
+   "source": "https://freesound.org/people/AugustSandberg/sounds/265554/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "skill/whirl",
+   "type": "skill",
+   "file": "skill/whirl.mp3",
+   "label": {
+    "en": "Skill: blade whirl",
+    "ru": "Умение: вихрь клинков",
+    "ua": "Навичка: вихор клинків"
+   },
+   "title": "Sword Swing Connect",
+   "author": "GrayEpic",
+   "source": "https://freesound.org/people/GrayEpic/sounds/782966/",
+   "license": "CC0 1.0"
   }
  ]
 }
