@@ -132,7 +132,10 @@ function variantsOf(name) {
   if (!library) return [];
   const esc = name.replace(/[.+^${}()|[\]\\]/g, '\\$&');
   const re = new RegExp('^' + esc + '(_\\d+)?$', 'i');
-  return library.filter(s => re.test(s.name));
+  const hits = library.filter(s => re.test(s.name));
+  // A voiced slot the server sends as X_female plays X until it gets an asset.
+  if (!hits.length && /_female$/i.test(name)) return variantsOf(name.slice(0, -'_female'.length));
+  return hits;
 }
 
 const pickRandom = list => list[Math.floor(Math.random() * list.length)];
