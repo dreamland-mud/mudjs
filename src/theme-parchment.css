@@ -611,7 +611,7 @@ td.v-bottom{vertical-align:bottom}
 }
 
 .dropdown-norelative .dropdown-toggle {
-  white-space: pre;
+  white-space: pre-wrap;
 }
 /* The manip menu itself. Bootstrap's JS toggles .show; hidden until then, then a
  * small forged panel of command rows. */
