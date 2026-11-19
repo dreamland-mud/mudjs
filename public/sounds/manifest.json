@@ -603,6 +603,20 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "combat/hurt_female",
+   "type": "combat",
+   "file": "combat/hurt_female.mp3",
+   "label": {
+    "en": "Heavy blow taken (female)",
+    "ru": "Сильный удар по тебе (женский голос)",
+    "ua": "Сильний удар по тобі (жіночий голос)"
+   },
+   "title": "Sharp_Impact_Girl_OS.wav",
+   "author": "KevinDuffy1234",
+   "source": "https://freesound.org/people/KevinDuffy1234/sounds/340289/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "combat/kill",
    "type": "combat",
    "file": "combat/kill.mp3",
@@ -614,6 +628,20 @@
    "title": "Mutant Scream",
    "author": "scorpion67890",
    "source": "https://freesound.org/people/scorpion67890/sounds/396797/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "combat/kill_female",
+   "type": "combat",
+   "file": "combat/kill_female.mp3",
+   "label": {
+    "en": "Mighty foe slain (female)",
+    "ru": "Сильный враг повержен (женский голос)",
+    "ua": "Сильного ворога повалено (жіночий голос)"
+   },
+   "title": "Demonic Woman Scream.wav",
+   "author": "nick121087",
+   "source": "https://freesound.org/people/nick121087/sounds/333832/",
    "license": "CC0 1.0"
   },
   {
@@ -1440,6 +1468,20 @@
    "title": "human male scream 3",
    "author": "JohnsonBrandEditing",
    "source": "https://freesound.org/people/JohnsonBrandEditing/sounds/243381/",
+   "license": "CC0 1.0"
+  },
+  {
+   "name": "spell/harm_female",
+   "type": "spell",
+   "file": "spell/harm_female.mp3",
+   "label": {
+    "en": "Spell: harm (female)",
+    "ru": "Заклинание: боль (женский голос)",
+    "ua": "Заклинання: біль (жіночий голос)"
+   },
+   "title": "WomanScream.wav",
+   "author": "Archeos",
+   "source": "https://freesound.org/people/Archeos/sounds/261419/",
    "license": "CC0 1.0"
   },
   {
