@@ -45,6 +45,13 @@ const markLinks = $chunk => {
  * reader to queue it, short enough that browse mode does not find it as a
  * second copy of the output at the bottom of the page. */
 const ANNOUNCE_KEEP_MS = 5000;
+/* Lines added to the live region in the same frame reach NVDA on Chrome as one
+ * event and are read as one run-on utterance, line breaks lost. So lines go in
+ * one at a time, this far apart. A backlog past ANNOUNCE_BURST lines (combat
+ * spam) or a hidden tab (timers throttled to 1s) goes in at once instead, so
+ * speech never falls behind the game. */
+const ANNOUNCE_GAP_MS = 40;
+const ANNOUNCE_BURST = 30;
 
 /* Hooks used by the next PRs (the output tools and the list windows, in
  * src/port): onOutputChunk(fn) gets every
@@ -132,12 +139,31 @@ function terminalInit(wrap) {
     // name, description, exits, contents and prompt one at a time.
     text.split('\n').forEach(part => {
       part = part.trim();
-      if (!part) return;
-      const line = document.createElement('div');
-      line.textContent = part;
-      announcer.appendChild(line);
-      setTimeout(() => line.remove(), ANNOUNCE_KEEP_MS);
+      if (part) pending.push(part);
     });
+    if (!draining) drain();
+  };
+  const pending = [];
+  let draining = false;
+  const speakLine = text => {
+    const line = document.createElement('div');
+    line.textContent = text;
+    announcer.appendChild(line);
+    setTimeout(() => line.remove(), ANNOUNCE_KEEP_MS);
+  };
+  const drain = () => {
+    if (!pending.length) {
+      draining = false;
+      return;
+    }
+    if (document.hidden || pending.length > ANNOUNCE_BURST) {
+      pending.splice(0).forEach(speakLine);
+      draining = false;
+      return;
+    }
+    draining = true;
+    speakLine(pending.shift());
+    setTimeout(drain, ANNOUNCE_GAP_MS);
   };
 
   /* Cut the DOM back to maxBytesOnScreen from one end, in one batch. Removing
