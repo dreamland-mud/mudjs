@@ -9,6 +9,7 @@ import { processTriggers } from './sysCommands/action';
 import { t } from '../i18n';
 import { applyTriggers } from '../triggers';
 import { handleMspLine, mspEnabled } from '../sound';
+import { setPendingSpeechClear } from '../speechqueue';
 
 // TODO: the following parameters should be replaced with two numbers - viewport size (in pixels) and the threshold (in pixels)
 const bytesToLoad = 100000; // how much stuff to load from the database in one go, when we hit the threshold (bytes)
@@ -45,12 +46,13 @@ const markLinks = $chunk => {
  * reader to queue it, short enough that browse mode does not find it as a
  * second copy of the output at the bottom of the page. */
 const ANNOUNCE_KEEP_MS = 5000;
-/* Lines added to the live region in the same frame reach NVDA on Chrome as one
- * event and are read as one run-on utterance, line breaks lost. So lines go in
- * one at a time, this far apart. A backlog past ANNOUNCE_BURST lines (combat
- * spam) or a hidden tab (timers throttled to 1s) goes in at once instead, so
+/* Lines added to the live region close together reach NVDA on Chrome as one
+ * event and are read as one run-on utterance, line breaks lost (40ms still
+ * merged them). So lines go in one at a time, this far apart; NVDA reads a line
+ * slower than that, so the gap costs no listening time. A backlog past
+ * ANNOUNCE_BURST lines (combat spam) or a hidden tab (timers throttled to 1s) goes in at once instead, so
  * speech never falls behind the game. */
-const ANNOUNCE_GAP_MS = 40;
+const ANNOUNCE_GAP_MS = 250;
 const ANNOUNCE_BURST = 30;
 
 /* Hooks used by the next PRs (the output tools and the list windows, in
@@ -145,6 +147,11 @@ function terminalInit(wrap) {
   };
   const pending = [];
   let draining = false;
+  // A command of the player's own cuts what is still queued, as NVDA cuts
+  // speech on a key press: the drain then finds the queue empty and stops.
+  setPendingSpeechClear(() => {
+    pending.length = 0;
+  });
   const speakLine = text => {
     const line = document.createElement('div');
     line.textContent = text;
