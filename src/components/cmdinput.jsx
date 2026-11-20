@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import $ from 'jquery';
 import { echo } from '../input';
 import { send, connect } from '../websock';
+import { clearPendingSpeech } from '../speechqueue';
 import { getKeydown } from '../settings';
 import { t } from '../i18n';
 import FocusOrbit from './FocusOrbit';
@@ -266,6 +267,7 @@ const CmdInput = () => {
     }
     setValue('');
     saveCmd(userCommand);
+    clearPendingSpeech();
     // The same text sent from another line: the unsent line has now been sent.
     if (input_history[draftAt] === userCommand) draftAt = -1;
 

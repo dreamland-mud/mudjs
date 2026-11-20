@@ -7,6 +7,7 @@ import { send } from '../../websock';
 import { expandAliases } from '../../aliases.js';
 import keycode from './keycode';
 import { macroFor } from '../../macros.js';
+import { clearPendingSpeech } from '../../speechqueue';
 
 /** Replace $name with the #var value stored in localStorage.vars. */
 export function parseUserVars(str) {
@@ -32,6 +33,7 @@ export function sendHotKeyCmd(e) {
   if (cmd) {
     e.stopPropagation();
     e.preventDefault();
+    clearPendingSpeech();
     const parsedCmd = parseUserVars(cmd);
     echo(parsedCmd);
     send(expandAliases(parsedCmd));
