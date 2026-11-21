@@ -632,6 +632,9 @@ td.v-bottom{vertical-align:bottom}
   border: 1px solid var(--gold-deep);
   border-radius: var(--rf-radius);
   box-shadow: inset 0 1px 0 var(--rf-hair-hi), 0 10px 28px rgba(0, 0, 0, 0.6);
+  /* OLC menus list up to ~120 values (materials, races): scroll, don't run off-screen. */
+  max-height: 60vh;
+  overflow-y: auto;
 }
 .dropdown-menu.show {
   display: block;
