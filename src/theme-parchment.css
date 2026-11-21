@@ -634,7 +634,9 @@ td.v-bottom{vertical-align:bottom}
   box-shadow: inset 0 1px 0 var(--rf-hair-hi), 0 10px 28px rgba(0, 0, 0, 0.6);
   /* OLC menus list up to ~120 values (materials, races): scroll, don't run off-screen. */
   max-height: 60vh;
+  max-height: min(60vh, 60dvh); /* dvh shrinks with a phone keyboard up */
   overflow-y: auto;
+  overflow-x: hidden;
 }
 .dropdown-menu.show {
   display: block;
