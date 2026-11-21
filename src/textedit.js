@@ -173,6 +173,15 @@ $(document).ready(function () {
       const fontSize = editorFontSize();
       monacoEditor.updateOptions({ fontSize });
       plainBox().css('font-size', fontSize + 'px');
+      // fedit and bedit props open with 'json': highlight and validate it, and
+      // drop the 80-column terminal layout that only suits in-game text.
+      const json = arg === 'json';
+      monaco.editor.setModelLanguage(monacoEditor.getModel(), json ? 'json' : 'plaintext');
+      monacoEditor.updateOptions({
+        lineNumbers: json ? 'on' : 'off',
+        wordWrap: json ? 'off' : 'bounded',
+        rulers: json ? [] : [80],
+      });
       monacoEditor.setValue(text || '');
       plainBox().val(text || '');
       const plain = loadPlainPref();
