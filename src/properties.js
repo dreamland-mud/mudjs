@@ -7,6 +7,8 @@ const DEFAULT_PROPERTIES = {
     'terminalLayoutWidth': 43,
     'panelLayoutWidth': 14,
     'mapLayoutWidth': 43,
+    // Terminal share (%) of the two-pane layout (600-1279px wide): terminal | panel.
+    'midTerminalSplit': 70,
     'terminalFontSize': 20,
     'isPgKeysScroll': true,
 }

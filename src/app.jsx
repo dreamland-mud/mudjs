@@ -30,6 +30,12 @@ const ELEMENT_MAP = {
   map: <Map />,
 };
 
+// Saved terminal share of the two-pane layout, clamped so a stray drag can't hide a pane.
+const midSplit = () => {
+  const v = Number(propertiesStorage['midTerminalSplit']);
+  return Number.isFinite(v) ? Math.min(90, Math.max(20, v)) : 70;
+};
+
 const getResponsiveLayout = (bigScreen, hugeScreen) => {
   if (!bigScreen) return 'terminal';
 
@@ -38,7 +44,7 @@ const getResponsiveLayout = (bigScreen, hugeScreen) => {
       direction: 'row',
       first: 'terminal',
       second: 'panel',
-      splitPercentage: 70,
+      splitPercentage: midSplit(),
     };
   }
 
@@ -66,10 +72,15 @@ const getResponsiveLayout = (bigScreen, hugeScreen) => {
 
 // Persist the terminal/panel/map split when a resize-drag ends. We read the percentages
 // straight off the mosaic layout tree (no DOM querying), so this never touches a missing
-// #map-wrap the way the old splitter handler did. Only the full three-pane (huge-screen)
-// tree carries all three widths; smaller layouts use a fixed split and aren't persisted.
+// #map-wrap the way the old splitter handler did. The three-pane (huge-screen) tree saves
+// all three widths; the two-pane tree saves only the terminal share.
 const persistLayout = value => {
   if (!value || typeof value !== 'object') return;
+  if (value.second === 'panel' && typeof value.splitPercentage === 'number') {
+    propertiesStorage['midTerminalSplit'] = value.splitPercentage;
+    localStorage.properties = JSON.stringify(propertiesStorage);
+    return;
+  }
   const inner = value.second;
   if (!inner || typeof inner !== 'object' || inner.second !== 'map') return;
   const outerPct = value.splitPercentage;
