@@ -25,7 +25,7 @@ let PropertiesStorage = JSON.parse(localStorage.properties)
 
 if (Object.keys(PropertiesStorage).length !== Object.keys(DEFAULT_PROPERTIES).length) {
     for (let key in DEFAULT_PROPERTIES) {
-        if (!PropertiesStorage[key]) {
+        if (!(key in PropertiesStorage)) {
             PropertiesStorage[key] = DEFAULT_PROPERTIES[key]
         }
     }
