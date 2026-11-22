@@ -197,6 +197,20 @@
    "license": "CC0 1.0"
   },
   {
+   "name": "alert/resurrect",
+   "type": "alert",
+   "file": "alert/resurrect.mp3",
+   "label": {
+    "en": "Resurrection bell",
+    "ru": "Колокол воскрешения",
+    "ua": "Дзвін воскресіння"
+   },
+   "title": "Old Church Bell (no noise)",
+   "author": "igroglaz",
+   "source": "https://freesound.org/people/igroglaz/sounds/633208/",
+   "license": "CC0 1.0"
+  },
+  {
    "name": "alert/shielddown",
    "type": "alert",
    "file": "alert/shielddown.mp3",

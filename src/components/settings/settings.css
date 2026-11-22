@@ -1702,3 +1702,9 @@ body.cfg-resizing {
   gap: 10px;
   margin-top: 8px;
 }
+
+/* Per-sound switches, tucked under their type's slider. */
+.trig-subswitches .trig-mute {
+  padding-inline-start: 16px;
+  font-size: 13px;
+}
