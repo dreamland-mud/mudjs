@@ -23,8 +23,8 @@
 // The server's background loops (the 'ambience' frame) are a separate layer
 // in ambience.js and never touch the pools.
 //
-// Volume is this device's business, not the character's: master, per-type and
-// mute live in localStorage under mudjs.sound.
+// Volume is this device's business, not the character's: master, per-type,
+// mute and the per-sound switches live in localStorage under mudjs.sound.
 //
 // MSP lines are honoured only after the server says it sends them (an 'msp'
 // frame with true). Until then a !!SOUND at the start of a line is ordinary
@@ -42,7 +42,11 @@ const DEFAULT_PREFS = {
   mute: false,
   master: 80,
   types: { combat: 100, spell: 70, skill: 70, alert: 100, chat: 100, ui: 100, ambient: 0, music: 0 },
+  off: {}, // server sound name -> true when the player switched it off
 };
+// Server sounds with their own on/off switch, inside their type's slider:
+// one chat line can be welcome and the next one noise.
+export const SWITCHABLE = ['chat/tell', 'chat/say', 'chat/channel'];
 // With a screen reader the background tells where you are (rain = outdoors,
 // fire = resting, drums = a boss), so it is on, low enough to sit under the
 // speech. Without one it is atmosphere only and starts off.
@@ -83,7 +87,8 @@ function loadPrefs() {
   }
   if (!saved || typeof saved !== 'object') saved = {};
   userTypes = saved.types && typeof saved.types === 'object' ? { ...saved.types } : {};
-  return { ...DEFAULT_PREFS, ...saved, types: { ...defaultTypes(), ...userTypes } };
+  const off = saved.off && typeof saved.off === 'object' ? saved.off : {};
+  return { ...DEFAULT_PREFS, ...saved, types: { ...defaultTypes(), ...userTypes }, off };
 }
 
 function savePrefs() {
@@ -513,6 +518,11 @@ $(document).ready(function () {
     });
 });
 
+/** Whether the player switched this server sound off (SWITCHABLE). */
+export function soundSwitchedOff(name) {
+  return !!prefs.off[(name || '').toLowerCase().replace(/\.(wav|mid|ogg|mp3)$/i, '')];
+}
+
 /** Parse one MSP line, "!!SOUND(name V=.. L=.. P=.. T=.. U=..)", and play it.
  *  False when the line is not an MSP trigger. */
 export function handleMspLine(line) {
@@ -527,7 +537,9 @@ export function handleMspLine(line) {
     if (kv) opts[kv[1]] = kv[2];
   });
 
-  if (m[1] === 'SOUND') playSound(name, opts);
-  else playMusic(name, opts);
+  if (m[1] === 'MUSIC') playMusic(name, opts);
+  // A switched-off server sound is still an MSP line: swallowed, not shown.
+  // Triggers call playSound directly, so the switch never silences them.
+  else if (!soundSwitchedOff(name)) playSound(name, opts);
   return true;
 }

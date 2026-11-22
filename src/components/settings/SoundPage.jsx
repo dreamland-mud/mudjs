@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { t } from '../../i18n.js';
-import { getSoundPrefs, setSoundPrefs, playSound, stopSound } from '../../sound.js';
+import { getSoundPrefs, setSoundPrefs, playSound, stopSound, SWITCHABLE } from '../../sound.js';
 
 // Sound settings: this device's volume, not the character's -- a phone in a
 // bus and a desktop with headphones want different levels for the same player.
 // Mute stops what is playing at once. Each type has its own level, so combat
-// can stay loud while the ambience whispers.
+// can stay loud while the ambience whispers. A few server sounds also get
+// their own switch under their type (say can be noise, a tell never is).
 
 const TYPES = ['combat', 'spell', 'skill', 'alert', 'chat', 'ui', 'ambient', 'music'];
 // A short sample per type, so a slider can be tried where it is set.
@@ -26,6 +27,25 @@ function Slider({ id, label, value, onChange, onTry, lang }) {
   );
 }
 
+// A positive switch: on = sound plays. The visible name is its label too.
+function Switch({ label, on, onToggle }) {
+  return (
+    <div className="ab-item trig-mute">
+      <span className="ab-name">{label}</span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        aria-label={label}
+        className={on ? 'cfg-switch cfg-switch-on' : 'cfg-switch'}
+        onClick={onToggle}
+      >
+        <span className="cfg-switch-knob" />
+      </button>
+    </div>
+  );
+}
+
 export default function SoundPage({ lang }) {
   const [prefs, setPrefs] = useState(getSoundPrefs());
   const update = next => {
@@ -41,35 +61,39 @@ export default function SoundPage({ lang }) {
     <div className="ab trig">
       <div className="cfg-row-desc ab-intro">{t('snd.intro', lang)}</div>
 
-      <div className="ab-item trig-mute">
-        <span className="ab-name">{t('snd.on', lang)}</span>
-        {/* A positive switch: on = sound plays. Stored as `mute`, inverted here. */}
-        <button
-          type="button"
-          role="switch"
-          aria-checked={!prefs.mute}
-          aria-label={t('snd.on', lang)}
-          className={prefs.mute ? 'cfg-switch' : 'cfg-switch cfg-switch-on'}
-          onClick={() => update({ mute: !prefs.mute })}
-        >
-          <span className="cfg-switch-knob" />
-        </button>
-      </div>
+      {/* Stored as `mute`, inverted here. */}
+      <Switch label={t('snd.on', lang)} on={!prefs.mute} onToggle={() => update({ mute: !prefs.mute })} />
 
       <Slider id="snd-master" label={t('snd.master', lang)} value={prefs.master} onChange={v => update({ master: v })} lang={lang} />
 
       <div className="ab-h">{t('snd.types', lang)}</div>
-      {TYPES.map(type => (
-        <Slider
-          key={type}
-          id={'snd-' + type}
-          label={t('snd.type.' + type, lang)}
-          value={prefs.types[type]}
-          onChange={v => update({ types: { [type]: v } })}
-          onTry={SAMPLE[type] ? trySound(SAMPLE[type]) : null}
-          lang={lang}
-        />
-      ))}
+      {TYPES.map(type => {
+        const switches = SWITCHABLE.filter(name => name.split('/')[0] === type);
+        return (
+          <React.Fragment key={type}>
+            <Slider
+              id={'snd-' + type}
+              label={t('snd.type.' + type, lang)}
+              value={prefs.types[type]}
+              onChange={v => update({ types: { [type]: v } })}
+              onTry={SAMPLE[type] ? trySound(SAMPLE[type]) : null}
+              lang={lang}
+            />
+            {switches.length ? (
+              <div className="trig-subswitches" role="group" aria-label={t('snd.type.' + type, lang)}>
+                {switches.map(name => (
+                  <Switch
+                    key={name}
+                    label={t('snd.sound.' + name, lang)}
+                    on={!prefs.off[name]}
+                    onToggle={() => update({ off: { ...prefs.off, [name]: !prefs.off[name] } })}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }
