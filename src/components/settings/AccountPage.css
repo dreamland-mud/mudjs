@@ -155,3 +155,6 @@
 .acct-logout {
   margin-left: auto;
 }
+
+.acct-support .acct-hint { margin-top: 0; }
+.acct-kofi { align-self: flex-start; text-decoration: none; }
