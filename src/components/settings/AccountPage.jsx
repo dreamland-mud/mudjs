@@ -199,6 +199,19 @@ export default function AccountPage({ lang, visible }) {
         </div>
       ) : null}
 
+      <div className="acct-block acct-support">
+        <div className="acct-h">{t('acct.support', lang)}</div>
+        <div className="acct-hint">{t('acct.support_hint', lang)}</div>
+        <a
+          className="cfg-button acct-kofi"
+          href="https://ko-fi.com/dreamlandmud"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i className="fa fa-heart" aria-hidden="true" /> {t('acct.support_btn', lang)}
+        </a>
+      </div>
+
       <div className="acct-actions">
         <button type="button" className="cfg-button" onClick={listChars}>
           {t('acct.list', lang)}
