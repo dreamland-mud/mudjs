@@ -177,7 +177,9 @@ function toggle(key, arg, onText, offText, dflt = false) {
   const a = String(arg || '').toLowerCase();
   const on = a === 'on' ? true : a === 'off' ? false : !flag(key, dflt);
   setFlag(key, on);
-  speak(t(on ? onText : offText));
+  const said = t(on ? onText : offText);
+  speak(said);
+  return said;
 }
 
 registerTool({
@@ -185,6 +187,7 @@ registerTool({
   label: () => t('snd.tones'),
   hash: 'exittones',
   help: () => t('snd.tones.help'),
+  isOn: () => flag(TONES_KEY),
   run: arg => toggle(TONES_KEY, arg, 'snd.tones.on', 'snd.tones.off'),
 });
 
@@ -193,6 +196,7 @@ registerTool({
   label: () => t('snd.room'),
   hash: 'roomsounds',
   help: () => t('snd.room.help'),
+  isOn: () => flag(ROOM_KEY),
   run: arg => toggle(ROOM_KEY, arg, 'snd.room.on', 'snd.room.off'),
 });
 
@@ -201,6 +205,7 @@ registerTool({
   label: () => t('snd.target'),
   hash: 'targetchime',
   help: () => t('snd.target.help'),
+  isOn: targetChimeOn,
   run: arg => toggle(TARGET_KEY, arg, 'snd.target.on', 'snd.target.off', true),
 });
 

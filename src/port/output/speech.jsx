@@ -60,10 +60,14 @@ setAnnounceFilter(text => {
     .join('\n');
 });
 
-export function toggleSpeech() {
-  speechOff = !speechOff;
+/* arg 'on' or 'off' sets speech, anything else flips it. */
+export function toggleSpeech(arg) {
+  const a = String(arg || '').toLowerCase();
+  speechOff = a === 'on' ? false : a === 'off' ? true : !speechOff;
   store(OFF_KEY, speechOff ? '1' : null);
-  say(t(speechOff ? 'out.speech.off' : 'out.speech.on'));
+  const said = t(speechOff ? 'out.speech.off' : 'out.speech.on');
+  say(said);
+  return said;
 }
 
 let openSheet = null;
@@ -124,7 +128,8 @@ registerTool({
   label: () => tf('out.speech', t(speechOff ? 'out.speech.state.off' : 'out.speech.state.on')),
   keys: ['ctrl+shift+s'],
   hash: 'speech',
-  run: () => toggleSpeech(),
+  isOn: () => !speechOff,
+  run: arg => toggleSpeech(arg),
 });
 
 registerTool({

@@ -3,9 +3,11 @@ import { addStrings } from '../i18n';
 addStrings({
   en: {
     'tools.menu': 'Tools',
-    'tools.intro': "The client's own windows and actions. Each opens once Settings has closed; their keys are on the System actions page.",
+    'tools.intro': "The client's own windows, actions and switches. A window opens once Settings has closed, a switch flips right here; their keys are on the System actions page.",
     'tools.close': 'Close',
     'tools.open': 'Open',
+    'tools.on': 'On',
+    'tools.off': 'Off',
     'find.filters': 'Filters',
     'find.actions': 'Actions',
     'find.details': 'Details',
@@ -16,9 +18,11 @@ addStrings({
   },
   ru: {
     'tools.menu': 'Инструменты',
-    'tools.intro': 'Собственные окна и действия клиента. Каждое открывается, когда Настройки закроются; их клавиши на странице «Системные действия».',
+    'tools.intro': 'Собственные окна, действия и переключатели клиента. Окно открывается, когда Настройки закроются, переключатель срабатывает прямо здесь; их клавиши на странице «Системные действия».',
     'tools.close': 'Закрыть',
     'tools.open': 'Открыть',
+    'tools.on': 'Включено',
+    'tools.off': 'Выключено',
     'find.filters': 'Фильтры',
     'find.actions': 'Действия',
     'find.details': 'Подробности',
@@ -29,9 +33,11 @@ addStrings({
   },
   ua: {
     'tools.menu': 'Інструменти',
-    'tools.intro': 'Власні вікна й дії клієнта. Кожне відкривається, коли Налаштування закриються; їхні клавіші на сторінці «Системні дії».',
+    'tools.intro': 'Власні вікна, дії й перемикачі клієнта. Вікно відкривається, коли Налаштування закриються, перемикач спрацьовує просто тут; їхні клавіші на сторінці «Системні дії».',
     'tools.close': 'Закрити',
     'tools.open': 'Відкрити',
+    'tools.on': 'Увімкнено',
+    'tools.off': 'Вимкнено',
     'find.filters': 'Фільтри',
     'find.actions': 'Дії',
     'find.details': 'Подробиці',
