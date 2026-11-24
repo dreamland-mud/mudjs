@@ -1673,6 +1673,13 @@ body.cfg-resizing {
   gap: 4px 10px;
 }
 
+/* Tools: a switch tool's state as a word beside its switch. */
+.tools-state {
+  flex: none;
+  font-size: 13px;
+  color: var(--cfg-dim);
+}
+
 /* System actions: the field waiting for a key, drawn as the Macros capture box. */
 .sa-catch {
   width: 100%;

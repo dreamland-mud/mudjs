@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { t, addStrings } from '../../i18n.js';
-import { runTool } from '../../port/tools';
-import { targetChimeOn } from '../../port/sounds';
+import { runTool, toolOn } from '../../port/tools';
 import { reviewEnabled, setReviewEnabled, IS_PHONE } from '../../review';
 import { announceSheet } from '../../sheets';
+import SwitchButton from './SwitchButton.jsx';
 
 /* Another window from here: Settings closes first (it keeps the page behind it
  * out of reach while open), then the window opens. */
@@ -59,21 +59,13 @@ addStrings({
   },
 });
 
-function read(key) {
-  try {
-    return localStorage.getItem(key);
-  } catch (e) {
-    return null;
-  }
-}
-
 const state = () => ({
   review: reviewEnabled(),
-  lists: read('mudjs.serverLists') === '1',
-  speech: read('mudjs.speechOff') !== '1',
-  tones: read('mudjs.exitTones') === '1',
-  room: read('mudjs.roomSounds') === '1',
-  target: targetChimeOn(),
+  lists: toolOn('lists'),
+  speech: toolOn('out-speech'),
+  tones: toolOn('exittones'),
+  room: toolOn('roomsounds'),
+  target: toolOn('targetchime'),
 });
 
 function Switch({ id, label, hint, on, onToggle }) {
@@ -83,16 +75,7 @@ function Switch({ id, label, hint, on, onToggle }) {
         {label}
         {hint ? <span className="cfg-row-desc"> {hint}</span> : null}
       </span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={on}
-        aria-labelledby={id + '-l'}
-        className={on ? 'cfg-switch cfg-switch-on' : 'cfg-switch'}
-        onClick={onToggle}
-      >
-        <span className="cfg-switch-knob" />
-      </button>
+      <SwitchButton on={on} labelledBy={id + '-l'} onToggle={onToggle} />
     </div>
   );
 }
@@ -124,7 +107,7 @@ export default function AccessPage({ lang }) {
         />
       )}
       <Switch id="acc-lists" label={t('acc.lists', lang)} on={s.lists} onToggle={tool('lists', s.lists ? 'off' : 'on')} />
-      <Switch id="acc-speech" label={t('acc.speech', lang)} on={s.speech} onToggle={tool('out-speech')} />
+      <Switch id="acc-speech" label={t('acc.speech', lang)} on={s.speech} onToggle={tool('out-speech', s.speech ? 'off' : 'on')} />
       <Switch id="acc-tones" label={t('acc.tones', lang)} on={s.tones} onToggle={tool('exittones', s.tones ? 'off' : 'on')} />
       <Switch id="acc-room" label={t('acc.room', lang)} on={s.room} onToggle={tool('roomsounds', s.room ? 'off' : 'on')} />
       <Switch id="acc-target" label={t('acc.target', lang)} on={s.target} onToggle={tool('targetchime', s.target ? 'off' : 'on')} />

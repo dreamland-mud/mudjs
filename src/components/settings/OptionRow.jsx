@@ -3,6 +3,7 @@ import { t } from '../../i18n.js';
 // The same faceted jewel the vital bars use (stats.jsx). Its base facets are
 // currentColor, so the slider's --accent recolours the knob to match the fill.
 import gemSvg from '../gem.svg?raw';
+import SwitchButton from './SwitchButton.jsx';
 
 // One setting: its name, what the game says about its current state, and the
 // control that changes it, on one row. The name itself is the link to the
@@ -37,18 +38,7 @@ function Marked({ text, query }) {
 }
 
 function Switch({ on, onChange, label }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      aria-label={label}
-      className={on ? 'cfg-switch cfg-switch-on' : 'cfg-switch'}
-      onClick={() => onChange(!on)}
-    >
-      <span className="cfg-switch-knob" />
-    </button>
-  );
+  return <SwitchButton on={on} label={label} onToggle={() => onChange(!on)} />;
 }
 
 function Segments({ options, value, onChange, label }) {

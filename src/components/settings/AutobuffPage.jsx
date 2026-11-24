@@ -1,5 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { t } from '../../i18n.js';
+import SwitchButton from './SwitchButton.jsx';
 import {
   saveAutobuffPrefs,
   legacyAutobuffLines,
@@ -565,16 +566,7 @@ export default function AutobuffPage({ lang, data }) {
                   onMove={by => moveBy('spells', i, by)}
                 />
                 <span className="ab-name">{one.name}</span>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={!!one.on}
-                  aria-label={one.name}
-                  className={one.on ? 'cfg-switch cfg-switch-on' : 'cfg-switch'}
-                  onClick={() => toggle(i)}
-                >
-                  <span className="cfg-switch-knob" />
-                </button>
+                <SwitchButton on={!!one.on} label={one.name} onToggle={() => toggle(i)} />
               </li>
             );
           })}
@@ -628,21 +620,16 @@ export default function AutobuffPage({ lang, data }) {
               >
                 {t('ab.edit', lang)}
               </button>
-              <button
-                type="button"
-                role="switch"
-                aria-checked="true"
+              <SwitchButton
+                on
                 ref={el => {
                   grips.current['x:' + one.id] = el;
                 }}
-                aria-label={one.cmd}
+                label={one.cmd}
                 aria-description={t('ab.offremoves', lang)}
                 title={t('ab.offremoves', lang)}
-                className="cfg-switch cfg-switch-on"
-                onClick={() => remove(i)}
-              >
-                <span className="cfg-switch-knob" />
-              </button>
+                onToggle={() => remove(i)}
+              />
             </li>
           ))}
         </ol>

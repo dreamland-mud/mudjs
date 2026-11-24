@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { t } from '../../i18n.js';
 import { getSoundPrefs, setSoundPrefs, playSound, stopSound, SWITCHABLE } from '../../sound.js';
+import SwitchButton from './SwitchButton.jsx';
 
 // Sound settings: this device's volume, not the character's -- a phone in a
 // bus and a desktop with headphones want different levels for the same player.
@@ -32,16 +33,7 @@ function Switch({ label, on, onToggle }) {
   return (
     <div className="ab-item trig-mute">
       <span className="ab-name">{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={on}
-        aria-label={label}
-        className={on ? 'cfg-switch cfg-switch-on' : 'cfg-switch'}
-        onClick={onToggle}
-      >
-        <span className="cfg-switch-knob" />
-      </button>
+      <SwitchButton on={on} label={label} onToggle={onToggle} />
     </div>
   );
 }

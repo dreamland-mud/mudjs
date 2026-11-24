@@ -96,7 +96,10 @@ export function setCapturing(on) {
 
 /* tool: { id, label: () => string, keys: ['ctrl+e'], hash: 'areas',
  *   run(arg), menu: true (listed in the Tools menu), inDialog: false (also
- *   answers its keys while a dialog is open), help: () => string } */
+ *   answers its keys while a dialog is open), help: () => string,
+ *   isOn: () => bool (a switch, not a window: run('on') and run('off') set
+ *   it, run('') flips it, and run returns the sentence it said, so the Tools
+ *   page draws it as a switch with its state instead of an Open button) } */
 export function registerTool(tool) {
   if (tools.some(x => x.id === tool.id)) return;
   // keys reads the player's own keys when there are any; defaultKeys keeps
@@ -145,10 +148,18 @@ export function onToolsChanged(fn) {
   return () => subscribers.delete(fn);
 }
 
+/* Runs a tool; a switch returns the sentence it said. */
 export function runTool(id, arg) {
   const tool = tools.find(x => x.id === id);
-  if (tool) tool.run(arg || '');
+  const said = tool ? tool.run(arg || '') : undefined;
   afterRun();
+  return said;
+}
+
+/* Whether a switch tool is on now (false for a tool that is not a switch). */
+export function toolOn(id) {
+  const tool = tools.find(x => x.id === id);
+  return !!(tool && tool.isOn && tool.isOn());
 }
 
 /* A tool whose window was already open, with the focus gone elsewhere, gets

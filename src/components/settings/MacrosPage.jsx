@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { t, addStrings } from '../../i18n.js';
 import { toolKeysOn, setToolKeysOn, toolForKey } from '../../port/tools';
 import keycode from '../sysCommands/keycode.js';
+import SwitchButton from './SwitchButton.jsx';
 import {
   getMacros,
   watchMacros,
@@ -402,19 +403,14 @@ function ClientKeysSwitch({ lang }) {
           {t('mc.toolkeys.desc', lang)}
         </span>
       </span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={on}
-        aria-labelledby="mc-toolkeys-l"
-        className={on ? 'cfg-switch cfg-switch-on' : 'cfg-switch'}
-        onClick={() => {
+      <SwitchButton
+        on={on}
+        labelledBy="mc-toolkeys-l"
+        onToggle={() => {
           setToolKeysOn(!on);
           setOn(!on);
         }}
-      >
-        <span className="cfg-switch-knob" />
-      </button>
+      />
     </div>
   );
 }

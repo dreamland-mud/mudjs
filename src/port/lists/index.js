@@ -34,7 +34,9 @@ function setListsOn(on) {
   }
   rpccmd('list_subscribe', ...(on ? [] : ['off']));
   if (!on) setState({ open: false });
-  speak(t(on ? 'tl.on' : 'tl.off'));
+  const said = t(on ? 'tl.on' : 'tl.off');
+  speak(said);
+  return said;
 }
 
 // kind -> { at, cmd }: the last typed command for each kind of list.
@@ -99,8 +101,9 @@ registerTool({
   label: () => t('tl.toggle'),
   hash: 'lists',
   help: () => t('tl.help.cmd'),
+  isOn: listsOn,
   run: arg => {
     const a = String(arg || '').toLowerCase();
-    setListsOn(a === 'on' ? true : a === 'off' ? false : !listsOn());
+    return setListsOn(a === 'on' ? true : a === 'off' ? false : !listsOn());
   },
 });

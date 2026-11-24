@@ -10,6 +10,7 @@ import {
   MAX_PER_LIST,
 } from '../../triggers.js';
 import { loadLibrary, playSound, stopSound } from '../../sound.js';
+import SwitchButton from './SwitchButton.jsx';
 
 // The triggers tab: the character's list and the account's, each trigger a
 // pattern plus any of highlight / sound / commands. Lists live on the server
@@ -226,16 +227,7 @@ export default function TriggersPage({ lang }) {
                 >
                   {t('tr.edit', lang)}
                 </button>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={one.on !== false}
-                  aria-label={one.pattern}
-                  className={one.on === false ? 'cfg-switch' : 'cfg-switch cfg-switch-on'}
-                  onClick={() => toggle(scope, one.id)}
-                >
-                  <span className="cfg-switch-knob" />
-                </button>
+                <SwitchButton on={one.on !== false} label={one.pattern} onToggle={() => toggle(scope, one.id)} />
               </li>
             ))}
           </ol>
