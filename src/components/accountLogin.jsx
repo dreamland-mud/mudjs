@@ -373,6 +373,18 @@ export default function AccountLogin() {
     const onStep = (e, step) => {
       nannyStepRef.current = step;
 
+      // Too many wrong passwords for this name: the nanny refuses the password
+      // without checking it. Say so now instead of the "check your password"
+      // the login watchdog would show, which is wrong when the password is right.
+      if (step === 'pw_paused') {
+        if (loginInFlight.current) {
+          clearTimers();
+          setBusy('');
+          setError(at('pw_paused', lang));
+        }
+        return;
+      }
+
       // The character is already in the world on a live-looking descriptor
       // (often this player's own dead phone socket) and the nanny asks whether
       // to take the body over. Only after the password checked out, and a login
