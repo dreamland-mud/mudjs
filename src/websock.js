@@ -446,9 +446,12 @@ function cancelFirstFrame() {
 /* The ?src= label of the link the visitor came by, for the newcomer reports.
  * The first label ever seen wins and is kept in localStorage, which the site
  * pages on the same origin also write, so a visitor who lands on the homepage
- * with ?src= and clicks Play still carries it. Storage can be blocked: then
- * only a label in this page's own URL counts. */
+ * with ?src= and clicks Play still carries it. A referral label (ref-...)
+ * replaces a kept ordinary label, but never an earlier referral label: the
+ * friend's first invitation is the one that counts. Storage can be blocked:
+ * then only a label in this page's own URL counts. */
 const SRC_KEY = 'dl.src';
+const isRefLabel = (label) => label.toLowerCase().startsWith('ref-');
 const landingSource = (() => {
   let src = '';
   try {
@@ -456,16 +459,36 @@ const landingSource = (() => {
   } catch (e) {}
   try {
     const kept = localStorage.getItem(SRC_KEY);
-    if (kept) return kept;
+    if (kept && !(src && isRefLabel(src) && !isRefLabel(kept))) return kept;
     if (src) localStorage.setItem(SRC_KEY, src);
   } catch (e) {}
   return src;
+})();
+
+/* A random id minted once per browser, so the referral checks can tell two
+ * characters played from the same browser. Not tied to anything else; with
+ * storage blocked there is no id at all. */
+const DEVICE_KEY = 'dl.device';
+const deviceId = (() => {
+  try {
+    let id = localStorage.getItem(DEVICE_KEY) || '';
+    if (/^[0-9a-f]{32}$/.test(id)) return id;
+    const bytes = new Uint8Array(16);
+    window.crypto.getRandomValues(bytes);
+    id = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+    localStorage.setItem(DEVICE_KEY, id);
+    // Only an id that stuck is worth sending: otherwise every visit is a new device.
+    return localStorage.getItem(DEVICE_KEY) === id ? id : '';
+  } catch (e) {
+    return '';
+  }
 })();
 
 function answerFreshSocket() {
   // Before the nanny starts, so the label is on the socket by the time a
   // character is created on it.
   if (landingSource) rpccmd('client_src', landingSource);
+  if (deviceId) rpccmd('client_device', deviceId);
 
   const f = firstFrame;
   firstFrame = null;
@@ -541,6 +564,9 @@ function connect() {
      * the resume takes, the codepage answer below would land in the game as a
      * typed command. resume_ok / resume_failed decides which path we are on. */
     if (resumeToken()) {
+      // A resumed character moves onto this new socket: carry the device id
+      // so ch.client_device stays set. An RPC, never typed into the game.
+      if (deviceId) rpccmd('client_device', deviceId);
       rpccmd('resume', resumeToken());
       return;
     }
