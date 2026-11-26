@@ -405,8 +405,13 @@ function terminalInit(wrap) {
       return;
     }
 
-    // Load top chunks while scrolling up.
-    if (wrap.scrollTop() < scrollThreshold) {
+    // Load top chunks while scrolling up. Not while the view sits at the
+    // bottom, following the output: that is where stickBottom puts it after a
+    // trim cut chunks off the top. Loading them back from there cut the newest
+    // output off the bottom, followBottom read it back and trimmed the top
+    // again, and the scrollback blinked in a loop. A player scrolling up has
+    // left the bottom by the time this runs.
+    if (!autoScrollEnabled && wrap.scrollTop() < scrollThreshold) {
       let $fst = terminal.find('div[data-chunk-id]:first-child');
 
       // terminal is empty, can't scroll
