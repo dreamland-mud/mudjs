@@ -5,7 +5,6 @@ import $ from 'jquery';
 import historyDb from '../historydb';
 import ansi2html from '../ansi2html';
 import manip from '../manip';
-import splitOutput from '../splitoutput';
 import { processTriggers } from './sysCommands/action';
 import { t } from '../i18n';
 import { applyTriggers } from '../triggers';
@@ -333,18 +332,15 @@ function terminalInit(wrap) {
     if (mspEnabled()) txt = txt.replace(MSP_LINE, line => (handleMspLine(line.trim()) ? '' : line));
     if (!txt) return;
 
-    // Big output (a long list) goes in as several chunks, see splitOutput.
-    splitOutput(txt).forEach(piece => {
-      const span = $('<span/>');
-      span.html(ansi2html(piece));
+    const span = $('<span/>');
+    span.html(ansi2html(txt));
 
-      manip.colorParseAndReplace(span);
-      manip.manipParseAndReplace(span);
-      // Server output only: highlights go into the HTML, so history keeps them.
-      applyTriggers(span[0]);
+    manip.colorParseAndReplace(span);
+    manip.manipParseAndReplace(span);
+    // Server output only: highlights go into the HTML, so history keeps them.
+    applyTriggers(span[0]);
 
-      terminal.trigger('output-html', [span.html()]);
-    });
+    terminal.trigger('output-html', [span.html()]);
   });
 
   // this may not be called from outside of terminal logic.
