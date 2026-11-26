@@ -5,6 +5,7 @@ import $ from 'jquery';
 import historyDb from '../historydb';
 import ansi2html from '../ansi2html';
 import manip from '../manip';
+import splitOutput from '../splitoutput';
 import { processTriggers } from './sysCommands/action';
 import { t } from '../i18n';
 import { applyTriggers } from '../triggers';
@@ -332,15 +333,18 @@ function terminalInit(wrap) {
     if (mspEnabled()) txt = txt.replace(MSP_LINE, line => (handleMspLine(line.trim()) ? '' : line));
     if (!txt) return;
 
-    const span = $('<span/>');
-    span.html(ansi2html(txt));
+    // Big output (a long list) goes in as several chunks, see splitOutput.
+    splitOutput(txt).forEach(piece => {
+      const span = $('<span/>');
+      span.html(ansi2html(piece));
 
-    manip.colorParseAndReplace(span);
-    manip.manipParseAndReplace(span);
-    // Server output only: highlights go into the HTML, so history keeps them.
-    applyTriggers(span[0]);
+      manip.colorParseAndReplace(span);
+      manip.manipParseAndReplace(span);
+      // Server output only: highlights go into the HTML, so history keeps them.
+      applyTriggers(span[0]);
 
-    terminal.trigger('output-html', [span.html()]);
+      terminal.trigger('output-html', [span.html()]);
+    });
   });
 
   // this may not be called from outside of terminal logic.
@@ -405,8 +409,13 @@ function terminalInit(wrap) {
       return;
     }
 
-    // Load top chunks while scrolling up.
-    if (wrap.scrollTop() < scrollThreshold) {
+    // Load top chunks while scrolling up. Not while the view sits at the
+    // bottom, following the output: that is where stickBottom puts it after a
+    // trim cut chunks off the top. Loading them back from there cut the newest
+    // output off the bottom, followBottom read it back and trimmed the top
+    // again, and the scrollback blinked in a loop. A player scrolling up has
+    // left the bottom by the time this runs.
+    if (!autoScrollEnabled && wrap.scrollTop() < scrollThreshold) {
       let $fst = terminal.find('div[data-chunk-id]:first-child');
 
       // terminal is empty, can't scroll
