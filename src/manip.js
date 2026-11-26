@@ -71,11 +71,15 @@ function colorParseAndReplace(span) {
 var SAFE_HC_COMMANDS = [
   /^path \d{1,7}$/, // clickable room names in 'where' output
   // vault: the [n] row link sends 'vault get <n>', the TYPE (n) footer link
-  // sends 'vault filter <type>'. The immortal owner-override form
-  // 'vault *<Owner> ...' is is_immortal-gated on the server, so a forged one a
-  // mortal clicks is simply refused. Every shape is self-scoped and bank-gated --
-  // none can move an item to another player, so the phishing risk is nil.
-  /^vault (\*[a-z0-9]{1,20} )?(get \d{1,5}|filter [a-z_]{1,20})$/i,
+  // sends 'vault filter <type>'. Page links send 'vault list <page>',
+  // 'vault filter <type> <page>' and 'vault find <keyword> <page>'; a keyword
+  // with a space comes quoted, matches nothing here and keeps its label. The
+  // immortal owner-override form 'vault *<Owner> ...' is is_immortal-gated on
+  // the server, so a forged one a mortal clicks is simply refused. Every shape
+  // is self-scoped and bank-gated -- none can move an item to another player,
+  // so the phishing risk is nil.
+  /^vault (\*[a-z0-9]{1,20} )?(get \d{1,5}|filter [a-z_]{1,20}( \d{1,6})?|list \d{1,6})$/i,
+  /^vault (\*[a-z0-9]{1,20} )?find [\p{L}\p{N}._-]{1,30} \d{1,6}$/iu,
   // account: the char-list rows in `account` status send 'account switch <Name>'
   // to enter another character on the same account without a password. Server-
   // scoped -- account_switch refuses any char not on the clicker's own account,
