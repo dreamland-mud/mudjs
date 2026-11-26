@@ -228,10 +228,11 @@ function manipParseAndReplace(span) {
   // With a cmd attribute -- "<hc cmd='path 3001'>Market Square</hc>" -- the
   // label and the command it sends are allowed to differ.
   //
-  // That split is only safe behind an allowlist. Player-typed text reaches other
-  // players with its {h tags intact (the server strips them in exactly one
-  // place, title.cpp, because titles are player-controlled), so an arbitrary cmd
-  // attribute would be a phishing tool: an innocent-looking room name hiding
+  // That split is only safe behind an allowlist. The server strips player-typed
+  // {h tags from titles (title.cpp) and from channels, notes, descriptions and
+  // other free text (mudtags_strip_web), but any path it misses would reach
+  // other players intact, so an arbitrary cmd attribute would be a phishing
+  // tool: an innocent-looking room name hiding
   // "give all.coins Vasya", sent from the reader's own character on one click,
   // with the echo revealing it only afterwards. A rejected cmd falls back to the
   // label, which is the pre-existing behaviour and merely answers "Huh?".
