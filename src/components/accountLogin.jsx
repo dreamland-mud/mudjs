@@ -11,6 +11,7 @@ import { classIconFor } from '../classIcons';
 import PropertiesStorage, { NEWCOMER_KEY } from '../properties';
 import LoginDragon from './LoginDragon';
 import FocusOrbit from './FocusOrbit';
+import { echoHtml } from './sysCommandUtils';
 import '../account-login.css';
 
 // The front-door account panel for /newui. Two obsidian slabs meet at a gold seam;
@@ -188,6 +189,9 @@ export default function AccountLogin() {
   const nannyStepRef = useRef(null);    // latest plain-front step the server signalled
   const driving = useRef(false);        // a creation drive is in flight
   const driveAnswers = useRef(null);    // {name, password, sr} captured at submit
+  // The create form was opened from the account roster: the drive answers the
+  // nanny's account step with 'weblink' and the broker links the new hero.
+  const createForAccount = useRef(false);
   const stepsSent = useRef({});         // steps already answered this drive (re-ask guard)
   const checkTimer = useRef(null);      // debounce timer for check_name
   const latestName = useRef('');        // echo-guard: drop a check_name reply for an old value
@@ -447,11 +451,12 @@ export default function AccountLogin() {
       else if (step === 'password') sendNow(a.password);
       else if (step === 'password_confirm') sendNow(a.password);
       else if (step === 'screenreader') send(a.sr);
-      // The engine offers a mid-creation account link (taskAccount). The web form has
-      // no account field yet, so decline it -- the player links later from the account
-      // login or the in-world `account` command. Without this the drive would stall on
-      // the engine's waitConfirm and the watchdog would false-fail as "name taken".
-      else if (step === 'account') send('no');
+      // The engine offers a mid-creation account link (taskAccount). From the account
+      // roster, answer 'weblink': the code comes back as rpc-account_code and the
+      // broker redeems it. From the front door there is no account, so decline -- the
+      // player links later with the in-world `account` command. Without an answer the
+      // drive would stall and the watchdog would false-fail as "name taken".
+      else if (step === 'account') send(createForAccount.current ? 'weblink' : 'no');
       armWatchdog(lang);   // progress made -- re-arm for the next step
     };
 
@@ -470,11 +475,23 @@ export default function AccountLogin() {
     // asked anything yet; a step from the previous socket must not be trusted.
     const onVersion = () => { nannyStepRef.current = null; };
 
+    // The nanny's pending linking code for a hero created from the roster: the
+    // broker redeems it with the session identity and the engine attaches the hero
+    // once it saves. By now the terminal may be revealed, so a failure is told there.
+    const onAccountCode = async (e, linkCode) => {
+      if (!createForAccount.current) return;
+      createForAccount.current = false;
+      const { status, json } = await postJson('/linknew', { code: String(linkCode || '') });
+      if (status !== 200 || !json) echoHtml(at('cr_link_failed', lang));
+    };
+
     $('#rpc-events').on('rpc-nanny_step', onStep);
+    $('#rpc-events').on('rpc-account_code', onAccountCode);
     $('#rpc-events').on('rpc-check_name_result', onCheck);
     $('#rpc-events').on('rpc-version', onVersion);
     return () => {
       $('#rpc-events').off('rpc-nanny_step', onStep);
+      $('#rpc-events').off('rpc-account_code', onAccountCode);
       $('#rpc-events').off('rpc-check_name_result', onCheck);
       $('#rpc-events').off('rpc-version', onVersion);
     };
@@ -611,6 +628,13 @@ export default function AccountLogin() {
   };
 
   const goHome = () => {
+    // A create opened from the roster goes back to the roster: the session is still live.
+    if (bstep === 'create' && createForAccount.current) {
+      createForAccount.current = false;
+      setCrError('');
+      setBstep('roster');
+      return;
+    }
     setBstep('idle');
     setIdleView('welcome');
     setCrError('');
@@ -722,11 +746,18 @@ export default function AccountLogin() {
   // Open the form, or -- when the flag is off / the server is still on the old nanny
   // -- drop straight to the raw terminal exactly as before.
   const startCreate = () => {
+    createForAccount.current = false;
     if (!NANNY_V2) { openCurtain(); return; }
     setError(''); setCrError('');
     setName(''); setPassword(''); setPassword2(''); setScreenreader(false);
     setNameStatus(''); latestName.current = '';
     setBstep('create');
+  };
+
+  // The roster's Create button: the same form, and the new hero joins this account.
+  const startAccountCreate = () => {
+    startCreate();
+    if (NANNY_V2) createForAccount.current = true;
   };
 
   // Name availability, debounced. Bad format is caught locally (no round-trip); a
@@ -1336,6 +1367,9 @@ export default function AccountLogin() {
                       );
                     })}
                   </div>
+                  <button type="button" className="btn btn-primary acc-create" onClick={startAccountCreate}>
+                    {at('create_char', lang)}
+                  </button>
                   <button type="button" className="acc-newhero"
                     onClick={logout}>{at('logout', lang)}</button>
                 </>
