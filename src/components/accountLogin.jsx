@@ -27,6 +27,7 @@ const RECONNECT_WAIT_MS = 12000;
 // again this many times over a fresh socket before saying the game is unreachable.
 const LOGIN_RELINKS = 1;
 const DRIVE_TIMEOUT_MS = 4000;   // no nanny_step after submit -> server is not in v2 mode
+const LINK_TIMEOUT_MS = 8000;    // broker call that adds a roster-created hero to the account
 
 // How deep each path-B step sits, so a step change can slide the new panel in from
 // the right when going deeper (idle -> email -> code) and from the left on the way
@@ -54,7 +55,8 @@ const NAME_RE = /^[A-Za-zА-Яа-яЁёІіЇїЄєҐґ]{2,15}$/;
 // the form sends for each. name/password come from form state at submit; the two
 // confirms and the screenreader toggle are fixed yes/no tokens the engine accepts
 // in every language (patternYes/patternNo). `account` (the mid-creation link offer) is
-// auto-declined on the web; `handoff` reveals the terminal.
+// declined from the front door and answered 'weblink' from the account roster;
+// `handoff` reveals the terminal.
 const CREATE_STEPS = ['name', 'name_confirm', 'password', 'password_confirm', 'screenreader', 'account'];
 
 // Path B (account login) talks to the dreamland_web account broker, same origin.
@@ -82,18 +84,24 @@ const TG_NOTE = {
   },
 };
 
-async function postJson(path, body) {
+async function postJson(path, body, timeoutMs) {
   let resp;
+  // An optional cap, so a hung broker reads as a failure instead of silence.
+  const ctl = timeoutMs && typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const t = ctl ? setTimeout(() => ctl.abort(), timeoutMs) : null;
   try {
     resp = await fetch(ACCOUNT_API + path, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'same-origin',
       body: JSON.stringify(body || {}),
+      signal: ctl ? ctl.signal : undefined,
     });
   } catch (e) {
-    return { status: 0, json: null };   // broker unreachable (e.g. dev, or down)
+    if (t) clearTimeout(t);
+    return { status: 0, json: null };   // broker unreachable (e.g. dev, or down) or timed out
   }
+  if (t) clearTimeout(t);
   let json = null;
   try { json = await resp.json(); } catch (e) { /* empty / non-JSON body */ }
   return { status: resp.status, json };
@@ -192,6 +200,9 @@ export default function AccountLogin() {
   // The create form was opened from the account roster: the drive answers the
   // nanny's account step with 'weblink' and the broker links the new hero.
   const createForAccount = useRef(false);
+  // A failed roster link, told in the terminal once the door is gone (an echo
+  // behind the door lands in scrollback and a screen reader may never speak it).
+  const linkFailPending = useRef(false);
   const stepsSent = useRef({});         // steps already answered this drive (re-ask guard)
   const checkTimer = useRef(null);      // debounce timer for check_name
   const latestName = useRef('');        // echo-guard: drop a check_name reply for an old value
@@ -226,6 +237,16 @@ export default function AccountLogin() {
     if (driveTimer.current) clearTimeout(driveTimer.current);
     driveTimer.current = setTimeout(() => {
       if (!driving.current) return;
+      // A nanny that does not know 'weblink' re-asks without a new step. Decline the
+      // link instead of failing the whole create; the player is told it is unlinked.
+      if (stepsSent.current.account === 'weblink') {
+        stepsSent.current.account = 'no';
+        createForAccount.current = false;
+        linkFailPending.current = true;
+        sendNow('no');
+        armWatchdog(l, ms);
+        return;
+      }
       driving.current = false;
       driveAnswers.current = null;
       setBusy('');
@@ -259,6 +280,14 @@ export default function AccountLogin() {
   // Once the door is gone, the next one (quit/disconnect) uses the regular layout.
   useEffect(() => {
     if (phase === 'hidden') setFullDoor(false);
+  }, [phase]);
+
+  // A roster link that failed while the door was up is told once the terminal shows.
+  useEffect(() => {
+    if (phase === 'hidden' && linkFailPending.current) {
+      linkFailPending.current = false;
+      echoHtml(at('cr_link_failed', lang));
+    }
   }, [phase]);
 
   // Drive the reveal off the login-state signal: prompt null -> in world.
@@ -456,7 +485,16 @@ export default function AccountLogin() {
       // broker redeems it. From the front door there is no account, so decline -- the
       // player links later with the in-world `account` command. Without an answer the
       // drive would stall and the watchdog would false-fail as "name taken".
-      else if (step === 'account') send(createForAccount.current ? 'weblink' : 'no');
+      // sendNow: 'weblink' is a valid name, so it must never be held and replayed
+      // onto a fresh nanny's name step.
+      else if (step === 'account') {
+        if (createForAccount.current) {
+          stepsSent.current.account = 'weblink';
+          sendNow('weblink');
+        } else {
+          send('no');
+        }
+      }
       armWatchdog(lang);   // progress made -- re-arm for the next step
     };
 
@@ -481,8 +519,10 @@ export default function AccountLogin() {
     const onAccountCode = async (e, linkCode) => {
       if (!createForAccount.current) return;
       createForAccount.current = false;
-      const { status, json } = await postJson('/linknew', { code: String(linkCode || '') });
-      if (status !== 200 || !json) echoHtml(at('cr_link_failed', lang));
+      const { status, json } = await postJson('/linknew', { code: String(linkCode || '') }, LINK_TIMEOUT_MS);
+      if (status === 200 && json && json.pending) return;
+      if (phaseRef.current === 'hidden') echoHtml(at('cr_link_failed', lang));
+      else linkFailPending.current = true;
     };
 
     $('#rpc-events').on('rpc-nanny_step', onStep);
@@ -747,6 +787,7 @@ export default function AccountLogin() {
   // -- drop straight to the raw terminal exactly as before.
   const startCreate = () => {
     createForAccount.current = false;
+    linkFailPending.current = false;
     if (!NANNY_V2) { openCurtain(); return; }
     setError(''); setCrError('');
     setName(''); setPassword(''); setPassword2(''); setScreenreader(false);
@@ -1060,7 +1101,8 @@ export default function AccountLogin() {
         {canGoHome ? (
           <h1 className="acc-logo-h">
             <button type="button" className="acc-logo acc-logo-home"
-              aria-label={at('home', lang)} onClick={goHome} />
+              aria-label={at(bstep === 'create' && createForAccount.current ? 'home_roster' : 'home', lang)}
+              onClick={goHome} />
           </h1>
         ) : (
           <h1 className="acc-logo" role="img" aria-label="Dreamland" />
