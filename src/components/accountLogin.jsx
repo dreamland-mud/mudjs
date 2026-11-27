@@ -239,9 +239,9 @@ export default function AccountLogin() {
       if (!driving.current) return;
       // A nanny that does not know 'weblink' re-asks without a new step. Decline the
       // link instead of failing the whole create; the player is told it is unlinked.
+      // The flag stays on: a late account_code from a merely slow server still links.
       if (stepsSent.current.account === 'weblink') {
         stepsSent.current.account = 'no';
-        createForAccount.current = false;
         linkFailPending.current = true;
         sendNow('no');
         armWatchdog(l, ms);
@@ -249,6 +249,7 @@ export default function AccountLogin() {
       }
       driving.current = false;
       driveAnswers.current = null;
+      linkFailPending.current = false;   // no hero was made, nothing to report
       setBusy('');
       if (stepsSent.current.name) {
         setNameStatus('taken');
@@ -520,7 +521,10 @@ export default function AccountLogin() {
       if (!createForAccount.current) return;
       createForAccount.current = false;
       const { status, json } = await postJson('/linknew', { code: String(linkCode || '') }, LINK_TIMEOUT_MS);
-      if (status === 200 && json && json.pending) return;
+      if (status === 200 && json && json.pending) {
+        linkFailPending.current = false;
+        return;
+      }
       if (phaseRef.current === 'hidden') echoHtml(at('cr_link_failed', lang));
       else linkFailPending.current = true;
     };
@@ -671,6 +675,7 @@ export default function AccountLogin() {
     // A create opened from the roster goes back to the roster: the session is still live.
     if (bstep === 'create' && createForAccount.current) {
       createForAccount.current = false;
+      linkFailPending.current = false;
       setCrError('');
       setBstep('roster');
       return;
