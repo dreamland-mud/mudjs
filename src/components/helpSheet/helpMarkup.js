@@ -10,6 +10,8 @@
 // flattened into segments that remember their wrapper chain, and re-assembled
 // into lines and blocks.
 
+import { replaceCmdLinks } from '../../placeholders.js';
+
 export function esc(s) {
   return String(s == null ? '' : s).replace(/[&<>"]/g, c => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]
@@ -60,14 +62,13 @@ function cmdButton(action, label) {
   return '<button type="button" class="hs-link hs-cmdlink" data-action="' + esc(action) + '">' + label + '</button>';
 }
 
-// Server command links, [cmd=<command>,see=<label>,nonce=<8>]. The nonce is the
-// session's (websock.js), so a player cannot forge one into text they control;
-// a wrong nonce leaves the label as plain text. Same rules as manip.js.
+// Server command links, [cmd=<command>,see=<label>,nonce=<8>], through the
+// terminal's own tokenizer (placeholders.js), so the rules cannot drift: wrong
+// nonce, stray opener or control characters leave the label as plain text.
 function cmdLinks(html, nonce) {
-  return html.replace(/\[cmd=([^,]{1,200}),see=([^\]]{1,50}),nonce=(.{8})]/gi, (m, cmd, see, n) => {
-    if (!nonce || n !== nonce) return see;
+  return replaceCmdLinks(html, nonce, (action, see) => {
     const label = see.trim();
-    return label ? cmdButton(cmd.replace(/\$1/, see), label) : '';
+    return label ? cmdButton(action, label) : '';
   });
 }
 

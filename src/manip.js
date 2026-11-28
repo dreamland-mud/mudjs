@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { send, ws } from './websock.js';
 import { echo } from './input.js';
 import { t } from './i18n.js';
+import { replacePlaceholders } from './placeholders.js';
 
 $(document).ready(function () {
   // Control panel buttons.
@@ -106,121 +107,15 @@ function safeExplicitAction(value) {
 }
 
 function manipParseAndReplace(span) {
-  /* Replace placeholders [map=filename.are] with a link to the zone's page on
-   * the maps site. It used to point at /maps/<file>.html -- the old per-zone
-   * static page, on the pre-redesign layout -- and was gated on a bundled
-   * areas.json that had gone stale at 129 of the game's 158 zones, so the ~29
-   * newest zones silently rendered no link at all. The marker only ever
-   * appears in a zone article, and every zone the game has is on the map page,
-   * so there is nothing left to gate on. */
-  var html = span
-    .html()
-    .replace(/\[map=([-0-9a-z_]{1,15})\.are\]/g, function (match, p1, string) {
-      return (
-        '<a class="btn btn-sm btn-primary" ' +
-        'href="https://dreamland.rocks/maps.html#' +
-        p1 +
-        '" target=_blank>' +
-        t('help.openMap') +
-        '</a>'
-      );
-    });
-
-  // Replace extra-description placeholders [read=sign знак,see=sign] with <span class="manip-cmd manip-ed" data-action="examine 'sign знак'">sign</span>.
-  // The tag keeps its historical 'read' name; the click sends 'examine', which
-  // resolves room and object extra descriptions on the server.
-  // The link styling is the affordance in the web client; the literal (parentheses)
-  // stay telnet-only (server keeps them in the {IW non-web branch of decorateExtraDescr).
-  // Returns empty string if 'see' part is not contained within 'read' part.
-  html = html.replace(
-    /\[read=([^,]{1,200}),see=([^\]]{1,30})]/gi,
-    function (match, p1, p2, string) {
-      if (p1.toLowerCase().split(' ').indexOf(p2.toLowerCase()) === -1)
-        return '';
-      return (
-        '<span class="manip-cmd manip-ed" data-action="examine \'' +
-        p1 +
-        '\'" data-echo="' + t('echo.examine') + ' ' +
-        p2 +
-        '">' +
-        p2 +
-        '</span>'
-      );
-    }
-  );
-
-  // Replace exit-keyword placeholders [look=door,see=door] with a clickable
-  // <span> that sends "look door" -- room exits resolve via 'look', not 'read'.
-  html = html.replace(
-    /\[look=([^,]{1,200}),see=([^\]]{1,30})]/gi,
-    function (match, p1, p2, string) {
-      return (
-        '<span class="manip-cmd manip-ed" data-action="look ' +
-        p1 +
-        '" data-echo="' + t('echo.look') + ' ' +
-        p2 +
-        '">' +
-        p2 +
-        '</span>'
-      );
-    }
-  );
-
-  // Replace random commands with data-action span.
-  html = html.replace(
-    /\[cmd=([^,]{1,200}),see=([^\]]{1,50}),nonce=(.{8})]/gi,
-    function (match, cmd, see, nonce, string) {
-      // Ensure the command is coming from the server.
-      if (nonce !== ws?.nonce) {
-        console.log(
-          "Invalid nonce in command, someone's up to no good",
-          string
-        );
-        return string;
-      }
-
-      // Replace argument placeholder.
-      var action = cmd.replace(/\$1/, see);
-
-      // The link will only surround the message itself, spaces are not underlined.
-      return see.replace(
-        /^( *)(.*[^ ])( *)$/,
-        function (match, spaceBegin, msg, spaceEnd, string) {
-          var label;
-          switch (msg) {
-            case 'edit':
-              label = '<i class="fa fa-edit"></i>';
-              break;
-            case 'save':
-            case 'done':
-              label = '<i class="fa fa-save"></i>';
-              break;
-            case 'cancel':
-              label = '<i class="fa fa-window-close"></i>';
-              break;
-            case 'show':
-              label = '<i class="fa fa-eye"></i>';
-              break;
-            default:
-              label = msg;
-              break;
-          }
-
-          return (
-            '&nbsp;'.repeat(spaceBegin.length) +
-            '<span class="manip-cmd" data-action="' +
-            action +
-            '" data-echo="' +
-            action +
-            '">' +
-            label +
-            '</span>' +
-            '&nbsp;'.repeat(spaceEnd.length)
-          );
-        }
-      );
-    }
-  );
+  /* Bracket placeholders -- [map=file.are] zone map buttons, [read=...] extra
+   * descriptions, [look=...] exits, nonce-checked [cmd=...] links -- in one
+   * pass. Player text can carry any of them; placeholders.js says how that is
+   * kept harmless. The map button used to point at the old per-zone static
+   * page and was gated on a stale bundled areas.json; every zone is on the map
+   * page now, so there is nothing to gate on. The (parentheses) around ED
+   * keywords stay telnet-only: the server keeps them in the {IW non-web branch
+   * of decorateExtraDescr. */
+  var html = replacePlaceholders(span.html(), { nonce: ws?.nonce, t: t });
 
   span.html(html);
 
