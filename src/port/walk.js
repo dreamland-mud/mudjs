@@ -30,3 +30,9 @@ export function putInInput(text, input = document.getElementById('inputBox')) {
   input.dispatchEvent(new Event('input', { bubbles: true }));
   input.focus();
 }
+
+/* A fill link's command into the command line with one space after it, for
+ * the player to finish and send. */
+export function fillInput(action) {
+  putInInput(action.replace(/\s+$/, '') + ' ');
+}

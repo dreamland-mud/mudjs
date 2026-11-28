@@ -40,11 +40,11 @@ function check(name, ok, detail) {
   console.log((ok ? 'ok   ' : 'FAIL ') + name.padEnd(28) + (detail ? ' ' + detail : ''));
 }
 
-function audit(replacePlaceholders, serverHtml) {
+function audit(replacePlaceholders, serverHtml, linkSel) {
   const inEl = document.getElementById('in');
   inEl.innerHTML = serverHtml;
   const html = inEl.innerHTML;
-  return show(replacePlaceholders(html, { nonce: NONCE, t }), '.manip-cmd');
+  return show(replacePlaceholders(html, { nonce: NONCE, t }), linkSel || '.manip-cmd');
 }
 
 function show(out, linkSel) {
@@ -63,6 +63,7 @@ function show(out, linkSel) {
 
 const n = NONCE;
 const cmd = (c, see) => `[cmd=${c},see=${see},nonce=${n}]`;
+const fill = (c, see) => `[fill=${c},see=${see},nonce=${n}]`;
 
 // Each case: server html, expected data-action list, optional extra check.
 const cases = {
@@ -163,6 +164,20 @@ function questList(quests) {
     `<span class="fg-y">, zone Midgaard</span>\n<span class="fg-y">step text</span>\n\n`).join('');
 }
 
+// Fill links (.manip-fill): the command goes into the command line, never
+// sent. Each case: server html, expected fill actions, expected cmd actions.
+const fillCases = {
+  fill_legit: [fill('whois Trank note ', '+ note'), ['whois Trank note '], []],
+  fill_upper: [`[FILL=whois Trank note,see=note,nonce=${n}]`, ['whois Trank note'], []],
+  fill_forged_nonce: [player('[fill=deny Kit,see=add note,nonce=ABCDEFGH]'), [], []],
+  fill_stray_kills_next: [player('[fill=deny Kit,see=x ') + fill('whois Trank note', 'note'), [], []],
+  fill_stray_kills_cmd: [player('[fill=deny Kit,see=x ') + cmd('whois Trank', 'Trank'), [], []],
+  cmd_stray_kills_fill: [player('[cmd=deny Kit,see=x ') + fill('whois Trank note', 'note'), [], []],
+  fill_then_cmd: [fill('whois Trank note', 'note') + ' ' + cmd('whois Trank', 'Trank'), ['whois Trank note'], ['whois Trank']],
+  fill_backspace: [fill('look &#8;&#8;&#8;who', 'x'), [], []],
+  fill_quote: [fill('note "x" onmouseover="y', 'note'), ['note "x" onmouseover="y'], []],
+};
+
 // Help sheet (quest/affects/whois output): helpMarkup.render, buttons.
 const helpCases = {
   help_legit: [cmd('quest 4501', 'Глава перша') + ' ' + cmd('whois Trank', 'Trank'), ['quest 4501', 'whois Trank']],
@@ -172,6 +187,8 @@ const helpCases = {
   help_decoy: [`[cmd=oedit 5,see=${player('x,nonce=AAAAAAAA] [cmd=give all.gold vasya,see=free gold')},nonce=${n}]`, []],
   help_forged_nonce: [player('[cmd=give all.gold vasya,see=free gold,nonce=ABCDEFGH]'), []],
   help_backspace: [cmd('look &#8;&#8;&#8;&#8;&#8;who', 'x'), []],
+  // The help sheet has no fill links: a fill prints its label.
+  help_fill: [fill('whois Trank note', 'add note') + ' ' + cmd('whois Trank', 'Trank'), ['whois Trank']],
 };
 
 (async () => {
@@ -189,6 +206,15 @@ const helpCases = {
     const ok = r.handlers === 0 && !nonceShown &&
       JSON.stringify(r.links) === JSON.stringify(want) && (!extra || extra(r));
     check(name, ok, JSON.stringify({ links: r.links, handlers: r.handlers, nonceShown }));
+  }
+
+  for (const [name, [html, wantFill, wantCmd]] of Object.entries(fillCases)) {
+    const r = audit(replacePlaceholders, html, '.manip-fill');
+    const c = audit(replacePlaceholders, html, '.manip-cmd');
+    const nonceShown = r.text.toUpperCase().includes(NONCE);
+    const ok = r.handlers === 0 && !nonceShown &&
+      JSON.stringify(r.links) === JSON.stringify(wantFill) && JSON.stringify(c.links) === JSON.stringify(wantCmd);
+    check(name, ok, JSON.stringify({ fill: r.links, cmd: c.links, handlers: r.handlers, nonceShown }));
   }
 
   const helpSrc = fs.readFileSync(path.join(__dirname, '..', 'src', 'components', 'helpSheet', 'helpMarkup.js'), 'utf8');
