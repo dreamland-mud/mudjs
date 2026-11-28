@@ -2,6 +2,7 @@ import $ from 'jquery';
 import { send, ws } from './websock.js';
 import { echo } from './input.js';
 import { t } from './i18n.js';
+import { replacePlaceholders } from './placeholders.js';
 
 $(document).ready(function () {
   // Control panel buttons.
@@ -105,155 +106,16 @@ function safeExplicitAction(value) {
   return safe ? value : null;
 }
 
-// Player text reaches the terminal with only < and > escaped, so a player can
-// type the [read=...] / [look=...] placeholders below into a channel, a title
-// or a config field. Those placeholders carry no nonce, so every part of one is
-// untrusted: decode it, refuse anything a server-made keyword never holds
-// (the '|' command separator, double quotes, backticks, angle brackets,
-// brackets, line breaks, ';'), and write it back escaped so it can never leave
-// its attribute. Brackets matter: a keyword holding another placeholder was
-// the way to splice text into generated markup. Both placeholder kinds are
-// replaced in ONE pass, so generated markup is never scanned again.
-function decodeHtmlText(s) {
-  var el = document.createElement('textarea');
-  el.innerHTML = s;
-  return el.value;
-}
-
-function escapeHtmlAttr(s) {
-  return s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-var UNSAFE_PLACEHOLDER = /[|"`<>;\[\]\r\n]/;
-
-function safePlaceholderPart(s) {
-  var plain = decodeHtmlText(s);
-  if (UNSAFE_PLACEHOLDER.test(plain)) return null;
-  return plain;
-}
-
 function manipParseAndReplace(span) {
-  /* Replace placeholders [map=filename.are] with a link to the zone's page on
-   * the maps site. It used to point at /maps/<file>.html -- the old per-zone
-   * static page, on the pre-redesign layout -- and was gated on a bundled
-   * areas.json that had gone stale at 129 of the game's 158 zones, so the ~29
-   * newest zones silently rendered no link at all. The marker only ever
-   * appears in a zone article, and every zone the game has is on the map page,
-   * so there is nothing left to gate on. */
-  var html = span
-    .html()
-    .replace(/\[map=([-0-9a-z_]{1,15})\.are\]/g, function (match, p1, string) {
-      return (
-        '<a class="btn btn-sm btn-primary" ' +
-        'href="https://dreamland.rocks/maps.html#' +
-        p1 +
-        '" target=_blank>' +
-        t('help.openMap') +
-        '</a>'
-      );
-    });
-
-  // Replace extra-description placeholders [read=sign знак,see=sign] with
-  // <span class="manip-cmd manip-ed" data-action="examine 'sign знак'">sign</span>
-  // and exit-keyword placeholders [look=door,see=door] with a span that sends
-  // "look door" -- room exits resolve via 'look', not 'read'.
-  // The read tag keeps its historical name; the click sends 'examine', which
-  // resolves room and object extra descriptions on the server.
-  // The link styling is the affordance in the web client; the literal (parentheses)
-  // stay telnet-only (server keeps them in the {IW non-web branch of decorateExtraDescr).
-  // A read whose 'see' part is not a word of its 'read' part renders as nothing.
-  // A refused placeholder renders its label as escaped plain text.
-  html = html.replace(
-    /\[(read|look)=([^,]{1,200}),see=([^\]]{1,30})]/gi,
-    function (match, kind, p1, p2, string) {
-      var key = safePlaceholderPart(p1);
-      var see = safePlaceholderPart(p2);
-      if (key === null || see === null) return escapeHtmlAttr(decodeHtmlText(p2));
-      if (kind.toLowerCase() === 'read') {
-        if (key.toLowerCase().split(' ').indexOf(see.toLowerCase()) === -1)
-          return '';
-        return (
-          '<span class="manip-cmd manip-ed" data-action="examine \'' +
-          escapeHtmlAttr(key) +
-          '\'" data-echo="' + escapeHtmlAttr(t('echo.examine') + ' ' + see) +
-          '">' +
-          escapeHtmlAttr(see) +
-          '</span>'
-        );
-      }
-      return (
-        '<span class="manip-cmd manip-ed" data-action="look ' +
-        escapeHtmlAttr(key) +
-        '" data-echo="' + escapeHtmlAttr(t('echo.look') + ' ' + see) +
-        '">' +
-        escapeHtmlAttr(see) +
-        '</span>'
-      );
-    }
-  );
-
-  // Replace random commands with data-action span. Neither part may hold '[':
-  // player text placed right before a server link could otherwise open its own
-  // [cmd= and borrow that link's nonce.
-  html = html.replace(
-    /\[cmd=([^,[]{1,200}),see=([^\][]{1,50}),nonce=([^\][]{8})]/gi,
-    function (match, cmd, see, nonce, string) {
-      // Ensure the command is coming from the server.
-      if (nonce !== ws?.nonce) {
-        console.log(
-          "Invalid nonce in command, someone's up to no good",
-          string
-        );
-        return string;
-      }
-
-      // Replace argument placeholder.
-      var action = cmd.replace(/\$1/, see);
-
-      // The link will only surround the message itself, spaces are not underlined.
-      return see.replace(
-        /^( *)(.*[^ ])( *)$/,
-        function (match, spaceBegin, msg, spaceEnd, string) {
-          var label;
-          switch (msg) {
-            case 'edit':
-              label = '<i class="fa fa-edit"></i>';
-              break;
-            case 'save':
-            case 'done':
-              label = '<i class="fa fa-save"></i>';
-              break;
-            case 'cancel':
-              label = '<i class="fa fa-window-close"></i>';
-              break;
-            case 'show':
-              label = '<i class="fa fa-eye"></i>';
-              break;
-            default:
-              label = msg;
-              break;
-          }
-
-          return (
-            '&nbsp;'.repeat(spaceBegin.length) +
-            '<span class="manip-cmd" data-action="' +
-            action.replace(/"/g, '&quot;') +
-            '" data-echo="' +
-            action.replace(/"/g, '&quot;') +
-            '">' +
-            label +
-            '</span>' +
-            '&nbsp;'.repeat(spaceEnd.length)
-          );
-        }
-      );
-    }
-  );
+  /* Bracket placeholders -- [map=file.are] zone map buttons, [read=...] extra
+   * descriptions, [look=...] exits, nonce-checked [cmd=...] links -- in one
+   * pass. Player text can carry any of them; placeholders.js says how that is
+   * kept harmless. The map button used to point at the old per-zone static
+   * page and was gated on a stale bundled areas.json; every zone is on the map
+   * page now, so there is nothing to gate on. The (parentheses) around ED
+   * keywords stay telnet-only: the server keeps them in the {IW non-web branch
+   * of decorateExtraDescr. */
+  var html = replacePlaceholders(span.html(), { nonce: ws?.nonce, t: t });
 
   span.html(html);
 
