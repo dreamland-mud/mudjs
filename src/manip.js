@@ -3,6 +3,7 @@ import { send, ws } from './websock.js';
 import { echo } from './input.js';
 import { t } from './i18n.js';
 import { replacePlaceholders } from './placeholders.js';
+import { fillInput } from './port/walk.js';
 
 $(document).ready(function () {
   // Control panel buttons.
@@ -30,6 +31,12 @@ $(document).ready(function () {
     if (/^craft \d+$/.test(cmd.attr('data-action') || '') && !window.confirm(t('confirm.craft'))) return;
     echo(cmd.attr('data-echo'));
     send(cmd.attr('data-action'));
+  });
+
+  // A fill link puts its command into the command line and sends nothing:
+  // the player types the rest (a note, a reason) and presses Enter.
+  $('body').on('click', '.manip-fill', function (e) {
+    fillInput($(e.currentTarget).attr('data-action') || '');
   });
 
   // Send command to the server when individual menu item is clicked.
@@ -259,6 +266,29 @@ function manipParseAndReplace(span) {
     // Mark menu nodes so that they can be removed and not mess up the triggers.
     var id = $(this).attr('i');
     var menu = $('<span class="dropdown-menu no-triggers" />');
+
+    // A group, "<m g='mark'>[cmd=...] [cmd=...]</m>": the toggle reads g, and
+    // the menu holds the command links inside, which the placeholder pass
+    // has already checked against the session nonce. Nothing else inside is
+    // kept, so a group can only regroup links the server made.
+    if (this.hasAttribute('g')) {
+      $(this)
+        .find('.manip-cmd')
+        .each(function () {
+          menu.append(
+            $('<a/>')
+              .addClass('dropdown-item')
+              .addClass('manip-cmd')
+              .attr('href', '#')
+              .attr('data-action', $(this).attr('data-action'))
+              .attr('data-echo', $(this).attr('data-echo'))
+              .append($(this).contents())
+          );
+        });
+      var groupToggle = $('<span class="dropdown-toggle" data-toggle="dropdown"/>').text($(this).attr('g'));
+      $(this).replaceWith($('<span class="dropdown-norelative"/>').append(groupToggle).append(menu));
+      return;
+    }
 
     function addToMenu(cmd) {
       if (cmd.trim().length === 0) return;

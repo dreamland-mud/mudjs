@@ -6,6 +6,7 @@ import Commands, { splitCommand, getSystemCmd, errCmdDoesNotExist } from '../../
 import { echoHtml } from '../../components/sysCommandUtils';
 import { t } from '../../i18n';
 import { say, tf } from './speak';
+import { fillInput } from '../walk';
 
 export function runCommand(action, echoText) {
   if (!action) return;
@@ -31,6 +32,7 @@ export function runMenuItem(item) {
 export function activate(link, delay) {
   if (!link) return;
   if (link.kind === 'cmd') return runCommand(link.action, link.echo);
+  if (link.kind === 'fill') return fillInput(link.action);
   if (link.kind === 'builtin') return runBuiltin(link.action, link.echo);
   if (link.kind === 'url' && link.href) {
     say(tf('out.links.open', link.href), delay);

@@ -4,6 +4,8 @@
 //   [look=KEYWORD,see=L]    room exit: click sends "look KEYWORD"
 //   [cmd=C,see=L,nonce=N]   any command, server-made, valid only with the
 //                           session's nonce (websocketrpc.cpp web_cmd)
+//   [fill=C,see=L,nonce=N]  the same, but a click puts C into the command
+//                           line for the player to finish, and sends nothing
 //
 // Player text reaches the terminal with only < and > escaped, so a player can
 // type any of these into a channel, a title or a config field. Rules that keep
@@ -52,13 +54,13 @@ function escapeHtmlAttr(s) {
 
 var SAFE_PART = /^[\p{L}\p{N} _'.-]+$/u;
 var CONTROL_CHAR = /[\x00-\x1f\x7f]/;
-var OPENER = /\[(?:cmd|read|look)=/i;
+var OPENER = /\[(?:cmd|fill|read|look)=/i;
 
 var PLACEHOLDER = new RegExp(
   '\\[(?:' +
     'map=([-0-9a-z_]{1,15})\\.are' +
     '|(read|look)=([^,[\\]]{1,200}),see=([^[\\]]{1,30})' +
-    '|cmd=([^,[\\]]{1,200}),see=([^[\\]]{1,120}),nonce=([A-Za-z0-9]{8})' +
+    '|(cmd|fill)=([^,[\\]]{1,200}),see=([^[\\]]{1,120}),nonce=([A-Za-z0-9]{8})' +
   ')\\]',
   'gi'
 );
@@ -110,7 +112,10 @@ function edLink(kind, rawKey, rawSee, t) {
 }
 
 // action: decoded and checked by the tokenizer. see: the label as page HTML.
-function cmdLink(action, see) {
+// cls: manip-cmd sends action on a click, manip-fill puts it in the command
+// line (manip.js).
+function cmdLink(action, see, cls) {
+  cls = cls || 'manip-cmd';
   action = escapeHtmlAttr(action);
 
   // The link only surrounds the label itself, spaces are not underlined.
@@ -138,7 +143,9 @@ function cmdLink(action, see) {
 
     return (
       '&nbsp;'.repeat(spaceBegin.length) +
-      '<span class="manip-cmd" data-action="' +
+      '<span class="' +
+      cls +
+      '" data-action="' +
       action +
       '" data-echo="' +
       action +
@@ -150,9 +157,9 @@ function cmdLink(action, see) {
   });
 }
 
-// The one tokenizer. on.map(file, match), on.ed(kind, key, see, match) and
-// on.cmd(action, see) render a match; action is entity-decoded, see is page
-// HTML.
+// The one tokenizer. on.map(file, match), on.ed(kind, key, see, match),
+// on.cmd(action, see) and on.fill(action, see) render a match; action is
+// entity-decoded, see is page HTML. A fill with no on.fill prints its label.
 function tokenize(html, nonce, on) {
   // A nonce the client cannot vouch for makes no link at all.
   if (typeof nonce !== 'string' || !/^[A-Za-z0-9]{8}$/.test(nonce)) nonce = null;
@@ -163,7 +170,7 @@ function tokenize(html, nonce, on) {
 
   var out = html.replace(
     PLACEHOLDER,
-    function (match, mapFile, edKind, edKey, edSee, cmd, cmdSee, n, offset, string) {
+    function (match, mapFile, edKind, edKey, edSee, cmdKind, cmd, cmdSee, n, offset, string) {
       if (!stray && OPENER.test(string.slice(scanFrom, offset))) stray = true;
       scanFrom = offset + match.length;
 
@@ -188,6 +195,7 @@ function tokenize(html, nonce, on) {
       // A function, so a '$&' or "$'" in the label is not a replacement pattern.
       var action = decodeHtmlText(cmd.replace(/\$1/, function () { return cmdSee; }));
       if (CONTROL_CHAR.test(action)) return label;
+      if (cmdKind.toLowerCase() === 'fill') return on.fill ? on.fill(action, cmdSee) : label;
       return on.cmd(action, cmdSee);
     }
   );
@@ -210,12 +218,17 @@ function replacePlaceholders(html, opts) {
     ed: function (kind, key, see) {
       return edLink(kind, key, see, opts.t);
     },
-    cmd: cmdLink,
+    cmd: function (action, see) {
+      return cmdLink(action, see, 'manip-cmd');
+    },
+    fill: function (action, see) {
+      return cmdLink(action, see, 'manip-fill');
+    },
   });
 }
 
 // Help sheet: only cmd links become something, button(action, see) renders
-// one; map/read/look stay as text.
+// one; map/read/look stay as text, a fill link as its label.
 function replaceCmdLinks(html, nonce, button) {
   var keep = function () { return arguments[arguments.length - 1]; };
   return tokenize(html, nonce, { map: keep, ed: keep, cmd: button });

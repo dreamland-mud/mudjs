@@ -4,13 +4,14 @@
  * data (no page elements), fed from every new chunk of output.
  *
  * A line: { seq, text, echo, chunk, links: [{ kind, label, action, echo,
- * href, menu: [{ label, action }] }] }. kind is cmd, builtin, menu or url.
+ * href, menu: [{ label, action }] }] }. kind is cmd, fill, builtin, menu or
+ * url.
  * seq grows by one per line and never repeats, so a place in the ring stays
  * valid while old lines drop off the front. */
 import { onOutputChunk } from '../../components/terminal';
 
 const KEEP = 5000;
-const LINK = '.manip-cmd, .builtin-cmd, .dropdown-toggle, a.manip-link[href]';
+const LINK = '.manip-cmd, .manip-fill, .builtin-cmd, .dropdown-toggle, a.manip-link[href]';
 
 const ring = [];
 let nextSeq = 1;
@@ -42,6 +43,7 @@ function linkOf(el) {
   const action = el.getAttribute('data-action') || '';
   if (el.classList.contains('builtin-cmd')) return { kind: 'builtin', label, action, echo: el.getAttribute('data-echo') || '' };
   if (el.classList.contains('manip-cmd')) return { kind: 'cmd', label, action, echo: el.getAttribute('data-echo') || '' };
+  if (el.classList.contains('manip-fill')) return { kind: 'fill', label, action };
   return { kind: 'url', label, href: el.getAttribute('href') || '' };
 }
 
