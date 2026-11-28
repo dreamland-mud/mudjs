@@ -109,8 +109,11 @@ function safeExplicitAction(value) {
 // type the [read=...] / [look=...] placeholders below into a channel, a title
 // or a config field. Those placeholders carry no nonce, so every part of one is
 // untrusted: decode it, refuse anything a server-made keyword never holds
-// (the '|' command separator, quotes, angle brackets, line breaks, ';'), and
-// write it back escaped so it can never leave its attribute.
+// (the '|' command separator, double quotes, backticks, angle brackets,
+// brackets, line breaks, ';'), and write it back escaped so it can never leave
+// its attribute. Brackets matter: a keyword holding another placeholder was
+// the way to splice text into generated markup. Both placeholder kinds are
+// replaced in ONE pass, so generated markup is never scanned again.
 function decodeHtmlText(s) {
   var el = document.createElement('textarea');
   el.innerHTML = s;
@@ -126,7 +129,7 @@ function escapeHtmlAttr(s) {
     .replace(/'/g, '&#39;');
 }
 
-var UNSAFE_PLACEHOLDER = /[|"'`<>;\r\n]/;
+var UNSAFE_PLACEHOLDER = /[|"`<>;\[\]\r\n]/;
 
 function safePlaceholderPart(s) {
   var plain = decodeHtmlText(s);
@@ -155,42 +158,37 @@ function manipParseAndReplace(span) {
       );
     });
 
-  // Replace extra-description placeholders [read=sign знак,see=sign] with <span class="manip-cmd manip-ed" data-action="examine 'sign знак'">sign</span>.
-  // The tag keeps its historical 'read' name; the click sends 'examine', which
+  // Replace extra-description placeholders [read=sign знак,see=sign] with
+  // <span class="manip-cmd manip-ed" data-action="examine 'sign знак'">sign</span>
+  // and exit-keyword placeholders [look=door,see=door] with a span that sends
+  // "look door" -- room exits resolve via 'look', not 'read'.
+  // The read tag keeps its historical name; the click sends 'examine', which
   // resolves room and object extra descriptions on the server.
   // The link styling is the affordance in the web client; the literal (parentheses)
   // stay telnet-only (server keeps them in the {IW non-web branch of decorateExtraDescr).
-  // Returns empty string if 'see' part is not contained within 'read' part.
+  // A read whose 'see' part is not a word of its 'read' part renders as nothing.
+  // A refused placeholder renders its label as escaped plain text.
   html = html.replace(
-    /\[read=([^,]{1,200}),see=([^\]]{1,30})]/gi,
-    function (match, p1, p2, string) {
-      var read = safePlaceholderPart(p1);
+    /\[(read|look)=([^,]{1,200}),see=([^\]]{1,30})]/gi,
+    function (match, kind, p1, p2, string) {
+      var key = safePlaceholderPart(p1);
       var see = safePlaceholderPart(p2);
-      if (read === null || see === null) return p2;
-      if (read.toLowerCase().split(' ').indexOf(see.toLowerCase()) === -1)
-        return '';
-      return (
-        '<span class="manip-cmd manip-ed" data-action="examine \'' +
-        escapeHtmlAttr(read) +
-        '\'" data-echo="' + escapeHtmlAttr(t('echo.examine') + ' ' + see) +
-        '">' +
-        escapeHtmlAttr(see) +
-        '</span>'
-      );
-    }
-  );
-
-  // Replace exit-keyword placeholders [look=door,see=door] with a clickable
-  // <span> that sends "look door" -- room exits resolve via 'look', not 'read'.
-  html = html.replace(
-    /\[look=([^,]{1,200}),see=([^\]]{1,30})]/gi,
-    function (match, p1, p2, string) {
-      var look = safePlaceholderPart(p1);
-      var see = safePlaceholderPart(p2);
-      if (look === null || see === null) return p2;
+      if (key === null || see === null) return escapeHtmlAttr(decodeHtmlText(p2));
+      if (kind.toLowerCase() === 'read') {
+        if (key.toLowerCase().split(' ').indexOf(see.toLowerCase()) === -1)
+          return '';
+        return (
+          '<span class="manip-cmd manip-ed" data-action="examine \'' +
+          escapeHtmlAttr(key) +
+          '\'" data-echo="' + escapeHtmlAttr(t('echo.examine') + ' ' + see) +
+          '">' +
+          escapeHtmlAttr(see) +
+          '</span>'
+        );
+      }
       return (
         '<span class="manip-cmd manip-ed" data-action="look ' +
-        escapeHtmlAttr(look) +
+        escapeHtmlAttr(key) +
         '" data-echo="' + escapeHtmlAttr(t('echo.look') + ' ' + see) +
         '">' +
         escapeHtmlAttr(see) +
@@ -199,9 +197,11 @@ function manipParseAndReplace(span) {
     }
   );
 
-  // Replace random commands with data-action span.
+  // Replace random commands with data-action span. Neither part may hold '[':
+  // player text placed right before a server link could otherwise open its own
+  // [cmd= and borrow that link's nonce.
   html = html.replace(
-    /\[cmd=([^,]{1,200}),see=([^\]]{1,50}),nonce=(.{8})]/gi,
+    /\[cmd=([^,[]{1,200}),see=([^\][]{1,50}),nonce=([^\][]{8})]/gi,
     function (match, cmd, see, nonce, string) {
       // Ensure the command is coming from the server.
       if (nonce !== ws?.nonce) {
