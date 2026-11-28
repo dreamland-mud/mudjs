@@ -62,6 +62,22 @@ function colorParseAndReplace(span) {
   });
 }
 
+// Non-http links an <hl> may carry, each anchored to the one shape the server
+// emits: a Telegram chat by numeric user id (the immortal case file under
+// whois) and a plain mail address. No query part on mailto, so a link cannot
+// prefill a subject or a body, and no % or comma, so it cannot smuggle a
+// second recipient or an encoded header. Anything else stays plain text.
+var SAFE_HL_APP_LINKS = [
+  /^tg:\/\/user\?id=\d{1,20}$/,
+  /^mailto:[^\s@<>"'?&%,]+@[^\s@<>"'?&%,]+\.[^\s@<>"'?&%,]+$/,
+];
+
+function isSafeAppLink(href) {
+  return SAFE_HL_APP_LINKS.some(function (re) {
+    return re.test(href);
+  });
+}
+
 // Command shapes an <hc cmd='...'> attribute is allowed to send blind, because
 // the server generates them and a player cannot forge one that matters. Keep
 // every entry anchored and as narrow as the thing that emits it.
@@ -157,14 +173,18 @@ function manipParseAndReplace(span) {
   });
 
   // Replace "<hl>hyper link</hl>" tags surrounding hyper links.
-  // Basic sanitization of the links.
+  // Basic sanitization of the links: http(s), or a SAFE_HL_APP_LINKS shape.
   span.find('hl').each(function (index) {
     var content = $(this).contents();
     var href = content.text();
-    if (!href.startsWith('http')) return;
+    var app = isSafeAppLink(href);
+    if (!app && !href.startsWith('http')) return;
 
     $(this).replaceWith(function () {
-      var result = $('<a target=_blank />')
+      // App links open in a new tab too: a same-tab tg:// or mailto: click
+      // fires the beforeunload "Leave site?" prompt (main.js), and a web mail
+      // handler would replace the game tab.
+      var result = $('<a target=_blank rel=noopener />')
         .addClass('manip-link')
         .attr('href', href)
         .append(content);
