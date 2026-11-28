@@ -105,6 +105,35 @@ function safeExplicitAction(value) {
   return safe ? value : null;
 }
 
+// Player text reaches the terminal with only < and > escaped, so a player can
+// type the [read=...] / [look=...] placeholders below into a channel, a title
+// or a config field. Those placeholders carry no nonce, so every part of one is
+// untrusted: decode it, refuse anything a server-made keyword never holds
+// (the '|' command separator, quotes, angle brackets, line breaks, ';'), and
+// write it back escaped so it can never leave its attribute.
+function decodeHtmlText(s) {
+  var el = document.createElement('textarea');
+  el.innerHTML = s;
+  return el.value;
+}
+
+function escapeHtmlAttr(s) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+var UNSAFE_PLACEHOLDER = /[|"'`<>;\r\n]/;
+
+function safePlaceholderPart(s) {
+  var plain = decodeHtmlText(s);
+  if (UNSAFE_PLACEHOLDER.test(plain)) return null;
+  return plain;
+}
+
 function manipParseAndReplace(span) {
   /* Replace placeholders [map=filename.are] with a link to the zone's page on
    * the maps site. It used to point at /maps/<file>.html -- the old per-zone
@@ -135,15 +164,17 @@ function manipParseAndReplace(span) {
   html = html.replace(
     /\[read=([^,]{1,200}),see=([^\]]{1,30})]/gi,
     function (match, p1, p2, string) {
-      if (p1.toLowerCase().split(' ').indexOf(p2.toLowerCase()) === -1)
+      var read = safePlaceholderPart(p1);
+      var see = safePlaceholderPart(p2);
+      if (read === null || see === null) return p2;
+      if (read.toLowerCase().split(' ').indexOf(see.toLowerCase()) === -1)
         return '';
       return (
         '<span class="manip-cmd manip-ed" data-action="examine \'' +
-        p1 +
-        '\'" data-echo="' + t('echo.examine') + ' ' +
-        p2 +
+        escapeHtmlAttr(read) +
+        '\'" data-echo="' + escapeHtmlAttr(t('echo.examine') + ' ' + see) +
         '">' +
-        p2 +
+        escapeHtmlAttr(see) +
         '</span>'
       );
     }
@@ -154,13 +185,15 @@ function manipParseAndReplace(span) {
   html = html.replace(
     /\[look=([^,]{1,200}),see=([^\]]{1,30})]/gi,
     function (match, p1, p2, string) {
+      var look = safePlaceholderPart(p1);
+      var see = safePlaceholderPart(p2);
+      if (look === null || see === null) return p2;
       return (
         '<span class="manip-cmd manip-ed" data-action="look ' +
-        p1 +
-        '" data-echo="' + t('echo.look') + ' ' +
-        p2 +
+        escapeHtmlAttr(look) +
+        '" data-echo="' + escapeHtmlAttr(t('echo.look') + ' ' + see) +
         '">' +
-        p2 +
+        escapeHtmlAttr(see) +
         '</span>'
       );
     }
@@ -209,9 +242,9 @@ function manipParseAndReplace(span) {
           return (
             '&nbsp;'.repeat(spaceBegin.length) +
             '<span class="manip-cmd" data-action="' +
-            action +
+            action.replace(/"/g, '&quot;') +
             '" data-echo="' +
-            action +
+            action.replace(/"/g, '&quot;') +
             '">' +
             label +
             '</span>' +
