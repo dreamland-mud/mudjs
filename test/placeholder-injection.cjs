@@ -6,12 +6,14 @@
 //
 // Run from the repo root (jsdom is not a project dependency):
 //   npm i --no-save jsdom && npm test
-// Exits 1 on any failure.
+// Needs Node 20.19+ or 22.7+: it import()s ES modules from a package with no
+// "type" field. Exits 1 on any failure.
 //
 // It loads src/placeholders.js, the module manip.js runs every output chunk
 // through, and checks that manip.js still delegates to it and parses no
 // placeholder on its own. Input goes through a parse + serialize round trip,
-// the way the terminal builds a span and reads span.html() back.
+// the way the terminal builds a span and reads span.html() back. The help
+// sheet (helpMarkup.js render) runs the same tokenizer and is driven too.
 const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
@@ -42,16 +44,18 @@ function audit(replacePlaceholders, serverHtml) {
   const inEl = document.getElementById('in');
   inEl.innerHTML = serverHtml;
   const html = inEl.innerHTML;
-  const out = replacePlaceholders(html, { nonce: NONCE, t });
+  return show(replacePlaceholders(html, { nonce: NONCE, t }), '.manip-cmd');
+}
+
+function show(out, linkSel) {
   const el = document.getElementById('out');
   el.innerHTML = out;
   const all = [...el.querySelectorAll('*')];
   all.forEach(e => e.dispatchEvent(new dom.window.MouseEvent('mouseover', { bubbles: true })));
   return {
     handlers: all.filter(e => [...e.attributes].some(a => /^on/i.test(a.name))).length,
-    links: [...el.querySelectorAll('.manip-cmd')].map(e => e.getAttribute('data-action')),
-    echoes: [...el.querySelectorAll('.manip-cmd')].map(e => e.getAttribute('data-echo')),
-    labels: [...el.querySelectorAll('.manip-cmd')].map(e => e.innerHTML),
+    links: [...el.querySelectorAll(linkSel)].map(e => e.getAttribute('data-action')),
+    labels: [...el.querySelectorAll(linkSel)].map(e => e.innerHTML),
     anchors: [...el.querySelectorAll('a')].map(e => e.getAttribute('href')),
     text: el.textContent,
   };
@@ -79,7 +83,7 @@ const cases = {
   newline: [player('[look=a\nquit,see=a]'), []],
   nested: [player('[look=a,see=[look=b|x,see=c]]'), []],
   nested_read: [player('[read=a [read=b,see=b],see=a]'), ["examine 'b'"]],
-  forged_nonce: [player('[cmd=give all.gold vasya,see=free gold,nonce=ABCDEFGH]'), []],
+  forged_nonce: [player('[cmd=give all.gold vasya,see=free gold,nonce=ABCDEFGH]'), [], r => r.text === 'free gold'],
   forged_map: [player('[map=x.are" onclick="alert(1)]'), []],
   shape_a: [player('[cmd=give all.gold vasya,see=x ') + cmd('whois Trank', 'Trank'), []],
   shape_b: [player('[cmd=give all.gold vasya,see=x[look=zzz') + cmd('oedit 5', '5') + ']', []],
@@ -103,12 +107,7 @@ const cases = {
   look_ua: ['[look=двері,see=двері]', ['look двері']],
   map: ['[map=midgaard.are]', [], r => r.anchors[0] === 'https://dreamland.rocks/maps.html#midgaard'],
   map_upper: ['[MAP=midgaard.are]', [], r => r.anchors.length === 0],
-  exits: [
-    `<span class="fg-c">[</span><span class="fg-C">${cmd('выходы', 'Выходы')}</span>` +
-      `<span class="fg-c">:</span><span class="fg-C"> ${cmd('север', 'север')} *${cmd('восток', 'восток')}*</span>` +
-      '<span class="fg-c">]</span>',
-    ['выходы', 'север', 'восток'],
-  ],
+  exits: [exitsLine(), ['выходы', 'север', 'восток']],
   confirm_row: [
     `<span class="fg-G">[</span>${cmd('confirm accept Vasya', 'Подтвердить')}<span class="fg-G">] </span>` +
       `<span class="fg-R">[</span>${cmd("confirm reject Vasya Прочти 'справка описание'", 'Отклонить')}<span class="fg-R">]</span>`,
@@ -129,6 +128,50 @@ const cases = {
   whois_alts: [cmd('whois Trank', 'Trank') + ' ' + cmd('alts Inis', 'pair'), ['whois Trank', 'alts Inis']],
   ed_then_cmd: ['[read=sign,see=sign] ' + cmd('whois Trank', 'Trank'), ["examine 'sign'", 'whois Trank']],
   refused_ed_then_cmd: [player('[look=a|b,see=c] ') + cmd('whois Trank', 'Trank'), ['whois Trank']],
+
+  // --- round 3: fake nonce tails, long labels, collateral of a stray opener
+  decoy_label: [`[cmd=oedit 5,see=${player('x,nonce=AAAAAAAA] [cmd=give all.gold vasya,see=free gold')},nonce=${n}]`, []],
+  decoy_cmd: [`[cmd=say ${player('hi,see=q,nonce=AAAAAAAA] [cmd=give all.gold vasya,see=y')},see=z,nonce=${n}]`, []],
+  decoy_then_clean: [
+    `[cmd=oedit 5,see=${player('x,nonce=AAAAAAAA] [cmd=give all.gold vasya,see=free gold')},nonce=${n}] ` + cmd('whois Trank', 'Trank'),
+    ['whois Trank'],
+  ],
+  quest_list_long_titles: [questList([[4505, 'T'.repeat(73)], [4506, 'Глава шоста: дуже довга назва навчального квесту для новачків'], [29120, 'Ремонт дверей']]),
+    ['quest 4505', 'quest 4505', 'quest 4506', 'quest 4506', 'quest 29120', 'quest 29120']],
+  quest_title_over_cap: [questList([[4505, 'T'.repeat(121)], [29120, 'Ремонт дверей']]),
+    ['quest 4505', 'quest 29120'],
+    r => !/\[cmd=quest 29120/.test(r.text) && r.text.includes('29120') && r.text.includes('Ремонт дверей')],
+  upper_unmatched_nonce: [`[CMD=x,SEE=${'y'.repeat(121)},NONCE=${n}]`, []],
+  gossip_then_exits: [
+    player('Vasya gossips: [look=foo') + '\n' + exitsLine(),
+    ['север', 'восток'],
+    r => !/\[cmd=/i.test(r.text) && r.text.includes('[Выходы: ') && r.text.includes('север'),
+  ],
+};
+
+function exitsLine() {
+  return `<span class="fg-c">[</span><span class="fg-C">${cmd('выходы', 'Выходы')}</span>` +
+    `<span class="fg-c">:</span><span class="fg-C"> ${cmd('север', 'север')} *${cmd('восток', 'восток')}*</span>` +
+    '<span class="fg-c">]</span>';
+}
+
+// quest/newinfo:189-194: an id link and a title link per active quest.
+function questList(quests) {
+  return quests.map(([id, title]) =>
+    `<span class="fg-y">[</span><span class="fg-W">${cmd('quest ' + id, String(id).padStart(5))}</span>` +
+    `<span class="fg-y">] </span><span class="fg-Y">${cmd('quest ' + id, title)}</span>` +
+    `<span class="fg-y">, zone Midgaard</span>\n<span class="fg-y">step text</span>\n\n`).join('');
+}
+
+// Help sheet (quest/affects/whois output): helpMarkup.render, buttons.
+const helpCases = {
+  help_legit: [cmd('quest 4501', 'Глава перша') + ' ' + cmd('whois Trank', 'Trank'), ['quest 4501', 'whois Trank']],
+  help_amp_action: [cmd('say a &amp; b', 'say'), ['say a & b']],
+  help_shape_a: [player('[cmd=give all.gold vasya,see=open ') + cmd('whois Trank', 'Trank'), []],
+  help_shape_c: [`[cmd=oedit 5,see=x ${player('[cmd=give all.gold vasya,see=y')},nonce=${n}]`, []],
+  help_decoy: [`[cmd=oedit 5,see=${player('x,nonce=AAAAAAAA] [cmd=give all.gold vasya,see=free gold')},nonce=${n}]`, []],
+  help_forged_nonce: [player('[cmd=give all.gold vasya,see=free gold,nonce=ABCDEFGH]'), []],
+  help_backspace: [cmd('look &#8;&#8;&#8;&#8;&#8;who', 'x'), []],
 };
 
 (async () => {
@@ -142,9 +185,19 @@ const cases = {
   for (const [name, [html, want, extra]] of Object.entries(cases)) {
     const r = audit(replacePlaceholders, html);
     // A refused link must not leave the session's nonce on screen.
-    const nonceShown = r.text.includes(NONCE);
+    const nonceShown = r.text.toUpperCase().includes(NONCE);
     const ok = r.handlers === 0 && !nonceShown &&
       JSON.stringify(r.links) === JSON.stringify(want) && (!extra || extra(r));
+    check(name, ok, JSON.stringify({ links: r.links, handlers: r.handlers, nonceShown }));
+  }
+
+  const helpSrc = fs.readFileSync(path.join(__dirname, '..', 'src', 'components', 'helpSheet', 'helpMarkup.js'), 'utf8');
+  check('helpMarkup.js delegates', /replaceCmdLinks\(/.test(helpSrc) && !/\\\[cmd=/.test(helpSrc));
+  const { render } = await import(path.join(__dirname, '..', 'src', 'components', 'helpSheet', 'helpMarkup.js'));
+  for (const [name, [html, want]] of Object.entries(helpCases)) {
+    const r = show(render(html, { lines: true, nonce: NONCE }), '.hs-cmdlink');
+    const nonceShown = r.text.toUpperCase().includes(NONCE);
+    const ok = r.handlers === 0 && !nonceShown && JSON.stringify(r.links) === JSON.stringify(want);
     check(name, ok, JSON.stringify({ links: r.links, handlers: r.handlers, nonceShown }));
   }
 

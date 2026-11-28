@@ -15,12 +15,20 @@
 // - read/look carry no nonce, so their parts must pass an allowlist (letters,
 //   digits, space, _ ' . -) after entity decoding. Server keywords never hold
 //   anything else. A refused one prints its label as plain text.
-// - A cmd link is refused when an opener that never completed a placeholder
-//   sits earlier in the text: that is player text inside, or right before, a
-//   server link, positioned to borrow its nonce. The link prints without its
-//   nonce.
+// - A cmd link is refused when an opener that never completed a placeholder,
+//   or a cmd placeholder with a wrong nonce, sits earlier in the text: that is
+//   player text inside, or right before, a server link, positioned to borrow
+//   its nonce (a fake ",nonce=XXXXXXXX]" tail can complete the server's own
+//   opener). A server link has one real tail, and a forged link must end in
+//   it, so only the next valid-nonce link is refused, and it prints as its
+//   label.
 // - A cmd action is entity-decoded, refused if it holds a control character
 //   (the server's line reader obeys backspace), and written back escaped.
+// - Whatever is left, the session's nonce never stays in the text.
+//
+// The terminal (replacePlaceholders) and the help sheet (replaceCmdLinks,
+// helpMarkup.js) run the same tokenizer and differ only in what a link
+// renders as.
 //
 // No imports: the test in test/placeholder-injection.cjs loads this file as is.
 // Needs a global `document` for entity decoding.
@@ -50,7 +58,7 @@ var PLACEHOLDER = new RegExp(
   '\\[(?:' +
     'map=([-0-9a-z_]{1,15})\\.are' +
     '|(read|look)=([^,[\\]]{1,200}),see=([^[\\]]{1,30})' +
-    '|cmd=([^,[\\]]{1,200}),see=([^[\\]]{1,50}),nonce=([A-Za-z0-9]{8})' +
+    '|cmd=([^,[\\]]{1,200}),see=([^[\\]]{1,120}),nonce=([A-Za-z0-9]{8})' +
   ')\\]',
   'gi'
 );
@@ -101,10 +109,8 @@ function edLink(kind, rawKey, rawSee, t) {
   );
 }
 
-function cmdLink(cmd, see) {
-  // A function, so a '$&' or "$'" in the label is not a replacement pattern.
-  var action = decodeHtmlText(cmd.replace(/\$1/, function () { return see; }));
-  if (CONTROL_CHAR.test(action)) return null;
+// action: decoded and checked by the tokenizer. see: the label as page HTML.
+function cmdLink(action, see) {
   action = escapeHtmlAttr(action);
 
   // The link only surrounds the label itself, spaces are not underlined.
@@ -144,40 +150,75 @@ function cmdLink(cmd, see) {
   });
 }
 
-// html: serialized terminal HTML. opts.nonce: the session's nonce (ws.nonce),
-// opts.t: the i18n lookup.
-function replacePlaceholders(html, opts) {
-  // Matches arrive in order. An opener in the text between two matches never
-  // completed a placeholder; once one is seen, no later cmd link is trusted.
+// The one tokenizer. on.map(file, match), on.ed(kind, key, see, match) and
+// on.cmd(action, see) render a match; action is entity-decoded, see is page
+// HTML.
+function tokenize(html, nonce, on) {
+  // A nonce the client cannot vouch for makes no link at all.
+  if (typeof nonce !== 'string' || !/^[A-Za-z0-9]{8}$/.test(nonce)) nonce = null;
+
+  // Matches arrive in order: the gap before each one is scanned once.
   var stray = false;
   var scanFrom = 0;
 
-  return html.replace(
+  var out = html.replace(
     PLACEHOLDER,
-    function (match, mapFile, edKind, edKey, edSee, cmd, cmdSee, nonce, offset, string) {
+    function (match, mapFile, edKind, edKey, edSee, cmd, cmdSee, n, offset, string) {
       if (!stray && OPENER.test(string.slice(scanFrom, offset))) stray = true;
       scanFrom = offset + match.length;
 
-      if (mapFile !== undefined) {
-        // The map page names its zones in lower case.
-        if (mapFile !== mapFile.toLowerCase() || match.slice(1, 4) !== 'map') return match;
-        return mapLink(mapFile, opts.t);
-      }
+      if (mapFile !== undefined) return on.map(mapFile, match);
+      if (edKind !== undefined) return on.ed(edKind, edKey, edSee, match);
 
-      if (edKind !== undefined) return edLink(edKind, edKey, edSee, opts.t);
+      var label = escapeHtmlAttr(decodeHtmlText(cmdSee));
 
-      // Ensure the command is coming from the server.
-      if (!opts.nonce || nonce !== opts.nonce) {
+      // Never this session's server text. It may be a fake tail completing a
+      // server link's own opener, so it counts as a stray opener.
+      if (nonce === null || n !== nonce) {
         console.log("Invalid nonce in command, someone's up to no good", match);
-        return match;
+        stray = true;
+        return label;
       }
 
-      // From here on the nonce is real: never print it back as text.
-      var link = stray ? null : cmdLink(cmd, cmdSee);
-      if (link === null) return match.replace(/,nonce=[A-Za-z0-9]{8}\]$/, ']');
-      return link;
+      if (stray) {
+        stray = false;
+        return label;
+      }
+
+      // A function, so a '$&' or "$'" in the label is not a replacement pattern.
+      var action = decodeHtmlText(cmd.replace(/\$1/, function () { return cmdSee; }));
+      if (CONTROL_CHAR.test(action)) return label;
+      return on.cmd(action, cmdSee);
     }
   );
+
+  // A server link the regex did not match (a label over the cap, a bracket in
+  // it) would otherwise print the nonce.
+  if (nonce !== null) out = out.replace(new RegExp(',nonce=' + nonce, 'gi'), '');
+  return out;
 }
 
-export { replacePlaceholders };
+// Terminal: html is serialized terminal HTML, opts.nonce the session's nonce
+// (ws.nonce), opts.t the i18n lookup.
+function replacePlaceholders(html, opts) {
+  return tokenize(html, opts.nonce, {
+    map: function (file, match) {
+      // The map page names its zones in lower case.
+      if (file !== file.toLowerCase() || match.slice(1, 4) !== 'map') return match;
+      return mapLink(file, opts.t);
+    },
+    ed: function (kind, key, see) {
+      return edLink(kind, key, see, opts.t);
+    },
+    cmd: cmdLink,
+  });
+}
+
+// Help sheet: only cmd links become something, button(action, see) renders
+// one; map/read/look stay as text.
+function replaceCmdLinks(html, nonce, button) {
+  var keep = function () { return arguments[arguments.length - 1]; };
+  return tokenize(html, nonce, { map: keep, ed: keep, cmd: button });
+}
+
+export { replacePlaceholders, replaceCmdLinks };
